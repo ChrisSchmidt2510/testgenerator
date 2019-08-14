@@ -12,6 +12,7 @@ import de.nvg.javaagent.classdata.model.MethodType;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
+import javassist.CtMethod;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.CodeAttribute;
@@ -43,6 +44,9 @@ public class MetaDataAdder {
 	private static final String SETTER_METHOD_DATA = "Lde/nvg/runtime/classdatamodel/SetterMethodData;";
 	private static final String SETTER_METHOD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;Z)V";
 
+	private static final String INDY_SUPPLIER_GENERIC_RETURN_TYPE = "()Ljava/lang/Object";
+	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lde/nvg/runtime/classdatamodel/ClassData;";
+
 	private static final String COLLECTION = "java.util.Collection";
 	private static final String LIST = "java.util.List";
 	private static final String SET = "java.util.Set";
@@ -63,6 +67,24 @@ public class MetaDataAdder {
 				CtField.make("private static de.nvg.runtime.classdatamodel.ClassData classData", loadingClass));
 
 		// constantPool.addInvokeDynamicInfo(bootstrap, nameAndType)
+
+//		constantPool.addM
+
+		int methodTypeIndex = constantPool
+				.addMethodTypeInfo(constantPool.addUtf8Info(INDY_SUPPLIER_GENERIC_RETURN_TYPE));
+
+		String lambdaBody = "private static de.nvg.runtime.classdatamodel.ClassData getClassData{"
+				+ "return (de.nvg.runtime.classdatamodel.ClassData) de.nvg.testgenerator.MethodHandles."
+				+ "getStaticFieldValue(" + classData.getSuperClass().getName() + ",\"classData\");" + //
+				"}";
+
+		System.out.println("Größe: " + constantPool.getSize());
+
+		loadingClass.addMethod(CtMethod.make(lambdaBody, loadingClass));
+
+		constantPool.print();
+
+		constantPool.addMethodHandleInfo(ConstPool.REF_invokeStatic, 0);
 
 		Bytecode code = new Bytecode(constantPool);
 		code.addNew(CLASS_DATA);

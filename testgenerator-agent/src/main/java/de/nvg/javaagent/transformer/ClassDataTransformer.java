@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import de.nvg.javaagent.AgentException;
 import de.nvg.javaagent.classdata.FieldTypeChanger;
 import de.nvg.javaagent.classdata.Instruction;
@@ -28,6 +29,7 @@ import javassist.CtField;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.BootstrapMethodsAttribute;
+import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
@@ -36,243 +38,212 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
 
-public class ClassDataTransformer implements ClassFileTransformer
-{
+public class ClassDataTransformer implements ClassFileTransformer {
 
-  private static final String EQUALS = "equals";
-  private static final String HASHCODE = "hashCode";
-  private static final String TO_STRING = "toString";
-  private static final String FINALIZE = "finalize";
-  private static final String GET_CLASS = "getClass";
-  private static final String CLONE = "clone";
-  private static final String NOTIFY = "notify";
-  private static final String NOTIFY_ALL = "notifyAll";
-  private static final String WAIT = "wait";
+	private static final String EQUALS = "equals";
+	private static final String HASHCODE = "hashCode";
+	private static final String TO_STRING = "toString";
+	private static final String FINALIZE = "finalize";
+	private static final String GET_CLASS = "getClass";
+	private static final String CLONE = "clone";
+	private static final String NOTIFY = "notify";
+	private static final String NOTIFY_ALL = "notifyAll";
+	private static final String WAIT = "wait";
 
-  private static final String OBJECT = "java.lang.Object";
+	private static final String OBJECT = "java.lang.Object";
 
-  private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
-      Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
+	private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
+			Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
 
-  // private static final String MAP = "Ljava/util/Map;";
+	// private static final String MAP = "Ljava/util/Map;";
 
-  @Override
-  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                          ProtectionDomain protectionDomain, byte[] classfileBuffer)
-    throws IllegalClassFormatException
-  {
+	@Override
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-    if (className.startsWith(RuntimeProperties.getInstance().getBlPackage())
-        || ClassDataStorage.getInstance().getSuperClassesToLoad() //
-            .contains(Descriptor.toJavaName(className)))
-    {
+		if (className.startsWith(RuntimeProperties.getInstance().getBlPackage())
+				|| ClassDataStorage.getInstance().getSuperClassesToLoad() //
+						.contains(Descriptor.toJavaName(className))) {
 
-      final ClassPool pool = ClassPool.getDefault();
+			final ClassPool pool = ClassPool.getDefault();
 
-      try
-      {
-        CtClass loadingClass = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
+			try {
+				CtClass loadingClass = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
 
-        ClassData classData = new ClassData(loadingClass.getName());
+				ClassData classData = new ClassData(loadingClass.getName());
 
-        byte[] bytecode = collectAndAlterMetaData(loadingClass, classData);
+				byte[] bytecode = collectAndAlterMetaData(loadingClass, classData);
 
-        ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
+				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
-        try (FileOutputStream fios = new FileOutputStream(
-            new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class")))
-        {
-          fios.write(bytecode);
-        }
+				try (FileOutputStream fios = new FileOutputStream(
+						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
+					fios.write(bytecode);
+				}
 
-        return bytecode;
+				return bytecode;
 
-      }
-      catch (Exception e)
-      {
-        e.printStackTrace();
-        throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
-      }
-    }
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+			}
+		}
 
-    return classfileBuffer;
-  }
+		return classfileBuffer;
+	}
 
-  private byte[] collectAndAlterMetaData(CtClass loadingClass, ClassData classData)
-    throws Exception
-  {
-    ClassFile classFile = loadingClass.getClassFile();
+	private byte[] collectAndAlterMetaData(CtClass loadingClass, ClassData classData) throws Exception {
+		ClassFile classFile = loadingClass.getClassFile();
 
-    String superClass = classFile.getSuperclass();
+		String superClass = classFile.getSuperclass();
 
-    if (!OBJECT.equals(superClass))
-    {
-      ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
+		if (!OBJECT.equals(superClass)) {
+			ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
 
-      if (superClassData != null)
-      {
-        classData.setSuperClass(superClassData);
-      }
-      else
-      {
-        ClassDataStorage.getInstance().addSuperClassAfterLoading(superClass,
-            superClazz -> classData.setSuperClass(superClazz));
-      }
-    }
+			if (superClassData != null) {
+				classData.setSuperClass(superClassData);
+			} else {
+				ClassDataStorage.getInstance().addSuperClassAfterLoading(superClass,
+						superClazz -> classData.setSuperClass(superClazz));
+			}
+		}
 
-    ConstPool constantPool = classFile.getConstPool();
+		ConstPool constantPool = classFile.getConstPool();
 
-    if (classFile.getAttribute(BootstrapMethodsAttribute.tag) != null)
-    {
+		if (classFile.getAttribute(BootstrapMethodsAttribute.tag) != null) {
 
-      BootstrapMethodsAttribute attribute = (BootstrapMethodsAttribute) classFile
-          .getAttribute(BootstrapMethodsAttribute.tag);
-      attribute.getMethods();
-    }
+			BootstrapMethodsAttribute attribute = (BootstrapMethodsAttribute) classFile
+					.getAttribute(BootstrapMethodsAttribute.tag);
+			BootstrapMethod[] methods = attribute.getMethods();
+			System.out.println(methods);
 
-    if (Modifier.isEnum(loadingClass.getModifiers()))
-    {
-      classData.setIsEnum(true);
-    }
-    else
-    {
-      List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
+//			classFile.addMethod(MethodInfo);
 
-      // MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
+//			constantPool.addU
+		}
 
-      FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
-          loadingClass);
+		if (Modifier.isEnum(loadingClass.getModifiers())) {
+			classData.setIsEnum(true);
+		} else {
+			List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
 
-      fieldTypeChanger.addFieldCalledField();
+			// MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
 
-      checkAndAlterMethods(loadingClass, classFile.getMethods(), null, //
-          fieldTypeChanger, classData);
+			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
+					loadingClass);
 
-      classData.addFields(fields);
-    }
+			fieldTypeChanger.addFieldCalledField();
 
-    byte[] bytecode = loadingClass.toBytecode();
+			checkAndAlterMethods(loadingClass, classFile.getMethods(), null, //
+					fieldTypeChanger, classData);
 
-    loadingClass.detach();
+			classData.addFields(fields);
+		}
 
-    return bytecode;
-  }
+		byte[] bytecode = loadingClass.toBytecode();
 
-  private List<FieldData> getFieldsFromClass(CtClass loadedClass, ClassData classData)
-    throws CannotCompileException,
-    NotFoundException
-  {
-    List<FieldData> fieldsFromClass = new ArrayList<>();
+		loadingClass.detach();
 
-    for (CtField field : loadedClass.getDeclaredFields())
-    {
+		return bytecode;
+	}
 
-      if (!Instructions.isConstant(field.getModifiers()))
-      {
-        FieldInfo fieldInfo = field.getFieldInfo();
+	private List<FieldData> getFieldsFromClass(CtClass loadedClass, ClassData classData)
+			throws CannotCompileException, NotFoundException {
+		List<FieldData> fieldsFromClass = new ArrayList<>();
 
-        SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
+		for (CtField field : loadedClass.getDeclaredFields()) {
 
-        FieldData fieldData = new FieldData.Builder()
-            .withDataType(Descriptor.toClassName(fieldInfo.getDescriptor())).withName(field.getName())
-            .isMutable(!Modifier.isFinal(fieldInfo.getAccessFlags()))
-            .isStatic(Modifier.isStatic(fieldInfo.getAccessFlags())).withSignature(signature != null
-                ? signature.getSignature()
-                : null)
-            .build();
+			if (!Instructions.isConstant(field.getModifiers())) {
+				FieldInfo fieldInfo = field.getFieldInfo();
 
-        fieldsFromClass.add(fieldData);
+				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
 
-        FieldTypeChanger.changeFieldDataTypeToProxy(loadedClass.getClassFile(), fieldInfo);
-      }
-    }
+				FieldData fieldData = new FieldData.Builder()
+						.withDataType(Descriptor.toClassName(fieldInfo.getDescriptor())).withName(field.getName())
+						.isMutable(!Modifier.isFinal(fieldInfo.getAccessFlags()))
+						.isStatic(Modifier.isStatic(fieldInfo.getAccessFlags()))
+						.withSignature(signature != null ? signature.getSignature() : null).build();
 
-    return fieldsFromClass;
-  }
+				fieldsFromClass.add(fieldData);
 
-  private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods,
-                                    MethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger,
-                                    ClassData classData)
-    throws Exception
-  {
+				FieldTypeChanger.changeFieldDataTypeToProxy(loadedClass.getClassFile(), fieldInfo);
+			}
+		}
 
-    for (MethodInfo method : methods)
-    {
-      System.out.println(loadingClass.getName() + "." + method.getName());
+		return fieldsFromClass;
+	}
 
-      if (MethodInfo.nameInit.equals(method.getName()))
-      {
+	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
+			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
 
-        List<Instruction> instructions = Instructions.getAllInstructions(method);
+		for (MethodInfo method : methods) {
 
-        Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(
-            instructions, Arrays.asList(Opcode.ALOAD_0, Opcode.PUTFIELD, Opcode.RETURN));
+			if (MethodInfo.nameInit.equals(method.getName())) {
 
-        Map<Integer, Instruction> aloadPutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
-            filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
+				List<Instruction> instructions = Instructions.getAllInstructions(method);
 
-        fieldTypeChanger.changeFieldInitialization(aloadPutFieldInstructionPairs,
-            filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), method.getCodeAttribute());
+				Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(
+						instructions, Arrays.asList(Opcode.ALOAD_0, Opcode.PUTFIELD, Opcode.RETURN));
 
-        // Map<Integer, FieldData> constructorInitalizedFields =
-        // methodAnalyser.analyseConstructor(
-        // method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD),
-        // instructions);
+				Map<Integer, Instruction> aloadPutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
+						filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
 
-        // if (constructorInitalizedFields.isEmpty())
-        // {
-        // classData.setHasDefaultConstructor(true);
-        // }
-        // else
-        // {
-        // classData.setConstructorInitalizedFields(constructorInitalizedFields);
-        // }
+				fieldTypeChanger.changeFieldInitialization(aloadPutFieldInstructionPairs,
+						filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), method.getCodeAttribute());
 
-      }
-      else
-      {
-        List<Instruction> instructions = Instructions.getAllInstructions(method);
+				// Map<Integer, FieldData> constructorInitalizedFields =
+				// methodAnalyser.analyseConstructor(
+				// method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD),
+				// instructions);
 
-        Map<Integer, List<Instruction>> filteredInstructions = Instructions
-            .getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
+				// if (constructorInitalizedFields.isEmpty())
+				// {
+				// classData.setHasDefaultConstructor(true);
+				// }
+				// else
+				// {
+				// classData.setConstructorInitalizedFields(constructorInitalizedFields);
+				// }
 
-        fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
-            method.getCodeAttribute());
+			} else {
+				List<Instruction> instructions = Instructions.getAllInstructions(method);
 
-        if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName()))
-        {
+				Map<Integer, List<Instruction>> filteredInstructions = Instructions
+						.getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
 
-          // Wrapper<FieldData> fieldWrapper = new Wrapper<>();
+				fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
+						method.getCodeAttribute());
 
-          // MethodData methodData = methodAnalyser.analyse(method.getName(),
-          // method.getDescriptor(),
-          // method.getAccessFlags(), instructions, fieldWrapper);
-          // if (methodData != null)
-          // {
-          // classData.addMethod(methodData, fieldWrapper.getValue());
-          // }
+				if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName())) {
 
-        }
-      }
-    }
-  }
+					// Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
-  private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,
-                                                                                List<Instruction> putFieldInstructions)
-  {
-    Map<Integer, Instruction> map = new LinkedHashMap<>();
+					// MethodData methodData = methodAnalyser.analyse(method.getName(),
+					// method.getDescriptor(),
+					// method.getAccessFlags(), instructions, fieldWrapper);
+					// if (methodData != null)
+					// {
+					// classData.addMethod(methodData, fieldWrapper.getValue());
+					// }
 
-    if (putFieldInstructions != null && !putFieldInstructions.isEmpty())
-    {
-      for (int i = 0; i < putFieldInstructions.size(); i++)
-      {
-        Instruction instruction = putFieldInstructions.get(i);
+				}
+			}
+		}
+	}
 
-        map.put(aloadInstructions.get(i + 1).getCodeArrayIndex(), instruction);
-      }
-    }
+	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,
+			List<Instruction> putFieldInstructions) {
+		Map<Integer, Instruction> map = new LinkedHashMap<>();
 
-    return map;
+		if (putFieldInstructions != null && !putFieldInstructions.isEmpty()) {
+			for (int i = 0; i < putFieldInstructions.size(); i++) {
+				Instruction instruction = putFieldInstructions.get(i);
 
-  }
+				map.put(aloadInstructions.get(i + 1).getCodeArrayIndex(), instruction);
+			}
+		}
+
+		return map;
+
+	}
 }
