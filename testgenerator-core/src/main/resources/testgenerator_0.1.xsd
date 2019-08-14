@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.org/testgenerator_0.1"
+	xmlns:tns="http://www.example.org/testgenerator_0.1"
+	elementFormDefault="qualified">
+	
+	<complexType name="TestgenerationType">
+	
+	</complexType>
+</schema>
