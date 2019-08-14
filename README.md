@@ -25,3 +25,5 @@ Das Projekt testgenerator-generation kümmert sich um die Generierung des Testfa
 Das Projekt testgenerator-proxy enthält die Proxys die um die Felder der BL-Klassen gewrapped werden.
 
 Das Projekt value-tracker wandelt die Methodenparameter, in eine später verarbeitetbare Darstellweise um.
+
+Die Projekte classdatamodel-rt, proxy, core, value-tracker und generation müssen nur zur eigentlichen Laufzeit der Applikation zur Verfügung stehen.
