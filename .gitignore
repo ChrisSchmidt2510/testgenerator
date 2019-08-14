@@ -4,3 +4,5 @@ bin/
 *.class
 *.jar
 *.logs
+**.project
+**.classpath
