@@ -17,6 +17,7 @@ import de.nvg.javaagent.AgentException;
 import de.nvg.javaagent.classdata.FieldTypeChanger;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
+import de.nvg.javaagent.classdata.MetaDataAdder;
 import de.nvg.javaagent.classdata.MethodAnalyser;
 import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
@@ -28,8 +29,6 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
 import javassist.NotFoundException;
-import javassist.bytecode.BootstrapMethodsAttribute;
-import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
@@ -61,9 +60,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
+		if (className.startsWith("de"))
+			System.out.println(className);
+
 		if (className.startsWith(RuntimeProperties.getInstance().getBlPackage())
-				|| ClassDataStorage.getInstance().getSuperClassesToLoad() //
-						.contains(Descriptor.toJavaName(className))) {
+				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))) {
+
+			ClassDataStorage.getInstance().removeSuperclassToLoad(className);
 
 			final ClassPool pool = ClassPool.getDefault();
 
@@ -100,27 +103,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		if (!OBJECT.equals(superClass)) {
 			ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
 
-			if (superClassData != null) {
-				classData.setSuperClass(superClassData);
-			} else {
-				ClassDataStorage.getInstance().addSuperClassAfterLoading(superClass,
-						superClazz -> classData.setSuperClass(superClazz));
+			if (superClassData == null) {
+				ClassDataStorage.getInstance().addSuperclassToLoad(superClass);
 			}
+
+			classData.setSuperClass(superClass);
 		}
 
 		ConstPool constantPool = classFile.getConstPool();
-
-		if (classFile.getAttribute(BootstrapMethodsAttribute.tag) != null) {
-
-			BootstrapMethodsAttribute attribute = (BootstrapMethodsAttribute) classFile
-					.getAttribute(BootstrapMethodsAttribute.tag);
-			BootstrapMethod[] methods = attribute.getMethods();
-			System.out.println(methods);
-
-//			classFile.addMethod(MethodInfo);
-
-//			constantPool.addU
-		}
 
 		if (Modifier.isEnum(loadingClass.getModifiers())) {
 			classData.setIsEnum(true);
@@ -132,10 +122,12 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
 
+			MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, loadingClass, classData);
+
 			fieldTypeChanger.addFieldCalledField();
 
 			checkAndAlterMethods(loadingClass, classFile.getMethods(), null, //
-					fieldTypeChanger, classData);
+					fieldTypeChanger, metaDataAdder, classData);
 
 			classData.addFields(fields);
 		}
@@ -174,9 +166,10 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	}
 
 	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
-			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
+			FieldTypeChanger fieldTypeChanger, MetaDataAdder metaDataAdder, ClassData classData) throws Exception {
 
-		for (MethodInfo method : methods) {
+		for (int i = 0; i < methods.size(); i++) {
+			MethodInfo method = methods.get(i);
 
 			if (MethodInfo.nameInit.equals(method.getName())) {
 
@@ -205,7 +198,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				// classData.setConstructorInitalizedFields(constructorInitalizedFields);
 				// }
 
+			} else if (MethodInfo.nameClinit.equals(method.getName())) {
+
+				List<Instruction> instructions = Instructions.getAllInstructions(method);
+
+				metaDataAdder.add(method.getCodeAttribute(), instructions);
 			} else {
+
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 
 				Map<Integer, List<Instruction>> filteredInstructions = Instructions
@@ -229,6 +228,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				}
 			}
 		}
+
 	}
 
 	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,

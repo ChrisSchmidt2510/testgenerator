@@ -12,7 +12,7 @@ import java.util.Optional;
 public class ClassData {
 
 	private final String name;
-	private ClassData superClass;
+	private String superClass;
 	private boolean isEnum;
 
 	private final List<FieldData> fields = new ArrayList<>();
@@ -31,11 +31,11 @@ public class ClassData {
 		return name;
 	}
 
-	public ClassData getSuperClass() {
+	public String getSuperClass() {
 		return superClass;
 	}
 
-	public void setSuperClass(ClassData superClass) {
+	public void setSuperClass(String superClass) {
 		this.superClass = superClass;
 	}
 

@@ -1,19 +1,18 @@
 package de.nvg.javaagent.classdata.model;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class ClassDataStorage {
 
 	private static final ClassDataStorage INSTANCE = new ClassDataStorage();
 
 	private final Map<String, ClassData> classDataMap = new ConcurrentHashMap<>();
-	// TODO vlt zu kurz gedacht, sollte aber nur bei parallelen
-	// Classloading auftreten
-	private final Map<String, Consumer<ClassData>> superClassInitializer = new ConcurrentHashMap<>();
+
+	private final Set<String> superClassesToLoad = new HashSet<>();
 
 	private ClassDataStorage() {
 	}
@@ -23,13 +22,6 @@ public class ClassDataStorage {
 	}
 
 	public void addClassData(String className, ClassData classData) {
-		Consumer<ClassData> consumer = superClassInitializer.get(className);
-
-		if (consumer != null) {
-			consumer.accept(classData);
-			superClassInitializer.remove(className);
-		}
-
 		classDataMap.put(className, classData);
 	}
 
@@ -37,16 +29,20 @@ public class ClassDataStorage {
 		return classDataMap.get(className);
 	}
 
-	public void addSuperClassAfterLoading(String className, Consumer<ClassData> consumer) {
-		superClassInitializer.put(className, consumer);
-	}
-
-	public Set<String> getSuperClassesToLoad() {
-		return superClassInitializer.keySet();
-	}
-
 	public Map<String, ClassData> getClassDataMap() {
 		return Collections.unmodifiableMap(classDataMap);
+	}
+
+	public void addSuperclassToLoad(String superClass) {
+		superClassesToLoad.add(superClass);
+	}
+
+	public boolean containsSuperclassToLoad(String superClass) {
+		return superClassesToLoad.contains(superClass);
+	}
+
+	public void removeSuperclassToLoad(String superClass) {
+		superClassesToLoad.remove(superClass);
 	}
 
 }
