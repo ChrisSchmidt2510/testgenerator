@@ -17,8 +17,7 @@ public class ClassData {
 
 	private final List<FieldData> fields = new ArrayList<>();
 
-	private boolean hasDefaultConstructor;
-	private List<ConstructorData> constructors = new ArrayList<>();
+	private ConstructorData constructor;
 
 	private Map<MethodData, FieldData> methods = new HashMap<>();
 	private Map<FieldData, List<MethodData>> fieldsUsedInMethods = null;
@@ -56,19 +55,19 @@ public class ClassData {
 	}
 
 	public void setHasDefaultConstructor(boolean defaultConstructor) {
-		this.hasDefaultConstructor = defaultConstructor;
+		constructor = new ConstructorData(defaultConstructor);
 	}
 
 	public boolean hasDefaultConstructor() {
-		return hasDefaultConstructor;
+		return constructor.isDefaultConstructor();
 	}
 
-	public void addConstructor(ConstructorData constructor) {
-		this.constructors.add(constructor);
+	public void setConstructor(ConstructorData constructor) {
+		this.constructor = constructor;
 	}
 
-	public List<ConstructorData> getConstructors() {
-		return Collections.unmodifiableList(constructors);
+	public ConstructorData getConstructor() {
+		return constructor;
 	}
 
 	public void addMethod(MethodData method, FieldData field) {

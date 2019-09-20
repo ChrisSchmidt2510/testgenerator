@@ -65,4 +65,10 @@ public class ClassData {
 		return Objects.equals(name, other.name);
 	}
 
+	@Override
+	public String toString() {
+		return "ClassData [name=" + name + ", superClass=" + superClass + ", constructor=" + constructor + ", fields="
+				+ fields + "]";
+	}
+
 }

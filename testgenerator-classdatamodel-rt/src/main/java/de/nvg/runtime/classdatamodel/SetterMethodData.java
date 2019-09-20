@@ -45,4 +45,9 @@ public class SetterMethodData {
 		return Objects.equals(descriptor, other.descriptor) && Objects.equals(name, other.name);
 	}
 
+	@Override
+	public String toString() {
+		return "SetterMethodData [name=" + name + ", descriptor=" + descriptor + ", isStatic=" + isStatic + "]";
+	}
+
 }

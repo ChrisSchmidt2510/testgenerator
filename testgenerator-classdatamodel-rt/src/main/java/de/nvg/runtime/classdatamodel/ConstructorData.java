@@ -12,7 +12,7 @@ public class ConstructorData {
 		this.defaultConstructor = defaultConstructor;
 	}
 
-	public void addConstructorElement(Integer index, FieldData field) {
+	public void addElement(int index, FieldData field) {
 		this.constructorFieldIndex.put(index, field);
 	}
 
@@ -22,6 +22,12 @@ public class ConstructorData {
 
 	public Map<Integer, FieldData> getConstructorFieldIndex() {
 		return Collections.unmodifiableMap(constructorFieldIndex);
+	}
+
+	@Override
+	public String toString() {
+		return "ConstructorData [defaultConstructor=" + defaultConstructor + ", constructorFieldIndex="
+				+ constructorFieldIndex + "]";
 	}
 
 }

@@ -39,4 +39,9 @@ public class FieldData {
 		return Objects.equals(descriptor, other.descriptor) && Objects.equals(name, other.name);
 	}
 
+	@Override
+	public String toString() {
+		return "FieldData [name=" + name + ", descriptor=" + descriptor + "]";
+	}
+
 }
