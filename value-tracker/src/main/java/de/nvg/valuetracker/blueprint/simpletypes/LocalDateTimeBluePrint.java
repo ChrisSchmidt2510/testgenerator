@@ -13,7 +13,7 @@ public class LocalDateTimeBluePrint extends SimpleBluePrint<LocalDateTime> {
 	@Override
 	public String valueCreation() {
 		return "LocalDateTime.of(" + value.getYear() + ", Month." + value.getMonth() + ", " + value.getDayOfMonth()
-				+ "," + value.getHour() + ", " + value.getMinute() + ", " + value.getSecond() + ");";
+				+ ", " + value.getHour() + ", " + value.getMinute() + ", " + value.getSecond() + ");";
 	}
 
 }

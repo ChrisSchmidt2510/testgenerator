@@ -2,54 +2,44 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.nvg</groupId>
 	<artifactId>testgenerator-agent-full</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	
+	<parent>
+		<groupId>de.nvg</groupId>
+		<artifactId>testgenerator-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
 
 	<dependencies>
 		<dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-agent</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-proxy</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-generation</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-classdatamodel-rt</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>value-tracker</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>

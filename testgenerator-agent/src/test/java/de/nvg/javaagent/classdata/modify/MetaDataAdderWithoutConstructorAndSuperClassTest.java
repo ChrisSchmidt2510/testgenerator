@@ -1,8 +1,5 @@
 package de.nvg.javaagent.classdata.modify;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +27,7 @@ import javassist.bytecode.DuplicateMemberException;
 import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.MethodInfo;
 
-public class MetaDataAdderTest {
+public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 
 	private CtClass adresse;
 	private ClassPool classPool = ClassPool.getDefault();
@@ -85,38 +82,38 @@ public class MetaDataAdderTest {
 		System.out.println(runtimeClassData);
 	}
 
-	@Test
-	public void testMetaDataAdderWithConstructorAndSuperClass()
-			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException {
-		ClassData classData = prepareClassData();
-		classData.setSuperClass("de.nvg.javaagent.classdata.modify.testclasses.BlObject");
-
-		ConstructorData constructor = new ConstructorData(false);
-		constructor.addConstructorElement(0, fieldStrasse);
-		constructor.addConstructorElement(1, fieldHausnummer);
-		constructor.addConstructorElement(2, fieldOrt);
-		constructor.addConstructorElement(3, fieldPlz);
-
-		classData.setConstructor(constructor);
-
-		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, adresse, classData);
-		metaDataAdder.add(codeAttribute, new ArrayList<>());
-
-		try (FileOutputStream stream = new FileOutputStream(new File("D:\\Adresse.class"))) {
-			stream.write(adresse.toBytecode());
-		}
-
-		Class<?> adresseClazz = classPool.toClass(adresse);
-
-		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				"classData");
-
-		de.nvg.runtime.classdatamodel.ClassData superclass = runtimeClassData.getSuperclass();
-
-		// TODO CS vergleichs runtimeData object schreiben
-		System.out.println(runtimeClassData);
-		System.out.println(superclass);
-	}
+//	@Test
+//	public void testMetaDataAdderWithConstructorAndSuperClass()
+//			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException {
+//		ClassData classData = prepareClassData();
+//		classData.setSuperClass("de.nvg.javaagent.classdata.modify.testclasses.BlObject");
+//
+//		ConstructorData constructor = new ConstructorData(false);
+//		constructor.addConstructorElement(0, fieldStrasse);
+//		constructor.addConstructorElement(1, fieldHausnummer);
+//		constructor.addConstructorElement(2, fieldOrt);
+//		constructor.addConstructorElement(3, fieldPlz);
+//
+//		classData.setConstructor(constructor);
+//
+//		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, adresse, classData);
+//		metaDataAdder.add(codeAttribute, new ArrayList<>());
+//
+//		try (FileOutputStream stream = new FileOutputStream(new File("D:\\Adresse.class"))) {
+//			stream.write(adresse.toBytecode());
+//		}
+//
+//		Class<?> adresseClazz = classPool.toClass(adresse);
+//
+//		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
+//				"classData");
+//
+//		de.nvg.runtime.classdatamodel.ClassData superclass = runtimeClassData.getSuperclass();
+//
+//		// TODO CS vergleichs runtimeData object schreiben
+//		System.out.println(runtimeClassData);
+//		System.out.println(superclass);
+//	}
 
 	private ClassData prepareClassData() {
 

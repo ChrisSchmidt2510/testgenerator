@@ -31,9 +31,12 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.bytecode.BadBytecode;
 import javassist.bytecode.ClassFile;
+import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
+import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.FieldInfo;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
@@ -126,12 +129,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
 
-			MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, loadingClass, classData);
-
 			fieldTypeChanger.addFieldCalledField();
 
 			checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
-					fieldTypeChanger, metaDataAdder, classData);
+					fieldTypeChanger, classData);
+
+			addMetaDataToClassFile(loadingClass, constantPool, classData);
+
 		}
 
 		byte[] bytecode = loadingClass.toBytecode();
@@ -168,7 +172,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	}
 
 	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
-			FieldTypeChanger fieldTypeChanger, MetaDataAdder metaDataAdder, ClassData classData) throws Exception {
+			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
 
 		for (int i = 0; i < methods.size(); i++) {
 			MethodInfo method = methods.get(i);
@@ -202,9 +206,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			} else if (MethodInfo.nameClinit.equals(method.getName())) {
 
-				List<Instruction> instructions = Instructions.getAllInstructions(method);
-
-				metaDataAdder.add(method.getCodeAttribute(), instructions);
 			} else {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
@@ -230,6 +231,35 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			}
 		}
 
+	}
+
+	private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
+			throws BadBytecode, CannotCompileException {
+		ClassFile classFile = loadingClass.getClassFile();
+
+		MethodInfo clinit = null;
+		List<Instruction> instructions = null;
+
+		clinit = classFile.getMethod(MethodInfo.nameClinit);
+
+		if (clinit != null) {
+			instructions = Instructions.getAllInstructions(clinit);
+		} else {
+			clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
+
+			CodeAttribute codeAttribute = new CodeAttribute(constantPool, 0, 0, new byte[0],
+					new ExceptionTable(constantPool));
+
+			clinit.setCodeAttribute(codeAttribute);
+			clinit.setAccessFlags(Modifier.STATIC);
+
+			classFile.addMethod(clinit);
+
+			instructions = new ArrayList<>();
+		}
+
+		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, loadingClass, classData);
+		metaDataAdder.add(clinit.getCodeAttribute(), instructions);
 	}
 
 	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,

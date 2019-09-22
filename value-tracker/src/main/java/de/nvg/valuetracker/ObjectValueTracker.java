@@ -254,7 +254,7 @@ public class ObjectValueTracker {
 	}
 
 	private static boolean isTestgeneratorGeneratedField(Object value, String fieldName) {
-		return !(value instanceof ClassData) || !(value instanceof Set && CALLED_FIELDS.equals(fieldName));
+		return !((value instanceof ClassData) || (value instanceof Set && CALLED_FIELDS.equals(fieldName)));
 	}
 
 }
