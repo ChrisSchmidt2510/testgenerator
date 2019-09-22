@@ -20,26 +20,26 @@ public class MethodHandles {
 		}
 	}
 
-	public static Object getFieldValue(Object reference, String fieldName) {
+	public static <T> T getFieldValue(Object reference, String fieldName) {
 		try {
 			Field field = reference.getClass().getDeclaredField(fieldName);
 			field.setAccessible(true);
 
 			MethodHandle getter = LOOKUP.unreflectGetter(field);
-			return getter.invoke(reference);
+			return (T) getter.invoke(reference);
 		} catch (Throwable e) {
 			throw new RuntimeException("Field: " + fieldName + " can't be invoked for Class: " + reference, e);
 		}
 	}
 
-	public static Object getStaticFieldValue(Class<?> referenceClass, String fieldName) {
+	public static <T> T getStaticFieldValue(Class<?> referenceClass, String fieldName) {
 		Field field;
 		try {
 			field = referenceClass.getDeclaredField(fieldName);
 			field.setAccessible(true);
 
 			MethodHandle getter = LOOKUP.unreflectGetter(field);
-			return getter.invoke();
+			return (T) getter.invoke();
 		} catch (Throwable e) {
 			throw new RuntimeException("static Field:" + fieldName + " can't be invoked for Class: " + referenceClass,
 					e);

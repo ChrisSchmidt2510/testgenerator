@@ -14,15 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 import de.nvg.javaagent.AgentException;
-import de.nvg.javaagent.classdata.FieldTypeChanger;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
-import de.nvg.javaagent.classdata.MetaDataAdder;
 import de.nvg.javaagent.classdata.MethodAnalyser;
 import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
 import de.nvg.javaagent.classdata.model.FieldData;
+import de.nvg.javaagent.classdata.model.MethodData;
+import de.nvg.javaagent.classdata.modify.FieldTypeChanger;
+import de.nvg.javaagent.classdata.modify.MetaDataAdder;
 import de.nvg.testgenerator.RuntimeProperties;
+import de.nvg.testgenerator.Wrapper;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -117,7 +119,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		} else {
 			List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
 
-			// MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
+			classData.addFields(fields);
+
+			MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
@@ -126,10 +130,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			fieldTypeChanger.addFieldCalledField();
 
-			checkAndAlterMethods(loadingClass, classFile.getMethods(), null, //
+			checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
 					fieldTypeChanger, metaDataAdder, classData);
-
-			classData.addFields(fields);
 		}
 
 		byte[] bytecode = loadingClass.toBytecode();
@@ -215,15 +217,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName())) {
 
-					// Wrapper<FieldData> fieldWrapper = new Wrapper<>();
+					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
-					// MethodData methodData = methodAnalyser.analyse(method.getName(),
-					// method.getDescriptor(),
-					// method.getAccessFlags(), instructions, fieldWrapper);
-					// if (methodData != null)
-					// {
-					// classData.addMethod(methodData, fieldWrapper.getValue());
-					// }
+					MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
+							method.getAccessFlags(), instructions, fieldWrapper);
+
+					if (methodData != null) {
+						classData.addMethod(methodData, fieldWrapper.getValue());
+					}
 
 				}
 			}

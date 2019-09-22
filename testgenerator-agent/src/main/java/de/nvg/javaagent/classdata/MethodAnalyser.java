@@ -1,6 +1,5 @@
 package de.nvg.javaagent.classdata;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +11,7 @@ import java.util.StringTokenizer;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
-import de.nvg.testgenerator.CollectionUtils;
+import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.Primitives;
 import javassist.Modifier;
@@ -36,10 +35,11 @@ public class MethodAnalyser {
 	private static final List<String> COLLECTION_TYPES = Collections
 			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, QUEUE, MAP));
 
-	private static final Map<String, Integer> PRIMITIVE_RETURN_OPCODES = CollectionUtils.toUnmodifiableMap(
-			new SimpleEntry<>("I", Opcode.IRETURN), new SimpleEntry<>("F", Opcode.FRETURN),
-			new SimpleEntry<>("D", Opcode.DRETURN), new SimpleEntry<>("L", Opcode.LRETURN),
-			new SimpleEntry<>("[", Opcode.ARETURN));
+	private static final Map<String, Integer> PRIMITIVE_RETURN_OPCODES = //
+			MapBuilder.<String, Integer>hashMapBuilder()//
+					.add("I", Opcode.IRETURN).add("F", Opcode.FRETURN)//
+					.add("D", Opcode.DRETURN).add("L", Opcode.LRETURN)//
+					.add("[", Opcode.ARETURN).toUnmodifiableMap();
 
 	private final List<FieldData> fields;
 

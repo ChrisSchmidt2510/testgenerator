@@ -18,10 +18,9 @@ public abstract class Proxy {
 		this.parent = new WeakReference<Object>(parent);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void trackReadFieldCalls() {
 		if (RuntimeProperties.getInstance().isTrackingActive()) {
-			Set<FieldData> calledFields = (Set<FieldData>) MethodHandles.getFieldValue(parent.get(), CALLED_FIELDS);
+			Set<FieldData> calledFields = MethodHandles.getFieldValue(parent.get(), CALLED_FIELDS);
 			calledFields.add(field);
 		}
 	}

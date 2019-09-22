@@ -1,6 +1,5 @@
 package de.nvg.javaagent.classdata.modify;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,7 @@ import java.util.Map.Entry;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
 import de.nvg.javaagent.classdata.model.FieldData;
-import de.nvg.testgenerator.CollectionUtils;
+import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.Primitives;
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -63,29 +62,33 @@ public class FieldTypeChanger {
 
 	private static final String OBJECT = "Ljava/lang/Object;";
 
-	private static final Map<String, String> PRIMITIVE_PROXIES = CollectionUtils.toUnmodifiableMap(
-			new SimpleEntry<>(Primitives.JVM_BYTE, INTEGER_PROXY),
-			new SimpleEntry<>(Primitives.JVM_BOOLEAN, BOOLEAN_PROXY),
-			new SimpleEntry<>(Primitives.JVM_SHORT, INTEGER_PROXY),
-			new SimpleEntry<>(Primitives.JVM_CHAR, INTEGER_PROXY), new SimpleEntry<>(Primitives.JVM_INT, INTEGER_PROXY),
-			new SimpleEntry<>(Primitives.JVM_FLOAT, FLOAT_PROXY),
-			new SimpleEntry<>(Primitives.JVM_DOUBLE, DOUBLE_PROXY), new SimpleEntry<>(Primitives.JVM_LONG, LONG_PROXY));
+	private static final Map<String, String> PRIMITIVE_PROXIES = MapBuilder.<String, String>hashMapBuilder()
+			.add(Primitives.JVM_BYTE, INTEGER_PROXY)//
+			.add(Primitives.JVM_BOOLEAN, BOOLEAN_PROXY)//
+			.add(Primitives.JVM_SHORT, INTEGER_PROXY)//
+			.add(Primitives.JVM_CHAR, INTEGER_PROXY)//
+			.add(Primitives.JVM_INT, INTEGER_PROXY)//
+			.add(Primitives.JVM_FLOAT, FLOAT_PROXY)//
+			.add(Primitives.JVM_DOUBLE, DOUBLE_PROXY)//
+			.add(Primitives.JVM_LONG, LONG_PROXY).toUnmodifiableMap();
 
-	private static final Map<String, String> PROXY_CONSTRUCTOR_WITH_INITALIZATION = CollectionUtils.toUnmodifiableMap(
-			new SimpleEntry<>(REFERENCE_PROXY, REFERENCE_PROXY_CONSTRUCTOR),
-			new SimpleEntry<>(BOOLEAN_PROXY, BOOLEAN_PROXY_CONSTRUCTOR),
-			new SimpleEntry<>(INTEGER_PROXY, INTEGER_PROXY_CONSTRUCTOR),
-			new SimpleEntry<>(FLOAT_PROXY, FLOAT_PROXY_CONSTRUCTOR),
-			new SimpleEntry<>(DOUBLE_PROXY, DOUBLE_PROXY_CONSTRUCTOR),
-			new SimpleEntry<>(LONG_PROXY, LONG_PROXY_CONSTRUCTOR));
+	private static final Map<String, String> PROXY_CONSTRUCTOR_WITH_INITALIZATION = //
+			MapBuilder.<String, String>hashMapBuilder()//
+					.add(REFERENCE_PROXY, REFERENCE_PROXY_CONSTRUCTOR)//
+					.add(BOOLEAN_PROXY, BOOLEAN_PROXY_CONSTRUCTOR)//
+					.add(INTEGER_PROXY, INTEGER_PROXY_CONSTRUCTOR)//
+					.add(FLOAT_PROXY, FLOAT_PROXY_CONSTRUCTOR)//
+					.add(DOUBLE_PROXY, DOUBLE_PROXY_CONSTRUCTOR)//
+					.add(LONG_PROXY, LONG_PROXY_CONSTRUCTOR).toUnmodifiableMap();
 
-	private static final Map<String, String> PROXY_SET_VALUE_DESCRIPTOR = CollectionUtils.toUnmodifiableMap(
-			new SimpleEntry<>(REFERENCE_PROXY, OBJECT), //
-			new SimpleEntry<>(INTEGER_PROXY, Primitives.JVM_INT),
-			new SimpleEntry<>(BOOLEAN_PROXY, Primitives.JVM_BOOLEAN),
-			new SimpleEntry<>(FLOAT_PROXY, Primitives.JVM_FLOAT),
-			new SimpleEntry<>(DOUBLE_PROXY, Primitives.JVM_DOUBLE), //
-			new SimpleEntry<>(LONG_PROXY, Primitives.JVM_LONG));
+	private static final Map<String, String> PROXY_SET_VALUE_DESCRIPTOR = //
+			MapBuilder.<String, String>hashMapBuilder()//
+					.add(REFERENCE_PROXY, OBJECT) //
+					.add(INTEGER_PROXY, Primitives.JVM_INT)//
+					.add(BOOLEAN_PROXY, Primitives.JVM_BOOLEAN)//
+					.add(FLOAT_PROXY, Primitives.JVM_FLOAT)//
+					.add(DOUBLE_PROXY, Primitives.JVM_DOUBLE)//
+					.add(LONG_PROXY, Primitives.JVM_LONG).toUnmodifiableMap();
 
 	public FieldTypeChanger(List<FieldData> fields, ConstPool constantPool, CtClass loadingClass) {
 		this.fields = fields;
