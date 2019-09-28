@@ -1,4 +1,4 @@
-package de.nvg.javaagent.classdata.modify.indy;
+package de.nvg.javaagent.classdata.modification.indy;
 
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;

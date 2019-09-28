@@ -36,6 +36,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-proxy</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

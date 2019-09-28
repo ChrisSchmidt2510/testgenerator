@@ -1,4 +1,4 @@
-package de.nvg.javaagent.classdata.modify;
+package de.nvg.javaagent.classdata.modification;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,8 +13,8 @@ import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
-import de.nvg.javaagent.classdata.modify.indy.InvocationType;
-import de.nvg.javaagent.classdata.modify.indy.SupplierBootstrapMethodCreator;
+import de.nvg.javaagent.classdata.modification.indy.InvocationType;
+import de.nvg.javaagent.classdata.modification.indy.SupplierBootstrapMethodCreator;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;

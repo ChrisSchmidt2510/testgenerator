@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import de.nvg.javaagent.AgentException;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
@@ -20,11 +19,9 @@ import de.nvg.javaagent.classdata.MethodAnalyser;
 import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
 import de.nvg.javaagent.classdata.model.FieldData;
-import de.nvg.javaagent.classdata.model.MethodData;
-import de.nvg.javaagent.classdata.modify.FieldTypeChanger;
-import de.nvg.javaagent.classdata.modify.MetaDataAdder;
+import de.nvg.javaagent.classdata.modification.MetaDataAdder;
+import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
 import de.nvg.testgenerator.RuntimeProperties;
-import de.nvg.testgenerator.Wrapper;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -42,239 +39,280 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
 
-public class ClassDataTransformer implements ClassFileTransformer {
+public class ClassDataTransformer implements ClassFileTransformer
+{
 
-	private static final String EQUALS = "equals";
-	private static final String HASHCODE = "hashCode";
-	private static final String TO_STRING = "toString";
-	private static final String FINALIZE = "finalize";
-	private static final String GET_CLASS = "getClass";
-	private static final String CLONE = "clone";
-	private static final String NOTIFY = "notify";
-	private static final String NOTIFY_ALL = "notifyAll";
-	private static final String WAIT = "wait";
+  private static final String EQUALS = "equals";
+  private static final String HASHCODE = "hashCode";
+  private static final String TO_STRING = "toString";
+  private static final String FINALIZE = "finalize";
+  private static final String GET_CLASS = "getClass";
+  private static final String CLONE = "clone";
+  private static final String NOTIFY = "notify";
+  private static final String NOTIFY_ALL = "notifyAll";
+  private static final String WAIT = "wait";
 
-	private static final String OBJECT = "java.lang.Object";
+  private static final String OBJECT = "java.lang.Object";
 
-	private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
-			Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
+  private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
+      Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
 
-	// private static final String MAP = "Ljava/util/Map;";
+  // private static final String MAP = "Ljava/util/Map;";
 
-	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+  @Override
+  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                          ProtectionDomain protectionDomain, byte[] classfileBuffer)
+    throws IllegalClassFormatException
+  {
 
-		if (className.startsWith("de"))
-			System.out.println(className);
+    if (className.startsWith("de"))
+    {
+      System.out.println(className);
+    }
 
-		if (className.startsWith(RuntimeProperties.getInstance().getBlPackage())
-				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))) {
+    if (className.startsWith(RuntimeProperties.getInstance().getBlPackage())
+        || ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className)))
+    {
 
-			ClassDataStorage.getInstance().removeSuperclassToLoad(className);
+      ClassDataStorage.getInstance().removeSuperclassToLoad(className);
 
-			final ClassPool pool = ClassPool.getDefault();
+      final ClassPool pool = ClassPool.getDefault();
 
-			try {
-				CtClass loadingClass = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
+      try
+      {
+        CtClass loadingClass = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
 
-				ClassData classData = new ClassData(loadingClass.getName());
+        ClassData classData = new ClassData(loadingClass.getName());
 
-				byte[] bytecode = collectAndAlterMetaData(loadingClass, classData);
+        byte[] bytecode = collectAndAlterMetaData(loadingClass, classData);
 
-				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
+        ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
-				try (FileOutputStream fios = new FileOutputStream(
-						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
-					fios.write(bytecode);
-				}
+        try (FileOutputStream fios = new FileOutputStream(
+            new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class")))
+        {
+          fios.write(bytecode);
+        }
 
-				return bytecode;
+        return bytecode;
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
-			}
-		}
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+        throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+      }
+    }
 
-		return classfileBuffer;
-	}
+    return classfileBuffer;
+  }
 
-	private byte[] collectAndAlterMetaData(CtClass loadingClass, ClassData classData) throws Exception {
-		ClassFile classFile = loadingClass.getClassFile();
+  private byte[] collectAndAlterMetaData(CtClass loadingClass, ClassData classData)
+    throws Exception
+  {
+    ClassFile classFile = loadingClass.getClassFile();
 
-		String superClass = classFile.getSuperclass();
+    String superClass = classFile.getSuperclass();
 
-		if (!OBJECT.equals(superClass)) {
-			ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
+    if (!OBJECT.equals(superClass))
+    {
+      ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
 
-			if (superClassData == null) {
-				ClassDataStorage.getInstance().addSuperclassToLoad(superClass);
-			}
+      if (superClassData == null)
+      {
+        ClassDataStorage.getInstance().addSuperclassToLoad(superClass);
+      }
 
-			classData.setSuperClass(superClass);
-		}
+      classData.setSuperClass(superClass);
+    }
 
-		ConstPool constantPool = classFile.getConstPool();
+    ConstPool constantPool = classFile.getConstPool();
 
-		if (Modifier.isEnum(loadingClass.getModifiers())) {
-			classData.setIsEnum(true);
-		} else {
-			List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
+    if (Modifier.isEnum(loadingClass.getModifiers()))
+    {
+      classData.setIsEnum(true);
+    }
+    else
+    {
+      List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
 
-			classData.addFields(fields);
+      classData.addFields(fields);
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
+      MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
 
-			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
-					loadingClass);
+      FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
+          loadingClass);
 
-			fieldTypeChanger.addFieldCalledField();
+      fieldTypeChanger.addFieldCalledField();
 
-			checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
-					fieldTypeChanger, classData);
+      checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
+          fieldTypeChanger, classData);
 
-			addMetaDataToClassFile(loadingClass, constantPool, classData);
+      addMetaDataToClassFile(loadingClass, constantPool, classData);
 
-		}
+    }
 
-		byte[] bytecode = loadingClass.toBytecode();
+    byte[] bytecode = loadingClass.toBytecode();
 
-		loadingClass.detach();
+    loadingClass.detach();
 
-		return bytecode;
-	}
+    return bytecode;
+  }
 
-	private List<FieldData> getFieldsFromClass(CtClass loadedClass, ClassData classData)
-			throws CannotCompileException, NotFoundException {
-		List<FieldData> fieldsFromClass = new ArrayList<>();
+  private List<FieldData> getFieldsFromClass(CtClass loadedClass, ClassData classData)
+    throws CannotCompileException,
+    NotFoundException
+  {
+    List<FieldData> fieldsFromClass = new ArrayList<>();
 
-		for (CtField field : loadedClass.getDeclaredFields()) {
+    for (CtField field : loadedClass.getDeclaredFields())
+    {
 
-			if (!Instructions.isConstant(field.getModifiers())) {
-				FieldInfo fieldInfo = field.getFieldInfo();
+      if (!Instructions.isConstant(field.getModifiers()))
+      {
+        FieldInfo fieldInfo = field.getFieldInfo();
 
-				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
+        SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
 
-				FieldData fieldData = new FieldData.Builder()
-						.withDataType(Descriptor.toClassName(fieldInfo.getDescriptor())).withName(field.getName())
-						.isMutable(!Modifier.isFinal(fieldInfo.getAccessFlags()))
-						.isStatic(Modifier.isStatic(fieldInfo.getAccessFlags()))
-						.withSignature(signature != null ? signature.getSignature() : null).build();
+        FieldData fieldData = new FieldData.Builder()
+            .withDataType(Descriptor.toClassName(fieldInfo.getDescriptor())).withName(field.getName())
+            .isMutable(!Modifier.isFinal(fieldInfo.getAccessFlags()))
+            .isStatic(Modifier.isStatic(fieldInfo.getAccessFlags())).withSignature(signature != null
+                ? signature.getSignature()
+                : null)
+            .build();
 
-				fieldsFromClass.add(fieldData);
+        fieldsFromClass.add(fieldData);
 
-				FieldTypeChanger.changeFieldDataTypeToProxy(loadedClass.getClassFile(), fieldInfo);
-			}
-		}
+        FieldTypeChanger.changeFieldDataTypeToProxy(loadedClass.getClassFile(), fieldInfo);
+      }
+    }
 
-		return fieldsFromClass;
-	}
+    return fieldsFromClass;
+  }
 
-	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
-			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
+  private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods,
+                                    MethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger,
+                                    ClassData classData)
+    throws Exception
+  {
 
-		for (int i = 0; i < methods.size(); i++) {
-			MethodInfo method = methods.get(i);
+    for (int i = 0; i < methods.size(); i++)
+    {
+      MethodInfo method = methods.get(i);
 
-			if (MethodInfo.nameInit.equals(method.getName())) {
+      if (MethodInfo.nameInit.equals(method.getName()))
+      {
 
-				List<Instruction> instructions = Instructions.getAllInstructions(method);
+        List<Instruction> instructions = Instructions.getAllInstructions(method);
 
-				Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(
-						instructions, Arrays.asList(Opcode.ALOAD_0, Opcode.PUTFIELD, Opcode.RETURN));
+        Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(
+            instructions, Arrays.asList(Opcode.ALOAD_0, Opcode.PUTFIELD, Opcode.RETURN));
 
-				Map<Integer, Instruction> aloadPutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
-						filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
+        Map<Integer, Instruction> aloadPutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
+            filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
 
-				fieldTypeChanger.changeFieldInitialization(aloadPutFieldInstructionPairs,
-						filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), method.getCodeAttribute());
+        fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs,
+            filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), method.getCodeAttribute());
 
-				// Map<Integer, FieldData> constructorInitalizedFields =
-				// methodAnalyser.analyseConstructor(
-				// method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD),
-				// instructions);
+        // Map<Integer, FieldData> constructorInitalizedFields =
+        // methodAnalyser.analyseConstructor(
+        // method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD),
+        // instructions);
 
-				// if (constructorInitalizedFields.isEmpty())
-				// {
-				// classData.setHasDefaultConstructor(true);
-				// }
-				// else
-				// {
-				// classData.setConstructorInitalizedFields(constructorInitalizedFields);
-				// }
+        // if (constructorInitalizedFields.isEmpty())
+        // {
+        // classData.setHasDefaultConstructor(true);
+        // }
+        // else
+        // {
+        // classData.setConstructorInitalizedFields(constructorInitalizedFields);
+        // }
 
-			} else if (MethodInfo.nameClinit.equals(method.getName())) {
+      }
+      else if (MethodInfo.nameClinit.equals(method.getName()))
+      {
 
-			} else {
+      }
+      else
+      {
 
-				List<Instruction> instructions = Instructions.getAllInstructions(method);
+        List<Instruction> instructions = Instructions.getAllInstructions(method);
 
-				Map<Integer, List<Instruction>> filteredInstructions = Instructions
-						.getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
+        Map<Integer, List<Instruction>> filteredInstructions = Instructions
+            .getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
 
-				fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
-						method.getCodeAttribute());
+        fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
+            method.getCodeAttribute());
 
-				if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName())) {
+        if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName()))
+        {
 
-					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
+          //					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
-					MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
-							method.getAccessFlags(), instructions, fieldWrapper);
+          //					MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
+          //							method.getAccessFlags(), instructions, fieldWrapper);
+          //
+          //					if (methodData != null) {
+          //						classData.addMethod(methodData, fieldWrapper.getValue());
+          //					}
 
-					if (methodData != null) {
-						classData.addMethod(methodData, fieldWrapper.getValue());
-					}
+        }
+      }
+    }
 
-				}
-			}
-		}
+  }
 
-	}
+  private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
+    throws BadBytecode,
+    CannotCompileException
+  {
+    ClassFile classFile = loadingClass.getClassFile();
 
-	private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
-			throws BadBytecode, CannotCompileException {
-		ClassFile classFile = loadingClass.getClassFile();
+    MethodInfo clinit = null;
+    List<Instruction> instructions = null;
 
-		MethodInfo clinit = null;
-		List<Instruction> instructions = null;
+    clinit = classFile.getMethod(MethodInfo.nameClinit);
 
-		clinit = classFile.getMethod(MethodInfo.nameClinit);
+    if (clinit != null)
+    {
+      instructions = Instructions.getAllInstructions(clinit);
+    }
+    else
+    {
+      clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
 
-		if (clinit != null) {
-			instructions = Instructions.getAllInstructions(clinit);
-		} else {
-			clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
+      CodeAttribute codeAttribute = new CodeAttribute(constantPool, 0, 0, new byte[0],
+          new ExceptionTable(constantPool));
 
-			CodeAttribute codeAttribute = new CodeAttribute(constantPool, 0, 0, new byte[0],
-					new ExceptionTable(constantPool));
+      clinit.setCodeAttribute(codeAttribute);
+      clinit.setAccessFlags(Modifier.STATIC);
 
-			clinit.setCodeAttribute(codeAttribute);
-			clinit.setAccessFlags(Modifier.STATIC);
+      classFile.addMethod(clinit);
 
-			classFile.addMethod(clinit);
+      instructions = new ArrayList<>();
+    }
 
-			instructions = new ArrayList<>();
-		}
+    MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, loadingClass, classData);
+    metaDataAdder.add(clinit.getCodeAttribute(), instructions);
+  }
 
-		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, loadingClass, classData);
-		metaDataAdder.add(clinit.getCodeAttribute(), instructions);
-	}
+  private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,
+                                                                                List<Instruction> putFieldInstructions)
+  {
+    Map<Integer, Instruction> map = new LinkedHashMap<>();
 
-	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,
-			List<Instruction> putFieldInstructions) {
-		Map<Integer, Instruction> map = new LinkedHashMap<>();
+    if (putFieldInstructions != null && !putFieldInstructions.isEmpty())
+    {
+      for (int i = 0; i < putFieldInstructions.size(); i++)
+      {
+        Instruction instruction = putFieldInstructions.get(i);
 
-		if (putFieldInstructions != null && !putFieldInstructions.isEmpty()) {
-			for (int i = 0; i < putFieldInstructions.size(); i++) {
-				Instruction instruction = putFieldInstructions.get(i);
+        map.put(aloadInstructions.get(i + 1).getCodeArrayIndex(), instruction);
+      }
+    }
 
-				map.put(aloadInstructions.get(i + 1).getCodeArrayIndex(), instruction);
-			}
-		}
+    return map;
 
-		return map;
-
-	}
+  }
 }

@@ -13,6 +13,7 @@ import de.nvg.javaagent.classdata.model.ConstructorData;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
+import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.testgenerator.MethodHandles;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
