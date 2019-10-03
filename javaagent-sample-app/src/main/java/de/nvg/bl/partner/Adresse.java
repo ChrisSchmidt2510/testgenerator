@@ -1,13 +1,19 @@
 package de.nvg.bl.partner;
 
-public class Adresse {
+import de.nvg.BlObject;
+
+public class Adresse extends BlObject {
 
 	public static final int KEY = 5;
 
-	private String strasse;
+	private String strasse = null;
 	private short hausnummer;
 	private String ort;
 	private int plz;
+
+	static {
+		System.out.println("statischer Block");
+	}
 
 	@Override
 	public int hashCode() {
@@ -67,6 +73,7 @@ public class Adresse {
 	}
 
 	public void setOrt(String ort) {
+		System.out.println(ort);
 		this.ort = ort;
 	}
 

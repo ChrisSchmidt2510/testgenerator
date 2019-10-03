@@ -9,6 +9,14 @@ public abstract class BlObject {
 	private LocalDate aedat;
 	private String aesb;
 
+//	private static ClassData classData;
+//
+//	static {
+//		classData = new ClassData("de.nvg.BlObject",
+//				() -> (ClassData) MethodHandles.getStaticFieldValue(Object.class, "classData"),
+//				new ConstructorData(true));
+//	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(aedat, aesb, erdat, ersb);
