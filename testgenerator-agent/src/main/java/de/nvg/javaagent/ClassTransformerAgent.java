@@ -7,6 +7,8 @@ import java.util.StringTokenizer;
 import de.nvg.javaagent.transformer.ClassDataTransformer;
 import de.nvg.javaagent.transformer.ValueTrackerTransformer;
 import de.nvg.testgenerator.RuntimeProperties;
+import de.nvg.testgenerator.logging.Level;
+import de.nvg.testgenerator.logging.Logger;
 
 public class ClassTransformerAgent {
 
@@ -15,11 +17,14 @@ public class ClassTransformerAgent {
 	private static final String AGENT_ARG_METHOD_DESC = "MethodDesc";
 	private static final String AGENT_ARG_BL_PACKAGE = "BlPackage";
 	private static final String AGENT_ARG_TRACE_GETTER_CALLS = "TraceGetterCalls";
+	private static final String AGENT_ARG_LOG_LEVEL = "LogLevel";
 
 	private static final String EQUAL = "=";
 
 	public static void premain(String agentArgs, Instrumentation instrumentation) {
 		StringTokenizer tokenizer = new StringTokenizer(agentArgs, ",");
+
+		String logLevel = null;
 
 		RuntimeProperties properties = RuntimeProperties.getInstance();
 
@@ -43,10 +48,15 @@ public class ClassTransformerAgent {
 			case AGENT_ARG_TRACE_GETTER_CALLS:
 				properties.setTraceGetterCalls(Boolean.valueOf(secondHalfOfToken(token)));
 				break;
+			case AGENT_ARG_LOG_LEVEL:
+				logLevel = secondHalfOfToken(token);
+				break;
 			default:
 				throw new IllegalArgumentException("Ungültiger Parameter für den ClassTransformerAgent");
 			}
 		}
+
+		Logger.getInstance().setLevel(logLevel == null ? Level.ERROR : Level.valueOf(logLevel));
 
 		Objects.requireNonNull(properties.getClassName(),
 				"Es muss ein " + AGENT_ARG_CLASS + " Parameter uebergeben werden");

@@ -185,6 +185,7 @@ public class MetaDataAdder {
 			code.add(Opcode.RETURN);
 			codeAttribute.iterator().append(code.get());
 		}
+
 		codeAttribute.setMaxLocals(localVariableCounter);
 		codeAttribute.computeMaxStack();
 	}
