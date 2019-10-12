@@ -9,7 +9,7 @@ import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.testgenerator.MapBuilder;
-import de.nvg.testgenerator.classdata.Primitives;
+import de.nvg.testgenerator.classdata.constants.Primitives;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.CtClass;

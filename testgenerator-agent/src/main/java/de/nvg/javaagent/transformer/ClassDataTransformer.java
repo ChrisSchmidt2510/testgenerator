@@ -16,13 +16,14 @@ import java.util.Map;
 import de.nvg.javaagent.AgentException;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
-import de.nvg.javaagent.classdata.analysis.GenerellMethodAnalyser;
+import de.nvg.javaagent.classdata.analysis.MethodAnalyser;
 import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
 import de.nvg.testgenerator.RuntimeProperties;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -52,8 +53,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	private static final String NOTIFY = "notify";
 	private static final String NOTIFY_ALL = "notifyAll";
 	private static final String WAIT = "wait";
-
-	private static final String OBJECT = "java.lang.Object";
 
 	private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
 			Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
@@ -85,9 +84,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
-				try (FileOutputStream fios = new FileOutputStream(
+				try (FileOutputStream fos = new FileOutputStream(
 						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
-					fios.write(bytecode);
+					fos.write(bytecode);
 				}
 
 				return bytecode;
@@ -106,7 +105,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		String superClass = classFile.getSuperclass();
 
-		if (!OBJECT.equals(superClass)) {
+		if (!JavaTypes.OBJECT.equals(superClass)) {
 			ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
 
 			if (superClassData == null) {
@@ -176,9 +175,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return fieldsFromClass;
 	}
 
-	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods,
-			GenerellMethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger, ClassData classData)
-			throws Exception {
+	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
+			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
 
 		for (int i = 0; i < methods.size(); i++) {
 			MethodInfo method = methods.get(i);
