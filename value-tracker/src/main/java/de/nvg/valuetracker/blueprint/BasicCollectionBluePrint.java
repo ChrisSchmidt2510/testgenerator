@@ -22,4 +22,9 @@ public abstract class BasicCollectionBluePrint<E> extends BasicBluePrint<E> {
 		return factoryMethod;
 	}
 
+	@Override
+	public boolean isComplexType() {
+		return true;
+	}
+
 }

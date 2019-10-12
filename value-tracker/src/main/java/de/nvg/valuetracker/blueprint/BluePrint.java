@@ -10,6 +10,8 @@ public interface BluePrint {
 
 	public String getName();
 
+	public boolean isComplexType();
+
 	public boolean isBuild();
 
 }

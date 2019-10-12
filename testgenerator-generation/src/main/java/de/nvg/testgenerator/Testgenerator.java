@@ -1,53 +1,60 @@
 package de.nvg.testgenerator;
 
+import java.util.Set;
+
+import de.nvg.runtime.classdatamodel.ClassData;
+import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.valuetracker.blueprint.BluePrint;
+import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 import de.nvg.valuetracker.storage.ValueStorage;
 
 public class Testgenerator {
+	private static final String FIELD_NAME_CLASS_DATA = "classData";
+	private static final String FIELD_NAME_CALLED_FIELDS = "calledFields";
 
 	public static void generate() {
 		RuntimeProperties.getInstance().setActivateTracking(false);
 		System.out.println("BluePrints: ");
 		for (BluePrint bluePrint : ValueStorage.getInstance().getBluePrints()) {
 
-//			Object reference = bluePrint.getReference();
-			System.out.println(bluePrint.toString());
+			generateBluePrint(bluePrint);
+
+//			System.out.println("BluePrint");
+//			System.out.println(bluePrint.toString());
+		}
+	}
+
+	private static void generateBluePrint(BluePrint bluePrint) {
+		if (bluePrint.isComplexType()) {
+			generateComplexBluePrint(bluePrint);
+		}
+	}
+
+	private static void generateComplexBluePrint(BluePrint complexBluePrint) {
+		for (BluePrint bluePrint : complexBluePrint.getPreExecuteBluePrints()) {
+			if (!bluePrint.isBuild()) {
+				generateBluePrint(bluePrint);
+			}
 		}
 
-//		System.out.println(" \nClassData: ");
-//		for (Entry<String, ClassData> entry : metaData.getClassDataMap().entrySet()) {
-//
-//			System.out.println(entry.getKey());
-//			if (entry.getValue().getSuperClass() != null) {
-//				System.out.println("Superclass: " + entry.getValue().getSuperClass().getName());
-//			}
-//
-//			if (entry.getValue().hasDefaultConstructor()) {
-//				System.out.println("Default Constructor");
-//			} else if (entry.getValue().isEnum()) {
-//				System.out.println("Enum");
-//			} else {
-//				for (Entry<Integer, FieldData> constructor : entry.getValue().getConstructorInitalizedFields()
-//						.entrySet()) {
-//					System.out.println("Argumentindex: " + constructor.getKey() + " Field: " + constructor.getValue());
-//				}
-//			}
-//
-//			System.out.println("");
-//
-//			for (Entry<FieldData, List<MethodData>> fieldEntry : entry.getValue().getFieldsUsedInMethods().entrySet()) {
-//				System.out.println("Field:" + fieldEntry.getKey());
-//
-//				System.out.println("Methods: ");
-//				for (MethodData methodData : fieldEntry.getValue()) {
-//					System.out.println(methodData);
-//				}
-//				System.out.println("");
-//
-//			}
-//		}
+		if (complexBluePrint instanceof ComplexBluePrint) {
 
-//		System.out.println("CalledFields: ");
+			Object reference = complexBluePrint.getReference();
+			ClassData classData = getClassData(reference);
+			Set<FieldData> calledFields = getCalledFields(reference);
+			System.out.println("Name:" + complexBluePrint.getName());
+			System.out.println("calledFields: " + calledFields);
+			System.out.println("classData: " + classData);
+		}
+	}
+
+	private static ClassData getClassData(Object reference) {
+
+		return MethodHandles.getStaticFieldValue(reference.getClass(), FIELD_NAME_CLASS_DATA);
+	}
+
+	private static Set<FieldData> getCalledFields(Object reference) {
+		return MethodHandles.getFieldValue(reference, FIELD_NAME_CALLED_FIELDS);
 	}
 
 }

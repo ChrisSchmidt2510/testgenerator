@@ -16,6 +16,11 @@ public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 	public abstract String valueCreation();
 
 	@Override
+	public boolean isComplexType() {
+		return false;
+	}
+
+	@Override
 	public String toString() {
 		// TODO just temporary
 		build = true;

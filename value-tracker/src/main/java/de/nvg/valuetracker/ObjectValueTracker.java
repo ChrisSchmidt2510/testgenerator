@@ -81,7 +81,6 @@ public class ObjectValueTracker {
 
 	}
 
-	// TODO inheritence beachten
 	private BluePrint trackValuesFromComplexTypes(Object value, String name) {
 		ComplexBluePrint complexBluePrint = new ComplexBluePrint(name, value);
 

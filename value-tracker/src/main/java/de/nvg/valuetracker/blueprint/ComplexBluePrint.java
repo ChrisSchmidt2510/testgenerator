@@ -43,4 +43,9 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 		return complex + "\n" + getName() + "\n" + toString;
 	}
+
+	@Override
+	public boolean isComplexType() {
+		return true;
+	}
 }
