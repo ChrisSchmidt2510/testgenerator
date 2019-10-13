@@ -16,7 +16,7 @@ public class JVMTypes {
 
 	public static final String COLLECTIONS = "java.util.Collections";
 
-	public static final String METHOD_ADD_COLLECTION = "add";
+	public static final String COLLECTION_METHOD_ADD = "add";
 
 	public static final List<String> COLLECTION_TYPES = Collections
 			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, QUEUE, MAP));

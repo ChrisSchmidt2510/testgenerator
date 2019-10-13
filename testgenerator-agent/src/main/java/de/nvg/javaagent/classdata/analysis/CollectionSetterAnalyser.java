@@ -35,7 +35,7 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 
 					if (Opcode.ALOAD_1 == instructions.get(index + 1).getOpcode()
 							&& Opcode.INVOKEINTERFACE == bytecodeInvokeInterface.getOpcode()
-							&& JVMTypes.METHOD_ADD_COLLECTION.equals(bytecodeInvokeInterface.getName())
+							&& JVMTypes.COLLECTION_METHOD_ADD.equals(bytecodeInvokeInterface.getName())
 							&& interfaceParams.size() == 1 && JVMTypes.OBJECT.equals(interfaceParams.get(0))) {
 
 						fieldWrapper.setValue(field);

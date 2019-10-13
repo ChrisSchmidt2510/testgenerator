@@ -8,7 +8,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,19 +42,6 @@ import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
 
 public class ClassDataTransformer implements ClassFileTransformer {
-
-	private static final String EQUALS = "equals";
-	private static final String HASHCODE = "hashCode";
-	private static final String TO_STRING = "toString";
-	private static final String FINALIZE = "finalize";
-	private static final String GET_CLASS = "getClass";
-	private static final String CLONE = "clone";
-	private static final String NOTIFY = "notify";
-	private static final String NOTIFY_ALL = "notifyAll";
-	private static final String WAIT = "wait";
-
-	private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
-			Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
 
 	private static final Logger LOGGER = Logger.getInstance();
 
@@ -126,7 +112,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			classData.addFields(fields);
 
-			GenerellMethodAnalyser methodAnalyser = new GenerellMethodAnalyser(fields);
+			MethodAnalyser methodAnalyser = new MethodAnalyser();
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
@@ -224,7 +210,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
 						method.getCodeAttribute());
 
-				if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName())) {
+				if (!MethodInfo.nameInit.equals(method.getName())
+						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
 					// Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
