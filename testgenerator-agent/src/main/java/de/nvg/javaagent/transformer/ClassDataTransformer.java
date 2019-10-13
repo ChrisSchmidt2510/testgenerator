@@ -126,14 +126,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			classData.addFields(fields);
 
-//			GenerellMethodAnalyser methodAnalyser = new GenerellMethodAnalyser(fields);
+			GenerellMethodAnalyser methodAnalyser = new GenerellMethodAnalyser(fields);
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
 
 			fieldTypeChanger.addFieldCalledField();
 
-			checkAndAlterMethods(loadingClass, classFile.getMethods(), null, //
+			checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
 					fieldTypeChanger, classData);
 
 			addMetaDataToClassFile(loadingClass, constantPool, classData);
@@ -195,7 +195,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
 
 				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs,
-						filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), method.getCodeAttribute());
+						/* filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), */ method
+								.getCodeAttribute());
 
 				// Map<Integer, FieldData> constructorInitalizedFields =
 				// methodAnalyser.analyseConstructor(
@@ -210,6 +211,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				// {
 				// classData.setConstructorInitalizedFields(constructorInitalizedFields);
 				// }
+
+			} else if (MethodInfo.nameClinit.equals(method.getName())) {
 
 			} else {
 
@@ -237,10 +240,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			}
 		}
 
+		LOGGER.resetMethod();
+
 	}
 
 	private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
 			throws BadBytecode, CannotCompileException {
+
 		ClassFile classFile = loadingClass.getClassFile();
 
 		MethodInfo clinit = null;
@@ -251,7 +257,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		if (clinit != null) {
 			instructions = Instructions.getAllInstructions(clinit);
 		} else {
-			LOGGER.info("Erstelle " + MethodInfo.nameClinit + " für Klasse" + loadingClass.getName());
+			LOGGER.info("Erstelle " + MethodInfo.nameClinit + " für Klasse " + loadingClass.getName());
 
 			clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
 

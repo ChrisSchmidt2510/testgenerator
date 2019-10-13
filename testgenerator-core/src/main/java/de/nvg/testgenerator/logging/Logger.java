@@ -1,5 +1,7 @@
 package de.nvg.testgenerator.logging;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 
 public class Logger {
@@ -24,6 +26,11 @@ public class Logger {
 
 	public void setMethodDescriptor(String methodDescriptor) {
 		this.methodDescriptor = methodDescriptor;
+	}
+
+	public void resetMethod() {
+		this.methodName = null;
+		this.methodDescriptor = null;
 	}
 
 	public void setLevel(Level level) {
@@ -115,15 +122,21 @@ public class Logger {
 	}
 
 	public boolean isLevelActive(Level level) {
-		return this.level.ordinal() <= level.ordinal();
+		return this.level.ordinal() >= level.ordinal();
 	}
 
 	private void printMessage(String message) {
 		if (className != null && methodName != null) {
-			System.out.println("Class: " + className + " Method: " + methodName + methodDescriptor + " " + message);
+
+			System.out.print(startLogMessage() + "Class: " + className + //
+					" Method: " + methodName + methodDescriptor + " " + message + "\n");
 		} else {
-			System.out.println(message);
+			System.out.print(startLogMessage() + message + "\n");
 		}
+	}
+
+	private String startLogMessage() {
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " [" + level + "] ";
 	}
 
 }

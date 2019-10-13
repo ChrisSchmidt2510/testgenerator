@@ -100,10 +100,11 @@ public class FieldTypeChanger {
 	}
 
 	public void changeFieldInitialization(List<Instruction> instructions,
-			Map<Integer, Instruction> aload0PutFieldInstructionPairs, int returnInstructionIndex,
-			CodeAttribute codeAttribute) throws BadBytecode {
+			Map<Integer, Instruction> aload0PutFieldInstructionPairs, CodeAttribute codeAttribute) throws BadBytecode {
 
 		int codeArrayIndexModificator = 0;
+
+		int codeArrayLastPutFieldInstruction = 0;
 
 		List<FieldData> initalizedFields = new ArrayList<>();
 
@@ -114,6 +115,8 @@ public class FieldTypeChanger {
 		for (Entry<Integer, Instruction> entry : aload0PutFieldInstructionPairs.entrySet()) {
 			int lastAloadInstructionIndex = entry.getKey() + codeArrayIndexModificator;
 			Instruction instruction = entry.getValue();
+
+			codeArrayLastPutFieldInstruction = instruction.getCodeArrayIndex() + 3;
 
 			int putFieldIndex = instructions.indexOf(instruction);
 			Instruction instructionBeforePutField = instructions.get(putFieldIndex - 1);
@@ -169,9 +172,16 @@ public class FieldTypeChanger {
 			FieldData field = new FieldData.Builder().withDataType(Descriptor.toClassName(instruction.getType()))
 					.withName(instruction.getName()).build();
 			initalizedFields.add(field);
+
+			LOGGER.trace(() -> "Added Field(\"" + field.getName() + "\", \"" + field.getDataType()
+					+ "\") Manipulation: \n" + Instructions.showCodeArray(iterator, constantPool));
 		}
 
-		for (FieldData field : getUnitializedFields(initalizedFields)) {
+		for (
+
+		FieldData field :
+
+		getUnitializedFields(initalizedFields)) {
 
 			String dataType = Descriptor.of(field.getDataType());
 
@@ -191,7 +201,11 @@ public class FieldTypeChanger {
 			bytecode.addInvokespecial(proxy, MethodInfo.nameInit, getInitDescriptor(proxy));
 			bytecode.addPutfield(loadingClass, field.getName(), proxy);
 
-			iterator.insertEx(returnInstructionIndex + codeArrayIndexModificator, bytecode.get());
+			if (codeArrayLastPutFieldInstruction == 0) {
+				codeArrayLastPutFieldInstruction = 4;
+			}
+
+			iterator.insertEx(codeArrayLastPutFieldInstruction + codeArrayIndexModificator, bytecode.get());
 
 			codeArrayIndexModificator = codeArrayIndexModificator + bytecode.getSize();
 		}
@@ -262,7 +276,7 @@ public class FieldTypeChanger {
 				Bytecode afterLoad = new Bytecode(constantPool);
 				afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
 
-				codeArrayModificator.addCodeArrayModificator(codeArrayIndex, 3);
+				codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
 
 				iterator.write(afterLoad.get(),
 						instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
