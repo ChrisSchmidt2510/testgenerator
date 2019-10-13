@@ -9,7 +9,8 @@ import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.testgenerator.MapBuilder;
-import de.nvg.testgenerator.classdata.Primitives;
+import de.nvg.testgenerator.classdata.constants.JVMTypes;
+import de.nvg.testgenerator.classdata.constants.Primitives;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -63,8 +64,6 @@ public class FieldTypeChanger {
 	private static final String GET_SHORT_VALUE = "getShortValue";
 	private static final String GET_CHAR_VALUE = "getCharValue";
 
-	private static final String OBJECT = "Ljava/lang/Object;";
-
 	private static final Map<String, String> PRIMITIVE_PROXIES = MapBuilder.<String, String>hashMapBuilder()
 			.add(Primitives.JVM_BYTE, INTEGER_PROXY)//
 			.add(Primitives.JVM_BOOLEAN, BOOLEAN_PROXY)//
@@ -86,7 +85,7 @@ public class FieldTypeChanger {
 
 	private static final Map<String, String> PROXY_SET_VALUE_DESCRIPTOR = //
 			MapBuilder.<String, String>hashMapBuilder()//
-					.add(REFERENCE_PROXY, OBJECT) //
+					.add(REFERENCE_PROXY, JVMTypes.OBJECT) //
 					.add(INTEGER_PROXY, Primitives.JVM_INT)//
 					.add(BOOLEAN_PROXY, Primitives.JVM_BOOLEAN)//
 					.add(FLOAT_PROXY, Primitives.JVM_FLOAT)//
@@ -354,7 +353,7 @@ public class FieldTypeChanger {
 	}
 
 	private static String getGetValueDescriptor(String dataType) {
-		return "()" + (Primitives.isPrimitiveDataType(dataType) ? dataType : OBJECT);
+		return "()" + (Primitives.isPrimitiveDataType(dataType) ? dataType : JVMTypes.OBJECT);
 	}
 
 	private List<FieldData> getUnitializedFields(List<FieldData> initalizedFields) {

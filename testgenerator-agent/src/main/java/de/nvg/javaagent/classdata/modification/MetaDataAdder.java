@@ -1,7 +1,5 @@
 package de.nvg.javaagent.classdata.modification;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +13,7 @@ import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
 import de.nvg.javaagent.classdata.modification.indy.InvocationType;
 import de.nvg.javaagent.classdata.modification.indy.SupplierBootstrapMethodCreator;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
@@ -65,15 +64,6 @@ public class MetaDataAdder {
 	private static final String METHODHANDLES_RETURN_TYPE = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;";
 
 	private static final String FIELD_NAME = "classData";
-
-	private static final String COLLECTION = "java.util.Collection";
-	private static final String LIST = "java.util.List";
-	private static final String SET = "java.util.Set";
-	private static final String MAP = "java.util.Map";
-	private static final String QUEUE = "java.util.Queue";
-
-	private static final List<String> COLLECTIONS = Collections
-			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, MAP, QUEUE));
 
 	public MetaDataAdder(ConstPool constantPool, CtClass loadingClass, ClassData classData) {
 		this.constantPool = constantPool;
@@ -159,7 +149,7 @@ public class MetaDataAdder {
 				MethodData method = methods.get(0);
 
 				if (MethodType.REFERENCE_VALUE_SETTER == method.getMethodType()
-						|| COLLECTIONS.contains(field.getDataType())
+						|| JavaTypes.COLLECTIONS.contains(field.getDataType())
 								&& (MethodType.COLLECTION_SETTER == method.getMethodType()
 										|| MethodType.REFERENCE_VALUE_GETTER == method.getMethodType())) {
 

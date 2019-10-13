@@ -8,7 +8,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +15,14 @@ import java.util.Map;
 import de.nvg.javaagent.AgentException;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
-import de.nvg.javaagent.classdata.analysis.GenerellMethodAnalyser;
+import de.nvg.javaagent.classdata.analysis.MethodAnalyser;
 import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
 import de.nvg.testgenerator.RuntimeProperties;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -42,21 +42,6 @@ import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
 
 public class ClassDataTransformer implements ClassFileTransformer {
-
-	private static final String EQUALS = "equals";
-	private static final String HASHCODE = "hashCode";
-	private static final String TO_STRING = "toString";
-	private static final String FINALIZE = "finalize";
-	private static final String GET_CLASS = "getClass";
-	private static final String CLONE = "clone";
-	private static final String NOTIFY = "notify";
-	private static final String NOTIFY_ALL = "notifyAll";
-	private static final String WAIT = "wait";
-
-	private static final String OBJECT = "java.lang.Object";
-
-	private static final List<String> OBJECT_METHODS = Collections.unmodifiableList(
-			Arrays.asList(EQUALS, HASHCODE, FINALIZE, TO_STRING, GET_CLASS, CLONE, NOTIFY, NOTIFY_ALL, WAIT));
 
 	private static final Logger LOGGER = Logger.getInstance();
 
@@ -85,9 +70,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
-				try (FileOutputStream fios = new FileOutputStream(
+				try (FileOutputStream fos = new FileOutputStream(
 						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
-					fios.write(bytecode);
+					fos.write(bytecode);
 				}
 
 				return bytecode;
@@ -106,7 +91,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		String superClass = classFile.getSuperclass();
 
-		if (!OBJECT.equals(superClass)) {
+		if (!JavaTypes.OBJECT.equals(superClass)) {
 			ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
 
 			if (superClassData == null) {
@@ -127,7 +112,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			classData.addFields(fields);
 
-			GenerellMethodAnalyser methodAnalyser = new GenerellMethodAnalyser(fields);
+			MethodAnalyser methodAnalyser = new MethodAnalyser();
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
@@ -176,9 +161,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return fieldsFromClass;
 	}
 
-	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods,
-			GenerellMethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger, ClassData classData)
-			throws Exception {
+	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
+			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
 
 		for (int i = 0; i < methods.size(); i++) {
 			MethodInfo method = methods.get(i);
@@ -226,7 +210,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
 						method.getCodeAttribute());
 
-				if (!MethodInfo.nameInit.equals(method.getName()) && !OBJECT_METHODS.contains(method.getName())) {
+				if (!MethodInfo.nameInit.equals(method.getName())
+						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
 					// Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
