@@ -30,7 +30,7 @@ import de.nvg.proxy.impl.ReferenceProxy;
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.RuntimeProperties;
-import de.nvg.testgenerator.classdata.Primitives;
+import de.nvg.testgenerator.classdata.constants.Primitives;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
