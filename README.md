@@ -27,3 +27,22 @@ Das Projekt testgenerator-proxy enthält die Proxys die um die Felder der BL-Kla
 Das Projekt value-tracker wandelt die Methodenparameter, in eine später verarbeitetbare Darstellweise um.
 
 Die Projekte classdatamodel-rt, proxy, core, value-tracker und generation müssen nur zur eigentlichen Laufzeit der Applikation zur Verfügung stehen.
+
+Next Steps:
+Aufsplitten in AgentProperties und RuntimeProperties(JVM Arguments at Runtime:https://stackoverflow.com/questions/1490869/how-to-get-vm-arguments-from-inside-of-java-application)
+
+Logging:
+Erstellung Logger-Instanz wie bei log4j
+Laden Logger-conf evtl per XML
+
+Testclassgeneration
+Interface für die Generierung der Testklasse definieren
+Default-Implementierung des Interfaces schreiben
+Andere Implementierungen können in der Config angegeben werden
+
+Bugfixes:
+ObjectValueTracker mit Simple-bl Projekt
+Analysis-Package mit Sample-bl Projekt
+
+Implementierung weiterer Analysis Methoden(Map u. Arrays)n
+
