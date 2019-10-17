@@ -31,6 +31,8 @@ Die Projekte classdatamodel-rt, proxy, core, value-tracker und generation müsse
 Next Steps:
 Aufsplitten in AgentProperties und RuntimeProperties(JVM Arguments at Runtime:https://stackoverflow.com/questions/1490869/how-to-get-vm-arguments-from-inside-of-java-application)
 
+NamingService für ObjectValueTracker
+
 Logging:
 Erstellung Logger-Instanz wie bei log4j
 Laden Logger-conf evtl per XML
