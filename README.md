@@ -30,6 +30,7 @@ Die Projekte classdatamodel-rt, proxy, core, value-tracker und generation müsse
 
 Next Steps:
 Aufsplitten in AgentProperties und RuntimeProperties(JVM Arguments at Runtime:https://stackoverflow.com/questions/1490869/how-to-get-vm-arguments-from-inside-of-java-application)
+Das Argument Bl-Package anpassen sodass auch Wildcards enthalten sein können z.B.(der/nbg/dubi/ecb/*/entities) 
 
 NamingService für ObjectValueTracker
 
@@ -48,3 +49,4 @@ Analysis-Package mit Sample-bl Projekt
 
 Implementierung weiterer Analysis Methoden(Map u. Arrays)n
 
+Eclipse Plugin damit man die Agent-Argumente nicht mehr händisch anpassen muss
