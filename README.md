@@ -30,9 +30,11 @@ Die Projekte classdatamodel-rt, proxy, core, value-tracker und generation müsse
 
 Next Steps:
 Aufsplitten in AgentProperties und RuntimeProperties(JVM Arguments at Runtime:https://stackoverflow.com/questions/1490869/how-to-get-vm-arguments-from-inside-of-java-application)
-Das Argument Bl-Package anpassen sodass auch Wildcards enthalten sein können z.B.(der/nbg/dubi/ecb/*/entities) 
+Das Argument Bl-Package anpassen sodass auch Wildcards enthalten sein können z.B.(de/nbg/dubi/ecb/*/entities)
+Und es auch mehrere Packages sein können
 
 NamingService für ObjectValueTracker
+Interface BluePrint um Default Methoden erweitern was für ein BluePrint es ist + Cast-Methods
 
 Logging:
 Erstellung Logger-Instanz wie bei log4j
