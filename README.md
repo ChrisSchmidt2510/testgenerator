@@ -36,6 +36,10 @@ Und es auch mehrere Packages sein können
 NamingService für ObjectValueTracker
 Interface BluePrint um Default Methoden erweitern was für ein BluePrint es ist + Cast-Methods
 
+Lambdas als Übergabeparameter ermöglichen:
+-Dafür muss das rt-classdata um einen neuen Typ(dieser muss ein Instructionset der Lambda-Methode beinhalten  + evtl aufgerufene Felder + evtl API Veränderung der Proxies um Methode das jetzt ein Feld(mit Auswertung Instruction-kette ob von dem Feld bloß ein getter aufgerufen wird) innerhalb Lambda aufgerufen wird, speichern des Wertes ) erweitert werden)
+-Im Testgeneration-Projekt muss ein kleiner Decompiler implementiert werden der das mitgelieferte Instructionset auswertet und daraus wieder Java-Code generiert
+
 Logging:
 Erstellung Logger-Instanz wie bei log4j
 Laden Logger-conf evtl per XML
