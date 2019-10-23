@@ -37,7 +37,11 @@ Next Steps:
 -Interface BluePrint um Default Methoden erweitern was für ein BluePrint es ist + Cast-Methods
 
 -Lambdas als Übergabeparameter ermöglichen:
-    -Dafür muss das rt-classdata um einen neuen Typ (dieser muss ein Instructionset der Lambda-Methode beinhalten)
+    -Dafür muss das rt-classdata um einen neuen Typ
+        -neue Klasse LambdaInstructionset
+             -Felder: Name(Name der vom Compiler erstellten Methode), List<Instruction>
+        -neues Interface: Interface Instruction
+             -Zu Beginn 4 Implementierungen: InvokeInstruction, FieldInstruction, LoadPushInstruction, BasicInstruction
     -Erweiertung Proxy-API:
         -Jede Klasse im BL-Package implementiert ein Interface z.B. ProxyHierachie
         -Konstruktur des Proxies registriert sich der Proxy bei seinem Parent
