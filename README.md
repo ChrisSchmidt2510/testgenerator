@@ -41,7 +41,7 @@ Next Steps:
         -neue Klasse LambdaInstructionset
              -Felder: Name(Name der vom Compiler erstellten Methode), List<Instruction>
         -neues Interface: Interface Instruction
-             -Zu Beginn 4 Implementierungen: InvokeInstruction, FieldInstruction, LoadPushInstruction, BasicInstruction
+             -Zu Beginn 5 Implementierungen: InvokeInstruction, FieldInstruction, StackInstruction(load/Store),ConstantInstruction, BasicInstruction
     -Erweiertung Proxy-API:
         -Jede Klasse im BL-Package implementiert ein Interface z.B. ProxyHierachie
         -Konstruktur des Proxies registriert sich der Proxy bei seinem Parent
