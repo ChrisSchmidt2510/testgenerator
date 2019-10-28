@@ -9,6 +9,12 @@ import de.nvg.testgenerator.classdata.constants.JVMTypes;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 
+/**
+ * Can be used for a Collection, a List, a Queue and a Set
+ * 
+ * @author Christoph
+ *
+ */
 public class CollectionSetterAnalyser implements MethodAnalysis {
 
 	@Override
