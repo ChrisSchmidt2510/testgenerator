@@ -11,6 +11,11 @@ public class ConstructorData {
 		this.defaultConstructor = defaultConstructor;
 	}
 
+	public ConstructorData(Map<Integer, FieldData> constructorFields) {
+		this.constructorElements = constructorFields;
+		this.defaultConstructor = false;
+	}
+
 	public boolean isDefaultConstructor() {
 		return defaultConstructor;
 	}

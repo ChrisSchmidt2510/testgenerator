@@ -54,7 +54,7 @@ public class ClassData {
 		return Collections.unmodifiableList(fields);
 	}
 
-	public void setHasDefaultConstructor(boolean defaultConstructor) {
+	public void setDefaultConstructor(boolean defaultConstructor) {
 		constructor = new ConstructorData(defaultConstructor);
 	}
 

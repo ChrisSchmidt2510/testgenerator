@@ -18,6 +18,7 @@ import de.nvg.javaagent.classdata.Instructions;
 import de.nvg.javaagent.classdata.analysis.MethodAnalyser;
 import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
+import de.nvg.javaagent.classdata.model.ConstructorData;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
@@ -181,22 +182,19 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
 
 				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs,
-						/* filteredInstructions.get(Opcode.RETURN).get(0).getCodeArrayIndex(), */ method
-								.getCodeAttribute());
+						method.getCodeAttribute());
 
-				// Map<Integer, FieldData> constructorInitalizedFields =
-				// methodAnalyser.analyseConstructor(
-				// method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD),
-				// instructions);
+				if (!classData.hasDefaultConstructor()) {
+					Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser.analyseConstructor(
+							method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD), instructions);
 
-				// if (constructorInitalizedFields.isEmpty())
-				// {
-				// classData.setHasDefaultConstructor(true);
-				// }
-				// else
-				// {
-				// classData.setConstructorInitalizedFields(constructorInitalizedFields);
-				// }
+					if (constructorInitalizedFields.isEmpty()) {
+						classData.setDefaultConstructor(true);
+					} else {
+						ConstructorData constructor = new ConstructorData(constructorInitalizedFields);
+						classData.setConstructor(constructor);
+					}
+				}
 
 			} else if (MethodInfo.nameClinit.equals(method.getName())) {
 
