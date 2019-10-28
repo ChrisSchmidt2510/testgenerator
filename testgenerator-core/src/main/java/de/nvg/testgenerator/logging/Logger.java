@@ -103,7 +103,7 @@ public class Logger {
 
 	public void log(Level level, String message) {
 		if (isLevelActive(level)) {
-			printMessage(message);
+			printMessage(level, message);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class Logger {
 
 	public void log(Level level, Supplier<String> message) {
 		if (isLevelActive(level)) {
-			printMessage(message.get());
+			printMessage(level, message.get());
 		}
 	}
 
@@ -125,18 +125,19 @@ public class Logger {
 		return this.level.ordinal() >= level.ordinal();
 	}
 
-	private void printMessage(String message) {
+	private void printMessage(Level messageLevel, String message) {
 		if (className != null && methodName != null) {
 
-			System.out.print(startLogMessage() + "Class: " + className + //
+			System.out.print(startLogMessage(messageLevel) + "Class: " + className + //
 					" Method: " + methodName + methodDescriptor + " " + message + "\n");
 		} else {
-			System.out.print(startLogMessage() + message + "\n");
+			System.out.print(startLogMessage(messageLevel) + message + "\n");
 		}
 	}
 
-	private String startLogMessage() {
-		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " [" + level + "] ";
+	private String startLogMessage(Level messageLevel) {
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " [" + messageLevel
+				+ "] ";
 	}
 
 }
