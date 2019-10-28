@@ -2,6 +2,8 @@ package de.nvg.testgenerator;
 
 import java.util.Set;
 
+import com.squareup.javapoet.JavaFile;
+
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.valuetracker.blueprint.BluePrint;
@@ -12,8 +14,17 @@ public class Testgenerator {
 	private static final String FIELD_NAME_CLASS_DATA = "classData";
 	private static final String FIELD_NAME_CALLED_FIELDS = "calledFields";
 
-	public static void generate() {
+	/*
+	 * Einstiegspunkt für die Generierung der Testklasse
+	 * 
+	 * @Param className Name der Klasse für die der Test generiert wird
+	 * 
+	 * @Param Name der Methode für die ein Testfall erstellt wird
+	 */
+	public static void generate(String className, String method) {
 		RuntimeProperties.getInstance().setActivateTracking(false);
+
+		generateJavaFile(className, method);
 		System.out.println("BluePrints: ");
 		for (BluePrint bluePrint : ValueStorage.getInstance().getBluePrints()) {
 
@@ -22,6 +33,11 @@ public class Testgenerator {
 //			System.out.println("BluePrint");
 //			System.out.println(bluePrint.toString());
 		}
+	}
+
+	private static void generateJavaFile(String className, String method) {
+		System.out.println(className);
+		JavaFile javaFile = JavaFile.builder("", null).build();
 	}
 
 	private static void generateBluePrint(BluePrint bluePrint) {
