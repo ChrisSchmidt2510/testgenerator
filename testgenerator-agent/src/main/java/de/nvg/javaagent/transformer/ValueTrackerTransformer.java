@@ -8,6 +8,7 @@ import java.security.ProtectionDomain;
 
 import de.nvg.javaagent.AgentException;
 import de.nvg.testgenerator.RuntimeProperties;
+import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -21,6 +22,8 @@ import javassist.bytecode.MethodInfo;
 public class ValueTrackerTransformer implements ClassFileTransformer {
 	private RuntimeProperties properties = RuntimeProperties.getInstance();
 
+	private Logger LOGGER = Logger.getInstance();
+
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -33,6 +36,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				return reTransformMethodForObservObjectData(classToLoad);
 
 			} catch (IOException | CannotCompileException | NotFoundException e) {
+				LOGGER.error(e);
 				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
 			}
 
@@ -57,7 +61,8 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 		int parameterCount = countMethodParameters(properties.getMethodDescriptor());
 
-		method.insertAfter("de.nvg.testgenerator.Testgenerator.generate();");
+		method.insertAfter("de.nvg.testgenerator.Testgenerator.generate(\"" + properties.getClassName() + "\",\""
+				+ properties.getMethod() + "\");");
 
 		method.insertBefore("valueTracker.enableGetterCallsTracking();");
 		for (int i = parameterCount; i >= lowestParameterIndex; i--) {
