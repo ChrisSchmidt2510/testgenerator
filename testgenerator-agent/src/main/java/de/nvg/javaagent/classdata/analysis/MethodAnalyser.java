@@ -18,8 +18,12 @@ public class MethodAnalyser {
 
 	private final NormalSetterAnalyser setterAnalyser = new NormalSetterAnalyser();
 	private final NormalGetterAnalyser getterAnalyser = new NormalGetterAnalyser();
-	private final CollectionSetterAnalyser collectionAddAnalyser = new CollectionSetterAnalyser();
+	private final CollectionSetterAnalyser collectionAddAnalyser;
 	private final ImmutableCollectionGetter immutableCollectionGetter = new ImmutableCollectionGetter();
+
+	public MethodAnalyser(List<FieldData> fields) {
+		collectionAddAnalyser = new CollectionSetterAnalyser(fields);
+	}
 
 	public MethodData analyse(String name, String descriptor, int modifier, List<Instruction> instructions,
 			Wrapper<FieldData> fieldWrapper) {

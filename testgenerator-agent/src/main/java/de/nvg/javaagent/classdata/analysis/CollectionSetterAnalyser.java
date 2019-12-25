@@ -16,6 +16,11 @@ import javassist.bytecode.Opcode;
  *
  */
 public class CollectionSetterAnalyser implements MethodAnalysis {
+	private final List<FieldData> fields;
+
+	public CollectionSetterAnalyser(List<FieldData> fields) {
+		this.fields = fields;
+	}
 
 	@Override
 	public boolean analyse(String descriptor, List<Instruction> instructions, Wrapper<FieldData> fieldWrapper) {
@@ -25,8 +30,8 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 			if (Opcode.GETFIELD == instruction.getOpcode()
 					&& JVMTypes.COLLECTION_TYPES.contains(instruction.getType())) {
 
-				FieldData field = new FieldData.Builder().withName(instruction.getName())
-						.withDataType(Descriptor.toClassName(instruction.getType())).build();
+				FieldData field = AnalysisHelper.getField(fields, instruction.getName(),
+						Descriptor.toClassName(instruction.getType()));
 
 				List<String> params = AnalysisHelper.getMethodParams(descriptor);
 

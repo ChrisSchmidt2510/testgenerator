@@ -62,7 +62,7 @@ public class PropertyParser {
 		Objects.requireNonNull(properties.get(ARG_BL_PACKAGE),
 				"Es muss ein " + ARG_BL_PACKAGE + " Parameter uebergeben werden");
 
-		return null;
+		return properties;
 
 	}
 

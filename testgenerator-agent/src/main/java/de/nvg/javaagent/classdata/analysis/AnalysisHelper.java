@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import de.nvg.javaagent.classdata.Instruction;
+import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.bytecode.Opcode;
@@ -85,5 +86,12 @@ public final class AnalysisHelper {
 		}
 
 		return Collections.unmodifiableList(genericTypes);
+	}
+
+	static FieldData getField(List<FieldData> fields, String name, String type) {
+		return fields.stream().filter(field -> field.getName().equals(name) && field.getDataType().equals(type))
+				.findAny()
+				// can't be null cause the classfile would be otherwise incorrect
+				.orElse(null);
 	}
 }

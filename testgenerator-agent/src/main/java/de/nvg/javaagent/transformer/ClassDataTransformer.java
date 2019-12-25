@@ -20,8 +20,10 @@ import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.ClassDataStorage;
 import de.nvg.javaagent.classdata.model.ConstructorData;
 import de.nvg.javaagent.classdata.model.FieldData;
+import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
+import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.AgentProperties;
@@ -113,7 +115,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			classData.addFields(fields);
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser();
+			MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
@@ -211,15 +213,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				if (!MethodInfo.nameInit.equals(method.getName())
 						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
-					// Wrapper<FieldData> fieldWrapper = new Wrapper<>();
+					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
-					// MethodData methodData = methodAnalyser.analyse(method.getName(),
-					// method.getDescriptor(),
-					// method.getAccessFlags(), instructions, fieldWrapper);
-					//
-					// if (methodData != null) {
-					// classData.addMethod(methodData, fieldWrapper.getValue());
-					// }
+					MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
+							method.getAccessFlags(), instructions, fieldWrapper);
+
+					if (methodData != null) {
+						classData.addMethod(methodData, fieldWrapper.getValue());
+					}
 
 				}
 			}
