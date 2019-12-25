@@ -10,11 +10,14 @@ import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
 import de.nvg.testgenerator.Wrapper;
+import de.nvg.testgenerator.logging.Logger;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Descriptor;
 
 public class MethodAnalyser {
+
+	private static final Logger LOGGER = Logger.getInstance();
 
 	private final NormalSetterAnalyser setterAnalyser = new NormalSetterAnalyser();
 	private final NormalGetterAnalyser getterAnalyser = new NormalGetterAnalyser();
@@ -27,6 +30,8 @@ public class MethodAnalyser {
 
 	public MethodData analyse(String name, String descriptor, int modifier, List<Instruction> instructions,
 			Wrapper<FieldData> fieldWrapper) {
+
+		LOGGER.info("Starte Analysis der Methode: " + name + descriptor);
 
 		MethodData methodData = null;
 

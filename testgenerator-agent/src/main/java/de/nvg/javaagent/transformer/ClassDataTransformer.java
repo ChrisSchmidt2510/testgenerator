@@ -48,8 +48,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 	private static final Logger LOGGER = Logger.getInstance();
 
-	// private static final String MAP = "Ljava/util/Map;";
-
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -57,7 +55,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		if (className.startsWith(AgentProperties.getInstance().getBlPackage())
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))) {
 
-			LOGGER.debug("ClassName: " + className);
+			LOGGER.info("ClassName: " + className);
 			LOGGER.setClassName(className);
 
 			ClassDataStorage.getInstance().removeSuperclassToLoad(className);
@@ -101,14 +99,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				ClassDataStorage.getInstance().addSuperclassToLoad(superClass);
 			}
 
-			LOGGER.debug("Superclass: " + superClass);
+			LOGGER.info("Superclass: " + superClass);
 			classData.setSuperClass(superClass);
 		}
 
 		ConstPool constantPool = classFile.getConstPool();
 
 		if (Modifier.isEnum(loadingClass.getModifiers())) {
-			LOGGER.debug("isEnum: true");
+			LOGGER.info("isEnum: true");
 			classData.setIsEnum(true);
 		} else {
 			List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
@@ -153,7 +151,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						.isStatic(Modifier.isStatic(fieldInfo.getAccessFlags()))
 						.withSignature(signature != null ? signature.getSignature() : null).build();
 
-				LOGGER.debug("added Field: " + fieldData);
+				LOGGER.info("added Field: " + fieldData);
 
 				fieldsFromClass.add(fieldData);
 
@@ -169,6 +167,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		for (int i = 0; i < methods.size(); i++) {
 			MethodInfo method = methods.get(i);
+
+			LOGGER.info("Starte Transformation fuer die Methode " + method.getName() + method.getDescriptor());
 
 			LOGGER.setMethodName(method.getName());
 			LOGGER.setMethodDescriptor(method.getDescriptor());
