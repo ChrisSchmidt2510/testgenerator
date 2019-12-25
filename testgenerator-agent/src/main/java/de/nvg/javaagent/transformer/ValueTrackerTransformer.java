@@ -7,8 +7,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import de.nvg.javaagent.AgentException;
-import de.nvg.testgenerator.RuntimeProperties;
 import de.nvg.testgenerator.logging.Logger;
+import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -20,7 +20,7 @@ import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
 public class ValueTrackerTransformer implements ClassFileTransformer {
-	private RuntimeProperties properties = RuntimeProperties.getInstance();
+	private AgentProperties properties = AgentProperties.getInstance();
 
 	private Logger LOGGER = Logger.getInstance();
 

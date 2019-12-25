@@ -6,6 +6,7 @@ import com.squareup.javapoet.JavaFile;
 
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
+import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 import de.nvg.valuetracker.storage.ValueStorage;

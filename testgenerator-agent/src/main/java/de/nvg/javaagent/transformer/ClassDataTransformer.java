@@ -22,9 +22,9 @@ import de.nvg.javaagent.classdata.model.ConstructorData;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
-import de.nvg.testgenerator.RuntimeProperties;
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.Logger;
+import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -52,7 +52,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (className.startsWith(RuntimeProperties.getInstance().getBlPackage())
+		if (className.startsWith(AgentProperties.getInstance().getBlPackage())
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))) {
 
 			LOGGER.debug("ClassName: " + className);
