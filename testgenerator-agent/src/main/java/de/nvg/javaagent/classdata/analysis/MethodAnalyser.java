@@ -10,6 +10,7 @@ import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
 import de.nvg.testgenerator.Wrapper;
+import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
@@ -17,12 +18,12 @@ import javassist.bytecode.Descriptor;
 
 public class MethodAnalyser {
 
-	private static final Logger LOGGER = Logger.getInstance();
+	private static final Logger LOGGER = LogManager.getLogger(MethodAnalyser.class);
 
 	private final NormalSetterAnalyser setterAnalyser = new NormalSetterAnalyser();
 	private final NormalGetterAnalyser getterAnalyser = new NormalGetterAnalyser();
 	private final CollectionSetterAnalyser collectionAddAnalyser;
-	private final ImmutableCollectionGetter immutableCollectionGetter = new ImmutableCollectionGetter();
+	private final ImmutableCollectionGetterAnalyser immutableCollectionGetter = new ImmutableCollectionGetterAnalyser();
 
 	public MethodAnalyser(List<FieldData> fields) {
 		collectionAddAnalyser = new CollectionSetterAnalyser(fields);

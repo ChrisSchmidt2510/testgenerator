@@ -6,8 +6,6 @@ import java.util.NoSuchElementException;
 
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
-import de.nvg.testgenerator.logging.Level;
-import de.nvg.testgenerator.logging.Logger;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
@@ -51,7 +49,8 @@ public class TestHelper {
 
 		filteredInstructions = Instructions.getFilteredInstructions(instructions, opcodes);
 
-		Logger.getInstance().setLevel(Level.TRACE);
+		// TODO CS
+//		Logger.getInstance().setLevel(Level.TRACE);
 
 		return this;
 	}

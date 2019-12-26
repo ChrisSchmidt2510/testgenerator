@@ -11,6 +11,7 @@ import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;
 import de.nvg.testgenerator.classdata.constants.Primitives;
+import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -33,7 +34,7 @@ public class FieldTypeChanger {
 	private final ConstPool constantPool;
 	private final CtClass loadingClass;
 
-	private static final Logger LOGGER = Logger.getInstance();
+	private static final Logger LOGGER = LogManager.getLogger(FieldTypeChanger.class);
 
 	private static final String REFERENCE_PROXY = "Lde/nvg/proxy/impl/ReferenceProxy;";
 	private static final String REFERENCE_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;)V";

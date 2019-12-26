@@ -5,9 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-import de.nvg.testgenerator.logging.Level;
-import de.nvg.testgenerator.logging.Logger;
-
 public class PropertyParser {
 	public static final String ARG_CLASS = "Class";
 	public static final String ARG_METHOD = "Method";
@@ -47,7 +44,8 @@ public class PropertyParser {
 				properties.put(ARG_TRACE_GETTER_CALLS, secondHalfOfToken(token));
 				break;
 			case ARG_LOG_LEVEL:
-				Logger.getInstance().setLevel(Level.valueOf(secondHalfOfToken(token)));
+				// TODO CS
+//				Logger.getInstance().setLevel(Level.valueOf(secondHalfOfToken(token)));
 				break;
 			default:
 				throw new IllegalArgumentException("Ungueltiger Parameter für den ClassTransformerAgent");

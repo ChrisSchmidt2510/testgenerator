@@ -1,23 +1,19 @@
 package de.nvg.testgenerator.logging;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 
+import de.nvg.testgenerator.logging.config.Configuration;
+import de.nvg.testgenerator.logging.config.Level;
+
 public class Logger {
-	private static final Logger INSTANCE = new Logger();
 
-	private Level level;
+	private final Configuration config;
 
-	private Logger() {
-	}
-
-	public void setLevel(Level level) {
-		this.level = level;
-	}
-
-	public static Logger getInstance() {
-		return INSTANCE;
+	Logger(Configuration config) {
+		this.config = config;
 	}
 
 	public void error(String message) {
@@ -101,17 +97,17 @@ public class Logger {
 	}
 
 	public boolean isLevelActive(Level level) {
-		return this.level.ordinal() >= level.ordinal();
+		return this.config.getLevel().ordinal() >= level.ordinal();
 	}
 
 	private void printMessage(Level messageLevel, String message) {
-//		if (className != null && methodName != null) {
-//
-//			System.out.print(startLogMessage(messageLevel) + "Class: " + className + //
-//					" Method: " + methodName + methodDescriptor + " " + message + "\n");
-//		} else {
-		System.out.print(startLogMessage(messageLevel) + message + "\n");
-//		}
+		config.getOutputStream().forEach(stream -> {
+			try {
+				stream.write((startLogMessage(messageLevel) + message + "\n").getBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	private String startLogMessage(Level messageLevel) {

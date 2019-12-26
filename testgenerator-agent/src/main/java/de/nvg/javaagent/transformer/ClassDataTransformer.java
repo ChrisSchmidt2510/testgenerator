@@ -25,6 +25,7 @@ import de.nvg.javaagent.classdata.modification.MetaDataAdder;
 import de.nvg.javaagent.classdata.modification.fields.FieldTypeChanger;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
+import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.CannotCompileException;
@@ -46,7 +47,7 @@ import javassist.bytecode.SignatureAttribute;
 
 public class ClassDataTransformer implements ClassFileTransformer {
 
-	private static final Logger LOGGER = Logger.getInstance();
+	private static final Logger LOGGER = LogManager.getLogger(ClassDataTransformer.class);
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
