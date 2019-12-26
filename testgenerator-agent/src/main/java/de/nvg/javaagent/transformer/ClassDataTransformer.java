@@ -56,7 +56,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))) {
 
 			LOGGER.info("ClassName: " + className);
-			LOGGER.setClassName(className);
 
 			ClassDataStorage.getInstance().removeSuperclassToLoad(className);
 
@@ -170,9 +169,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			LOGGER.info("Starte Transformation fuer die Methode " + method.getName() + method.getDescriptor());
 
-			LOGGER.setMethodName(method.getName());
-			LOGGER.setMethodDescriptor(method.getDescriptor());
-
 			if (MethodInfo.nameInit.equals(method.getName())) {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
@@ -225,8 +221,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				}
 			}
 		}
-
-		LOGGER.resetMethod();
 
 	}
 

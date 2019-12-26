@@ -9,28 +9,7 @@ public class Logger {
 
 	private Level level;
 
-	private String className;
-	private String methodName;
-	private String methodDescriptor;
-
 	private Logger() {
-	}
-
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public void setMethodDescriptor(String methodDescriptor) {
-		this.methodDescriptor = methodDescriptor;
-	}
-
-	public void resetMethod() {
-		this.methodName = null;
-		this.methodDescriptor = null;
 	}
 
 	public void setLevel(Level level) {
@@ -126,13 +105,13 @@ public class Logger {
 	}
 
 	private void printMessage(Level messageLevel, String message) {
-		if (className != null && methodName != null) {
-
-			System.out.print(startLogMessage(messageLevel) + "Class: " + className + //
-					" Method: " + methodName + methodDescriptor + " " + message + "\n");
-		} else {
-			System.out.print(startLogMessage(messageLevel) + message + "\n");
-		}
+//		if (className != null && methodName != null) {
+//
+//			System.out.print(startLogMessage(messageLevel) + "Class: " + className + //
+//					" Method: " + methodName + methodDescriptor + " " + message + "\n");
+//		} else {
+		System.out.print(startLogMessage(messageLevel) + message + "\n");
+//		}
 	}
 
 	private String startLogMessage(Level messageLevel) {
