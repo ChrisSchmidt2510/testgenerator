@@ -1,48 +1,56 @@
 package de.nvg.testgenerator.logging.config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
+import de.nvg.testgenerator.logging.config.appender.Appender;
+import de.nvg.testgenerator.logging.config.appender.ConsoleAppender;
+import de.nvg.testgenerator.logging.config.appender.FileAppender;
 
 public class LoggerRepository {
+
 	private static final LoggerRepository INSTANCE = new LoggerRepository();
 
-	private static final String defaultLogDirectorie = System.getProperty("user.home") + "\\testgenerator";
+	private static final String DELIMETER_POINT = ".";
 
-	private Map<String, Configuration> repository = new HashMap<>();
-
-	private FileOutputStream fios;
-
-	private Configuration defaultConfig;
+	private List<Configuration> repository = new ArrayList<>();
 
 	{
-		File outputDirectorie = createDirectorie(defaultLogDirectorie);
+		String defaultLoggerDirectory = System.getProperty("user.home") + File.separator + "testgenerator"
+				+ File.separator;
 
-		outputDirectorie = new File(outputDirectorie.getPath() + "\\Testgenerator.log");
+		int maxLogSize = 5_000_000;
 
-		try {
-			fios = new FileOutputStream(outputDirectorie, true);
+		// Default-Config
+		Appender consoleAppender = new ConsoleAppender();
 
-			defaultConfig = new Configuration(Level.INFO, System.out, fios);
+		Appender agentAppender = new FileAppender("Agent", maxLogSize, defaultLoggerDirectory, consoleAppender);
+		Appender testgeneratorAppender = new FileAppender("Testgeneration", maxLogSize, defaultLoggerDirectory,
+				consoleAppender);
+		Appender valueTrackerAppender = new FileAppender("ValueTracker", maxLogSize, defaultLoggerDirectory,
+				consoleAppender);
 
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Configuration agentConfiguration = new Configuration("de.nvg.javaagent", Level.INFO, agentAppender);
+		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.INFO,
+				testgeneratorAppender);
+		Configuration valueTrackerConfiguration = new Configuration("de.nvg.valuetracker", Level.INFO,
+				valueTrackerAppender);
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> repository.forEach((key, value) -> {
-			for (OutputStream outputStream : value.getOutputStream()) {
-				try {
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		repository.add(agentConfiguration);
+		repository.add(testgeneratorConfiguration);
+		repository.add(valueTrackerConfiguration);
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> repository.forEach(config -> {
+			try {
+				config.getAppender().close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		})));
-
 	}
 
 	private LoggerRepository() {
@@ -53,19 +61,28 @@ public class LoggerRepository {
 	}
 
 	public Configuration getConfiguration(Class<?> clazz) {
-		clazz.getPackage().getName();
 
-		return repository.getOrDefault(clazz, defaultConfig);
+		return repository.stream()
+				.filter(config -> isClassInPackage(config.getPackageName(), clazz.getPackage().getName())).findAny()
+				.orElseThrow(() -> new NoSuchElementException("No Configuration matched"));
+
 	}
 
-	private File createDirectorie(String directory) {
-		File outputDirectorie = new File(directory);
+	private static boolean isClassInPackage(String packageName, String classPackage) {
+		StringTokenizer packageTokenizer = new StringTokenizer(packageName, DELIMETER_POINT);
+		StringTokenizer classTokenizer = new StringTokenizer(classPackage, DELIMETER_POINT);
 
-		if (!outputDirectorie.exists()) {
-			outputDirectorie.mkdir();
+		if (packageTokenizer.countTokens() > classTokenizer.countTokens()) {
+			return false;
 		}
 
-		return outputDirectorie;
+		while (packageTokenizer.hasMoreTokens()) {
+
+			if (!packageTokenizer.nextToken().equals(classTokenizer.nextToken())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

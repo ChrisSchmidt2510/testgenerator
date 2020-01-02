@@ -8,7 +8,7 @@ public class LogManager {
 	public static Logger getLogger(Class<?> clazz) {
 		Configuration configuration = LoggerRepository.getInstance().getConfiguration(clazz);
 
-		return new Logger(configuration);
+		return new Logger(configuration.getLevel(), configuration.getAppender());
 	}
 
 }

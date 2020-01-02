@@ -1,30 +1,28 @@
 package de.nvg.testgenerator.logging.config;
 
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import de.nvg.testgenerator.logging.config.appender.Appender;
 
 public class Configuration {
+	private final String packageName;
 	private final Level level;
-	private final List<OutputStream> outputStream;
+	private final Appender appender;
 
-	public Configuration(Level level, OutputStream outputStream) {
+	public Configuration(String packageName, Level level, Appender appender) {
+		this.packageName = packageName;
 		this.level = level;
-		this.outputStream = Collections.singletonList(outputStream);
-	}
-
-	public Configuration(Level level, OutputStream... outputStream) {
-		this.level = level;
-		this.outputStream = Arrays.asList(outputStream);
+		this.appender = appender;
 	}
 
 	public Level getLevel() {
 		return level;
 	}
 
-	public List<OutputStream> getOutputStream() {
-		return outputStream;
+	public Appender getAppender() {
+		return appender;
+	}
+
+	public String getPackageName() {
+		return packageName;
 	}
 
 }
