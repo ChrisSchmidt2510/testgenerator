@@ -2,8 +2,6 @@ package de.nvg.testgenerator.logging;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Supplier;
 
 import de.nvg.testgenerator.logging.config.Level;
@@ -11,16 +9,11 @@ import de.nvg.testgenerator.logging.config.appender.Appender;
 
 public class Logger {
 	private final Level level;
-	private final List<Appender> appenders;
+	private final Appender appender;
 
 	Logger(Level level, Appender appender) {
 		this.level = level;
-		this.appenders = Collections.singletonList(appender);
-	}
-
-	Logger(Level level, List<Appender> appenders) {
-		this.level = level;
-		this.appenders = appenders;
+		this.appender = appender;
 	}
 
 	public void error(String message) {
@@ -91,9 +84,7 @@ public class Logger {
 
 	public void log(Level level, Throwable exception) {
 		if (isLevelActive(level)) {
-			exception.printStackTrace();
-
-			throw new RuntimeException(exception);
+			appender.write(exception);
 		}
 	}
 
@@ -108,7 +99,7 @@ public class Logger {
 	}
 
 	private void printMessage(Level messageLevel, String message) {
-		appenders.forEach(stream -> stream.write((startLogMessage(messageLevel) + message + "\n")));
+		appender.write((startLogMessage(messageLevel) + message + "\n"));
 	}
 
 	private String startLogMessage(Level messageLevel) {

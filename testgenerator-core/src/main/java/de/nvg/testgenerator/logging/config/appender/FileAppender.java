@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 public class FileAppender implements Appender {
 	private static final String FILE_ENDING = ".log";
@@ -13,6 +14,7 @@ public class FileAppender implements Appender {
 	private final int maxFileSize;
 	private final Appender parent;
 	private FileOutputStream outputStream;
+	private PrintStream printStream;
 
 	private long currentFileSize;
 
@@ -34,6 +36,7 @@ public class FileAppender implements Appender {
 
 		try {
 			outputStream = new FileOutputStream(logFile, true);
+			printStream = new PrintStream(outputStream);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -61,6 +64,16 @@ public class FileAppender implements Appender {
 
 		if (parent != null) {
 			parent.write(message);
+		}
+
+	}
+
+	@Override
+	public void write(Throwable throwable) {
+		throwable.printStackTrace(printStream);
+
+		if (parent != null) {
+			parent.write(throwable);
 		}
 	}
 

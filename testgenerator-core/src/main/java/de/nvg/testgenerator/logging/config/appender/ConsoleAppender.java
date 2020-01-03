@@ -14,4 +14,9 @@ public class ConsoleAppender implements Appender {
 		System.out.print(message);
 	}
 
+	@Override
+	public void write(Throwable throwable) {
+		throwable.printStackTrace();
+	}
+
 }

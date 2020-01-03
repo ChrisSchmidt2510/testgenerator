@@ -6,4 +6,6 @@ public interface Appender extends Closeable {
 
 	public void write(String message);
 
+	public void write(Throwable throwable);
+
 }

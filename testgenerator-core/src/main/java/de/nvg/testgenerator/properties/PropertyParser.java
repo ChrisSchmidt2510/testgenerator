@@ -12,8 +12,6 @@ public class PropertyParser {
 	public static final String ARG_BL_PACKAGE = "BlPackage";
 	public static final String ARG_TRACE_GETTER_CALLS = "TraceGetterCalls";
 
-	private static final String ARG_LOG_LEVEL = "LogLevel";
-
 	private static final String EQUAL = "=";
 	private static final String COMMA = ",";
 
@@ -42,10 +40,6 @@ public class PropertyParser {
 				break;
 			case ARG_TRACE_GETTER_CALLS:
 				properties.put(ARG_TRACE_GETTER_CALLS, secondHalfOfToken(token));
-				break;
-			case ARG_LOG_LEVEL:
-				// TODO CS
-//				Logger.getInstance().setLevel(Level.valueOf(secondHalfOfToken(token)));
 				break;
 			default:
 				throw new IllegalArgumentException("Ungueltiger Parameter für den ClassTransformerAgent");
