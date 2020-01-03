@@ -62,7 +62,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 		int parameterCount = countMethodParameters(properties.getMethodDescriptor());
 
-		method.insertAfter("de.nvg.testgenerator.testgeneration.Testgenerator.generate(\"" + properties.getClassName()
+		method.insertAfter("de.nvg.testgenerator.generation.Testgenerator.generate(\"" + properties.getClassName()
 				+ "\",\"" + properties.getMethod() + "\");");
 
 		method.insertBefore("valueTracker.enableGetterCallsTracking();");
