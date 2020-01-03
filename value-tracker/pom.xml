@@ -12,11 +12,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-core</artifactId>
 			<scope>provided</scope>
@@ -30,6 +25,12 @@
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-classdatamodel-rt</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

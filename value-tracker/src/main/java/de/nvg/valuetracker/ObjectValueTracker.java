@@ -62,7 +62,6 @@ public class ObjectValueTracker {
 		}
 	}
 
-	// TODO CS rename
 	public void enableGetterCallsTracking() {
 		RuntimeProperties.getInstance().setActivateTracking(true);
 	}
