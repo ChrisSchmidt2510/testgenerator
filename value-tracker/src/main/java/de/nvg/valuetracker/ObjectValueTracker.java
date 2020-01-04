@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
 import de.nvg.proxy.impl.FloatProxy;
 import de.nvg.proxy.impl.IntegerProxy;
@@ -30,6 +31,8 @@ import de.nvg.proxy.impl.ReferenceProxy;
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.constants.Primitives;
+import de.nvg.testgenerator.logging.LogManager;
+import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
@@ -45,8 +48,6 @@ public class ObjectValueTracker {
 			Boolean.class, LocalDate.class, LocalTime.class, LocalDateTime.class, java.util.Date.class, Date.class,
 			Calendar.class, GregorianCalendar.class, BigDecimal.class, String.class));
 
-	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
-
 	private static final Map<String, Function<IntegerProxy, Object>> INTEGER_PROXY_METHODS = //
 			MapBuilder.<String, Function<IntegerProxy, Object>>hashMapBuilder()
 					.add(Primitives.JAVA_INT, IntegerProxy::getValue)
@@ -55,6 +56,10 @@ public class ObjectValueTracker {
 					.add(Primitives.JAVA_SHORT, IntegerProxy::getShortValue).toUnmodifiableMap();
 
 	private static final String CALLED_FIELDS = "calledFields";
+
+	private static final Logger LOGGER = LogManager.getLogger(ObjectValueTracker.class);
+
+	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
 
 	public void track(Object value, String name) {
 		if (value != null) {
@@ -67,7 +72,7 @@ public class ObjectValueTracker {
 	}
 
 	private BluePrint trackValues(Object value, String name) {
-
+		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
 		Object proxyValue = getProxyValue(value);
 
 		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum()) {
@@ -91,6 +96,7 @@ public class ObjectValueTracker {
 
 	private void trackValuesFieldsFromClass(Field[] fields, Object value, ComplexBluePrint complexBluePrint) {
 		for (Field field : fields) {
+
 			try {
 				field.setAccessible(true);
 
@@ -99,6 +105,8 @@ public class ObjectValueTracker {
 					Object fieldValue = getProxyValue(field.get(value));
 
 					if (fieldValue != null && isTestgeneratorGeneratedField(fieldValue, field.getName())) {
+
+						LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
 						Class<?> fieldType = fieldValue.getClass();
 
@@ -120,6 +128,7 @@ public class ObjectValueTracker {
 					}
 				}
 			} catch (Throwable e) {
+				LOGGER.error(e);
 				throw new TrackingException("Fehler bei der Erstellung des BluePrints", e);
 			}
 		}
@@ -167,8 +176,9 @@ public class ObjectValueTracker {
 
 		int counter = 1;
 
+		MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass().getName(), null);
+
 		if (!map.isEmpty()) {
-			MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass().getName(), null);
 
 			for (Entry<?, ?> entry : map.entrySet()) {
 				BluePrint keyBluePrint = trackValues(entry.getKey(), name + "$" + counter + "Key");
@@ -176,9 +186,9 @@ public class ObjectValueTracker {
 
 				mapBluePrint.addKeyValuePair(keyBluePrint, valueBluePrint);
 			}
-			return mapBluePrint;
+
 		}
-		return null;
+		return mapBluePrint;
 	}
 
 	private static boolean isConstant(Field field) {
@@ -216,7 +226,7 @@ public class ObjectValueTracker {
 		if (bluePrintsForClass != null) {
 
 			for (BluePrint bluePrint : bluePrintsForClass) {
-				if (bluePrint.getReference() == reference) {
+				if (bluePrint.getReference() != null && bluePrint.getReference() == reference) {
 					return bluePrint;
 				}
 			}
@@ -242,7 +252,10 @@ public class ObjectValueTracker {
 		} else if (value instanceof LongProxy) {
 			return ((LongProxy) value).getValue();
 
+		} else if (value instanceof BooleanProxy) {
+			return ((BooleanProxy) value).getValue();
 		}
+
 		return value;
 	}
 
