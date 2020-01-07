@@ -5,6 +5,8 @@ import java.util.Set;
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.testgenerator.MethodHandles;
+import de.nvg.testgenerator.logging.LogManager;
+import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
@@ -13,6 +15,8 @@ import de.nvg.valuetracker.storage.ValueStorage;
 public class Testgenerator {
 	private static final String FIELD_NAME_CLASS_DATA = "classData";
 	private static final String FIELD_NAME_CALLED_FIELDS = "calledFields";
+
+	private static final Logger LOGGER = LogManager.getLogger(Testgenerator.class);
 
 	/*
 	 * Einstiegspunkt für die Generierung der Testklasse
@@ -58,9 +62,9 @@ public class Testgenerator {
 			Object reference = complexBluePrint.getReference();
 			ClassData classData = getClassData(reference);
 			Set<FieldData> calledFields = getCalledFields(reference);
-			System.out.println("Name:" + complexBluePrint.getName());
-			System.out.println("calledFields: " + calledFields);
-			System.out.println("classData: " + classData);
+			LOGGER.info("Name:" + complexBluePrint.getName());
+			LOGGER.info("calledFields: " + calledFields);
+			LOGGER.info("classData: " + classData);
 		}
 	}
 
