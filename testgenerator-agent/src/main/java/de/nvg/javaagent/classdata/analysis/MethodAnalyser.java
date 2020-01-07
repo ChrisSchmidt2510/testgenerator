@@ -32,7 +32,7 @@ public class MethodAnalyser {
 	public MethodData analyse(String name, String descriptor, int modifier, List<Instruction> instructions,
 			Wrapper<FieldData> fieldWrapper) {
 
-		LOGGER.info("Starte Analysis der Methode: " + name + descriptor);
+		LOGGER.info("Starting Analysis of Method: " + name + descriptor);
 
 		MethodData methodData = null;
 
@@ -52,6 +52,8 @@ public class MethodAnalyser {
 							: MethodType.IMMUTABLE_GETTER, //
 					-1, Modifier.isStatic(modifier));
 		}
+
+		LOGGER.info("Result of Analysis: " + methodData);
 
 		return methodData;
 	}

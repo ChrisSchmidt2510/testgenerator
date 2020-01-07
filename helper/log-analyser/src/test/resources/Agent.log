@@ -1,0 +1,142 @@
+2020-01-07 15:48:13 [INFO] ClassName: de/nvg/bl/partner/Adresse
+2020-01-07 15:48:13 [INFO] Superclass: de.nvg.BlObject
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=strasse, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=short, name=hausnummer, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=ort, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=int, name=plz, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode <clinit>()V
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode <init>()V
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode hashCode()I
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode equals(Ljava/lang/Object;)Z
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getStrasse()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getStrasse()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getStrasse, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setStrasse(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setStrasse(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setStrasse, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getHausnummer()S
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getHausnummer()S
+2020-01-07 15:48:13 [INFO] Result of Analysis: null
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setHausnummer(S)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setHausnummer(S)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setHausnummer, descriptor=(S)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getOrt()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getOrt()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getOrt, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setOrt(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setOrt(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setOrt, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getPlz()I
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getPlz()I
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getPlz, descriptor=()I, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setPlz(I)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setPlz(I)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setPlz, descriptor=(I)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] ClassName: de/nvg/BlObject
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.time.LocalDate, name=erdat, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=ersb, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.time.LocalDate, name=aedat, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=aesb, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode <init>()V
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode hashCode()I
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode equals(Ljava/lang/Object;)Z
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getErdat()Ljava/time/LocalDate;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getErdat()Ljava/time/LocalDate;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getErdat, descriptor=()Ljava/time/LocalDate;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setErdat(Ljava/time/LocalDate;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setErdat(Ljava/time/LocalDate;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setErdat, descriptor=(Ljava/time/LocalDate;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getErsb()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getErsb()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getErsb, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setErsb(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setErsb(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setErsb, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getAedat()Ljava/time/LocalDate;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getAedat()Ljava/time/LocalDate;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getAedat, descriptor=()Ljava/time/LocalDate;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setAedat(Ljava/time/LocalDate;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setAedat(Ljava/time/LocalDate;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setAedat, descriptor=(Ljava/time/LocalDate;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getAesb()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getAesb()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getAesb, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setAesb(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setAesb(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setAesb, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Erstelle <clinit> für Klasse de.nvg.BlObject
+2020-01-07 15:48:13 [INFO] ClassName: de/nvg/bl/partner/Person
+2020-01-07 15:48:13 [INFO] Superclass: de.nvg.BlObject
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=name, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=firstName, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.time.LocalDate, name=dateOfBirth, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=de.nvg.bl.partner.Person$Geschlecht, name=geschlecht, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.util.List, name=adressen, mutable=true, isStatic=false, signature=Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;, comment=null]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode <init>(Ljava/lang/String;Ljava/lang/String;Ljava/time/LocalDate;Lde/nvg/bl/partner/Person$Geschlecht;)V
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getName()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getName()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getName, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setName(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setName(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setName, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getFirstName()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getFirstName()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getFirstName, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setFirstName(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setFirstName(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setFirstName, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getDateOfBirth()Ljava/time/LocalDate;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getDateOfBirth()Ljava/time/LocalDate;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getDateOfBirth, descriptor=()Ljava/time/LocalDate;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setDateOfBirth(Ljava/time/LocalDate;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setDateOfBirth(Ljava/time/LocalDate;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setDateOfBirth, descriptor=(Ljava/time/LocalDate;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getGeschlecht()Lde/nvg/bl/partner/Person$Geschlecht;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getGeschlecht()Lde/nvg/bl/partner/Person$Geschlecht;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getGeschlecht, descriptor=()Lde/nvg/bl/partner/Person$Geschlecht;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setGeschlecht(Lde/nvg/bl/partner/Person$Geschlecht;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setGeschlecht(Lde/nvg/bl/partner/Person$Geschlecht;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setGeschlecht, descriptor=(Lde/nvg/bl/partner/Person$Geschlecht;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getAdressen()Ljava/util/List;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getAdressen()Ljava/util/List;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getAdressen, descriptor=()Ljava/util/List;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode addAdresse(Lde/nvg/bl/partner/Adresse;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: addAdresse(Lde/nvg/bl/partner/Adresse;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=addAdresse, descriptor=(Lde/nvg/bl/partner/Adresse;)V, methodType=COLLECTION_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Erstelle <clinit> für Klasse de.nvg.bl.partner.Person
+2020-01-07 15:48:13 [INFO] ClassName: de/nvg/bl/partner/Person$Geschlecht
+2020-01-07 15:48:13 [INFO] Superclass: java.lang.Enum
+2020-01-07 15:48:13 [INFO] isEnum: true
+2020-01-07 15:48:13 [INFO] ClassName: de/nvg/bl/Account
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=de.nvg.bl.partner.Person, name=person, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.time.LocalDateTime, name=lastLogin, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=username, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] added Field: FieldData [dataType=java.lang.String, name=password, mutable=true, isStatic=false, signature=null, comment=null]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode <init>()V
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode hashCode()I
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode equals(Ljava/lang/Object;)Z
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getPerson()Lde/nvg/bl/partner/Person;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getPerson()Lde/nvg/bl/partner/Person;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getPerson, descriptor=()Lde/nvg/bl/partner/Person;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setPerson(Lde/nvg/bl/partner/Person;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setPerson(Lde/nvg/bl/partner/Person;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setPerson, descriptor=(Lde/nvg/bl/partner/Person;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getLastLogin()Ljava/time/LocalDateTime;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getLastLogin()Ljava/time/LocalDateTime;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getLastLogin, descriptor=()Ljava/time/LocalDateTime;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setLastLogin(Ljava/time/LocalDateTime;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setLastLogin(Ljava/time/LocalDateTime;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setLastLogin, descriptor=(Ljava/time/LocalDateTime;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getUsername()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getUsername()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getUsername, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setUsername(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setUsername(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setUsername, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode getPassword()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: getPassword()Ljava/lang/String;
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=getPassword, descriptor=()Ljava/lang/String;, methodType=IMMUTABLE_GETTER, argumentIndex=-1, isStatic=false]
+2020-01-07 15:48:13 [INFO] Starte Transformation fuer die Methode setPassword(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Starting Analysis of Method: setPassword(Ljava/lang/String;)V
+2020-01-07 15:48:13 [INFO] Result of Analysis: MethodData [name=setPassword, descriptor=(Ljava/lang/String;)V, methodType=REFERENCE_VALUE_SETTER, argumentIndex=0, isStatic=false]
+2020-01-07 15:48:13 [INFO] Erstelle <clinit> für Klasse de.nvg.bl.Account
