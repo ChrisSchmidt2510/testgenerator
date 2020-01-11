@@ -20,7 +20,6 @@
 		<module>testgenerator-proxy</module>
 		<module>testgenerator-rt</module>
 		<module>value-tracker</module>
-		<module>log-analyser</module>
 	</modules>
 
 	<dependencyManagement>
@@ -88,12 +87,6 @@
 			<dependency>
 				<groupId>de.nvg</groupId>
 				<artifactId>value-tracker</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>de.nvg</groupId>
-				<artifactId>log-analyser</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
