@@ -25,8 +25,11 @@ public class MethodAnalyser {
 	private final CollectionSetterAnalyser collectionAddAnalyser;
 	private final ImmutableCollectionGetterAnalyser immutableCollectionGetter = new ImmutableCollectionGetterAnalyser();
 
+	private final List<FieldData> fields;
+
 	public MethodAnalyser(List<FieldData> fields) {
 		collectionAddAnalyser = new CollectionSetterAnalyser(fields);
+		this.fields = fields;
 	}
 
 	public MethodData analyse(String name, String descriptor, int modifier, List<Instruction> instructions,
@@ -47,9 +50,12 @@ public class MethodAnalyser {
 					Modifier.isStatic(modifier));
 		} else if (getterAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
 
+			FieldData foundedField = fieldWrapper.getValue();
+
+			FieldData field = AnalysisHelper.getField(fields, foundedField.getName(), foundedField.getDataType());
+
 			methodData = new MethodData(name, descriptor,
-					fieldWrapper.getValue().isMutable() ? MethodType.REFERENCE_VALUE_GETTER
-							: MethodType.IMMUTABLE_GETTER, //
+					field.isMutable() ? MethodType.REFERENCE_VALUE_GETTER : MethodType.IMMUTABLE_GETTER, //
 					-1, Modifier.isStatic(modifier));
 		}
 

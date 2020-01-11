@@ -7,6 +7,7 @@ import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.Wrapper;
+import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 
@@ -14,8 +15,14 @@ public class NormalGetterAnalyser implements MethodAnalysis {
 
 	private static final Map<String, Integer> PRIMITIVE_RETURN_OPCODES = //
 			MapBuilder.<String, Integer>hashMapBuilder()//
-					.add("I", Opcode.IRETURN).add("F", Opcode.FRETURN)//
-					.add("D", Opcode.DRETURN).add("L", Opcode.LRETURN)//
+					.add(Primitives.JVM_INT, Opcode.IRETURN)//
+					.add(Primitives.JVM_SHORT, Opcode.IRETURN)//
+					.add(Primitives.JVM_BYTE, Opcode.IRETURN)//
+					.add(Primitives.JVM_CHAR, Opcode.IRETURN)//
+					.add(Primitives.JVM_BOOLEAN, Opcode.IRETURN)//
+					.add(Primitives.JVM_FLOAT, Opcode.FRETURN)//
+					.add(Primitives.JVM_DOUBLE, Opcode.DRETURN)//
+					.add(Primitives.JVM_LONG, Opcode.LRETURN)//
 					.add("[", Opcode.ARETURN).toUnmodifiableMap();
 
 	@Override
