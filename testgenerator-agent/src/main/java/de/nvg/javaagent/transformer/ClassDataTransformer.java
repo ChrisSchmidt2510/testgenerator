@@ -113,7 +113,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			classData.addFields(fields);
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser(fields);
+			MethodAnalyser methodAnalyser = new MethodAnalyser(loadingClass.getName(), fields);
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
