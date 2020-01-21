@@ -10,6 +10,7 @@ import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.model.MethodData;
 import de.nvg.javaagent.classdata.model.MethodType;
 import de.nvg.testgenerator.Wrapper;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.Modifier;
@@ -55,7 +56,9 @@ public class MethodAnalyser {
 			FieldData field = AnalysisHelper.getField(fields, foundedField.getName(), foundedField.getDataType());
 
 			methodData = new MethodData(name, descriptor,
-					field.isMutable() ? MethodType.REFERENCE_VALUE_GETTER : MethodType.IMMUTABLE_GETTER, //
+					field.isMutable() || (!field.isMutable() && JavaTypes.COLLECTIONS.contains(field.getDataType()))
+							? MethodType.REFERENCE_VALUE_GETTER
+							: MethodType.IMMUTABLE_GETTER, //
 					-1, Modifier.isStatic(modifier));
 		}
 
