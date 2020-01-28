@@ -34,6 +34,7 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.CodeAttribute;
@@ -208,7 +209,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						method.getCodeAttribute());
 
 				if (!MethodInfo.nameInit.equals(method.getName())
-						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
+						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
+						&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) != 0) {
 
 					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
