@@ -174,6 +174,11 @@ public class Instructions {
 							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + //
 							" FieldName: " + constantPool.getFieldrefName(cpIndex) + //
 							" FieldType: " + constantPool.getFieldrefType(cpIndex) + "\n";
+				} else if (Opcode.IFNULL == opcode || Opcode.GOTO == opcode) {
+					int branchbyte = iterator.s16bitAt(index + 1);
+					codeArrayErgebnis = codeArrayErgebnis + //
+							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + //
+							" Branchbyte: " + branchbyte + "\n";
 				} else {
 					codeArrayErgebnis = codeArrayErgebnis + //
 							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + "\n";
