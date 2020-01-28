@@ -25,12 +25,18 @@ public class NormalGetterAnalyser implements MethodAnalysis {
 					.add(Primitives.JVM_LONG, Opcode.LRETURN)//
 					.add("[", Opcode.ARETURN).toUnmodifiableMap();
 
+	private final String className;
+
+	public NormalGetterAnalyser(String className) {
+		this.className = className;
+	}
+
 	@Override
 	public boolean analyse(String descriptor, List<Instruction> instructions, Wrapper<FieldData> fieldWrapper) {
 		for (int i = 0; i < instructions.size(); i++) {
 			Instruction instruction = instructions.get(i);
 
-			if (Opcode.GETFIELD == instruction.getOpcode()) {
+			if (Opcode.GETFIELD == instruction.getOpcode() && className.equals(instruction.getClassRef())) {
 
 				Integer returnOpcode = PRIMITIVE_RETURN_OPCODES.get(instruction.getType());
 				int opcode = instructions.get(i + 1).getOpcode();

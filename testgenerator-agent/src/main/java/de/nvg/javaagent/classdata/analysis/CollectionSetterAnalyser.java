@@ -1,6 +1,7 @@
 package de.nvg.javaagent.classdata.analysis;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.model.FieldData;
@@ -17,6 +18,7 @@ import javassist.bytecode.Opcode;
  */
 public class CollectionSetterAnalyser implements MethodAnalysis {
 	private final List<FieldData> fields;
+	private List<Instruction> instructions;
 
 	public CollectionSetterAnalyser(List<FieldData> fields) {
 		this.fields = fields;
@@ -24,34 +26,61 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 
 	@Override
 	public boolean analyse(String descriptor, List<Instruction> instructions, Wrapper<FieldData> fieldWrapper) {
-		for (int index = 0; index < instructions.size(); index++) {
-			Instruction instruction = instructions.get(index);
+		this.instructions = instructions;
 
-			if (Opcode.GETFIELD == instruction.getOpcode()
-					&& JVMTypes.COLLECTION_TYPES.contains(instruction.getType())) {
+		List<Instruction> filteredInstructions = instructions.stream()
+				.filter(inst -> Opcode.GETFIELD == inst.getOpcode()).collect(Collectors.toList());
 
-				FieldData field = AnalysisHelper.getField(fields, instruction.getName(),
-						Descriptor.toClassName(instruction.getType()));
+		if (filteredInstructions != null) {
 
-				List<String> params = AnalysisHelper.getMethodParams(descriptor);
+			for (Instruction getFieldInstruction : filteredInstructions) {
 
-				List<String> genericTypes = AnalysisHelper.getGenericTypesFromSignature(field.getSignature());
+				for (int index = instructions.indexOf(getFieldInstruction); index < instructions.size(); index++) {
+					Instruction instruction = instructions.get(index);
 
-				if (params.size() == 1 && genericTypes.size() == 1 && params.get(0).equals(genericTypes.get(0))
-						&& instructions.size() < 25) {
+					if (Opcode.GETFIELD == instruction.getOpcode()
+							&& JVMTypes.COLLECTION_TYPES.contains(instruction.getType())) {
 
-					Instruction bytecodeInvokeInterface = instructions.get(index + 2);
+						FieldData field = AnalysisHelper.getField(fields, instruction.getName(),
+								Descriptor.toClassName(instruction.getType()));
 
-					List<String> interfaceParams = AnalysisHelper.getMethodParams(bytecodeInvokeInterface.getType());
+						List<String> params = AnalysisHelper.getMethodParams(descriptor);
 
-					if (Opcode.ALOAD_1 == instructions.get(index + 1).getOpcode()
-							&& Opcode.INVOKEINTERFACE == bytecodeInvokeInterface.getOpcode()
-							&& JVMTypes.COLLECTION_METHOD_ADD.equals(bytecodeInvokeInterface.getName())
-							&& interfaceParams.size() == 1 && JVMTypes.OBJECT.equals(interfaceParams.get(0))) {
+						List<String> genericTypes = AnalysisHelper.getGenericTypesFromSignature(field.getSignature());
 
-						fieldWrapper.setValue(field);
-						return true;
+						if (checkParameterAndMethod(params, genericTypes, index)) {
+							fieldWrapper.setValue(field);
+
+							return true;
+						}
 					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private boolean checkParameterAndMethod(List<String> methodParameter, List<String> collectionGenericType,
+			int instructionIndex) {
+
+		if (methodParameter.equals(collectionGenericType) && instructions.size() < 25) {
+
+			if (Opcode.INVOKEINTERFACE == instructions.get(instructionIndex + 2).getOpcode()) {
+
+				Instruction bytecodeInvokeInterface = instructions.get(instructionIndex + 2);
+
+				List<String> interfaceParams = AnalysisHelper.getMethodParams(bytecodeInvokeInterface.getType());
+
+				List<String> methodNames = JVMTypes.COLLECTION_ADD_METHODS
+						.get(Descriptor.of(bytecodeInvokeInterface.getClassRef()));
+
+				if (Opcode.ALOAD_1 == instructions.get(instructionIndex + 1).getOpcode() && methodNames != null
+						&& methodNames.contains(bytecodeInvokeInterface.getName()) && interfaceParams.size() == 1
+						// TODO Anzahl Argumente anpassen
+						&& JVMTypes.OBJECT.equals(interfaceParams.get(0))) {
+
+					return true;
 				}
 			}
 		}

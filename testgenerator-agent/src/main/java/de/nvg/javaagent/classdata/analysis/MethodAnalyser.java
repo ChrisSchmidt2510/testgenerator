@@ -22,14 +22,15 @@ public class MethodAnalyser {
 	private static final Logger LOGGER = LogManager.getLogger(MethodAnalyser.class);
 
 	private final NormalSetterAnalyser setterAnalyser = new NormalSetterAnalyser();
-	private final NormalGetterAnalyser getterAnalyser = new NormalGetterAnalyser();
+	private final NormalGetterAnalyser getterAnalyser;
 	private final CollectionSetterAnalyser collectionAddAnalyser;
 	private final ImmutableCollectionGetterAnalyser immutableCollectionGetter = new ImmutableCollectionGetterAnalyser();
 
 	private final List<FieldData> fields;
 
-	public MethodAnalyser(List<FieldData> fields) {
+	public MethodAnalyser(String className, List<FieldData> fields) {
 		collectionAddAnalyser = new CollectionSetterAnalyser(fields);
+		getterAnalyser = new NormalGetterAnalyser(className);
 		this.fields = fields;
 	}
 
