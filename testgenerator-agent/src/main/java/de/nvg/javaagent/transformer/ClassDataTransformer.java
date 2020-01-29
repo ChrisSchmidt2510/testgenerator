@@ -210,7 +210,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				if (!MethodInfo.nameInit.equals(method.getName())
 						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
-						&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) != 0) {
+						&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) == 0) {
 
 					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
 
