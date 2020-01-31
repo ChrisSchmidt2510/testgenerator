@@ -73,6 +73,30 @@ public class Instructions {
 
 				instructions.add(instructionLoad);
 				break;
+			case Opcode.GOTO:
+			case Opcode.IF_ACMPEQ:
+			case Opcode.IF_ACMPNE:
+			case Opcode.IF_ICMPEQ:
+			case Opcode.IF_ICMPGE:
+			case Opcode.IF_ICMPGT:
+			case Opcode.IF_ICMPLE:
+			case Opcode.IF_ICMPLT:
+			case Opcode.IF_ICMPNE:
+			case Opcode.IFEQ:
+			case Opcode.IFGE:
+			case Opcode.IFGT:
+			case Opcode.IFLE:
+			case Opcode.IFLT:
+			case Opcode.IFNE:
+			case Opcode.IFNONNULL:
+			case Opcode.IFNULL:
+				int branchbyte = iterator.s16bitAt(index + 1);
+
+				Instruction instructionBranch = new Instruction.Builder().withCodeArrayIndex(index).withOpcode(opcode)
+						.withOffset(branchbyte).build();
+
+				instructions.add(instructionBranch);
+				break;
 
 			default:
 				Instruction defaultInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
