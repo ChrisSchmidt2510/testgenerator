@@ -16,7 +16,6 @@ import de.nvg.javaagent.classdata.modification.indy.SupplierBootstrapMethodCreat
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import javassist.CannotCompileException;
 import javassist.CtClass;
-import javassist.CtField;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
@@ -25,6 +24,7 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.DuplicateMemberException;
+import javassist.bytecode.FieldInfo;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
@@ -73,8 +73,11 @@ public class MetaDataAdder {
 
 	public void add(CodeAttribute codeAttribute, List<Instruction> instructions)
 			throws CannotCompileException, BadBytecode {
-		loadingClass.addField(CtField.make("private static de.nvg.runtime.classdatamodel.ClassData " + FIELD_NAME + ";",
-				loadingClass));
+		ClassFile classFile = loadingClass.getClassFile();
+
+		FieldInfo classDataField = new FieldInfo(constantPool, FIELD_NAME, CLASS_DATA);
+		classDataField.setAccessFlags(AccessFlag.PRIVATE | AccessFlag.STATIC);
+		classFile.addField(classDataField);
 
 		Optional<Instruction> returnInstruction = instructions.stream()
 				.filter(instruction -> Opcode.RETURN == instruction.getOpcode()).findAny();
@@ -125,7 +128,6 @@ public class MetaDataAdder {
 		code.addLdc(classData.getName());
 
 		if (classData.getSuperClass() != null) {
-			ClassFile classFile = loadingClass.getClassFile();
 
 			int bootstrapMethodAttributeIndex = createLambdaForSuperclass(classFile);
 
@@ -167,7 +169,7 @@ public class MetaDataAdder {
 				}
 			}
 
-		}
+		}		
 
 		if (returnInstruction.isPresent()) {
 			codeAttribute.iterator().insertEx(returnInstruction.get().getCodeArrayIndex(), code.get());
