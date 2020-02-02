@@ -1,4 +1,4 @@
-package de.nvg.javaagent.classdata.modification.fields;
+package de.nvg.javaagent.classdata.modification.helper;
 
 import java.util.ArrayList;
 import java.util.List;

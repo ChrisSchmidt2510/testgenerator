@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
 import de.nvg.javaagent.classdata.model.FieldData;
+import de.nvg.javaagent.classdata.modification.helper.CodeArrayModificator;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;
 import de.nvg.testgenerator.classdata.constants.Primitives;
