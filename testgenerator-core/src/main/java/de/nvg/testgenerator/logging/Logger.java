@@ -1,7 +1,9 @@
 package de.nvg.testgenerator.logging;
 
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import de.nvg.testgenerator.logging.config.Level;
@@ -28,12 +30,20 @@ public class Logger {
 		log(Level.ERROR, message);
 	}
 
+	public void error(String message, Consumer<PrintStream> messagePrinter) {
+		log(Level.ERROR, message, messagePrinter);
+	}
+
 	public void debug(String message) {
 		log(Level.DEBUG, message);
 	}
 
 	public void debug(Supplier<String> message) {
 		log(Level.DEBUG, message);
+	}
+
+	public void debug(String message, Consumer<PrintStream> messagePrinter) {
+		log(Level.DEBUG, message, messagePrinter);
 	}
 
 	public void debug(Throwable exception) {
@@ -48,6 +58,10 @@ public class Logger {
 		log(Level.INFO, message);
 	}
 
+	public void info(String message, Consumer<PrintStream> messagePrinter) {
+		log(Level.INFO, message, messagePrinter);
+	}
+
 	public void info(Throwable exception) {
 		log(Level.INFO, exception);
 	}
@@ -60,6 +74,10 @@ public class Logger {
 		log(Level.WARNING, message);
 	}
 
+	public void warning(String message, Consumer<PrintStream> messagePrinter) {
+		log(Level.WARNING, message, messagePrinter);
+	}
+
 	public void warning(Exception exception) {
 		log(Level.WARNING, exception);
 	}
@@ -70,6 +88,10 @@ public class Logger {
 
 	public void trace(Supplier<String> message) {
 		log(Level.TRACE, message);
+	}
+
+	public void trace(String message, Consumer<PrintStream> messagePrinter) {
+		log(Level.TRACE, message, messagePrinter);
 	}
 
 	public void trace(Throwable exception) {
@@ -85,6 +107,13 @@ public class Logger {
 	public void log(Level level, Throwable exception) {
 		if (isLevelActive(level)) {
 			appender.write(exception);
+		}
+	}
+
+	public void log(Level level, String message, Consumer<PrintStream> messagePrinter) {
+		if (isLevelActive(level)) {
+			printMessage(level, message);
+			appender.write(messagePrinter);
 		}
 	}
 

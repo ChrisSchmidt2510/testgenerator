@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.function.Consumer;
 
 public class FileAppender implements Appender {
 	private static final String FILE_ENDING = ".log";
@@ -77,6 +78,21 @@ public class FileAppender implements Appender {
 		}
 	}
 
+	@Override
+	public void write(Consumer<PrintStream> message) {
+		message.accept(printStream);
+
+		if (parent != null) {
+			parent.write(message);
+		}
+
+	}
+
+	@Override
+	public void close() throws IOException {
+		outputStream.close();
+	}
+
 	private File createLogDirectory(String path, String logFileName) {
 		File file = new File(path + File.separator + logFileName + FILE_ENDING);
 
@@ -87,11 +103,6 @@ public class FileAppender implements Appender {
 		}
 
 		return file;
-	}
-
-	@Override
-	public void close() throws IOException {
-		outputStream.close();
 	}
 
 }
