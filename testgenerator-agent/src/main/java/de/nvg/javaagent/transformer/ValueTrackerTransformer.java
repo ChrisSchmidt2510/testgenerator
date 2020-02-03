@@ -33,7 +33,6 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
-import javassist.bytecode.InstructionPrinter;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
@@ -112,8 +111,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		addValueTrackingToMethod(classToLoad, methodInfo, iterator);
 		addTestgenerationToMethod(methodInfo);
 
-		InstructionPrinter printer = new InstructionPrinter(System.out);
-		printer.print(method);
+		LOGGER.debug("Method after manipulation", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		byte[] bytecode = classToLoad.toBytecode();
 
