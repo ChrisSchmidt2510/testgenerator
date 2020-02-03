@@ -31,10 +31,6 @@ import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
 
 public class FieldTypeChanger {
-	private final List<FieldData> fields;
-	private final ConstPool constantPool;
-	private final CtClass loadingClass;
-
 	private static final Logger LOGGER = LogManager.getLogger(FieldTypeChanger.class);
 
 	private static final String REFERENCE_PROXY = "Lde/nvg/proxy/impl/ReferenceProxy;";
@@ -94,6 +90,10 @@ public class FieldTypeChanger {
 					.add(DOUBLE_PROXY, Primitives.JVM_DOUBLE)//
 					.add(LONG_PROXY, Primitives.JVM_LONG).toUnmodifiableMap();
 
+	private final List<FieldData> fields;
+	private final ConstPool constantPool;
+	private final CtClass loadingClass;
+
 	public FieldTypeChanger(List<FieldData> fields, ConstPool constantPool, CtClass loadingClass) {
 		this.fields = fields;
 		this.constantPool = constantPool;
@@ -111,7 +111,7 @@ public class FieldTypeChanger {
 
 		CodeIterator iterator = codeAttribute.iterator();
 
-		LOGGER.debug(() -> "before manipulation: \n " + Instructions.showCodeArray(iterator, constantPool));
+		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		for (Entry<Integer, Instruction> entry : aload0PutFieldInstructionPairs.entrySet()) {
 			int lastAloadInstructionIndex = entry.getKey() + codeArrayIndexModificator;
@@ -174,8 +174,8 @@ public class FieldTypeChanger {
 					.withName(instruction.getName()).build();
 			initalizedFields.add(field);
 
-			LOGGER.trace(() -> "Added Field(\"" + field.getName() + "\", \"" + field.getDataType()
-					+ "\") Manipulation: \n" + Instructions.showCodeArray(iterator, constantPool));
+			LOGGER.trace("Added Field(\"" + field.getName() + "\", \"" + field.getDataType() + "\") Manipulation: ",
+					stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 		}
 
 		for (
@@ -211,7 +211,7 @@ public class FieldTypeChanger {
 			codeArrayIndexModificator = codeArrayIndexModificator + bytecode.getSize();
 		}
 
-		LOGGER.debug(() -> "after manipulation: \n " + Instructions.showCodeArray(iterator, constantPool));
+		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		codeAttribute.computeMaxStack();
 	}
@@ -251,7 +251,8 @@ public class FieldTypeChanger {
 
 		List<Instruction> putFieldInstructions = filteredInstructions.get(Opcode.PUTFIELD);
 
-		LOGGER.debug(() -> "Method before manipulation: \n " + Instructions.showCodeArray(iterator, constantPool));
+		LOGGER.debug("Method before manipulation: ",
+				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		if (putFieldInstructions != null) {
 			for (Instruction instruction : putFieldInstructions) {
@@ -287,8 +288,6 @@ public class FieldTypeChanger {
 		List<Instruction> getFieldInstructions = filteredInstructions.get(Opcode.GETFIELD);
 		if (getFieldInstructions != null) {
 
-			// int codeArrayModificationIndex = 0;
-
 			for (Instruction instruction : getFieldInstructions) {
 
 				String dataType = instruction.getType();
@@ -316,7 +315,8 @@ public class FieldTypeChanger {
 			}
 		}
 
-		LOGGER.debug(() -> "Method after manipulation: \n " + Instructions.showCodeArray(iterator, constantPool));
+		LOGGER.debug("Method after manipulation: ",
+				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		codeAttribute.computeMaxStack();
 	}

@@ -1,5 +1,6 @@
 package de.nvg.javaagent.classdata;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
+import javassist.bytecode.InstructionPrinter;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
@@ -134,85 +136,19 @@ public class Instructions {
 		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
 	}
 
-	/**
-	 * only for testcases!!! writes the data of the codearray in the console
-	 * 
-	 * @param iterator
-	 * @throws BadBytecode
-	 */
-	public static final String showCodeArray(CodeIterator iterator, ConstPool constantPool) {
+	public static final void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
 		iterator.begin();
 
-		String codeArrayErgebnis = "";
-
-		try {
-			while (iterator.hasNext()) {
-				int index = iterator.next();
-				int opcode = iterator.byteAt(index);
-
-				if (Opcode.NEW == opcode) {
-					int cpIndex = iterator.s16bitAt(index + 1);
-					String classInfo = constantPool.getClassInfo(cpIndex);
-					codeArrayErgebnis = codeArrayErgebnis + "Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode]
-							+ " " + classInfo + "\n";
-				} else if (Opcode.INVOKESPECIAL == opcode || Opcode.INVOKEVIRTUAL == opcode) {
-					int cpIndex = iterator.s16bitAt(index + 1);
-
-					codeArrayErgebnis = codeArrayErgebnis + //
-							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + //
-							" Klasse: " + constantPool.getMethodrefClassName(cpIndex) + //
-							" name: " + constantPool.getMethodrefName(cpIndex) + //
-							" Descriptor: " + constantPool.getMethodrefType(cpIndex) + "\n";
-				} else if (Opcode.INVOKEDYNAMIC == opcode) {
-					int cpIndex = iterator.s16bitAt(index + 1);
-
-					codeArrayErgebnis = codeArrayErgebnis + //
-							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + " Bootstrapindex: "
-							+ constantPool.getInvokeDynamicBootstrap(cpIndex) + " Name: "
-							+ constantPool.getUtf8Info(
-									constantPool.getNameAndTypeName(constantPool.getInvokeDynamicNameAndType(cpIndex)))
-							+ " Descriptor: "
-							+ constantPool.getUtf8Info(constantPool
-									.getNameAndTypeDescriptor(constantPool.getInvokeDynamicNameAndType(cpIndex)))
-							+ " Type: " + constantPool.getInvokeDynamicType(cpIndex) + "\n";
-
-				} else if (Opcode.LDC == opcode) {
-					int cpIndex = iterator.signedByteAt(index + 1);
-					try {
-						codeArrayErgebnis = codeArrayErgebnis + //
-								"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + " "
-								+ constantPool.getLdcValue(cpIndex) + "\n";
-					} catch (ClassCastException e) {
-						codeArrayErgebnis = codeArrayErgebnis + //
-								"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + " "
-								+ constantPool.getClassInfo(cpIndex) + "\n";
-					}
-				} else if (Opcode.LDC_W == opcode) {
-					int cpIndex = iterator.s16bitAt(index + 1);
-					codeArrayErgebnis = codeArrayErgebnis + //
-							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + " "
-							+ constantPool.getStringInfo(cpIndex) + "\n";
-				} else if (Opcode.PUTFIELD == opcode || Opcode.GETFIELD == opcode) {
-					int cpIndex = iterator.s16bitAt(index + 1);
-					codeArrayErgebnis = codeArrayErgebnis + //
-							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + //
-							" FieldName: " + constantPool.getFieldrefName(cpIndex) + //
-							" FieldType: " + constantPool.getFieldrefType(cpIndex) + "\n";
-				} else if (Opcode.IFNULL == opcode || Opcode.GOTO == opcode) {
-					int branchbyte = iterator.s16bitAt(index + 1);
-					codeArrayErgebnis = codeArrayErgebnis + //
-							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + //
-							" Branchbyte: " + branchbyte + "\n";
-				} else {
-					codeArrayErgebnis = codeArrayErgebnis + //
-							"Index: " + index + " Opcode: " + Mnemonic.OPCODE[opcode] + "\n";
-				}
+		while (iterator.hasNext()) {
+			int pos;
+			try {
+				pos = iterator.next();
+			} catch (BadBytecode e) {
+				throw new RuntimeException(e);
 			}
-		} catch (BadBytecode e) {
-			System.out.println(e);
-		}
 
-		return codeArrayErgebnis;
+			stream.println(pos + ": " + InstructionPrinter.instructionString(iterator, pos, constantPool));
+		}
 	}
 
 	public static boolean isLoadInstruction(Instruction instruction) {
