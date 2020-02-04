@@ -228,13 +228,19 @@ public class FieldTypeChanger {
 
 		if (REFERENCE_PROXY.equals(proxy)) {
 			SignatureAttribute signature = (SignatureAttribute) field.getAttribute(SignatureAttribute.tag);
-			String dataType = signature != null ? signature.getSignature() : field.getDescriptor();
+
+			String dataType = createSignatureForReferenceProxy(
+					signature != null ? signature.getSignature() : field.getDescriptor());
 
 			SignatureAttribute proxySignature = new SignatureAttribute(loadingClass.getConstPool(), dataType);
 			proxyField.addAttribute(proxySignature);
 		}
 
 		loadingClass.addField(proxyField);
+	}
+
+	private static String createSignatureForReferenceProxy(String dataType) {
+		return REFERENCE_PROXY.substring(0, REFERENCE_PROXY.length() - 1) + "<" + dataType + ">;";
 	}
 
 	public void addFieldCalledField() throws CannotCompileException {
