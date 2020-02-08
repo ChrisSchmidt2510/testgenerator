@@ -41,15 +41,14 @@ public class MetaDataAdder {
 	private static final String CLASS_DATA_METHOD_ADD_FIELD_DESC = "(Lde/nvg/runtime/classdatamodel/FieldData;Lde/nvg/runtime/classdatamodel/SetterMethodData;)V";
 
 	private static final String CONSTRUCTOR_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/ConstructorData";
-	private static final String CONSTRUCTOR_DATA = "Lde/nvg/runtime/classdatamodel/ConstructorData;";
 	private static final String CONSTRUCTOR_DATA_CONSTRUCTOR = "(Z)V";
 	private static final String CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT = "addElement";
 	private static final String CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT_DESC = "(ILde/nvg/runtime/classdatamodel/FieldData;)V";
 
-	private static final String FIELD_DATA = "Lde/nvg/runtime/classdatamodel/FieldData;";
+	private static final String FIELD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/FieldData";
 	private static final String FIELD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;)V";
 
-	private static final String SETTER_METHOD_DATA = "Lde/nvg/runtime/classdatamodel/SetterMethodData;";
+	private static final String SETTER_METHOD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/SetterMethodData";
 	private static final String SETTER_METHOD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;Z)V";
 
 	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lde/nvg/runtime/classdatamodel/ClassData;";
@@ -59,7 +58,7 @@ public class MetaDataAdder {
 	private static final String SUPPLIER_METHOD_DESC = "()Ljava/util/function/Supplier;";
 	private static final String SUPPLIER_METHOD_NAME = "get";
 
-	private static final String METHODHANDLES_CLASS_NAME = "Lde/nvg/testgenerator/MethodHandles;";
+	private static final String METHODHANDLES_CLASSNAME = "de/nvg/testgenerator/MethodHandles";
 	private static final String METHODHANDLES_METHOD_NAME = "getStaticFieldValue";
 	private static final String METHODHANDLES_RETURN_TYPE = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;";
 
@@ -89,11 +88,11 @@ public class MetaDataAdder {
 		Map<String, Integer> localVariableIndex = new HashMap<>();
 
 		for (FieldData field : classData.getFields()) {
-			code.addNew(FIELD_DATA);
+			code.addNew(FIELD_DATA_CLASSNAME);
 			code.add(Opcode.DUP);
 			code.addLdc(field.getName());
 			code.addLdc(field.getDataType());
-			code.addInvokespecial(FIELD_DATA, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
+			code.addInvokespecial(FIELD_DATA_CLASSNAME, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
 
 			localVariableIndex.put(field.getName(), localVariableCounter);
 			code.addAstore(localVariableCounter++);
@@ -117,7 +116,7 @@ public class MetaDataAdder {
 
 				code.addIconst(argumentIndex);
 				code.addAload(localVariableIndex.get(field.getName()));
-				code.addInvokevirtual(CONSTRUCTOR_DATA, CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT,
+				code.addInvokevirtual(CONSTRUCTOR_DATA_CLASSNAME, CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT,
 						CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT_DESC);
 			}
 
@@ -159,17 +158,19 @@ public class MetaDataAdder {
 					// load specific LocalVariable Field
 					code.addAload(localVariableIndex.get(field.getName()));
 
-					code.addNew(SETTER_METHOD_DATA);
+					code.addNew(SETTER_METHOD_DATA_CLASSNAME);
 					code.add(Opcode.DUP);
 					code.addLdc(method.getName());
 					code.addLdc(method.getDescriptor());
 					code.addIconst(method.isStatic() ? 1 : 0);
-					code.addInvokespecial(SETTER_METHOD_DATA, MethodInfo.nameInit, SETTER_METHOD_DATA_CONSTRUCTOR);
-					code.addInvokevirtual(CLASS_DATA, CLASS_DATA_METHOD_ADD_FIELD, CLASS_DATA_METHOD_ADD_FIELD_DESC);
+					code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
+							SETTER_METHOD_DATA_CONSTRUCTOR);
+					code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD,
+							CLASS_DATA_METHOD_ADD_FIELD_DESC);
 				}
 			}
 
-		}		
+		}
 
 		if (returnInstruction.isPresent()) {
 			codeAttribute.iterator().insertEx(returnInstruction.get().getCodeArrayIndex(), code.get());
@@ -196,8 +197,8 @@ public class MetaDataAdder {
 		Bytecode lambdaBodyCode = new Bytecode(constantPool);
 		lambdaBodyCode.addLdc(constantPool.addClassInfo(Descriptor.toJvmName(classData.getSuperClass())));
 		lambdaBodyCode.addLdc(FIELD_NAME);
-		lambdaBodyCode.addInvokestatic(METHODHANDLES_CLASS_NAME, METHODHANDLES_METHOD_NAME, METHODHANDLES_RETURN_TYPE);
-		lambdaBodyCode.addCheckcast(CLASS_DATA);
+		lambdaBodyCode.addInvokestatic(METHODHANDLES_CLASSNAME, METHODHANDLES_METHOD_NAME, METHODHANDLES_RETURN_TYPE);
+		lambdaBodyCode.addCheckcast(CLASS_DATA_CLASSNAME);
 		lambdaBodyCode.addOpcode(Opcode.ARETURN);
 
 		CodeAttribute lambdaBodycodeAttribute = lambdaBodyCode.toCodeAttribute();
