@@ -159,4 +159,12 @@ public class Instructions {
 		return Modifier.isFinal(modifier) && Modifier.isStatic(modifier);
 	}
 
+	public static Instruction getBeforeInstruction(List<Instruction> instructions, Instruction instruction) {
+		return instructions.get(instructions.indexOf(instruction) - 1);
+	}
+
+	public static int getInstructionSize(Instruction instruction, Instruction followingInstruction) {
+		return followingInstruction.getCodeArrayIndex() - instruction.getCodeArrayIndex();
+	}
+
 }
