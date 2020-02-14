@@ -26,11 +26,15 @@ public class Testgenerator {
 	 * @Param Name der Methode für die ein Testfall erstellt wird
 	 */
 	public static void generate(String className, String method) {
+		LOGGER.info("Generation des Tests gestartet");
 		RuntimeProperties.getInstance().setActivateTracking(false);
 
 		generateJavaFile(className, method);
-		System.out.println("BluePrints: ");
-		for (BluePrint bluePrint : ValueStorage.getInstance().getBluePrints()) {
+		LOGGER.info("Testobject: ");
+		generateBluePrint(ValueStorage.getInstance().getTestObject());
+
+		LOGGER.info("MethodParameters: ");
+		for (BluePrint bluePrint : ValueStorage.getInstance().getMethodParameters()) {
 
 			generateBluePrint(bluePrint);
 

@@ -36,6 +36,7 @@ import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
+import de.nvg.valuetracker.blueprint.Type;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
 import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
 import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
@@ -61,9 +62,9 @@ public class ObjectValueTracker {
 
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
 
-	public void track(Object value, String name) {
+	public void track(Object value, String name, Type type) {
 		if (value != null) {
-			ValueStorage.getInstance().addBluePrint(trackValues(value, name));
+			ValueStorage.getInstance().addBluePrint(trackValues(value, name), type);
 		}
 	}
 
@@ -104,7 +105,8 @@ public class ObjectValueTracker {
 
 					Object fieldValue = getProxyValue(field.get(value));
 
-					if (fieldValue != null && isTestgeneratorGeneratedField(fieldValue, field.getName())) {
+					if (fieldValue != null && isTestgeneratorGeneratedField(fieldValue, field.getName())
+							&& fieldValue != this) {
 
 						LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 

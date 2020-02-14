@@ -50,12 +50,15 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ClassDataTransformer.class);
 
+	private final AgentProperties properties = AgentProperties.getInstance();
+
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (className.startsWith(AgentProperties.getInstance().getBlPackage())
-				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))) {
+		if (className.startsWith(properties.getBlPackage())
+				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
+				|| properties.getClassName().equals(className)) {
 
 			LOGGER.info("ClassName: " + className);
 
