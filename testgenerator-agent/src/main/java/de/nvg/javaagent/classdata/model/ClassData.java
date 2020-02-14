@@ -101,4 +101,8 @@ public class ClassData {
 				.findAny();
 	}
 
+	public String toString() {
+		return "Classname: " + name;
+	}
+
 }
