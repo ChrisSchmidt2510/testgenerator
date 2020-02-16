@@ -1,6 +1,5 @@
 package de.nvg.runtime.classdatamodel;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,8 +39,8 @@ public class ClassData {
 		return constructor;
 	}
 
-	public Map<FieldData, SetterMethodData> getFields() {
-		return Collections.unmodifiableMap(fields);
+	public SetterMethodData getSetterMethodData(FieldData field) {
+		return fields.get(field);
 	}
 
 	public boolean hasDefaultConstructor() {
