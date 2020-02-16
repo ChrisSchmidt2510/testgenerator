@@ -1,6 +1,9 @@
 package de.nvg.valuetracker.blueprint.simpletypes;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
@@ -25,6 +28,15 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 			return "$T.valueOf(" + decimal.doubleValue() + ").setScale(" + decimal.scale() + ")";
 		}
 		throw new IllegalArgumentException("unvalid Value for NumberBluePrint");
+	}
+
+	@Override
+	public List<Class<?>> getReferenceClasses() {
+		if (value instanceof BigDecimal) {
+			return Arrays.asList(BigDecimal.class);
+		}
+
+		return Collections.emptyList();
 	}
 
 }

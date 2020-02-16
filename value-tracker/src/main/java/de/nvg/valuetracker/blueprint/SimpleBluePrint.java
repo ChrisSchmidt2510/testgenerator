@@ -15,6 +15,8 @@ public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 
 	public abstract String valueCreation();
 
+	public abstract List<Class<?>> getReferenceClasses();
+
 	@Override
 	public boolean isComplexType() {
 		return false;

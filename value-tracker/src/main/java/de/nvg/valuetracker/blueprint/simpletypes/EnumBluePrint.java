@@ -1,5 +1,8 @@
 package de.nvg.valuetracker.blueprint.simpletypes;
 
+import java.util.Arrays;
+import java.util.List;
+
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
@@ -11,8 +14,11 @@ public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 	@Override
 	public String valueCreation() {
 		return "$T." + value;
+	}
 
-//		Matcher.quoteReplacement("$");
+	@Override
+	public List<Class<?>> getReferenceClasses() {
+		return Arrays.asList(value.getClass());
 	}
 
 }
