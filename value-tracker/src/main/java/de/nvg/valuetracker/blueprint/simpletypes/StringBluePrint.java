@@ -10,7 +10,7 @@ public class StringBluePrint extends SimpleBluePrint<String> {
 
 	@Override
 	public String valueCreation() {
-		return "\"" + value + "\";";
+		return "\"" + value + "\"";
 	}
 
 }

@@ -12,7 +12,7 @@ public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> {
 
 	@Override
 	public String valueCreation() {
-		return "LocalDate.of(" + value.getYear() + ", Month." + value.getMonth() + ", " + value.getDayOfMonth() + ");";
+		return "$T.of(" + value.getYear() + ", $T." + value.getMonth() + ", " + value.getDayOfMonth() + ")";
 	}
 
 }

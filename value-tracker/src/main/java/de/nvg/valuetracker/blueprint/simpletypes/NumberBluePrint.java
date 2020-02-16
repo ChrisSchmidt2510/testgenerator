@@ -22,7 +22,7 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 			return String.valueOf(value.longValue());
 		} else if (value instanceof BigDecimal) {
 			BigDecimal decimal = (BigDecimal) value;
-			return "BigDecimal.valueOf(" + decimal.doubleValue() + ").setScale(" + decimal.scale() + ");";
+			return "$T.valueOf(" + decimal.doubleValue() + ").setScale(" + decimal.scale() + ")";
 		}
 		throw new IllegalArgumentException("unvalid Value for NumberBluePrint");
 	}

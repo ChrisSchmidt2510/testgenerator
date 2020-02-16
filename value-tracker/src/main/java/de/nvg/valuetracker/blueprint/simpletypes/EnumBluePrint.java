@@ -1,7 +1,5 @@
 package de.nvg.valuetracker.blueprint.simpletypes;
 
-import java.util.regex.Matcher;
-
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
@@ -12,7 +10,7 @@ public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 
 	@Override
 	public String valueCreation() {
-		return value.getClass().getName().replace("$", Matcher.quoteReplacement(".")) + "." + value;
+		return "$T." + value;
 
 //		Matcher.quoteReplacement("$");
 	}

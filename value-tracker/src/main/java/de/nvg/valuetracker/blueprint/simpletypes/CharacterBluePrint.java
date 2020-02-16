@@ -10,7 +10,7 @@ public class CharacterBluePrint extends SimpleBluePrint<Character> {
 
 	@Override
 	public String valueCreation() {
-		return value.toString();
+		return "'" + value.toString() + "'";
 	}
 
 }

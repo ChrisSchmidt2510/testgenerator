@@ -12,9 +12,9 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> {
 
 	@Override
 	public String valueCreation() {
-		return "new GregorianCalendar(" + value.get(Calendar.YEAR) + ", " + value.get(Calendar.MONTH) + ", "
+		return "new $T(" + value.get(Calendar.YEAR) + ", " + value.get(Calendar.MONTH) + ", "
 				+ value.get(Calendar.DAY_OF_MONTH) + ", " + value.get(Calendar.HOUR_OF_DAY) + ", "
-				+ value.get(Calendar.MINUTE) + ", " + value.get(Calendar.SECOND) + ");";
+				+ value.get(Calendar.MINUTE) + ", " + value.get(Calendar.SECOND) + ")";
 	}
 
 }

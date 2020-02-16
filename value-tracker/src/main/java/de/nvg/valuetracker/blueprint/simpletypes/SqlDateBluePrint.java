@@ -13,7 +13,7 @@ public class SqlDateBluePrint extends SimpleBluePrint<Date> {
 	@Override
 	public String valueCreation() {
 		// TOOD mit Andi reden
-		return "new java.sql.Date(" + value.getTime() + ");";
+		return "new $T(" + value.getTime() + ")";
 	}
 
 }
