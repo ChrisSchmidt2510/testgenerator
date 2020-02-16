@@ -24,9 +24,7 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 	@Override
 	public List<BluePrint> getPreExecuteBluePrints() {
-		return elementBluePrints.stream()
-				.filter(bp -> bp instanceof ComplexBluePrint || bp instanceof BasicCollectionBluePrint<?>)
-				.collect(Collectors.toList());
+		return elementBluePrints.stream().filter(BluePrint::isComplexType).collect(Collectors.toList());
 	}
 
 	@Override
