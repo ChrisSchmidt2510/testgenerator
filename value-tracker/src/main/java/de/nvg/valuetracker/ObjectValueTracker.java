@@ -140,16 +140,16 @@ public class ObjectValueTracker {
 
 		CollectionBluePrint bluePrint = null;
 		if (object instanceof Collection) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, "Collection", "Arrays.asList");
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Collections.class, "Arrays.asList");
 
 		} else if (object instanceof List) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, "List", "Arrays.asList");
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, List.class, "Arrays.asList");
 
 		} else if (object instanceof Set) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, "Set", null);
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Set.class, null);
 
 		} else if (object instanceof Queue) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, "Queue", null);
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Queue.class, null);
 		}
 
 		if (bluePrint != null) {
@@ -169,7 +169,7 @@ public class ObjectValueTracker {
 
 		for (Object value : collection) {
 
-			BluePrint elementBluePrint = trackValues(value, name + "$" + counter++);
+			BluePrint elementBluePrint = trackValues(value, name + counter++);
 			bluePrint.addBluePrint(elementBluePrint);
 		}
 	}
@@ -178,13 +178,13 @@ public class ObjectValueTracker {
 
 		int counter = 1;
 
-		MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass().getName(), null);
+		MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass(), null);
 
 		if (!map.isEmpty()) {
 
 			for (Entry<?, ?> entry : map.entrySet()) {
-				BluePrint keyBluePrint = trackValues(entry.getKey(), name + "$" + counter + "Key");
-				BluePrint valueBluePrint = trackValues(entry.getValue(), name + "$" + counter++ + "Value");
+				BluePrint keyBluePrint = trackValues(entry.getKey(), name + counter + "Key");
+				BluePrint valueBluePrint = trackValues(entry.getValue(), name + counter++ + "Value");
 
 				mapBluePrint.addKeyValuePair(keyBluePrint, valueBluePrint);
 			}
