@@ -59,8 +59,7 @@ public class ClassData {
 	}
 
 	public boolean hasDefaultConstructor() {
-		// TODO CS nur temporaer damit keine NPE entsteht
-		return constructor == null ? true : constructor.isDefaultConstructor();
+		return constructor == null ? false : constructor.isDefaultConstructor();
 	}
 
 	public void setConstructor(ConstructorData constructor) {
