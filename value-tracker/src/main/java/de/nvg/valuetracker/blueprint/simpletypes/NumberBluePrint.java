@@ -15,8 +15,12 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 
 	@Override
 	public String valueCreation() {
-		if (value instanceof Integer || value instanceof Short || value instanceof Byte) {
+		if (value instanceof Integer) {
 			return String.valueOf(value.intValue());
+		} else if (value instanceof Short) {
+			return "(short)" + String.valueOf(value.intValue());
+		} else if (value instanceof Byte) {
+			return "(byte)" + String.valueOf(value.intValue());
 		} else if (value instanceof Float) {
 			return String.valueOf(value.floatValue());
 		} else if (value instanceof Double) {
