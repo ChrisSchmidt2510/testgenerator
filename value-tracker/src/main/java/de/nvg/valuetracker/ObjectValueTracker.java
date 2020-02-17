@@ -140,16 +140,16 @@ public class ObjectValueTracker {
 
 		CollectionBluePrint bluePrint = null;
 		if (object instanceof Collection) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Collections.class, "Arrays.asList");
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Collection.class);
 
 		} else if (object instanceof List) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, List.class, "Arrays.asList");
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, List.class);
 
 		} else if (object instanceof Set) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Set.class, null);
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Set.class);
 
 		} else if (object instanceof Queue) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Queue.class, null);
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Queue.class);
 		}
 
 		if (bluePrint != null) {
@@ -178,7 +178,7 @@ public class ObjectValueTracker {
 
 		int counter = 1;
 
-		MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass(), null);
+		MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass());
 
 		if (!map.isEmpty()) {
 
