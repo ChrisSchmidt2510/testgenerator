@@ -12,7 +12,9 @@ public interface BluePrint {
 
 	public boolean isComplexType();
 
-	public boolean isBuild();
+	public boolean isNotBuild();
+
+	public void setBuild();
 
 	public default boolean isCollectionBluePrint() {
 		return this instanceof BasicCollectionBluePrint<?>;
