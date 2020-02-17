@@ -178,7 +178,7 @@ public class ObjectValueTracker {
 
 		int counter = 1;
 
-		MapBluePrint mapBluePrint = new MapBluePrint(name, map, map.getClass());
+		MapBluePrint mapBluePrint = new MapBluePrint(name, map);
 
 		if (!map.isEmpty()) {
 
