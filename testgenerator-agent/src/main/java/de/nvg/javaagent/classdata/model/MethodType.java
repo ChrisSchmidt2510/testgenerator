@@ -1,7 +1,6 @@
 package de.nvg.javaagent.classdata.model;
 
 public enum MethodType {
-	// TODO doc für maps u.arrays anpassen
 
 	/**
 	 * Used for normal setters like<br>
@@ -10,7 +9,7 @@ public enum MethodType {
 	 * public void setAge(int age)<br>
 	 * public void setList(List<?> list)<br>
 	 * public void setList(List<?> list){<br>
-	 * 	this.list.addAll(list);<br>
+	 * 		this.list.addAll(list);<br>
 	 * }<br>
 	 *  </code>
 	 */
