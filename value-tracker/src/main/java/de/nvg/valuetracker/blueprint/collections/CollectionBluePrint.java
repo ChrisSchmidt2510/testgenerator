@@ -2,6 +2,7 @@ package de.nvg.valuetracker.blueprint.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,8 +15,8 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 	private List<BluePrint> elementBluePrints = new ArrayList<>();
 
-	public CollectionBluePrint(String name, Collection<?> value, String interfaceClassName, String factoryMethod) {
-		super(name, value, interfaceClassName, factoryMethod);
+	public CollectionBluePrint(String name, Collection<?> value, Class<?> interfaceClassName) {
+		super(name, value, interfaceClassName);
 	}
 
 	public void addBluePrint(BluePrint bluePrint) {
@@ -27,11 +28,14 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 		return elementBluePrints.stream().filter(BluePrint::isComplexType).collect(Collectors.toList());
 	}
 
+	public List<BluePrint> getBluePrints() {
+		return Collections.unmodifiableList(elementBluePrints);
+	}
+
 	@Override
 	public String toString() {
 		// TODO just temporary
-		build = true;
-		String complex = getPreExecuteBluePrints().stream().map(el -> !el.isBuild() ? el.toString() : "")
+		String complex = getPreExecuteBluePrints().stream().map(el -> !el.isNotBuild() ? el.toString() : "")
 				.collect(Collectors.joining());
 
 		String toString = "";

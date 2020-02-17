@@ -2,12 +2,10 @@ package de.nvg.valuetracker.blueprint;
 
 public abstract class BasicCollectionBluePrint<E> extends BasicBluePrint<E> {
 	private final String interfaceClassName;
-	private final String factoryMethod;
 
-	public BasicCollectionBluePrint(String name, E value, String interfaceClassName, String factoryMethod) {
+	public BasicCollectionBluePrint(String name, E value, Class<?> interfaceClass) {
 		super(name, value);
-		this.interfaceClassName = interfaceClassName;
-		this.factoryMethod = factoryMethod;
+		this.interfaceClassName = interfaceClass.getName();
 	}
 
 	public String getImplementationClass() {
@@ -16,10 +14,6 @@ public abstract class BasicCollectionBluePrint<E> extends BasicBluePrint<E> {
 
 	public String getInterfaceClass() {
 		return interfaceClassName;
-	}
-
-	public String getFactoryMethod() {
-		return factoryMethod;
 	}
 
 	@Override
