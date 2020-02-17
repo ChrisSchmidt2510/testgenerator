@@ -32,8 +32,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 	@Override
 	public String toString() {
 		// TODO just temporary
-		build = true;
-		String complex = getPreExecuteBluePrints().stream().map(el -> !el.isBuild() ? el.toString() : "")
+		String complex = getPreExecuteBluePrints().stream().map(el -> !el.isNotBuild() ? el.toString() : "")
 				.collect(Collectors.joining());
 
 		String toString = "";

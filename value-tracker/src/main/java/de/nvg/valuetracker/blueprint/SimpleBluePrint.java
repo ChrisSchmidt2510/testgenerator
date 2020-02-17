@@ -25,7 +25,6 @@ public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 	@Override
 	public String toString() {
 		// TODO just temporary
-		build = true;
 
 		return "Field: " + name + " Value: " + valueCreation();
 	}
