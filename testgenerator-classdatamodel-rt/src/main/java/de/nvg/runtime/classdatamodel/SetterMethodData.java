@@ -6,11 +6,17 @@ public class SetterMethodData {
 	private final String name;
 	private final String descriptor;
 	private final boolean isStatic;
+	private final SetterType type;
 
 	public SetterMethodData(String name, String descriptor, boolean isStatic) {
+		this(name, descriptor, isStatic, null);
+	}
+
+	public SetterMethodData(String name, String descriptor, boolean isStatic, SetterType type) {
 		this.name = name;
 		this.descriptor = descriptor;
 		this.isStatic = isStatic;
+		this.type = type;
 	}
 
 	public String getName() {
@@ -23,6 +29,10 @@ public class SetterMethodData {
 
 	public boolean isStatic() {
 		return isStatic;
+	}
+
+	public SetterType getType() {
+		return type;
 	}
 
 	@Override

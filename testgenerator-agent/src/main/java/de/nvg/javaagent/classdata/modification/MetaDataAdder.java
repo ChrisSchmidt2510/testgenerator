@@ -48,8 +48,15 @@ public class MetaDataAdder {
 	private static final String FIELD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/FieldData";
 	private static final String FIELD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;)V";
 
+	private static final String SETTER_TYPE_CLASSNAME = "de/nvg/runtime/classdatamodel/SetterType";
+	private static final String SETTER_TYPE = "Lde/nvg/runtime/classdatamodel/SetterType;";
+	private static final String SETTER_TYPE_FIELDNAME_VALUE_SETTER = "VALUE_SETTER";
+	private static final String SETTER_TYPE_FIELDNAME_VALUE_GETTER = "VALUE_GETTER";
+	private static final String SETTER_TYPE_FIELDNAME_COLLECTION_SETTER = "COLLECTION_SETTER";
+
 	private static final String SETTER_METHOD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/SetterMethodData";
 	private static final String SETTER_METHOD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;Z)V";
+	private static final String SETTER_METHOD_DATA_CONSTRUCTOR_WITH_SETTER_TYPE = "(Ljava/lang/String;Ljava/lang/String;ZLde/nvg/runtime/classdatamodel/SetterType;)V";
 
 	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lde/nvg/runtime/classdatamodel/ClassData;";
 
@@ -149,10 +156,10 @@ public class MetaDataAdder {
 
 				MethodData method = methods.get(0);
 
-				if (MethodType.REFERENCE_VALUE_SETTER == method.getMethodType()
-						|| JavaTypes.COLLECTIONS.contains(field.getDataType())
-								&& (MethodType.COLLECTION_SETTER == method.getMethodType()
-										|| MethodType.REFERENCE_VALUE_GETTER == method.getMethodType())) {
+				MethodType type = method.getMethodType();
+
+				if (MethodType.REFERENCE_VALUE_SETTER == type || JavaTypes.COLLECTIONS.contains(field.getDataType())
+						&& (MethodType.COLLECTION_SETTER == type || MethodType.REFERENCE_VALUE_GETTER == type)) {
 
 					code.addGetstatic(loadingClass, FIELD_NAME, CLASS_DATA);
 					// load specific LocalVariable Field
@@ -163,8 +170,15 @@ public class MetaDataAdder {
 					code.addLdc(method.getName());
 					code.addLdc(method.getDescriptor());
 					code.addIconst(method.isStatic() ? 1 : 0);
-					code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
-							SETTER_METHOD_DATA_CONSTRUCTOR);
+
+					if (JavaTypes.COLLECTIONS.contains(field.getDataType())) {
+						code.addGetstatic(SETTER_TYPE_CLASSNAME, getSetterType(type), SETTER_TYPE);
+						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
+								SETTER_METHOD_DATA_CONSTRUCTOR_WITH_SETTER_TYPE);
+					} else {
+						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
+								SETTER_METHOD_DATA_CONSTRUCTOR);
+					}
 					code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD,
 							CLASS_DATA_METHOD_ADD_FIELD_DESC);
 				}
@@ -209,6 +223,17 @@ public class MetaDataAdder {
 		classFile.addMethod(lambdaBody);
 
 		return bootstrapMethodAttributeIndex;
+	}
+
+	private String getSetterType(MethodType type) {
+		if (type == MethodType.REFERENCE_VALUE_SETTER) {
+			return SETTER_TYPE_FIELDNAME_VALUE_SETTER;
+		} else if (type == MethodType.REFERENCE_VALUE_GETTER) {
+			return SETTER_TYPE_FIELDNAME_VALUE_GETTER;
+		} else if (type == MethodType.COLLECTION_SETTER) {
+			return SETTER_TYPE_FIELDNAME_COLLECTION_SETTER;
+		}
+		throw new IllegalArgumentException(type + "is not a valid MethodType");
 	}
 
 }
