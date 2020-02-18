@@ -139,10 +139,8 @@ public class ObjectValueTracker {
 	private BluePrint trackValuesFromCollections(Object object, String name) {
 
 		CollectionBluePrint bluePrint = null;
-		if (object instanceof Collection) {
-			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Collection.class);
 
-		} else if (object instanceof List) {
+		if (object instanceof List) {
 			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, List.class);
 
 		} else if (object instanceof Set) {
@@ -150,6 +148,8 @@ public class ObjectValueTracker {
 
 		} else if (object instanceof Queue) {
 			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Queue.class);
+		} else if (object instanceof Collection) {
+			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Collection.class);
 		}
 
 		if (bluePrint != null) {
