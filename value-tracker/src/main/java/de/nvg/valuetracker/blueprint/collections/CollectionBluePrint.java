@@ -16,8 +16,8 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 	private List<BluePrint> elementBluePrints = new ArrayList<>();
 	private Class<?> elementType = Object.class;
 
-	public CollectionBluePrint(String name, Collection<?> value, Class<?> interfaceClassName) {
-		super(name, value, interfaceClassName);
+	public CollectionBluePrint(String name, Collection<?> value, Class<?> interfaceClass) {
+		super(name, value, interfaceClass);
 	}
 
 	public void addBluePrint(BluePrint bluePrint) {
