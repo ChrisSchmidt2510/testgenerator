@@ -72,6 +72,9 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private CodeIterator iterator;
 	private ConstPool constantPool;
 
+	private Bytecode testgenerationWithLocalVariable;
+	private Bytecode testgeneration;
+
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -112,6 +115,8 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		codeAttribute = methodInfo.getCodeAttribute();
 		constantPool = codeAttribute.getConstPool();
 		iterator = codeAttribute.iterator();
+
+		initDefaultBytecodes();
 
 		addValueTrackingToMethod(classToLoad, methodInfo, iterator);
 		addTestgenerationToMethod(methodInfo);
@@ -174,13 +179,6 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		LOGGER.debug("Method before manipulation",
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
-		// default-Code for branches
-		Bytecode testGeneration = new Bytecode(constantPool);
-		testGeneration.addLdc(properties.getClassName());
-		testGeneration.addLdc(properties.getMethod());
-		testGeneration.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
-
 		int codeArrayModificator = 0;
 
 		for (int i = 0; i < returnInstructions.size(); i++) {
@@ -201,21 +199,21 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				// EndIndex = codeArrayIndex
 				// codeLength testgeneration.size +1 fuer return
 				if (Opcode.RETURN == instruction.getOpcode()) {
-					exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex(), testGeneration.getSize() + 1,
+					exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex(), testgeneration.getSize() + 1,
 							null);
+
+					iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator, testgeneration.get());
 				} else {
 					exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex() - beforeReturnInstructionSize,
-							testGeneration.getSize() + 1 + beforeReturnInstructionSize, null);
-				}
+							testgeneration.getSize() + 1 + beforeReturnInstructionSize, null);
 
-				if (Opcode.RETURN == instruction.getOpcode()) {
-					iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator, testGeneration.get());
-				} else {
 					// -1 cause load-instruction
-					iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator - 1, testGeneration.get());
+					iterator.insertAt(
+							instruction.getCodeArrayIndex() + codeArrayModificator - beforeReturnInstructionSize,
+							testgeneration.get());
 				}
 
-				codeArrayModificator += testGeneration.getSize();
+				codeArrayModificator += testgeneration.getSize();
 			}
 		}
 
@@ -272,19 +270,12 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 			throws BadBytecode {
 		int maxLocals = codeAttribute.getMaxLocals();
 
-		Bytecode finallyBlockWithoutException = new Bytecode(constantPool);
-		finallyBlockWithoutException.addAstore(maxLocals + 1);
-		finallyBlockWithoutException.addLdc(properties.getClassName());
-		finallyBlockWithoutException.addLdc(properties.getMethod());
-		finallyBlockWithoutException.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
-		finallyBlockWithoutException.addAload(maxLocals + 1);
-
 		exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex() + codeArrayModificator, 0, null);
 
-		iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator, finallyBlockWithoutException.get());
+		iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator,
+				testgenerationWithLocalVariable.get());
 
-		codeArrayModificator += finallyBlockWithoutException.getSize();
+		codeArrayModificator += testgenerationWithLocalVariable.getSize();
 
 		Bytecode exceptionHandling = new Bytecode(constantPool);
 		exceptionHandling.addAstore(maxLocals);
@@ -313,5 +304,23 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		newClassName = newClassName.replace(newClassName.charAt(0), Character.toLowerCase(newClassName.charAt(0)));
 
 		return newClassName;
+	}
+
+	private void initDefaultBytecodes() {
+		int maxLocals = codeAttribute.getMaxLocals();
+
+		testgenerationWithLocalVariable = new Bytecode(constantPool);
+		testgenerationWithLocalVariable.addAstore(maxLocals + 1);
+		testgenerationWithLocalVariable.addLdc(properties.getClassName());
+		testgenerationWithLocalVariable.addLdc(properties.getMethod());
+		testgenerationWithLocalVariable.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
+				TEST_GENERATOR_METHOD_GENERATE_DESC);
+		testgenerationWithLocalVariable.addAload(maxLocals + 1);
+
+		testgeneration = new Bytecode(constantPool);
+		testgeneration.addLdc(properties.getClassName());
+		testgeneration.addLdc(properties.getMethod());
+		testgeneration.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
+				TEST_GENERATOR_METHOD_GENERATE_DESC);
 	}
 }
