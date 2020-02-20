@@ -1,7 +1,7 @@
 package de.nvg.valuetracker.blueprint;
 
 public abstract class BasicCollectionBluePrint<E> extends BasicBluePrint<E> {
-	private final Class<?> interfaceClass;
+	protected final Class<?> interfaceClass;
 
 	public BasicCollectionBluePrint(String name, E value, Class<?> interfaceClass) {
 		super(name, value);
@@ -19,6 +19,11 @@ public abstract class BasicCollectionBluePrint<E> extends BasicBluePrint<E> {
 	@Override
 	public boolean isComplexType() {
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return interfaceClass.getName() + " " + name;
 	}
 
 }

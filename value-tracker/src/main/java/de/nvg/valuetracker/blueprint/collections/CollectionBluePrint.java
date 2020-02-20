@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
-import de.nvg.valuetracker.blueprint.ComplexBluePrint;
-import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>> {
 
@@ -39,24 +37,6 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 	public Class<?> getElementClass() {
 		return elementType;
-	}
-
-	@Override
-	public String toString() {
-		// TODO just temporary
-		String complex = getPreExecuteBluePrints().stream().map(el -> !el.isNotBuild() ? el.toString() : "")
-				.collect(Collectors.joining());
-
-		String toString = "";
-		for (BluePrint bluePrint : elementBluePrints) {
-			if (bluePrint instanceof SimpleBluePrint<?>) {
-				toString = toString + bluePrint.toString() + "\n";
-			} else if (bluePrint instanceof ComplexBluePrint || bluePrint instanceof CollectionBluePrint) {
-				toString = toString + "Field: ref " + bluePrint.getName() + "\n";
-			}
-		}
-
-		return complex + "\n" + getName() + "\n" + toString;
 	}
 
 }

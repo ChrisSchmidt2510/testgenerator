@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
-
 public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 	private List<BluePrint> bluePrints = new ArrayList<>();
@@ -31,20 +29,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 	@Override
 	public String toString() {
-		// TODO just temporary
-		String complex = getPreExecuteBluePrints().stream().map(el -> !el.isNotBuild() ? el.toString() : "")
-				.collect(Collectors.joining());
-
-		String toString = "";
-		for (BluePrint bluePrint : bluePrints) {
-			if (bluePrint instanceof SimpleBluePrint<?>) {
-				toString = toString + bluePrint.toString() + "\n";
-			} else if (bluePrint instanceof ComplexBluePrint || bluePrint instanceof CollectionBluePrint) {
-				toString = toString + "Field: ref " + bluePrint.getName() + "\n";
-			}
-		}
-
-		return complex + "\n" + getName() + "\n" + toString;
+		return value.getClass().getName() + " " + name;
 	}
 
 	@Override
