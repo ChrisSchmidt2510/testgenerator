@@ -1,5 +1,6 @@
 package de.nvg.javaagent.classdata.analysis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,19 +67,21 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 
 		if (methodParameter.equals(collectionGenericType) && instructions.size() < 25) {
 
-			if (Opcode.INVOKEINTERFACE == instructions.get(instructionIndex + 2).getOpcode()) {
+			if (Opcode.INVOKEINTERFACE == instructions.get(instructionIndex + 1 + collectionGenericType.size())
+					.getOpcode()) {
 
-				Instruction bytecodeInvokeInterface = instructions.get(instructionIndex + 2);
+				Instruction bytecodeInvokeInterface = instructions
+						.get(instructionIndex + 1 + collectionGenericType.size());
 
 				List<String> interfaceParams = AnalysisHelper.getMethodParams(bytecodeInvokeInterface.getType());
 
 				List<String> methodNames = JVMTypes.COLLECTION_ADD_METHODS
 						.get(Descriptor.of(bytecodeInvokeInterface.getClassRef()));
 
-				if (Opcode.ALOAD_1 == instructions.get(instructionIndex + 1).getOpcode() && methodNames != null
-						&& methodNames.contains(bytecodeInvokeInterface.getName()) && interfaceParams.size() == 1
-						// TODO Anzahl Argumente anpassen
-						&& JVMTypes.OBJECT.equals(interfaceParams.get(0))) {
+				List<String> paramList = createParamList(interfaceParams.size());
+
+				if (methodNames != null && methodNames.contains(bytecodeInvokeInterface.getName())
+						&& interfaceParams.size() == methodParameter.size() && paramList.equals(interfaceParams)) {
 
 					return true;
 				}
@@ -86,6 +89,16 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 		}
 
 		return false;
+	}
+
+	private List<String> createParamList(int size) {
+		List<String> params = new ArrayList<>();
+
+		for (int i = 0; i < size; i++) {
+			params.add(JVMTypes.OBJECT);
+		}
+
+		return params;
 	}
 
 }
