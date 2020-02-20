@@ -132,8 +132,8 @@ public class Logger {
 	}
 
 	private String startLogMessage(Level messageLevel) {
-		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " [" + messageLevel
-				+ "] ";
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " ["
+				+ Thread.currentThread().getName() + "] " + messageLevel + " ";
 	}
 
 }
