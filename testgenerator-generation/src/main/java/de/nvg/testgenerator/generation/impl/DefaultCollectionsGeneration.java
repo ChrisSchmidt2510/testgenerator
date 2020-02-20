@@ -179,12 +179,12 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		if (!onlyCreateCollectionElements) {
 
 			if (isField) {
-				code.addStatement(map.getName() + " =$T<>()", map.getImplementationClass());
+				code.addStatement(map.getName() + " = new $T<>()", map.getImplementationClass());
 			} else {
 				ParameterizedTypeName mapType = ParameterizedTypeName.get(Map.class, map.getKeyType(),
 						map.getValueType());
 
-				code.addStatement("$T " + map.getName() + " =$T<>()", mapType, map.getImplementationClass());
+				code.addStatement("$T " + map.getName() + " = new $T<>()", mapType, map.getImplementationClass());
 			}
 
 			for (Entry<BluePrint, BluePrint> entry : map.getBluePrints()) {
