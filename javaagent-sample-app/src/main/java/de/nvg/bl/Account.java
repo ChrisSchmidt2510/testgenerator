@@ -1,6 +1,8 @@
 package de.nvg.bl;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.nvg.bl.partner.Person;
 
@@ -9,6 +11,8 @@ public class Account {
 	private LocalDateTime lastLogin;
 	private String username;
 	private String password;
+
+	private Map<LocalDateTime, String> historie = new HashMap<>();
 
 	@Override
 	public int hashCode() {
@@ -83,6 +87,14 @@ public class Account {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public void addHistorie(LocalDateTime dateTime, String action) {
+		historie.put(dateTime, action);
+	}
+
+	public Map<LocalDateTime, String> getHistorie() {
+		return historie;
 	}
 
 }

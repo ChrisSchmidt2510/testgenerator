@@ -29,6 +29,7 @@ public class Application {
 		account.setPerson(person);
 		account.setUsername("Name123");
 		account.setPassword("password");
+		account.addHistorie(LocalDateTime.now(), "User logged in");
 
 		BusinessLogik logik = new BusinessLogik();
 		logik.addAdresseToPerson(person, adresse);

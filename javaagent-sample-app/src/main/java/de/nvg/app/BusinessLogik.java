@@ -25,6 +25,9 @@ public class BusinessLogik {
 		System.out.println(includedAdresse.getHausnummer());
 		System.out.println(includedAdresse.getPlz());
 
+		account.getHistorie()
+				.forEach((dateTime, action) -> System.out.println("DateTime: " + dateTime + " Action:" + action));
+
 		account.setPassword(password);
 	}
 
