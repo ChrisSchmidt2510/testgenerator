@@ -54,7 +54,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	@Override
 	public void prepareTestObject(Builder typeSpec, BluePrint testObject, ClassData classData,
 			Set<FieldData> calledFields) {
-		LOGGER.info("Starting generation of testobject: " + testObject.getName());
+		LOGGER.info("Starting generation of testobject: " + testObject);
 
 		typeSpec.addField(testObject.getReference().getClass(), testObject.getName(), Modifier.PRIVATE);
 		testObjectName = testObject.getName();
@@ -72,7 +72,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 		CodeBlock.Builder code = CodeBlock.builder();
 
 		for (BluePrint methodParameter : methodParameters) {
-			LOGGER.info("Starting generation of method-parameter: " + methodParameter.getName());
+			LOGGER.info("Starting generation of method-parameter: " + methodParameter);
 
 			methodParameterNames.add(methodParameter.getName());
 
