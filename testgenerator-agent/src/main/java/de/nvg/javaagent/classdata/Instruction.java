@@ -2,6 +2,8 @@ package de.nvg.javaagent.classdata;
 
 import java.util.Objects;
 
+import javassist.bytecode.Mnemonic;
+
 public class Instruction {
 	private final int codeArrayIndex;
 	private final int opcode;
@@ -69,6 +71,11 @@ public class Instruction {
 		Instruction other = (Instruction) obj;
 		return codeArrayIndex == other.codeArrayIndex && Objects.equals(name, other.name) && opcode == other.opcode
 				&& Objects.equals(type, other.type);
+	}
+
+	@Override
+	public String toString() {
+		return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode];
 	}
 
 	public static class Builder {
