@@ -16,6 +16,8 @@ import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SetterType;
+import de.nvg.testgenerator.generation.CollectionsGeneration;
+import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
@@ -24,18 +26,22 @@ import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
 import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
 
-public class DefaultCollectionsGeneration {
+public class DefaultCollectionsGeneration implements CollectionsGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultCollectionsGeneration.class);
 
-	private final DefaultTestClassGeneration testClassGeneration;
+	private ComplexObjectGeneration objectGeneration;
 
-	public DefaultCollectionsGeneration(DefaultTestClassGeneration testClassGeneration) {
-		this.testClassGeneration = testClassGeneration;
+	@Override
+	public void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration) {
+		this.objectGeneration = objectGeneration;
 	}
 
+	@Override
 	public void createCollection(Builder code, BasicCollectionBluePrint<?> basicCollectionBP,
 			boolean onlyCreateCollectionElements, boolean isField) {
+
+		LOGGER.info("starting generation of Collection :" + basicCollectionBP);
 
 		if (basicCollectionBP.isNotBuild()) {
 			if (basicCollectionBP instanceof CollectionBluePrint) {
@@ -48,8 +54,11 @@ public class DefaultCollectionsGeneration {
 
 	}
 
+	@Override
 	public void addCollectionToObject(Builder code, BasicCollectionBluePrint<?> basicCollectionBP,
 			SetterMethodData setter, String objectName) {
+
+		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
 
 		if (basicCollectionBP instanceof CollectionBluePrint) {
 			addCollectionToObject(code, (CollectionBluePrint) basicCollectionBP, setter, objectName);
@@ -59,6 +68,7 @@ public class DefaultCollectionsGeneration {
 		}
 	}
 
+	@Override
 	public void addFieldToClass(TypeSpec.Builder typeSpec, BasicCollectionBluePrint<?> bluePrint) {
 
 		if (bluePrint instanceof CollectionBluePrint) {
@@ -216,7 +226,7 @@ public class DefaultCollectionsGeneration {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
 			Set<FieldData> calledFields = TestGenerationHelper.getCalledFields(bluePrint.getReference());
 
-			testClassGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
+			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
 
 		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild()) {
 			createCollection(code, bluePrint.castToCollectionBluePrint(), false, false);

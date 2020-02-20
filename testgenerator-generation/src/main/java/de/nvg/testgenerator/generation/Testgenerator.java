@@ -1,6 +1,8 @@
 package de.nvg.testgenerator.generation;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -47,6 +49,10 @@ public class Testgenerator {
 		testGenerator.prepareTestObject(classBuilder, testObject, classData, calledFields);
 		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters());
 		testGenerator.generateTestMethod(classBuilder, method);
+
+		classBuilder.addJavadoc(
+				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
+						+ " with Testgenerator-1.0.0");
 
 		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build()).build();
 		file.writeTo(System.out);
