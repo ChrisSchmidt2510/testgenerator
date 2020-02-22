@@ -9,5 +9,13 @@
 		<artifactId>testgenerator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+	
+	<dependencies>
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 
 </project>
