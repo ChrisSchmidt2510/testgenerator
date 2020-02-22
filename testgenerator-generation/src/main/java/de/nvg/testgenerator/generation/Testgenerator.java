@@ -3,6 +3,7 @@ package de.nvg.testgenerator.generation;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -36,6 +37,7 @@ public class Testgenerator {
 	public static void generate(String className, String method) throws IOException {
 		LOGGER.info("Starting test-generation");
 		RuntimeProperties.getInstance().setActivateTracking(false);
+		boolean trackingActivated = RuntimeProperties.getInstance().wasFieldTrackingActivated();
 
 		TestClassGeneration testGenerator = new DefaultTestClassGeneration();
 
@@ -43,8 +45,12 @@ public class Testgenerator {
 				.addModifiers(Modifier.PUBLIC);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
+
 		ClassData classData = TestGenerationHelper.getClassData(testObject.getReference());
-		Set<FieldData> calledFields = TestGenerationHelper.getCalledFields(testObject.getReference());
+		Set<FieldData> calledFields = Collections.emptySet();
+		if (trackingActivated) {
+			calledFields = TestGenerationHelper.getCalledFields(testObject.getReference());
+		}
 
 		testGenerator.prepareTestObject(classBuilder, testObject, classData, calledFields);
 		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters());
@@ -54,7 +60,8 @@ public class Testgenerator {
 				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
 						+ " with Testgenerator-1.0.0");
 
-		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build()).build();
+		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build())
+				.skipJavaLangImports(true).build();
 		file.writeTo(System.out);
 
 	}

@@ -20,6 +20,7 @@ import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
+import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
@@ -31,6 +32,8 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	private static final Logger LOGGER = LogManager.getLogger(DefaultCollectionsGeneration.class);
 
 	private ComplexObjectGeneration objectGeneration;
+
+	private RuntimeProperties properties = RuntimeProperties.getInstance();
 
 	@Override
 	public void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration) {
@@ -224,7 +227,11 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	private void createComplexCollectionElement(Builder code, BluePrint bluePrint) {
 		if (bluePrint.isComplexBluePrint() && bluePrint.isNotBuild()) {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
-			Set<FieldData> calledFields = TestGenerationHelper.getCalledFields(bluePrint.getReference());
+
+			Set<FieldData> calledFields = Collections.emptySet();
+			if (properties.wasFieldTrackingActivated()) {
+				calledFields = TestGenerationHelper.getCalledFields(bluePrint.getReference());
+			}
 
 			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
 

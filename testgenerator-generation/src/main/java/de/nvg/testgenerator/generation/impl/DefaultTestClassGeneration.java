@@ -2,6 +2,7 @@ package de.nvg.testgenerator.generation.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.TestClassGeneration;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
+import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
@@ -36,6 +38,8 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	private static final String METHOD_TEST_START = "test";
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultTestClassGeneration.class);
+
+	private final RuntimeProperties properties = RuntimeProperties.getInstance();
 
 	private String testObjectName;
 	private List<String> methodParameterNames = new ArrayList<>();
@@ -81,7 +85,11 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 						Modifier.PRIVATE);
 
 				ClassData classData = TestGenerationHelper.getClassData(methodParameter.getReference());
-				Set<FieldData> calledFields = TestGenerationHelper.getCalledFields(methodParameter.getReference());
+
+				Set<FieldData> calledFields = Collections.emptySet();
+				if (properties.wasFieldTrackingActivated()) {
+					calledFields = TestGenerationHelper.getCalledFields(methodParameter.getReference());
+				}
 
 				objectGeneration.createObject(code, methodParameter.castToComplexBluePrint(), true, classData,
 						calledFields);
