@@ -1,6 +1,7 @@
 package de.nvg.valuetracker.blueprint;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -25,6 +26,10 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 	public void addBluePrint(BluePrint bluePrint) {
 		bluePrints.add(bluePrint);
+	}
+
+	public List<BluePrint> getChildBluePrints() {
+		return Collections.unmodifiableList(bluePrints);
 	}
 
 	@Override
