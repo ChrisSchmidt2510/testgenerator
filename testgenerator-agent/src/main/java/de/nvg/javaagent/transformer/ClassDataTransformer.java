@@ -122,7 +122,10 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
 					loadingClass);
 
-			fieldTypeChanger.addFieldCalledField();
+			// only add the calledFields Set if the Flag is set
+			if (properties.isTraceGetterCalls()) {
+				fieldTypeChanger.addFieldCalledField();
+			}
 
 			checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
 					fieldTypeChanger, classData);
