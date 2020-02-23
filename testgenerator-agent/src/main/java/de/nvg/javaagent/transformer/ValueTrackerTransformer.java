@@ -7,16 +7,10 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import de.nvg.javaagent.AgentException;
-import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
-import de.nvg.javaagent.classdata.modification.helper.ExceptionHandler;
-import de.nvg.javaagent.classdata.modification.helper.ExceptionHandler.ExceptionHandlerModel;
+import de.nvg.javaagent.classdata.modification.TestGenerationAdder;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.AgentProperties;
@@ -35,16 +29,10 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
-import javassist.bytecode.Opcode;
-import javassist.bytecode.StackMapTable;
-import javassist.bytecode.stackmap.MapMaker;
 
 public class ValueTrackerTransformer implements ClassFileTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ValueTrackerTransformer.class);
-
-	private static final List<Integer> RETURN_OPCODES = Collections.unmodifiableList(Arrays.asList(//
-			Opcode.ARETURN, Opcode.IRETURN, Opcode.DRETURN, Opcode.FRETURN, Opcode.LRETURN, Opcode.RETURN));
 
 	private static final String OBJECT_VALUE_TRACKER_CLASSNAME = "de/nvg/valuetracker/ObjectValueTracker";
 	private static final String OBJECT_VALUE_TRACKER = "Lde/nvg/valuetracker/ObjectValueTracker;";
@@ -58,22 +46,13 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String TYPE_FIELDNAME_TESTOBJECT = "TESTOBJECT";
 	private static final String TYPE_FIELDNAME_METHODPARAMETER = "METHOD_PARAMETER";
 
-	private static final String TEST_GENERATOR_CLASSNAME = "de/nvg/testgenerator/generation/Testgenerator";
-	private static final String TEST_GENERATOR_METHOD_GENERATE = "generate";
-	private static final String TEST_GENERATOR_METHOD_GENERATE_DESC = "(Ljava/lang/String;Ljava/lang/String;)V";
-
 	private static final String FIELD_NAME = "valueTracker";
 
 	private final AgentProperties properties = AgentProperties.getInstance();
 
-	private final ExceptionHandler exceptionHandler = new ExceptionHandler();
-
 	private CodeAttribute codeAttribute;
 	private CodeIterator iterator;
 	private ConstPool constantPool;
-
-	private Bytecode testgenerationWithLocalVariable;
-	private Bytecode testgeneration;
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -116,10 +95,10 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		constantPool = codeAttribute.getConstPool();
 		iterator = codeAttribute.iterator();
 
-		initDefaultBytecodes();
+		addValueTrackingToMethod(classToLoad, methodInfo);
 
-		addValueTrackingToMethod(classToLoad, methodInfo, iterator);
-		addTestgenerationToMethod(methodInfo);
+		TestGenerationAdder testGeneration = new TestGenerationAdder(codeAttribute);
+		testGeneration.addTestgenerationToMethod(methodInfo);
 
 		byte[] bytecode = classToLoad.toBytecode();
 
@@ -128,8 +107,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		return bytecode;
 	}
 
-	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo, CodeIterator iterator)
-			throws BadBytecode {
+	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
 		// if a method is not static the first argument to a method is this
 		int lowestParameterIndex = Modifier.isStatic(methodInfo.getAccessFlags()) ? 0 : 1;
 
@@ -174,156 +152,11 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		iterator.insert(0, valueTracking.get());
 	}
 
-	private void addTestgenerationToMethod(MethodInfo method) throws BadBytecode {
-		List<Instruction> instructions = Instructions.getAllInstructions(method);
-		List<Instruction> returnInstructions = instructions.stream()
-				.filter(inst -> RETURN_OPCODES.contains(inst.getOpcode())).collect(Collectors.toList());
-
-		LOGGER.debug("Method before manipulation",
-				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
-
-		int codeArrayModificator = 0;
-
-		for (int i = 0; i < returnInstructions.size(); i++) {
-			Instruction instruction = returnInstructions.get(i);
-
-			if (i + 1 == returnInstructions.size()) {
-				if (Opcode.RETURN == instruction.getOpcode()) {
-					addExceptionHandlerToMethodWithoutReturn(instruction, codeArrayModificator);
-				} else {
-					addExceptionHandlerToMethodsWithReturn(instruction, codeArrayModificator);
-				}
-
-			} else {
-
-				int beforeReturnInstructionSize = Instructions
-						.getInstructionSize(Instructions.getBeforeInstruction(instructions, instruction)//
-								, instruction);
-				// EndIndex = codeArrayIndex
-				// codeLength testgeneration.size +1 fuer return
-				if (Opcode.RETURN == instruction.getOpcode()) {
-					exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex(), testgeneration.getSize() + 1,
-							null);
-
-					iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator, testgeneration.get());
-				} else {
-					exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex() - beforeReturnInstructionSize,
-							testgeneration.getSize() + 1 + beforeReturnInstructionSize, null);
-
-					// -1 cause load-instruction
-					iterator.insertAt(
-							instruction.getCodeArrayIndex() + codeArrayModificator - beforeReturnInstructionSize,
-							testgeneration.get());
-				}
-
-				codeArrayModificator += testgeneration.getSize();
-			}
-		}
-
-		codeAttribute.computeMaxStack();
-
-		LOGGER.debug("Method after manipulation", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
-
-		StackMapTable stackMapTable = MapMaker.make(ClassPool.getDefault(), method);
-		codeAttribute.setAttribute(stackMapTable);
-	}
-
-	private void addExceptionHandlerToMethodWithoutReturn(Instruction instruction, int codeArrayModificator)
-			throws BadBytecode {
-		int maxLocals = codeAttribute.getMaxLocals();
-
-		Bytecode exceptionHandling = new Bytecode(constantPool);
-		exceptionHandling.addAstore(maxLocals);
-		exceptionHandling.addLdc(properties.getClassName());
-		exceptionHandling.addLdc(properties.getMethod());
-		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
-
-		exceptionHandling.addAload(maxLocals);
-		exceptionHandling.addOpcode(Opcode.ATHROW);
-
-		int codeSizeExceptionHandler = exceptionHandling.getSize();
-
-		exceptionHandling.addLdc(properties.getClassName());
-		exceptionHandling.addLdc(properties.getMethod());
-		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
-
-		exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex() + codeArrayModificator, 0, null);
-
-		iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator, exceptionHandling.get());
-
-		Bytecode gotoBytes = new Bytecode(constantPool);
-		gotoBytes.addOpcode(Opcode.GOTO);
-		gotoBytes.addGap(2);
-		gotoBytes.write16bit(1, codeSizeExceptionHandler + 3);
-
-		iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator, gotoBytes.get());
-
-		for (ExceptionHandlerModel handler : exceptionHandler.getExceptionHandlers()) {
-			codeAttribute.getExceptionTable().add(handler.startIndex, handler.endIndex,
-					// type = 0 cause finally block
-					instruction.getCodeArrayIndex() + codeArrayModificator + 3, 0);
-		}
-
-		codeAttribute.setMaxLocals(codeAttribute.getMaxLocals() + 1);
-	}
-
-	private void addExceptionHandlerToMethodsWithReturn(Instruction instruction, int codeArrayModificator)
-			throws BadBytecode {
-		int maxLocals = codeAttribute.getMaxLocals();
-
-		exceptionHandler.addExceptionHandler(instruction.getCodeArrayIndex() + codeArrayModificator, 0, null);
-
-		iterator.insertAt(instruction.getCodeArrayIndex() + codeArrayModificator,
-				testgenerationWithLocalVariable.get());
-
-		codeArrayModificator += testgenerationWithLocalVariable.getSize();
-
-		Bytecode exceptionHandling = new Bytecode(constantPool);
-		exceptionHandling.addAstore(maxLocals);
-		exceptionHandling.addLdc(properties.getClassName());
-		exceptionHandling.addLdc(properties.getMethod());
-		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
-
-		exceptionHandling.addAload(maxLocals);
-		exceptionHandling.addOpcode(Opcode.ATHROW);
-
-		iterator.insert(instruction.getCodeArrayIndex() + codeArrayModificator + 1, exceptionHandling.get());
-
-		for (ExceptionHandlerModel handler : exceptionHandler.getExceptionHandlers()) {
-			codeAttribute.getExceptionTable().add(handler.startIndex, handler.endIndex,
-					// type = 0 cause finally block
-					instruction.getCodeArrayIndex() + codeArrayModificator + 1, 0);
-		}
-
-		codeAttribute.setMaxLocals(codeAttribute.getMaxLocals() + 2);
-	}
-
 	private String createNameForTestobject(String className) {
 		String newClassName = className.substring(className.lastIndexOf(".") + 1);
 
 		newClassName = newClassName.replace(newClassName.charAt(0), Character.toLowerCase(newClassName.charAt(0)));
 
 		return newClassName;
-	}
-
-	private void initDefaultBytecodes() {
-		int maxLocals = codeAttribute.getMaxLocals();
-
-		testgenerationWithLocalVariable = new Bytecode(constantPool);
-		testgenerationWithLocalVariable.addAstore(maxLocals + 1);
-		testgenerationWithLocalVariable.addLdc(properties.getClassName());
-		testgenerationWithLocalVariable.addLdc(properties.getMethod());
-		testgenerationWithLocalVariable.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
-		testgenerationWithLocalVariable.addAload(maxLocals + 1);
-
-		testgeneration = new Bytecode(constantPool);
-		testgeneration.addLdc(properties.getClassName());
-		testgeneration.addLdc(properties.getMethod());
-		testgeneration.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
-				TEST_GENERATOR_METHOD_GENERATE_DESC);
 	}
 }
