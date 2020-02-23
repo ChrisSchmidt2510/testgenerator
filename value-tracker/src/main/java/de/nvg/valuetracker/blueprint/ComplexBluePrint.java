@@ -3,8 +3,9 @@ package de.nvg.valuetracker.blueprint;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
 public class ComplexBluePrint extends BasicBluePrint<Object> {
 
@@ -21,7 +22,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 	public BluePrint getBluePrintForName(String fieldName) {
 		return bluePrints.stream().filter(bp -> fieldName.equals(bp.getName())).findAny()
-				.orElseThrow(() -> new NoSuchElementException("No BluePrint with the Name: " + fieldName));
+				.orElse(SimpleBluePrintFactory.of(fieldName, null));
 	}
 
 	public void addBluePrint(BluePrint bluePrint) {

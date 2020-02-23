@@ -18,8 +18,9 @@ public class SimpleBluePrintFactory {
 			Float.class, Double.class, BigDecimal.class);
 
 	public static BluePrint of(String fieldName, Object value) {
-
-		if (INTEGERS.contains(value.getClass())) {
+		if (value == null) {
+			return new NullBluePrint(fieldName);
+		} else if (INTEGERS.contains(value.getClass())) {
 			return new NumberBluePrint(fieldName, (Number) value);
 		} else if (value instanceof Boolean) {
 			return new BooleanBluePrint(fieldName, (Boolean) value);
@@ -44,7 +45,6 @@ public class SimpleBluePrintFactory {
 		}
 
 		return null;
-
 	}
 
 }
