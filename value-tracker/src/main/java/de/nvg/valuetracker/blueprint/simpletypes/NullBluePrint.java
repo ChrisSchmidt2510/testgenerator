@@ -7,7 +7,7 @@ import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class NullBluePrint extends SimpleBluePrint<Object> {
 
-	protected NullBluePrint(String name) {
+	NullBluePrint(String name) {
 		super(name, null);
 	}
 
