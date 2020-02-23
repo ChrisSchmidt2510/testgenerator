@@ -190,7 +190,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs,
 						method.getCodeAttribute());
 
-				if (!classData.hasDefaultConstructor()) {
+				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
+
 					Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser.analyseConstructor(
 							method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD), instructions);
 
