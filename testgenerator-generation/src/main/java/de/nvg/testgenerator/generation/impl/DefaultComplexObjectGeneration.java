@@ -56,7 +56,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 				code.addStatement("$T " + bluePrint.getName() + " = new $T()", type, type);
 			}
 
-		} else if (classData.getConstructor() != null) {
+		} else if (classData.getConstructor().isNotEmpty()) {
 			StringBuilder statement = new StringBuilder();
 			List<Class<?>> types = new ArrayList<>();
 
@@ -103,8 +103,9 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 			code.addStatement(statement.toString(), types.toArray());
 		} else {
-			code.addStatement("//no constructor found for class: " + bluePrint.getReference().getClass().getName());
-			code.addStatement("$T = null", bluePrint.getReference().getClass());
+			code.addStatement(
+					"//no public constructor found for class: " + bluePrint.getReference().getClass().getName());
+			code.addStatement(bluePrint.getName() + " = null");
 
 		}
 

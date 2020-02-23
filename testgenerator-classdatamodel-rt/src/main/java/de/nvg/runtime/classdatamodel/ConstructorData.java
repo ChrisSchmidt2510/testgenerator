@@ -20,6 +20,10 @@ public class ConstructorData {
 		return defaultConstructor;
 	}
 
+	public boolean isNotEmpty() {
+		return !constructorFieldIndex.isEmpty();
+	}
+
 	public Map<Integer, FieldData> getConstructorFieldIndex() {
 		return Collections.unmodifiableMap(constructorFieldIndex);
 	}

@@ -113,7 +113,7 @@ public class MetaDataAdder {
 		code.addInvokespecial(CONSTRUCTOR_DATA_CLASSNAME, MethodInfo.nameInit, CONSTRUCTOR_DATA_CONSTRUCTOR);
 		code.addAstore(localVariableCounter++);
 
-		if (!defaultConstructor) {
+		if (!defaultConstructor && classData.getConstructor() != null) {
 			for (Entry<Integer, FieldData> entry : classData.getConstructor().getConstructorElements().entrySet()) {
 				Integer argumentIndex = entry.getKey();
 				FieldData field = entry.getValue();
