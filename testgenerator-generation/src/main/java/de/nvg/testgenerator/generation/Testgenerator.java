@@ -58,7 +58,7 @@ public class Testgenerator {
 
 		classBuilder.addJavadoc(
 				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
-						+ " with Testgenerator-1.0.0");
+						+ " with Testgenerator-" + Testgenerator.class.getPackage().getImplementationVersion());
 
 		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build())
 				.skipJavaLangImports(true).build();
