@@ -188,7 +188,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
 
 				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs,
-						method.getCodeAttribute());
+						method.getCodeAttribute(), classData);
 
 				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
 

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import de.nvg.javaagent.classdata.Instruction;
 import de.nvg.javaagent.classdata.Instructions;
+import de.nvg.javaagent.classdata.model.ClassData;
 import de.nvg.javaagent.classdata.model.FieldData;
 import de.nvg.javaagent.classdata.modification.helper.CodeArrayModificator;
 import de.nvg.testgenerator.MapBuilder;
@@ -125,17 +126,32 @@ public class FieldTypeChanger {
 	}
 
 	public void changeFieldInitialization(List<Instruction> instructions,
-			Map<Integer, Instruction> aload0PutFieldInstructionPairs, CodeAttribute codeAttribute) throws BadBytecode {
+			Map<Integer, Instruction> aload0PutFieldInstructionPairs, CodeAttribute codeAttribute, ClassData classData)
+			throws BadBytecode {
+		CodeIterator iterator = codeAttribute.iterator();
+
+		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+
+		if (aload0PutFieldInstructionPairs.isEmpty()) {
+			// a Constructor has always a return-instruction
+			Instruction returnInstruction = instructions.stream().filter(inst -> Opcode.RETURN == inst.getOpcode())
+					.max((inst1, inst2) -> Integer.compare(inst1.getCodeArrayIndex(), inst2.getCodeArrayIndex()))
+					.orElse(null);
+
+			Instruction constructorCall = Instructions.getBeforeInstruction(instructions, returnInstruction);
+
+			if (Opcode.INVOKESPECIAL == constructorCall.getOpcode()
+					&& constructorCall.getClassRef().equals(classData.getName())
+					&& MethodInfo.nameInit.equals(constructorCall.getName())) {
+				return;
+			}
+		}
 
 		int codeArrayIndexModificator = 0;
 
 		int codeArrayLastPutFieldInstruction = 0;
 
 		List<FieldData> initalizedFields = new ArrayList<>();
-
-		CodeIterator iterator = codeAttribute.iterator();
-
-		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		for (Entry<Integer, Instruction> entry : aload0PutFieldInstructionPairs.entrySet()) {
 			int lastAloadInstructionIndex = entry.getKey() + codeArrayIndexModificator;
@@ -269,7 +285,7 @@ public class FieldTypeChanger {
 	}
 
 	public void overrideFieldAccess(Map<Integer, List<Instruction>> filteredInstructions,
-			List<Instruction> allInstructions, CodeAttribute codeAttribute) throws BadBytecode {
+			List<Instruction> instructions, CodeAttribute codeAttribute) throws BadBytecode {
 
 		CodeIterator iterator = codeAttribute.iterator();
 
@@ -281,70 +297,94 @@ public class FieldTypeChanger {
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		if (putFieldInstructions != null) {
-			for (Instruction instruction : putFieldInstructions) {
-
-				Instruction loadInstruction = Instructions.filterOpcode(allInstructions,
-						allInstructions.indexOf(instruction), Opcode.ALOAD_0);
-
-				int codeArrayIndex = loadInstruction.getCodeArrayIndex()
-						+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
-
-				String dataType = instruction.getType();
-				String proxy = getProxyClassname(dataType);
-				Bytecode beforeLoad = new Bytecode(constantPool);
-				beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-
-				if (loadInstruction.getCodeArrayIndex() == 0) {
-					iterator.insertAt(1, beforeLoad.get());
-				} else {
-
-					iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
-				}
-
-				Bytecode afterLoad = new Bytecode(constantPool);
-				afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
-
-				codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
-
-				iterator.write(afterLoad.get(),
-						instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
-			}
+			overrideFieldAccessPutFieldInstructions(instructions, putFieldInstructions, //
+					iterator, codeArrayModificator);
 		}
 
 		List<Instruction> getFieldInstructions = filteredInstructions.get(Opcode.GETFIELD);
 		if (getFieldInstructions != null) {
-
-			for (Instruction instruction : getFieldInstructions) {
-
-				String dataType = instruction.getType();
-				String proxy = getProxyClassname(dataType);
-
-				int codeArrayIndex = instruction.getCodeArrayIndex()
-						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
-
-				Bytecode bytecode = new Bytecode(constantPool);
-				bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-				bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
-
-				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
-					bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
-					iterator.insertGapAt(codeArrayIndex, 6, true);
-					iterator.write(bytecode.get(), codeArrayIndex);
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
-
-				} else {
-					iterator.insertGapAt(codeArrayIndex, 3, true);
-					iterator.write(bytecode.get(), codeArrayIndex);
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
-				}
-
-			}
+			overrideFieldAccessGetFieldInstructions(instructions, getFieldInstructions, //
+					iterator, codeArrayModificator);
 		}
 
 		LOGGER.debug("Method after manipulation: ",
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		codeAttribute.computeMaxStack();
+	}
+
+	private void overrideFieldAccessPutFieldInstructions(List<Instruction> instructions,
+			List<Instruction> putFieldInstructions, CodeIterator iterator, //
+			CodeArrayModificator codeArrayModificator) throws BadBytecode {
+		for (Instruction instruction : putFieldInstructions) {
+
+			Instruction loadInstruction = Instructions.filterForAload0Opcode(instructions,
+					instructions.indexOf(instruction));
+
+			int codeArrayIndex = loadInstruction.getCodeArrayIndex()
+					+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
+
+			String dataType = instruction.getType();
+			String proxy = getProxyClassname(dataType);
+			Bytecode beforeLoad = new Bytecode(constantPool);
+			beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+
+			if (loadInstruction.getCodeArrayIndex() == 0) {
+				iterator.insertAt(1, beforeLoad.get());
+			} else {
+
+				iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
+			}
+
+			Bytecode afterLoad = new Bytecode(constantPool);
+			afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
+
+			codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
+
+			iterator.write(afterLoad.get(),
+					instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
+		}
+	}
+
+	private void overrideFieldAccessGetFieldInstructions(List<Instruction> instructions,
+			List<Instruction> getFieldInstructions, CodeIterator iterator, //
+			CodeArrayModificator codeArrayModificator) throws BadBytecode {
+		for (Instruction instruction : getFieldInstructions) {
+
+			String dataType = instruction.getType();
+			String proxy = getProxyClassname(dataType);
+
+			Instruction thisInstruction = Instructions.getBeforeInstruction(instructions, instruction);
+			if (Opcode.DUP == thisInstruction.getOpcode()) {
+
+				Bytecode thisBytecode = new Bytecode(constantPool);
+				thisBytecode.addOpcode(Opcode.ALOAD_0);
+
+				int codeArrayIndex = thisInstruction.getCodeArrayIndex();
+				iterator.write(thisBytecode.get(),
+						codeArrayIndex + codeArrayModificator.getModificator(codeArrayIndex));
+			}
+
+			int codeArrayIndex = instruction.getCodeArrayIndex()
+					+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
+
+			Bytecode bytecode = new Bytecode(constantPool);
+			bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+			bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
+
+			if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
+				bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
+				iterator.insertGapAt(codeArrayIndex, 6, true);
+				iterator.write(bytecode.get(), codeArrayIndex);
+				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
+
+			} else {
+				iterator.insertGapAt(codeArrayIndex, 3, true);
+				iterator.write(bytecode.get(), codeArrayIndex);
+				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
+			}
+
+		}
 	}
 
 	private static String getProxy(String dataType) {

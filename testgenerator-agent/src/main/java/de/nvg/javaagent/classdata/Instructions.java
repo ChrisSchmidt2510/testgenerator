@@ -53,6 +53,7 @@ public class Instructions {
 
 			case Opcode.INVOKEINTERFACE:
 			case Opcode.INVOKESTATIC:
+			case Opcode.INVOKESPECIAL:
 				cpIndex = iterator.s16bitAt(index + 1);
 
 				Instruction instructionMethod = new Instruction.Builder().withCodeArrayIndex(index)//
@@ -134,6 +135,26 @@ public class Instructions {
 			}
 		}
 		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
+	}
+
+	public static Instruction filterForAload0Opcode(List<Instruction> instructions, int maxIndex) {
+		int counterNeededAloadInstruction = 0;
+		for (int i = maxIndex; i >= 0; i--) {
+			Instruction instruction = instructions.get(i);
+
+			if (Opcode.ALOAD_0 == instruction.getOpcode() || (Opcode.DUP == instruction.getOpcode()
+					&& Opcode.ALOAD_0 == Instructions.getBeforeInstruction(instructions, instruction).getOpcode())) {
+				if (counterNeededAloadInstruction == 0) {
+					return instruction;
+				} else {
+					counterNeededAloadInstruction--;
+				}
+
+			} else if (Opcode.GETFIELD == instruction.getOpcode()) {
+				counterNeededAloadInstruction++;
+			}
+		}
+		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[Opcode.ALOAD_0] + " is not in codearray");
 	}
 
 	public static final void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
