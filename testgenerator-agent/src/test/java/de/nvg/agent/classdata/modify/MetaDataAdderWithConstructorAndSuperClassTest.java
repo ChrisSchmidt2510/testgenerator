@@ -49,7 +49,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {
 
-		adresse = classPool.get("de.nvg.javaagent.classdata.modify.testclasses.Adresse");
+		adresse = classPool.get("de.nvg.agent.classdata.modify.testclasses.Adresse");
 
 		ClassFile classFile = adresse.getClassFile();
 		constantPool = classFile.getConstPool();
@@ -75,7 +75,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 	public void testMetaDataAdderWithConstructorAndSuperClass()
 			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException {
 		ClassData classData = prepareClassData();
-		classData.setSuperClass("de.nvg.javaagent.classdata.modify.testclasses.BlObject");
+		classData.setSuperClass("de.nvg.agent.classdata.modify.testclasses.BlObject");
 
 		ConstructorData constructor = new ConstructorData(false);
 		constructor.addConstructorElement(0, fieldStrasse);
@@ -107,7 +107,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 
 	private ClassData prepareClassData() {
 
-		ClassData classData = new ClassData("de.nvg.javaagent.classdata.modify.testclasses.Adresse");
+		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.Adresse");
 		classData.setConstructor(new ConstructorData(true));
 
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
@@ -150,7 +150,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 		constructor.addElement(3, fieldPlz);
 
 		de.nvg.runtime.classdatamodel.ClassData classData = new de.nvg.runtime.classdatamodel.ClassData(
-				"de.nvg.javaagent.classdata.modify.testclasses.Adresse", constructor);
+				"de.nvg.agent.classdata.modify.testclasses.Adresse", constructor);
 
 		classData.addField(fieldStrasse, new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false));
 		classData.addField(fieldHausnummer, new SetterMethodData("setHausnummer", "(S)V", false));

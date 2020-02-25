@@ -21,12 +21,12 @@ public class FieldTypeChangerTest extends TestHelper {
 
 	@Test
 	public void testOverrideFieldAccess() throws BadBytecode, NotFoundException {
-		// Probleme beim setzen der GetFIel Instructions
-		init("de.nvg.javaagent.classdata.modify.testclasses.PartnerEigenschaft", "setPartnerZuordnung",
+		// Probleme beim setzen der GetField Instructions
+		init("de.nvg.agent.classdata.modify.testclasses.PartnerEigenschaft", "setPartnerZuordnung",
 				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD, Opcode.RETURN));
 
 		FieldData partnerZuordnung = new FieldData.Builder().withName("partnerZuordnung")
-				.withDataType("de.nvg.javaagent.classdata.modify.testclasses.PartnerZuordnung").build();
+				.withDataType("de.nvg.agent.classdata.modify.testclasses.PartnerZuordnung").build();
 
 		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(Collections.singletonList(partnerZuordnung),
 				constantPool, ctClass);
@@ -37,7 +37,7 @@ public class FieldTypeChangerTest extends TestHelper {
 	@Test
 	public void testOverrideFieldAccess2() throws NotFoundException, BadBytecode {
 		// Probleme beim setzen der PutField Instructions
-		init("de.nvg.javaagent.classdata.modify.testclasses.TeilDatum", "setzeDatum", "(Ljava/util/Date;)V",
+		init("de.nvg.agent.classdata.modify.testclasses.TeilDatum", "setzeDatum", "(Ljava/util/Date;)V",
 				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD, Opcode.RETURN));
 
 		FieldData tag = new FieldData.Builder().withName("tag").withDataType("java/lang/Integer").build();
@@ -54,7 +54,7 @@ public class FieldTypeChangerTest extends TestHelper {
 
 	@Test
 	public void testChangeFieldInitialization() throws NotFoundException, BadBytecode {
-		init("de.nvg.javaagent.classdata.modify.testclasses.Sparte", MethodInfo.nameInit,
+		init("de.nvg.agent.classdata.modify.testclasses.Sparte", MethodInfo.nameInit,
 				Arrays.asList(Opcode.ALOAD_0, Opcode.PUTFIELD));
 
 		FieldData sparteID = new FieldData.Builder().withName("sparteID").withDataType("java.lang.Integer").build();
@@ -67,7 +67,7 @@ public class FieldTypeChangerTest extends TestHelper {
 				filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
 
 		fieldTypeChanger.changeFieldInitialization(instructions, aload0PutFieldInstructionPairs, codeAttribute,
-				new ClassData("de.nvg.javaagent.classdata.modify.testclasses.Sparte"));
+				new ClassData("de.nvg.agent.classdata.modify.testclasses.Sparte"));
 	}
 
 	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,

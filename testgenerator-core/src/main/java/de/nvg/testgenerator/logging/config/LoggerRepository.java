@@ -34,7 +34,7 @@ public class LoggerRepository {
 		Appender valueTrackerAppender = new FileAppender("ValueTracker", maxLogSize, defaultLoggerDirectory,
 				consoleAppender);
 
-		Configuration agentConfiguration = new Configuration("de.nvg.javaagent", Level.INFO, agentAppender);
+		Configuration agentConfiguration = new Configuration("de.nvg.agent", Level.INFO, agentAppender);
 		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.INFO,
 				testgeneratorAppender);
 		Configuration valueTrackerConfiguration = new Configuration("de.nvg.valuetracker", Level.INFO,
@@ -64,7 +64,7 @@ public class LoggerRepository {
 
 		return repository.stream()
 				.filter(config -> isClassInPackage(config.getPackageName(), clazz.getPackage().getName())).findAny()
-				.orElseThrow(() -> new NoSuchElementException("No Configuration matched"));
+				.orElseThrow(() -> new NoSuchElementException("No Logger-Configuration matched"));
 
 	}
 

@@ -69,7 +69,7 @@
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Class-Path>.</Class-Path>
-										<Premain-Class>de.nvg.javaagent.ClassTransformerAgent</Premain-Class>
+										<Premain-Class>de.nvg.agent.ClassTransformerAgent</Premain-Class>
 										<Build-Number>1</Build-Number>
 									</manifestEntries>
 								</transformer>

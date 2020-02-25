@@ -44,7 +44,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {
 
-		adresse = classPool.get("de.nvg.javaagent.classdata.modify.testclasses.Adresse");
+		adresse = classPool.get("de.nvg.agent.classdata.modify.testclasses.Adresse");
 
 		ClassFile classFile = adresse.getClassFile();
 		constantPool = classFile.getConstPool();
@@ -118,7 +118,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 
 	private ClassData prepareClassData() {
 
-		ClassData classData = new ClassData("de.nvg.javaagent.classdata.modify.testclasses.Adresse");
+		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.Adresse");
 		classData.setConstructor(new ConstructorData(true));
 
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
