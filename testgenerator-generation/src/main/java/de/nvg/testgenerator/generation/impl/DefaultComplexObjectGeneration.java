@@ -60,11 +60,14 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			StringBuilder statement = new StringBuilder();
 			List<Class<?>> types = new ArrayList<>();
 
-			statement.append(isField ? bluePrint.getName() : ("$T " + bluePrint.getName()) + " = new $T(");
+			statement.append((isField ? bluePrint.getName() : ("$T " + bluePrint.getName())) + " = new $T(");
 
 			Class<? extends Object> referenceClass = bluePrint.getReference().getClass();
 			types.add(referenceClass);
-			types.add(referenceClass);
+
+			if (!isField) {
+				types.add(referenceClass);
+			}
 
 			ConstructorData constructor = classData.getConstructor();
 			Set<Entry<Integer, FieldData>> constructorFields = constructor.getConstructorFieldIndex().entrySet();
