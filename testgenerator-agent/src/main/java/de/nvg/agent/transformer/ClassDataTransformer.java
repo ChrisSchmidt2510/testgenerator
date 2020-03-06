@@ -56,7 +56,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (className.startsWith(properties.getBlPackage())
+		if (properties.getBlPackage().stream().anyMatch(packageName -> className.startsWith(packageName))
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
 				|| properties.getClassName().equals(className)) {
 
@@ -123,7 +123,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					loadingClass);
 
 			// only add the calledFields Set if the Flag is set
-			if (properties.isTraceGetterCalls()) {
+			if (properties.isTraceReadFieldAccess()) {
 				fieldTypeChanger.addFieldCalledField();
 			}
 

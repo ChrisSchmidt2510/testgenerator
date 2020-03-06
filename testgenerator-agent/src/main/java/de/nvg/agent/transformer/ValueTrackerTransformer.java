@@ -141,7 +141,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
 				OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
 
-		if (properties.isTraceGetterCalls()) {
+		if (properties.isTraceReadFieldAccess()) {
 			valueTracking.addAload(0);
 			valueTracking.addGetfield(classToLoad, FIELD_NAME, OBJECT_VALUE_TRACKER);
 			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,

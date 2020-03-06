@@ -23,7 +23,10 @@ public class ArgumentParser {
 	}
 
 	public boolean hasArgument(String argument) {
-		return false;
+		Model arg = definedArgs.getArgument(argument);
+
+		String completeArg = completeArgs.get(arg);
+		return args.contains(completeArg);
 	}
 
 	public String getArgumentValue(String argument) {
@@ -40,6 +43,8 @@ public class ArgumentParser {
 
 			} else if (arg.isRequired()) {
 				throw new ParserException("required Argument " + argument + " is missing");
+			} else {
+				return null;
 			}
 		}
 
@@ -61,10 +66,12 @@ public class ArgumentParser {
 
 			} else if (arg.isRequired()) {
 				throw new ParserException("required Argument " + argument + " is missing");
+			} else {
+				return null;
 			}
 		}
 
-		throw new ParserException(argument + "has no multiple-arguments");
+		throw new ParserException(argument + " has no multiple-arguments");
 	}
 
 	private List<String> getParameters(String parameters) {

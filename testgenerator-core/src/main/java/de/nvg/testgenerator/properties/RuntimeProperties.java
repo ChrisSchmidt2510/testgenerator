@@ -2,14 +2,13 @@ package de.nvg.testgenerator.properties;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.util.HashMap;
-import java.util.Map;
+
+import de.nvg.testgenerator.properties.parser.ArgumentParser;
 
 public class RuntimeProperties {
 	private static final String JAVA_AGENT = "-javaagent";
 	private static final RuntimeProperties INSTANCE = new RuntimeProperties();
-
-	private final Map<String, String> agentProperties = new HashMap<>();
+	private ArgumentParser argParser;
 
 	private boolean activateTracking = false;
 
@@ -29,11 +28,11 @@ public class RuntimeProperties {
 	}
 
 	public boolean wasFieldTrackingActivated() {
-		if (agentProperties.isEmpty()) {
+		if (argParser == null) {
 			initAgentProperties();
 		}
 
-		return Boolean.valueOf(agentProperties.get(PropertyParser.ARG_TRACE_GETTER_CALLS));
+		return argParser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS);
 	}
 
 	private void initAgentProperties() {
@@ -42,6 +41,6 @@ public class RuntimeProperties {
 				.orElse(null);
 		String agentArgs = javaAgent.substring(javaAgent.indexOf("=") + 1);
 
-		agentProperties.putAll(PropertyParser.parseAgentProperties(agentArgs));
+		argParser = new ArgumentParser(agentArgs, DefinedArguments.getArguments());
 	}
 }

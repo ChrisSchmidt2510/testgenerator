@@ -1,6 +1,8 @@
 package de.nvg.testgenerator.properties;
 
-import java.util.Map;
+import java.util.List;
+
+import de.nvg.testgenerator.properties.parser.ArgumentParser;
 
 public class AgentProperties {
 
@@ -9,22 +11,25 @@ public class AgentProperties {
 	private String className;
 	private String method;
 	private String methodDescriptor;
-	private String blPackage;
-	private boolean traceGetterCalls;
+	private List<String> blPackage;
+	private List<String> blPackageJarDestination;
+	private boolean traceReadFieldAccess;
 
 	private AgentProperties() {
 	}
 
 	public static void initProperties(String arguments) {
-		Map<String, String> properties = PropertyParser.parseAgentProperties(arguments);
+
+		ArgumentParser parser = new ArgumentParser(arguments, DefinedArguments.getArguments());
 
 		AgentProperties agentProperties = new AgentProperties();
 
-		agentProperties.className = properties.get(PropertyParser.ARG_CLASS);
-		agentProperties.method = properties.get(PropertyParser.ARG_METHOD);
-		agentProperties.methodDescriptor = properties.get(PropertyParser.ARG_METHOD_DESC);
-		agentProperties.blPackage = properties.get(PropertyParser.ARG_BL_PACKAGE);
-		agentProperties.traceGetterCalls = Boolean.valueOf(properties.get(PropertyParser.ARG_TRACE_GETTER_CALLS));
+		agentProperties.className = parser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME);
+		agentProperties.method = parser.getArgumentValue(DefinedArguments.ARG_METHOD_NAME);
+		agentProperties.methodDescriptor = parser.getArgumentValue(DefinedArguments.ARG_METHOD_DESC);
+		agentProperties.blPackage = parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE);
+		agentProperties.blPackageJarDestination = parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST);
+		agentProperties.traceReadFieldAccess = parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS);
 
 		if (INSTANCE == null) {
 			INSTANCE = agentProperties;
@@ -48,12 +53,16 @@ public class AgentProperties {
 		return methodDescriptor;
 	}
 
-	public String getBlPackage() {
+	public List<String> getBlPackage() {
 		return blPackage;
 	}
 
-	public boolean isTraceGetterCalls() {
-		return traceGetterCalls;
+	public List<String> getBlPackageJarDest() {
+		return blPackageJarDestination;
+	}
+
+	public boolean isTraceReadFieldAccess() {
+		return traceReadFieldAccess;
 	}
 
 }
