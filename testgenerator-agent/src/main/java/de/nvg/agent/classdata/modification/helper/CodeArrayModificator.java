@@ -4,34 +4,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CodeArrayModificator
-{
-  private final List<CodeArrayModificatorModel> codeArrayModificator = new ArrayList<>();
+public class CodeArrayModificator {
+	private final List<CodeArrayModificatorModel> codeArrayModificator = new ArrayList<>();
 
-  public int getModificator(int startIndex)
-  {
-    return codeArrayModificator.stream().filter(model -> model.codeArrayStartIndex <= startIndex)
-        .collect(Collectors.summingInt(model -> model.modificator));
-  }
+	public int getModificator(int startIndex) {
+		return codeArrayModificator.stream().filter(model -> model.codeArrayStartIndex <= startIndex)
+				.collect(Collectors.summingInt(model -> model.modificator));
+	}
 
-  public void addCodeArrayModificator(int startIndex, int modificator)
-  {
-    codeArrayModificator.add(new CodeArrayModificatorModel(startIndex, modificator));
-  }
+	public int getMaxModificator() {
+		return codeArrayModificator.stream().collect(Collectors.summingInt(model -> model.modificator));
+	}
 
-  class CodeArrayModificatorModel
-  {
-    /** Punkt in dem ursprünglichen Codearray ab dem der Modificator gilt */
-    final int codeArrayStartIndex;
-    /** Wert der zudem urspruenglichen Index addiert werden muss,
-     *  um gueltige Eintraege in das Codearray hinzuzufuegen*/
-    final int modificator;
+	public void addCodeArrayModificator(int startIndex, int modificator) {
+		codeArrayModificator.add(new CodeArrayModificatorModel(startIndex, modificator));
+	}
 
-    public CodeArrayModificatorModel(int codeArrayStartIndex, int modificator)
-    {
-      this.codeArrayStartIndex = codeArrayStartIndex;
-      this.modificator = modificator;
-    }
-  }
+	class CodeArrayModificatorModel {
+		/** Punkt in dem ursprünglichen Codearray ab dem der Modificator gilt */
+		final int codeArrayStartIndex;
+		/**
+		 * Wert der zudem urspruenglichen Index addiert werden muss, um gueltige
+		 * Eintraege in das Codearray hinzuzufuegen
+		 */
+		final int modificator;
+
+		public CodeArrayModificatorModel(int codeArrayStartIndex, int modificator) {
+			this.codeArrayStartIndex = codeArrayStartIndex;
+			this.modificator = modificator;
+		}
+
+		public String toString() {
+			return "ModificatorModel: StartIndex: " + codeArrayStartIndex + " Modificator: " + codeArrayModificator;
+		}
+	}
 
 }

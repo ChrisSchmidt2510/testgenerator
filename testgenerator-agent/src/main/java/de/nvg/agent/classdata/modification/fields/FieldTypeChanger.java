@@ -1,6 +1,7 @@
 package de.nvg.agent.classdata.modification.fields;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +28,7 @@ import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.FieldInfo;
+import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
@@ -147,15 +149,16 @@ public class FieldTypeChanger {
 			}
 		}
 
-		int codeArrayIndexModificator = 0;
+		CodeArrayModificator codeArrayModificator = new CodeArrayModificator();
 
 		int codeArrayLastPutFieldInstruction = 0;
 
 		List<FieldData> initalizedFields = new ArrayList<>();
 
 		for (Entry<Integer, Instruction> entry : aload0PutFieldInstructionPairs.entrySet()) {
-			int lastAloadInstructionIndex = entry.getKey() + codeArrayIndexModificator;
 			Instruction instruction = entry.getValue();
+			int lastAloadInstructionIndex = entry.getKey()
+					+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
 
 			codeArrayLastPutFieldInstruction = instruction.getCodeArrayIndex() + 3;
 
@@ -171,7 +174,7 @@ public class FieldTypeChanger {
 			iterator.insertEx(lastAloadInstructionIndex + 1, beforeValueCreation.get());
 
 			// new =3 + dup=1 =4
-			codeArrayIndexModificator = codeArrayIndexModificator + beforeValueCreation.getSize();
+			codeArrayModificator.addCodeArrayModificator(entry.getKey(), beforeValueCreation.getSize());
 
 			Bytecode afterValueCreation = new Bytecode(constantPool);
 			afterValueCreation.addAload(0);
@@ -188,26 +191,33 @@ public class FieldTypeChanger {
 				afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
 
 				// aconst_null (1) + putField(3)
-				iterator.insertGapAt(instructionBeforePutField.getCodeArrayIndex() + codeArrayIndexModificator,
+				iterator.insertGapAt(
+						instructionBeforePutField.getCodeArrayIndex()
+								+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()),
 						afterValueCreation.getSize() - 4, true);
 
-				iterator.write(afterValueCreation.get(),
-						instructionBeforePutField.getCodeArrayIndex() + codeArrayIndexModificator);
+				iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
+						+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
 
-				codeArrayIndexModificator += afterValueCreation.getSize() - 4;
+				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
+						afterValueCreation.getSize() - 4);
 			} else {
 
 				afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 						PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
 				afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
 
-				iterator.insertGapAt(instruction.getCodeArrayIndex() + codeArrayIndexModificator,
+				iterator.insertGapAt(
+						instruction.getCodeArrayIndex()
+								+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
 						afterValueCreation.getSize() - 3, true);
 
-				iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex() + codeArrayIndexModificator);
+				iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex()
+						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
 
 				// for the new invokespecial + aload0 instruction
-				codeArrayIndexModificator = codeArrayIndexModificator + afterValueCreation.getSize() - 3;
+				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
+						afterValueCreation.getSize() - 3);
 			}
 
 			FieldData field = new FieldData.Builder().withDataType(Descriptor.toClassName(instruction.getType()))
@@ -218,6 +228,24 @@ public class FieldTypeChanger {
 					stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 		}
 
+		List<Instruction> getFieldInstructions = Instructions
+				.getFilteredInstructions(instructions, Arrays.asList(Opcode.GETFIELD)).get(Opcode.GETFIELD);
+
+		if (getFieldInstructions != null) {
+			overrideFieldAccessGetFieldInstructions(instructions, getFieldInstructions, iterator, //
+					codeArrayModificator);
+		}
+
+		initalizeUnitalizedFields(initalizedFields, codeArrayLastPutFieldInstruction, iterator,
+				codeArrayModificator.getMaxModificator());
+
+		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+
+		codeAttribute.computeMaxStack();
+	}
+
+	private void initalizeUnitalizedFields(List<FieldData> initalizedFields, int codeArrayLastPutFieldInstruction,
+			CodeIterator iterator, int codeArrayModificator) throws BadBytecode {
 		for (FieldData field : getUnitializedFields(initalizedFields)) {
 
 			String dataType = Descriptor.of(field.getDataType());
@@ -242,14 +270,10 @@ public class FieldTypeChanger {
 				codeArrayLastPutFieldInstruction = 4;
 			}
 
-			iterator.insertEx(codeArrayLastPutFieldInstruction + codeArrayIndexModificator, bytecode.get());
+			iterator.insertEx(codeArrayLastPutFieldInstruction + codeArrayModificator, bytecode.get());
 
-			codeArrayIndexModificator = codeArrayIndexModificator + bytecode.getSize();
+			codeArrayModificator = codeArrayModificator + bytecode.getSize();
 		}
-
-		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
-
-		codeAttribute.computeMaxStack();
 	}
 
 	public static void changeFieldDataTypeToProxy(ClassFile loadingClass, FieldInfo field)
@@ -297,8 +321,11 @@ public class FieldTypeChanger {
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		if (putFieldInstructions != null) {
+			LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute
+					.getAttribute(LocalVariableAttribute.tag);
+
 			overrideFieldAccessPutFieldInstructions(instructions, putFieldInstructions, //
-					iterator, codeArrayModificator);
+					iterator, codeArrayModificator, table);
 		}
 
 		List<Instruction> getFieldInstructions = filteredInstructions.get(Opcode.GETFIELD);
@@ -315,11 +342,11 @@ public class FieldTypeChanger {
 
 	private void overrideFieldAccessPutFieldInstructions(List<Instruction> instructions,
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
-			CodeArrayModificator codeArrayModificator) throws BadBytecode {
+			CodeArrayModificator codeArrayModificator, LocalVariableAttribute table) throws BadBytecode {
 		for (Instruction instruction : putFieldInstructions) {
 
-			Instruction loadInstruction = Instructions.filterForAload0Opcode(instructions,
-					instructions.indexOf(instruction));
+			Instruction loadInstruction = Instructions.//
+					filterForMatchingAloadInstruction(instructions, instruction, table);
 
 			int codeArrayIndex = loadInstruction.getCodeArrayIndex()
 					+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());

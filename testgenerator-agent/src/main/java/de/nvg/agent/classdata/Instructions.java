@@ -10,22 +10,26 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import de.nvg.testgenerator.Wrapper;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
+import javassist.bytecode.Descriptor;
 import javassist.bytecode.InstructionPrinter;
+import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
 public class Instructions {
 
-	private static final List<Integer> LOAD_OPCODES = Collections.unmodifiableList(Arrays.asList(Opcode.ILOAD,
-			Opcode.ILOAD_0, Opcode.ILOAD_1, Opcode.ILOAD_2, Opcode.ILOAD_3, Opcode.FLOAD, Opcode.FLOAD_0,
-			Opcode.FLOAD_1, Opcode.FLOAD_2, Opcode.FLOAD_3, Opcode.DLOAD, Opcode.DLOAD_0, Opcode.DLOAD_1,
-			Opcode.DLOAD_2, Opcode.DLOAD_3, Opcode.LLOAD, Opcode.LLOAD_0, Opcode.LLOAD_1, Opcode.LLOAD_2,
-			Opcode.LLOAD_3, Opcode.ALOAD, Opcode.ALOAD_0, Opcode.ALOAD_1, Opcode.ALOAD_2, Opcode.ALOAD_3));
+	private static final List<Integer> LOAD_OPCODES = Collections
+			.unmodifiableList(Arrays.asList(Opcode.ALOAD, Opcode.ALOAD_0, Opcode.ALOAD_1, //
+					Opcode.ALOAD_2, Opcode.ALOAD_3));
+	private static final List<Integer> INVOKE_OPCODES = Collections
+			.unmodifiableList(Arrays.asList(Opcode.INVOKEVIRTUAL, Opcode.INVOKESPECIAL, //
+					Opcode.INVOKEINTERFACE, Opcode.INVOKESTATIC));
 
 	public static List<Instruction> getAllInstructions(MethodInfo methodInfo) throws BadBytecode {
 		List<Instruction> instructions = new ArrayList<>();
@@ -46,7 +50,6 @@ public class Instructions {
 						.withOpcode(opcode).withType(constantPool.getFieldrefType(cpIndex))//
 						.withName(constantPool.getFieldrefName(cpIndex))
 						.withClassRef(constantPool.getFieldrefClassName(cpIndex)).build();
-				;
 
 				instructions.add(instructionField);
 				break;
@@ -54,6 +57,7 @@ public class Instructions {
 			case Opcode.INVOKEINTERFACE:
 			case Opcode.INVOKESTATIC:
 			case Opcode.INVOKESPECIAL:
+			case Opcode.INVOKEVIRTUAL:
 				cpIndex = iterator.s16bitAt(index + 1);
 
 				Instruction instructionMethod = new Instruction.Builder().withCodeArrayIndex(index)//
@@ -101,6 +105,15 @@ public class Instructions {
 				instructions.add(instructionBranch);
 				break;
 
+			case Opcode.NEW:
+				cpIndex = iterator.s16bitAt(index + 1);
+
+				Instruction instruction = new Instruction.Builder().withCodeArrayIndex(index)
+						.withClassRef(Descriptor.toClassName(constantPool.getClassInfoByDescriptor(cpIndex)))
+						.withOpcode(opcode).build();
+
+				instructions.add(instruction);
+				break;
 			default:
 				Instruction defaultInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
 						.withOpcode(opcode).build();
@@ -126,6 +139,10 @@ public class Instructions {
 						Collectors.toList()));
 	}
 
+	public static List<Instruction> getFilteredInstructions(List<Instruction> instructions, int opcode) {
+		return instructions.stream().filter(inst -> inst.getOpcode() == opcode).collect(Collectors.toList());
+	}
+
 	public static Instruction filterOpcode(List<Instruction> instructions, int maxIndex, int opcode) {
 		for (int i = maxIndex; i >= 0; i--) {
 			Instruction instruction = instructions.get(i);
@@ -137,24 +154,12 @@ public class Instructions {
 		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
 	}
 
-	public static Instruction filterForAload0Opcode(List<Instruction> instructions, int maxIndex) {
-		int counterNeededAloadInstruction = 0;
-		for (int i = maxIndex; i >= 0; i--) {
-			Instruction instruction = instructions.get(i);
+	public static final Instruction filterForMatchingAloadInstruction(List<Instruction> instructions,
+			Instruction putFieldInstruction, LocalVariableAttribute table) {
+		InstructionFilter filter = new InstructionFilter(instructions, table);
 
-			if (Opcode.ALOAD_0 == instruction.getOpcode() || (Opcode.DUP == instruction.getOpcode()
-					&& Opcode.ALOAD_0 == Instructions.getBeforeInstruction(instructions, instruction).getOpcode())) {
-				if (counterNeededAloadInstruction == 0) {
-					return instruction;
-				} else {
-					counterNeededAloadInstruction--;
-				}
-
-			} else if (Opcode.GETFIELD == instruction.getOpcode()) {
-				counterNeededAloadInstruction++;
-			}
-		}
-		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[Opcode.ALOAD_0] + " is not in codearray");
+		return filter.filterForMatchingAloadInstructionIntern(putFieldInstruction,
+				getBeforeInstruction(instructions, putFieldInstruction), new Wrapper<>(0), 0);
 	}
 
 	public static final void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
@@ -172,8 +177,12 @@ public class Instructions {
 		}
 	}
 
-	public static boolean isLoadInstruction(Instruction instruction) {
+	public static boolean isAloadInstruction(Instruction instruction) {
 		return LOAD_OPCODES.contains(instruction.getOpcode());
+	}
+
+	public static boolean isInvokeInstruction(Instruction instruction) {
+		return INVOKE_OPCODES.contains(instruction.getOpcode());
 	}
 
 	public static boolean isConstant(int modifier) {
@@ -181,11 +190,21 @@ public class Instructions {
 	}
 
 	public static Instruction getBeforeInstruction(List<Instruction> instructions, Instruction instruction) {
-		return instructions.get(instructions.indexOf(instruction) - 1);
+		int index = instructions.indexOf(instruction);
+
+		if (index == 0) {
+			return null;
+		}
+
+		return instructions.get(index - 1);
 	}
 
 	public static int getInstructionSize(Instruction instruction, Instruction followingInstruction) {
 		return followingInstruction.getCodeArrayIndex() - instruction.getCodeArrayIndex();
+	}
+
+	public static String getReturnType(String methodDesc) {
+		return methodDesc.substring(methodDesc.indexOf(")") + 1);
 	}
 
 }

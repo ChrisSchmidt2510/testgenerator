@@ -42,6 +42,7 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.FieldInfo;
+import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
@@ -181,14 +182,19 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 
-				Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(
-						instructions, Arrays.asList(Opcode.ALOAD_0, Opcode.PUTFIELD, Opcode.RETURN));
+				Map<Integer, List<Instruction>> filteredInstructions = Instructions
+						.getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.RETURN));
+
+				CodeAttribute codeAttribute = method.getCodeAttribute();
+
+				LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute
+						.getAttribute(LocalVariableAttribute.tag);
 
 				Map<Integer, Instruction> aloadPutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
-						filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
+						instructions, filteredInstructions.get(Opcode.PUTFIELD), table);
 
-				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs,
-						method.getCodeAttribute(), classData);
+				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs, codeAttribute,
+						classData);
 
 				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
 
@@ -214,6 +220,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
 						method.getCodeAttribute());
+				method.rebuildStackMap(ClassPool.getDefault());
 
 				if (!MethodInfo.nameInit.equals(method.getName())
 						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
@@ -267,15 +274,16 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		metaDataAdder.add(clinit.getCodeAttribute(), instructions);
 	}
 
-	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,
-			List<Instruction> putFieldInstructions) {
+	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> instructions,
+			List<Instruction> putFieldInstructions, LocalVariableAttribute table) {
 		Map<Integer, Instruction> map = new LinkedHashMap<>();
 
 		if (putFieldInstructions != null && !putFieldInstructions.isEmpty()) {
 			for (int i = 0; i < putFieldInstructions.size(); i++) {
 				Instruction instruction = putFieldInstructions.get(i);
 
-				map.put(aloadInstructions.get(i + 1).getCodeArrayIndex(), instruction);
+				map.put(Instructions.filterForMatchingAloadInstruction(instructions, instruction, table)
+						.getCodeArrayIndex(), instruction);
 			}
 		}
 
