@@ -100,6 +100,7 @@ public class ClassData {
 				.findAny();
 	}
 
+	@Override
 	public String toString() {
 		return "Classname: " + name;
 	}

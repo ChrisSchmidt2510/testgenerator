@@ -11,10 +11,12 @@ public class NullBluePrint extends SimpleBluePrint<Object> {
 		super(name, null);
 	}
 
+	@Override
 	public String valueCreation() {
 		return "null";
 	}
 
+	@Override
 	public List<Class<?>> getReferenceClasses() {
 		return Collections.emptyList();
 	}
