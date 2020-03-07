@@ -2,6 +2,7 @@ package de.nvg.testgenerator.logging.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -35,12 +36,15 @@ public class LoggerRepository {
 				consoleAppender);
 
 		Configuration agentConfiguration = new Configuration("de.nvg.agent", Level.INFO, agentAppender);
+		Configuration instructionFilterConfiguration = new Configuration("de.nvg.agent.classdata.instructions",
+				Level.DEBUG, agentAppender);
 		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.INFO,
 				testgeneratorAppender);
 		Configuration valueTrackerConfiguration = new Configuration("de.nvg.valuetracker", Level.INFO,
 				valueTrackerAppender);
 
 		repository.add(agentConfiguration);
+		repository.add(instructionFilterConfiguration);
 		repository.add(testgeneratorConfiguration);
 		repository.add(valueTrackerConfiguration);
 
@@ -61,28 +65,31 @@ public class LoggerRepository {
 	}
 
 	public Configuration getConfiguration(Class<?> clazz) {
-
 		return repository.stream()
-				.filter(config -> isClassInPackage(config.getPackageName(), clazz.getPackage().getName())).findAny()
-				.orElseThrow(() -> new NoSuchElementException("No Logger-Configuration matched"));
+				.map(config -> new SimpleImmutableEntry<Configuration, Integer>(config,
+						countEqualTokens(config.getPackageName(), clazz.getPackage().getName())))
+				.max((entry1, entry2) -> entry1.getValue().compareTo(entry2.getValue()))
+				.orElseThrow(() -> new NoSuchElementException("No Logger-Configuration matched")).getKey();
 
 	}
 
-	private static boolean isClassInPackage(String packageName, String classPackage) {
+	private static Integer countEqualTokens(String packageName, String classPackage) {
 		StringTokenizer packageTokenizer = new StringTokenizer(packageName, DELIMETER_POINT);
 		StringTokenizer classTokenizer = new StringTokenizer(classPackage, DELIMETER_POINT);
 
 		if (packageTokenizer.countTokens() > classTokenizer.countTokens()) {
-			return false;
+			return 0;
 		}
+
+		int tokens = 0;
 
 		while (packageTokenizer.hasMoreTokens()) {
-
 			if (!packageTokenizer.nextToken().equals(classTokenizer.nextToken())) {
-				return false;
+				return 0;
 			}
+			tokens++;
 		}
-		return true;
+		return tokens;
 	}
 
 }
