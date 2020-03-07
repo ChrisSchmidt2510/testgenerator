@@ -34,6 +34,7 @@ public class CodeArrayModificator {
 			this.modificator = modificator;
 		}
 
+		@Override
 		public String toString() {
 			return "ModificatorModel: StartIndex: " + codeArrayStartIndex + " Modificator: " + codeArrayModificator;
 		}
