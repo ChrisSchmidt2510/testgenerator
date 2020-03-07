@@ -3,7 +3,7 @@ package de.nvg.agent.classdata.analysis;
 import java.util.List;
 import java.util.Map;
 
-import de.nvg.agent.classdata.Instruction;
+import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.Wrapper;

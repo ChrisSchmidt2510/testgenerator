@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.nvg.agent.classdata.Instruction;
+import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;

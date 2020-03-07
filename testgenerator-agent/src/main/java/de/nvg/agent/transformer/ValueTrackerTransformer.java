@@ -9,7 +9,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import de.nvg.agent.AgentException;
-import de.nvg.agent.classdata.Instructions;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.modification.TestGenerationAdder;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;

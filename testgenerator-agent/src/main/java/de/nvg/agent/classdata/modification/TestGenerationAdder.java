@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.nvg.agent.classdata.Instruction;
-import de.nvg.agent.classdata.Instructions;
+import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.modification.helper.ExceptionHandler;
 import de.nvg.agent.classdata.modification.helper.ExceptionHandler.ExceptionHandlerModel;
 import de.nvg.testgenerator.logging.LogManager;

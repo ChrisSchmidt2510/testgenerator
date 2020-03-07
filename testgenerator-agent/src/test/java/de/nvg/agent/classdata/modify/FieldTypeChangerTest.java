@@ -2,13 +2,9 @@ package de.nvg.agent.classdata.modify;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
-import de.nvg.agent.classdata.Instruction;
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.modification.fields.FieldTypeChanger;
@@ -63,27 +59,8 @@ public class FieldTypeChangerTest extends TestHelper {
 		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(Arrays.asList(sparteID, bezeichner), constantPool,
 				ctClass);
 
-		Map<Integer, Instruction> aload0PutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
-				filteredInstructions.get(Opcode.ALOAD_0), filteredInstructions.get(Opcode.PUTFIELD));
-
-		fieldTypeChanger.changeFieldInitialization(instructions, aload0PutFieldInstructionPairs, codeAttribute,
-				new ClassData("de.nvg.agent.classdata.modify.testclasses.Sparte"));
-	}
-
-	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> aloadInstructions,
-			List<Instruction> putFieldInstructions) {
-		Map<Integer, Instruction> map = new LinkedHashMap<>();
-
-		if (putFieldInstructions != null && !putFieldInstructions.isEmpty()) {
-			for (int i = 0; i < putFieldInstructions.size(); i++) {
-				Instruction instruction = putFieldInstructions.get(i);
-
-				map.put(aloadInstructions.get(i + 1).getCodeArrayIndex(), instruction);
-			}
-		}
-
-		return map;
-
+		fieldTypeChanger.changeFieldInitialization(instructions, filteredInstructions.get(Opcode.PUTFIELD),
+				codeAttribute, new ClassData("de.nvg.agent.classdata.modify.testclasses.Sparte"));
 	}
 
 }

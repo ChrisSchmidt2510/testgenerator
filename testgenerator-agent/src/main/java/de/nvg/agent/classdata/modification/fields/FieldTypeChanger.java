@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import de.nvg.agent.classdata.Instruction;
-import de.nvg.agent.classdata.Instructions;
+import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
@@ -127,14 +126,13 @@ public class FieldTypeChanger {
 		this.loadingClass = loadingClass;
 	}
 
-	public void changeFieldInitialization(List<Instruction> instructions,
-			Map<Integer, Instruction> aload0PutFieldInstructionPairs, CodeAttribute codeAttribute, ClassData classData)
-			throws BadBytecode {
+	public void changeFieldInitialization(List<Instruction> instructions, List<Instruction> putFieldInstructions,
+			CodeAttribute codeAttribute, ClassData classData) throws BadBytecode {
 		CodeIterator iterator = codeAttribute.iterator();
 
 		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
-		if (aload0PutFieldInstructionPairs.isEmpty()) {
+		if (putFieldInstructions.isEmpty()) {
 			// a Constructor has always a return-instruction
 			Instruction returnInstruction = instructions.stream().filter(inst -> Opcode.RETURN == inst.getOpcode())
 					.max((inst1, inst2) -> Integer.compare(inst1.getCodeArrayIndex(), inst2.getCodeArrayIndex()))
@@ -155,9 +153,13 @@ public class FieldTypeChanger {
 
 		List<FieldData> initalizedFields = new ArrayList<>();
 
-		for (Entry<Integer, Instruction> entry : aload0PutFieldInstructionPairs.entrySet()) {
-			Instruction instruction = entry.getValue();
-			int lastAloadInstructionIndex = entry.getKey()
+		LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
+
+		for (Instruction instruction : putFieldInstructions) {
+
+			Instruction aloadInstruction = Instructions.filterForMatchingAloadInstruction(instructions, instruction,
+					table, codeArrayModificator);
+			int lastAloadInstructionIndex = aloadInstruction.getCodeArrayIndex()
 					+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
 
 			codeArrayLastPutFieldInstruction = instruction.getCodeArrayIndex() + 3;
@@ -174,7 +176,8 @@ public class FieldTypeChanger {
 			iterator.insertEx(lastAloadInstructionIndex + 1, beforeValueCreation.get());
 
 			// new =3 + dup=1 =4
-			codeArrayModificator.addCodeArrayModificator(entry.getKey(), beforeValueCreation.getSize());
+			codeArrayModificator.addCodeArrayModificator(aloadInstruction.getCodeArrayIndex(),
+					beforeValueCreation.getSize());
 
 			Bytecode afterValueCreation = new Bytecode(constantPool);
 			afterValueCreation.addAload(0);
@@ -346,7 +349,7 @@ public class FieldTypeChanger {
 		for (Instruction instruction : putFieldInstructions) {
 
 			Instruction loadInstruction = Instructions.//
-					filterForMatchingAloadInstruction(instructions, instruction, table);
+					filterForMatchingAloadInstruction(instructions, instruction, table, codeArrayModificator);
 
 			int codeArrayIndex = loadInstruction.getCodeArrayIndex()
 					+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());

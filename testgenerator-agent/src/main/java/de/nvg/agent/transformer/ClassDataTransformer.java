@@ -8,14 +8,13 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.nvg.agent.AgentException;
-import de.nvg.agent.classdata.Instruction;
-import de.nvg.agent.classdata.Instructions;
 import de.nvg.agent.classdata.analysis.MethodAnalyser;
+import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.ClassDataStorage;
 import de.nvg.agent.classdata.model.ConstructorData;
@@ -42,7 +41,6 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.FieldInfo;
-import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
@@ -187,14 +185,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				CodeAttribute codeAttribute = method.getCodeAttribute();
 
-				LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute
-						.getAttribute(LocalVariableAttribute.tag);
-
-				Map<Integer, Instruction> aloadPutFieldInstructionPairs = createAload0PutFieldInstructionPairs(
-						instructions, filteredInstructions.get(Opcode.PUTFIELD), table);
-
-				fieldTypeChanger.changeFieldInitialization(instructions, aloadPutFieldInstructionPairs, codeAttribute,
-						classData);
+				fieldTypeChanger.changeFieldInitialization(instructions, //
+						filteredInstructions.get(Opcode.PUTFIELD), codeAttribute, classData);
 
 				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
 
@@ -274,20 +266,4 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		metaDataAdder.add(clinit.getCodeAttribute(), instructions);
 	}
 
-	private static Map<Integer, Instruction> createAload0PutFieldInstructionPairs(List<Instruction> instructions,
-			List<Instruction> putFieldInstructions, LocalVariableAttribute table) {
-		Map<Integer, Instruction> map = new LinkedHashMap<>();
-
-		if (putFieldInstructions != null && !putFieldInstructions.isEmpty()) {
-			for (int i = 0; i < putFieldInstructions.size(); i++) {
-				Instruction instruction = putFieldInstructions.get(i);
-
-				map.put(Instructions.filterForMatchingAloadInstruction(instructions, instruction, table)
-						.getCodeArrayIndex(), instruction);
-			}
-		}
-
-		return map;
-
-	}
 }

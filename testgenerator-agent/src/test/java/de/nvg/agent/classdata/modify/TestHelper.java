@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import de.nvg.agent.classdata.Instruction;
-import de.nvg.agent.classdata.Instructions;
+import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;

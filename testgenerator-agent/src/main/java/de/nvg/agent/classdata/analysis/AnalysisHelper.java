@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import de.nvg.agent.classdata.Instruction;
+import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.Primitives;
