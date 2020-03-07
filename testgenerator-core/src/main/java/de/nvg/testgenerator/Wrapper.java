@@ -1,5 +1,7 @@
 package de.nvg.testgenerator;
 
+import java.util.Objects;
+
 public class Wrapper<T> {
 	private T value;
 
@@ -16,6 +18,11 @@ public class Wrapper<T> {
 
 	public T getValue() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return Objects.toString(value.toString());
 	}
 
 }
