@@ -12,10 +12,6 @@ public class CodeArrayModificator {
 				.collect(Collectors.summingInt(model -> model.modificator));
 	}
 
-	public int getMaxModificator() {
-		return codeArrayModificator.stream().collect(Collectors.summingInt(model -> model.modificator));
-	}
-
 	public void addCodeArrayModificator(int startIndex, int modificator) {
 		codeArrayModificator.add(new CodeArrayModificatorModel(startIndex, modificator));
 	}
