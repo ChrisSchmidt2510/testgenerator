@@ -102,7 +102,8 @@ public class InstructionFilter {
 			int numOfParameters = getNumberOfMethodParameters(currentInstruction.getType());
 
 			if (!(numOfParameters == 0 && Opcode.INVOKESTATIC == currentInstruction.getOpcode())) {
-				Wrapper<Integer> neededAloadInstructionsForInvocation = new Wrapper<>(0);
+				Wrapper<Integer> neededAloadInstructionsForInvocation = new Wrapper<>(
+						neededAloadInstructions.getValue());
 
 				Instruction invokeInstructionCaller = filterForMatchingAloadInstructionIntern(currentInstruction,
 						beforeInstruction, neededAloadInstructionsForInvocation, numOfParameters);
@@ -112,6 +113,9 @@ public class InstructionFilter {
 				}
 
 				if (Opcode.INVOKESTATIC == searchInstruction.getOpcode()) {
+					neededAloadInstructions.setValue(
+							neededAloadInstructions.getValue() + neededAloadInstructionsForInvocation.getValue());
+
 					return invokeInstructionCaller;
 				} else if (Instructions.isInvokeInstruction(searchInstruction)) {
 					String returnType = Descriptor
