@@ -8,6 +8,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -185,8 +186,12 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				CodeAttribute codeAttribute = method.getCodeAttribute();
 
+				List<Instruction> putFieldInstructions = filteredInstructions.get(Opcode.PUTFIELD) == null
+						? Collections.emptyList()
+						: filteredInstructions.get(Opcode.PUTFIELD);
+
 				fieldTypeChanger.changeFieldInitialization(instructions, //
-						filteredInstructions.get(Opcode.PUTFIELD), codeAttribute, classData);
+						putFieldInstructions, codeAttribute, classData);
 
 				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
 
