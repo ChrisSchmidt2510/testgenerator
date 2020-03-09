@@ -51,10 +51,10 @@ public class ObjectValueTracker {
 
 	private static final Map<String, Function<IntegerProxy, Object>> INTEGER_PROXY_METHODS = //
 			MapBuilder.<String, Function<IntegerProxy, Object>>hashMapBuilder()
-					.add(Primitives.JAVA_INT, IntegerProxy::getValue)
-					.add(Primitives.JAVA_BYTE, IntegerProxy::getByteValue)
-					.add(Primitives.JAVA_CHAR, IntegerProxy::getCharValue)
-					.add(Primitives.JAVA_SHORT, IntegerProxy::getShortValue).toUnmodifiableMap();
+					.add(Primitives.JAVA_INT, IntegerProxy::getUntrackedValue)
+					.add(Primitives.JAVA_BYTE, IntegerProxy::getUntrackedByteValue)
+					.add(Primitives.JAVA_CHAR, IntegerProxy::getUntrackedCharValue)
+					.add(Primitives.JAVA_SHORT, IntegerProxy::getUntrackedShortValue).toUnmodifiableMap();
 
 	private static final String CALLED_FIELDS = "calledFields";
 
@@ -239,23 +239,23 @@ public class ObjectValueTracker {
 
 	private static Object getProxyValue(Object value) {
 		if (value instanceof ReferenceProxy<?>) {
-			return ((ReferenceProxy<?>) value).getValue();
+			return ((ReferenceProxy<?>) value).getUntrackedValue();
 
 		} else if (value instanceof DoubleProxy) {
-			return ((DoubleProxy) value).getValue();
+			return ((DoubleProxy) value).getUntrackedValue();
 
 		} else if (value instanceof FloatProxy) {
-			return ((FloatProxy) value).getValue();
+			return ((FloatProxy) value).getUntrackedValue();
 
 		} else if (value instanceof IntegerProxy) {
 			IntegerProxy proxy = ((IntegerProxy) value);
 			return INTEGER_PROXY_METHODS.get(proxy.getDataType()).apply(proxy);
 
 		} else if (value instanceof LongProxy) {
-			return ((LongProxy) value).getValue();
+			return ((LongProxy) value).getUntrackedValue();
 
 		} else if (value instanceof BooleanProxy) {
-			return ((BooleanProxy) value).getValue();
+			return ((BooleanProxy) value).getUntrackedValue();
 		}
 
 		return value;
