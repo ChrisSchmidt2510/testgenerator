@@ -2,6 +2,7 @@ package de.nvg.proxy.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -21,6 +22,14 @@ public class ReferenceProxy<E> extends Proxy {
 
 	public E getValue() {
 		trackReadFieldCalls();
+		return value;
+	}
+
+	/**
+	 * @apiNote only for internal use of the testgenerator-context
+	 * @return
+	 */
+	public E getUntrackedValue() {
 		return value;
 	}
 
@@ -45,7 +54,7 @@ public class ReferenceProxy<E> extends Proxy {
 
 	@Override
 	public String toString() {
-		return value.toString();
+		return Objects.toString(value);
 	}
 
 	private static String getClassName(Object value) {
