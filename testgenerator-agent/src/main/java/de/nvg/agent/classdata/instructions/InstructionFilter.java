@@ -1,10 +1,11 @@
 package de.nvg.agent.classdata.instructions;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
-import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.logging.config.Level;
@@ -21,6 +22,10 @@ public class InstructionFilter {
 	 * {@link LocalVariableAttribute} are also getting updated
 	 */
 	private final CodeArrayModificator codeArrayModificator;
+	/**
+	 * Key: className Value: number of needed allocations.
+	 */
+	private final Map<String, Integer> neededAloadInstructions = new HashMap<>();
 
 	private boolean loggedLocalVariableTable = false;
 
@@ -33,36 +38,43 @@ public class InstructionFilter {
 		this.codeArrayModificator = codeArrayModificator;
 	}
 
-	public final Instruction filterForMatchingAloadInstructionIntern(Instruction searchInstruction,
-			Instruction currentInstruction, Wrapper<Integer> neededAloadInstructions, int numberOfParameters) {
+	public final Instruction filterForMatchingAloadInstruction(Instruction searchInstruction) {
+		neededAloadInstructions.put(Descriptor.toClassName(searchInstruction.getType()), 1);
 
-		LOGGER.debug("search-Instruction " + searchInstruction + " current-Instruction " + currentInstruction
-				+ " needed Aload-Instructions: " + neededAloadInstructions + " methodParameter to fill: "
-				+ numberOfParameters);
+		return filterForMatchingAloadInstructionIntern(searchInstruction,
+				Instructions.getBeforeInstruction(instructions, searchInstruction), 0);
+	}
+
+	private final Instruction filterForMatchingAloadInstructionIntern(Instruction searchInstruction,
+			Instruction currentInstruction, int numberOfParameters) {
+
+		LOGGER.debug("search-Instruction " + searchInstruction + "\n" + //
+				"current-Instruction " + currentInstruction + "\n" + //
+				"needed Aload-Instructions: " + neededAloadInstructions + "\n" + //
+				"methodParameter to fill: " + numberOfParameters);
 
 		int searchInstCodeArrayIndex = searchInstruction.getCodeArrayIndex();
 		Instruction beforeInstruction = Instructions.getBeforeInstruction(instructions, currentInstruction);
 
 		if (Opcode.PUTFIELD == searchInstruction.getOpcode()
 				&& searchInstruction.getClassRef().equals(Descriptor.toClassName(searchInstruction.getType()))) {
-			return filterForMatchingAloadInstructionIntern(searchInstruction, currentInstruction,
-					neededAloadInstructions, 1);
+			return filterForMatchingAloadInstructionIntern(searchInstruction, currentInstruction, 1);
 		}
 
-		if (Instructions.isAloadInstruction(currentInstruction) && //
-				(searchInstruction.getClassRef()
-						.equals(getDescriptorOfLoadInstruction(currentInstruction, searchInstCodeArrayIndex))
-						|| numberOfParameters != 0)) {
+		if (Instructions.isAloadInstruction(currentInstruction)) {
 
-			if (neededAloadInstructions.getValue() == 0 && numberOfParameters == 0) {
+			String className = getDescriptorOfLoadInstruction(currentInstruction, searchInstCodeArrayIndex);
+
+			if (searchInstruction.getClassRef().equals(className)
+					&& neededAloadInstructions.getOrDefault(className, 0) == 0 && numberOfParameters == 0) {
 				return currentInstruction;
 			} else if (numberOfParameters == 0) {
-				neededAloadInstructions.setValue(neededAloadInstructions.getValue() - 1);
+				updateNeededAloadInstructions(className, false);
 			}
 
 		} else if (Opcode.DUP == currentInstruction.getOpcode()) {
 			Instruction instruction = filterForMatchingAloadInstructionIntern(searchInstruction, beforeInstruction,
-					neededAloadInstructions, numberOfParameters);
+					numberOfParameters);
 
 			if (beforeInstruction == instruction) {
 				return currentInstruction;
@@ -72,10 +84,11 @@ public class InstructionFilter {
 		else if (Opcode.GETFIELD == currentInstruction.getOpcode() && //
 				currentInstruction.getClassRef().equals(
 						getDescriptorOfLoadInstruction(beforeInstruction, currentInstruction.getCodeArrayIndex()))) {
-			neededAloadInstructions.setValue(neededAloadInstructions.getValue() + 1);
+			updateNeededAloadInstructions(getDescriptorOfLoadInstruction(beforeInstruction, //
+					currentInstruction.getCodeArrayIndex()), true);
 
 			if (numberOfParameters != 0) {
-				return filterForMatchingAloadInstructionIntern(currentInstruction, beforeInstruction, new Wrapper<>(1), //
+				return filterForMatchingAloadInstructionIntern(currentInstruction, beforeInstruction,
 						numberOfParameters--);
 			}
 
@@ -87,14 +100,19 @@ public class InstructionFilter {
 		else if (Opcode.NEW == currentInstruction.getOpcode()
 				&& currentInstruction.getClassRef().equals(searchInstruction.getClassRef())) {
 			// auslagern in function
-			if (neededAloadInstructions.getValue() == 0 && numberOfParameters == 0) {
+			if (neededAloadInstructions.getOrDefault(currentInstruction.getClassRef(), 0) == 0
+					&& numberOfParameters == 0) {
 				return currentInstruction;
 			} else {
-				neededAloadInstructions.setValue(neededAloadInstructions.getValue() - 1);
+				updateNeededAloadInstructions(currentInstruction.getClassRef(), false);
 
 				if (numberOfParameters != 0) {
 					numberOfParameters--;
 				}
+			}
+
+			if (Opcode.INVOKESPECIAL == searchInstruction.getOpcode()) {
+				return currentInstruction;
 			}
 		}
 
@@ -102,21 +120,18 @@ public class InstructionFilter {
 			int numOfParameters = getNumberOfMethodParameters(currentInstruction.getType());
 
 			if (!(numOfParameters == 0 && Opcode.INVOKESTATIC == currentInstruction.getOpcode())) {
-				Wrapper<Integer> neededAloadInstructionsForInvocation = new Wrapper<>(
-						neededAloadInstructions.getValue());
 
 				Instruction invokeInstructionCaller = filterForMatchingAloadInstructionIntern(currentInstruction,
-						beforeInstruction, neededAloadInstructionsForInvocation, numOfParameters);
+						beforeInstruction, numOfParameters);
 
 				if (numberOfParameters != 0) {
 					numberOfParameters--;
 				}
 
 				if (Opcode.INVOKESTATIC == searchInstruction.getOpcode()) {
-					neededAloadInstructions.setValue(
-							neededAloadInstructions.getValue() + neededAloadInstructionsForInvocation.getValue());
 
 					return invokeInstructionCaller;
+
 				} else if (Instructions.isInvokeInstruction(searchInstruction)) {
 					String returnType = Descriptor
 							.toClassName(Instructions.getReturnType(currentInstruction.getType()));
@@ -127,8 +142,7 @@ public class InstructionFilter {
 				}
 
 				return filterForMatchingAloadInstructionIntern(searchInstruction,
-						Instructions.getBeforeInstruction(instructions, invokeInstructionCaller),
-						neededAloadInstructionsForInvocation, numberOfParameters);
+						Instructions.getBeforeInstruction(instructions, invokeInstructionCaller), numberOfParameters);
 			}
 		}
 
@@ -141,9 +155,9 @@ public class InstructionFilter {
 		}
 
 		Instruction instruction = filterForMatchingAloadInstructionIntern(searchInstruction, beforeInstruction,
-				neededAloadInstructions, numberOfParameters);
+				numberOfParameters);
 
-		if ((neededAloadInstructions.getValue() == 0 && //
+		if ((neededAloadInstructions.getOrDefault(searchInstruction.getClassRef(), 0) == 0 && //
 				Instructions.isAloadInstruction(instruction)) || //
 				(Instructions.isInvokeInstruction(searchInstruction) && //
 						numberOfParameters == 0)) {
@@ -154,12 +168,29 @@ public class InstructionFilter {
 				"No matching load-Instruction for search-Instruction " + searchInstruction + " found");
 	}
 
+	private void updateNeededAloadInstructions(String className, boolean increase) {
+		if (increase) {
+			if (neededAloadInstructions.containsKey(className)) {
+				neededAloadInstructions.put(className, neededAloadInstructions.get(className) + 1);
+			} else {
+				neededAloadInstructions.put(className, 1);
+			}
+
+		} else {
+			if (neededAloadInstructions.containsKey(className)) {
+				neededAloadInstructions.put(className, neededAloadInstructions.get(className) - 1);
+			} else {
+				throw new IllegalArgumentException("For the Class " + className + " is no aload-Instruction needed");
+			}
+		}
+	}
+
 	private static int getNumberOfMethodParameters(String methodDescriptor) {
 		String descriptor = Descriptor.getParamDescriptor(methodDescriptor);
 		return Descriptor.numOfParameters(descriptor);
 	}
 
-	public String getDescriptorOfLoadInstruction(Instruction instruction, int codeArrayIndex) {
+	private String getDescriptorOfLoadInstruction(Instruction instruction, int codeArrayIndex) {
 		switch (instruction.getOpcode()) {
 		case Opcode.ALOAD_0:
 			return getDescriptorOfLocalVariable(0, codeArrayIndex);

@@ -11,7 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
-import de.nvg.testgenerator.Wrapper;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.CodeIterator;
@@ -159,8 +158,7 @@ public class Instructions {
 			Instruction putFieldInstruction, LocalVariableAttribute table, CodeArrayModificator codeArrayModificator) {
 		InstructionFilter filter = new InstructionFilter(instructions, table, codeArrayModificator);
 
-		return filter.filterForMatchingAloadInstructionIntern(putFieldInstruction,
-				getBeforeInstruction(instructions, putFieldInstruction), new Wrapper<>(0), 0);
+		return filter.filterForMatchingAloadInstruction(putFieldInstruction);
 	}
 
 	public static final void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
