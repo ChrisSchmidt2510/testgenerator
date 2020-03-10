@@ -209,7 +209,7 @@ public class MetaDataAdder {
 		lambdaBody.setAccessFlags(AccessFlag.STATIC | AccessFlag.PRIVATE | AccessFlag.SYNTHETIC);
 
 		Bytecode lambdaBodyCode = new Bytecode(constantPool);
-		lambdaBodyCode.addLdc(constantPool.addClassInfo(Descriptor.toJvmName(classData.getSuperClass())));
+		lambdaBodyCode.addLdc(constantPool.addClassInfo(Descriptor.toJvmName(classData.getSuperClass().getName())));
 		lambdaBodyCode.addLdc(FIELD_NAME);
 		lambdaBodyCode.addInvokestatic(METHODHANDLES_CLASSNAME, METHODHANDLES_METHOD_NAME, METHODHANDLES_RETURN_TYPE);
 		lambdaBodyCode.addCheckcast(CLASS_DATA_CLASSNAME);

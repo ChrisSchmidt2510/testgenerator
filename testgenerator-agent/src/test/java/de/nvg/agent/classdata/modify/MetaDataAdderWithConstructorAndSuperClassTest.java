@@ -75,7 +75,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 	public void testMetaDataAdderWithConstructorAndSuperClass()
 			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException {
 		ClassData classData = prepareClassData();
-		classData.setSuperClass("de.nvg.agent.classdata.modify.testclasses.BlObject");
+		classData.setSuperClass(new ClassData("de.nvg.agent.classdata.modify.testclasses.BlObject"));
 
 		ConstructorData constructor = new ConstructorData(false);
 		constructor.addConstructorElement(0, fieldStrasse);

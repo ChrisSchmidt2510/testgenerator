@@ -60,20 +60,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
 				|| properties.getClassName().equals(className)) {
 
-			LOGGER.info("ClassName: " + className);
-
-			ClassDataStorage.getInstance().removeSuperclassToLoad(className);
+			ClassDataStorage.getInstance().removeSuperclassToLoad(Descriptor.toJavaName(className));
 
 			final ClassPool pool = ClassPool.getDefault();
 
 			try {
 				CtClass loadingClass = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
 
-				ClassData classData = new ClassData(loadingClass.getName());
-
-				byte[] bytecode = collectAndAlterMetaData(loadingClass, classData);
-
-				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
+				byte[] bytecode = collectAndAlterMetaData(loadingClass);
 
 				try (FileOutputStream fos = new FileOutputStream(
 						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
@@ -91,35 +85,31 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return classfileBuffer;
 	}
 
-	private byte[] collectAndAlterMetaData(CtClass loadingClass, ClassData classData) throws Exception {
+	private byte[] collectAndAlterMetaData(CtClass loadingClass) throws Exception {
+		ClassData classData;
+
 		ClassFile classFile = loadingClass.getClassFile();
-
-		String superClass = classFile.getSuperclass();
-
-		if (!JavaTypes.OBJECT.equals(superClass)) {
-			ClassData superClassData = ClassDataStorage.getInstance().getClassData(superClass);
-
-			if (superClassData == null) {
-				ClassDataStorage.getInstance().addSuperclassToLoad(superClass);
-			}
-
-			LOGGER.info("Superclass: " + superClass);
-			classData.setSuperClass(superClass);
-		}
-
 		ConstPool constantPool = classFile.getConstPool();
 
 		if (Modifier.isEnum(loadingClass.getModifiers())) {
 			LOGGER.info("isEnum: true");
+			classData = new ClassData(loadingClass.getName());
 			classData.setIsEnum(true);
+
 		} else {
-			List<FieldData> fields = getFieldsFromClass(loadingClass, classData);
+			LOGGER.info("create ClassHierachie for " + classFile.getName());
+			classData = createClassHierachie(loadingClass);
 
-			classData.addFields(fields);
+			for (CtField field : loadingClass.getDeclaredFields()) {
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser(loadingClass.getName(), fields);
+				if (!Instructions.isConstant(field.getModifiers()) && !AccessFlag.isPublic(field.getModifiers())) {
+					FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
+				}
+			}
 
-			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(fields, constantPool, //
+			MethodAnalyser methodAnalyser = new MethodAnalyser(loadingClass.getName(), classData.getFields());
+
+			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
 					loadingClass);
 
 			// only add the calledFields Set if the Flag is set
@@ -134,6 +124,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		}
 
+		ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
+
 		byte[] bytecode = loadingClass.toBytecode();
 
 		loadingClass.detach();
@@ -141,28 +133,25 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return bytecode;
 	}
 
-	private List<FieldData> getFieldsFromClass(CtClass loadedClass, ClassData classData)
-			throws CannotCompileException, NotFoundException {
+	private List<FieldData> getFieldsFromClass(ClassFile loadedClass) {
 		List<FieldData> fieldsFromClass = new ArrayList<>();
 
-		for (CtField field : loadedClass.getDeclaredFields()) {
+		for (FieldInfo field : loadedClass.getFields()) {
 
-			if (!Instructions.isConstant(field.getModifiers())) {
-				FieldInfo fieldInfo = field.getFieldInfo();
+			if (!Instructions.isConstant(field.getAccessFlags())) {
 
-				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
+				SignatureAttribute signature = (SignatureAttribute) field.getAttribute(SignatureAttribute.tag);
 
 				FieldData fieldData = new FieldData.Builder()
-						.withDataType(Descriptor.toClassName(fieldInfo.getDescriptor())).withName(field.getName())
-						.isMutable(!Modifier.isFinal(fieldInfo.getAccessFlags()))
-						.isStatic(Modifier.isStatic(fieldInfo.getAccessFlags()))
+						.withDataType(Descriptor.toClassName(field.getDescriptor())).withName(field.getName())
+						.isMutable(!Modifier.isFinal(field.getAccessFlags()))
+						.isStatic(Modifier.isStatic(field.getAccessFlags()))
+						.isPublic(Modifier.isPublic(field.getAccessFlags()))
 						.withSignature(signature != null ? signature.getSignature() : null).build();
 
 				LOGGER.info("added Field: " + fieldData);
 
 				fieldsFromClass.add(fieldData);
-
-				FieldTypeChanger.changeFieldDataTypeToProxy(loadedClass.getClassFile(), fieldInfo);
 			}
 		}
 
@@ -172,6 +161,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
 			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
 
+		// TODO reimplement with 2 functions analysis and modification
 		for (int i = 0; i < methods.size(); i++) {
 			MethodInfo method = methods.get(i);
 
@@ -190,8 +180,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						? Collections.emptyList()
 						: filteredInstructions.get(Opcode.PUTFIELD);
 
-				fieldTypeChanger.changeFieldInitialization(instructions, //
-						putFieldInstructions, codeAttribute, classData);
+				fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, codeAttribute);
 
 				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
 
@@ -271,4 +260,30 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		metaDataAdder.add(clinit.getCodeAttribute(), instructions);
 	}
 
+	private ClassData createClassHierachie(CtClass loadingClass) throws NotFoundException {
+		String className = loadingClass.getName();
+
+		ClassData classData = ClassDataStorage.getInstance().getClassData(className);
+
+		if (classData == null) {
+			ClassData newClassData = new ClassData(className);
+
+			LOGGER.info("ClassName: " + className);
+			newClassData.addFields(getFieldsFromClass(loadingClass.getClassFile()));
+
+			if (loadingClass.getSuperclass() != null
+					&& !JavaTypes.OBJECT.equals(loadingClass.getSuperclass().getName())) {
+				LOGGER.info("SuperClass: " + loadingClass.getSuperclass().getName());
+
+				ClassDataStorage.getInstance().addSuperclassToLoad(loadingClass.getSuperclass().getName());
+				newClassData.setSuperClass(createClassHierachie(loadingClass.getSuperclass()));
+			}
+
+			ClassDataStorage.getInstance().addClassData(className, newClassData);
+
+			return newClassData;
+		}
+
+		return classData;
+	}
 }

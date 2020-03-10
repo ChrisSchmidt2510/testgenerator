@@ -7,12 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 public class ClassData {
 
 	private final String name;
-	private String superClass;
+	private ClassData superClass;
 	private boolean isEnum;
 
 	private final List<FieldData> fields = new ArrayList<>();
@@ -30,11 +29,11 @@ public class ClassData {
 		return name;
 	}
 
-	public String getSuperClass() {
+	public ClassData getSuperClass() {
 		return superClass;
 	}
 
-	public void setSuperClass(String superClass) {
+	public void setSuperClass(ClassData superClass) {
 		this.superClass = superClass;
 	}
 
@@ -95,9 +94,24 @@ public class ClassData {
 		return fieldsUsedInMethods;
 	}
 
-	public Optional<FieldData> getField(String name, String dataType) {
-		return fields.stream().filter(field -> field.getName().equals(name) && field.getDataType().equals(dataType))
-				.findAny();
+	public FieldData getField(String name, String dataType) {
+		FieldData classField = fields.stream()
+				.filter(field -> field.getName().equals(name) && field.getDataType().equals(dataType)).findAny()
+				.orElse(null);
+
+		if (classField != null) {
+			return classField;
+		} else if (classField == null && superClass != null) {
+
+			FieldData superClassField = superClass.getField(name, dataType);
+
+			if (superClassField != null) {
+				return superClassField;
+			}
+		}
+
+		throw new IllegalArgumentException(
+				"no Field in ClassHierachie found for name: " + name + " and type" + dataType);
 	}
 
 	@Override

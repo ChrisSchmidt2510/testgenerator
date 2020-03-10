@@ -116,18 +116,18 @@ public class FieldTypeChanger {
 			.add(DOUBLE_PROXY_CLASSNAME, DOUBLE_PROXY)//
 			.add(LONG_PROXY_CLASSNAME, LONG_PROXY).toUnmodifiableMap();
 
-	private final List<FieldData> fields;
+	private final ClassData classData;
 	private final ConstPool constantPool;
 	private final CtClass loadingClass;
 
-	public FieldTypeChanger(List<FieldData> fields, ConstPool constantPool, CtClass loadingClass) {
-		this.fields = fields;
+	public FieldTypeChanger(ClassData classData, ConstPool constantPool, CtClass loadingClass) {
+		this.classData = classData;
 		this.constantPool = constantPool;
 		this.loadingClass = loadingClass;
 	}
 
 	public void changeFieldInitialization(List<Instruction> instructions, List<Instruction> putFieldInstructions,
-			CodeAttribute codeAttribute, ClassData classData) throws BadBytecode {
+			CodeAttribute codeAttribute) throws BadBytecode {
 		CodeIterator iterator = codeAttribute.iterator();
 
 		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
@@ -157,78 +157,82 @@ public class FieldTypeChanger {
 
 		for (Instruction instruction : putFieldInstructions) {
 
-			Instruction aloadInstruction = Instructions.filterForMatchingAloadInstruction(instructions, instruction,
-					table, codeArrayModificator);
-			int lastAloadInstructionIndex = aloadInstruction.getCodeArrayIndex()
-					+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
+			if (!classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()) {
 
-			codeArrayLastPutFieldInstruction = instruction.getCodeArrayIndex() + 3;
+				Instruction aloadInstruction = Instructions.filterForMatchingAloadInstruction(instructions, instruction,
+						table, codeArrayModificator);
+				int lastAloadInstructionIndex = aloadInstruction.getCodeArrayIndex()
+						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
 
-			int putFieldIndex = instructions.indexOf(instruction);
-			Instruction instructionBeforePutField = instructions.get(putFieldIndex - 1);
+				codeArrayLastPutFieldInstruction = instruction.getCodeArrayIndex() + 3;
 
-			String proxy = getProxyClassname(instruction.getType());
+				int putFieldIndex = instructions.indexOf(instruction);
+				Instruction instructionBeforePutField = instructions.get(putFieldIndex - 1);
 
-			Bytecode beforeValueCreation = new Bytecode(constantPool);
-			beforeValueCreation.addNew(proxy);
-			beforeValueCreation.addOpcode(Opcode.DUP);
+				String proxy = getProxyClassname(instruction.getType());
 
-			iterator.insertEx(lastAloadInstructionIndex + 1, beforeValueCreation.get());
+				Bytecode beforeValueCreation = new Bytecode(constantPool);
+				beforeValueCreation.addNew(proxy);
+				beforeValueCreation.addOpcode(Opcode.DUP);
 
-			// new =3 + dup=1 =4
-			codeArrayModificator.addCodeArrayModificator(aloadInstruction.getCodeArrayIndex(),
-					beforeValueCreation.getSize());
+				iterator.insertEx(lastAloadInstructionIndex + 1, beforeValueCreation.get());
 
-			Bytecode afterValueCreation = new Bytecode(constantPool);
-			afterValueCreation.addAload(0);
-			afterValueCreation.addLdc(instruction.getName());
+				// new =3 + dup=1 =4
+				codeArrayModificator.addCodeArrayModificator(aloadInstruction.getCodeArrayIndex(),
+						beforeValueCreation.getSize());
 
-			if (INTEGER_PROXY_CLASSNAME.equals(proxy)) {
-				afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
+				Bytecode afterValueCreation = new Bytecode(constantPool);
+				afterValueCreation.addAload(0);
+				afterValueCreation.addLdc(instruction.getName());
+
+				if (INTEGER_PROXY_CLASSNAME.equals(proxy)) {
+					afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
+				}
+
+				if (Opcode.ACONST_NULL == instructionBeforePutField.getOpcode()) {
+					afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
+
+					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
+							REFERENCE_PROXY_DEFAULT_CONSTRUCTOR);
+					afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+
+					// aconst_null (1) + putField(3)
+					iterator.insertGapAt(
+							instructionBeforePutField.getCodeArrayIndex() + codeArrayModificator
+									.getModificator(instructionBeforePutField.getCodeArrayIndex()),
+							afterValueCreation.getSize() - 4, true);
+
+					iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
+							+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
+
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
+							afterValueCreation.getSize() - 4);
+				} else {
+
+					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
+							PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
+					afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+
+					iterator.insertGapAt(
+							instruction.getCodeArrayIndex()
+									+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
+							afterValueCreation.getSize() - 3, true);
+
+					iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex()
+							+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
+
+					// for the new invokespecial + aload0 instruction
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
+							afterValueCreation.getSize() - 3);
+				}
+
+				FieldData field = new FieldData.Builder().withDataType(Descriptor.toClassName(instruction.getType()))
+						.withName(instruction.getName()).build();
+				initalizedFields.add(field);
+
+				LOGGER.trace("Added Field(\"" + field.getName() + "\", \"" + field.getDataType() + "\") Manipulation: ",
+						stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 			}
-
-			if (Opcode.ACONST_NULL == instructionBeforePutField.getOpcode()) {
-				afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
-
-				afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit, REFERENCE_PROXY_DEFAULT_CONSTRUCTOR);
-				afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-
-				// aconst_null (1) + putField(3)
-				iterator.insertGapAt(
-						instructionBeforePutField.getCodeArrayIndex()
-								+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()),
-						afterValueCreation.getSize() - 4, true);
-
-				iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
-						+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
-
-				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
-						afterValueCreation.getSize() - 4);
-			} else {
-
-				afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
-						PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
-				afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-
-				iterator.insertGapAt(
-						instruction.getCodeArrayIndex()
-								+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
-						afterValueCreation.getSize() - 3, true);
-
-				iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex()
-						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
-
-				// for the new invokespecial + aload0 instruction
-				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
-						afterValueCreation.getSize() - 3);
-			}
-
-			FieldData field = new FieldData.Builder().withDataType(Descriptor.toClassName(instruction.getType()))
-					.withName(instruction.getName()).build();
-			initalizedFields.add(field);
-
-			LOGGER.trace("Added Field(\"" + field.getName() + "\", \"" + field.getDataType() + "\") Manipulation: ",
-					stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 		}
 
 		List<Instruction> getFieldInstructions = Instructions
@@ -245,6 +249,7 @@ public class FieldTypeChanger {
 		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		codeAttribute.computeMaxStack();
+
 	}
 
 	private void initalizeUnitalizedFields(List<FieldData> initalizedFields, int codeArrayLastPutFieldInstruction,
@@ -348,31 +353,34 @@ public class FieldTypeChanger {
 			CodeArrayModificator codeArrayModificator, LocalVariableAttribute table) throws BadBytecode {
 		for (Instruction instruction : putFieldInstructions) {
 
-			Instruction loadInstruction = Instructions.//
-					filterForMatchingAloadInstruction(instructions, instruction, table, codeArrayModificator);
+			if (classData.getName().equals(instruction.getClassRef()) && !classData
+					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()) {
+				Instruction loadInstruction = Instructions.//
+						filterForMatchingAloadInstruction(instructions, instruction, table, codeArrayModificator);
 
-			int codeArrayIndex = loadInstruction.getCodeArrayIndex()
-					+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
+				int codeArrayIndex = loadInstruction.getCodeArrayIndex()
+						+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
 
-			String dataType = instruction.getType();
-			String proxy = getProxyClassname(dataType);
-			Bytecode beforeLoad = new Bytecode(constantPool);
-			beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+				String dataType = instruction.getType();
+				String proxy = getProxyClassname(dataType);
+				Bytecode beforeLoad = new Bytecode(constantPool);
+				beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
 
-			if (loadInstruction.getCodeArrayIndex() == 0) {
-				iterator.insertAt(1, beforeLoad.get());
-			} else {
+				if (loadInstruction.getCodeArrayIndex() == 0) {
+					iterator.insertAt(1, beforeLoad.get());
+				} else {
 
-				iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
+					iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
+				}
+
+				Bytecode afterLoad = new Bytecode(constantPool);
+				afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
+
+				codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
+
+				iterator.write(afterLoad.get(),
+						instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
 			}
-
-			Bytecode afterLoad = new Bytecode(constantPool);
-			afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
-
-			codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
-
-			iterator.write(afterLoad.get(),
-					instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
 		}
 	}
 
@@ -381,39 +389,41 @@ public class FieldTypeChanger {
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
 		for (Instruction instruction : getFieldInstructions) {
 
-			String dataType = instruction.getType();
-			String proxy = getProxyClassname(dataType);
+			if (classData.getName().equals(instruction.getClassRef()) && !classData
+					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()) {
+				String dataType = instruction.getType();
+				String proxy = getProxyClassname(dataType);
 
-			Instruction thisInstruction = Instructions.getBeforeInstruction(instructions, instruction);
-			if (Opcode.DUP == thisInstruction.getOpcode()) {
+				Instruction thisInstruction = Instructions.getBeforeInstruction(instructions, instruction);
+				if (Opcode.DUP == thisInstruction.getOpcode()) {
 
-				Bytecode thisBytecode = new Bytecode(constantPool);
-				thisBytecode.addOpcode(Opcode.ALOAD_0);
+					Bytecode thisBytecode = new Bytecode(constantPool);
+					thisBytecode.addOpcode(Opcode.ALOAD_0);
 
-				int codeArrayIndex = thisInstruction.getCodeArrayIndex();
-				iterator.write(thisBytecode.get(),
-						codeArrayIndex + codeArrayModificator.getModificator(codeArrayIndex));
+					int codeArrayIndex = thisInstruction.getCodeArrayIndex();
+					iterator.write(thisBytecode.get(),
+							codeArrayIndex + codeArrayModificator.getModificator(codeArrayIndex));
+				}
+
+				int codeArrayIndex = instruction.getCodeArrayIndex()
+						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
+
+				Bytecode bytecode = new Bytecode(constantPool);
+				bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+				bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
+
+				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
+					bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
+					iterator.insertGapAt(codeArrayIndex, 6, true);
+					iterator.write(bytecode.get(), codeArrayIndex);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
+
+				} else {
+					iterator.insertGapAt(codeArrayIndex, 3, true);
+					iterator.write(bytecode.get(), codeArrayIndex);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
+				}
 			}
-
-			int codeArrayIndex = instruction.getCodeArrayIndex()
-					+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
-
-			Bytecode bytecode = new Bytecode(constantPool);
-			bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-			bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
-
-			if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
-				bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
-				iterator.insertGapAt(codeArrayIndex, 6, true);
-				iterator.write(bytecode.get(), codeArrayIndex);
-				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
-
-			} else {
-				iterator.insertGapAt(codeArrayIndex, 3, true);
-				iterator.write(bytecode.get(), codeArrayIndex);
-				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
-			}
-
 		}
 	}
 
@@ -464,8 +474,8 @@ public class FieldTypeChanger {
 	private List<FieldData> getUnitializedFields(List<FieldData> initalizedFields) {
 		List<FieldData> unitalizedFields = new ArrayList<>();
 
-		for (FieldData fieldData : fields) {
-			if (!initalizedFields.contains(fieldData)) {
+		for (FieldData fieldData : classData.getFields()) {
+			if (!initalizedFields.contains(fieldData) && !fieldData.isPublic()) {
 				unitalizedFields.add(fieldData);
 			}
 		}

@@ -7,16 +7,19 @@ public class FieldData {
 	private final String name;
 	private final boolean mutable;
 	private final boolean isStatic;
+	private final boolean isPublic;
 	/** Is only used for genericTypes */
 	private final String signature;
 
 	private String comment;
 
-	private FieldData(String dataType, String name, boolean mutable, boolean isStatic, String signature) {
+	private FieldData(String dataType, String name, boolean mutable, boolean isStatic, boolean isPublic,
+			String signature) {
 		this.dataType = dataType;
 		this.name = name;
 		this.mutable = mutable;
 		this.isStatic = isStatic;
+		this.isPublic = isPublic;
 		this.signature = signature;
 	}
 
@@ -34,6 +37,10 @@ public class FieldData {
 
 	public boolean isStatic() {
 		return isStatic;
+	}
+
+	public boolean isPublic() {
+		return isPublic;
 	}
 
 	public String getSignature() {
@@ -55,12 +62,15 @@ public class FieldData {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof FieldData))
+		}
+		if (!(obj instanceof FieldData)) {
 			return false;
+		}
 		FieldData other = (FieldData) obj;
 		// implemented like the definition of the @see jvms 4.5
 		return Objects.equals(dataType, other.dataType) && Objects.equals(name, other.name);
@@ -78,6 +88,7 @@ public class FieldData {
 		private String signature;
 		private boolean mutable;
 		private boolean isStatic;
+		private boolean isPublic;
 
 		public Builder withName(String name) {
 			this.name = name;
@@ -104,8 +115,13 @@ public class FieldData {
 			return this;
 		}
 
+		public Builder isPublic(boolean isPublic) {
+			this.isPublic = isPublic;
+			return this;
+		}
+
 		public FieldData build() {
-			return new FieldData(dataType, name, mutable, isStatic, signature);
+			return new FieldData(dataType, name, mutable, isStatic, isPublic, signature);
 		}
 	}
 
