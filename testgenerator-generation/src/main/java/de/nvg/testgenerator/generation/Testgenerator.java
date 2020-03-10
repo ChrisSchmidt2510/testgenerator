@@ -34,7 +34,7 @@ public class Testgenerator {
 	 * 
 	 * @Param Name der Methode für die ein Testfall erstellt wird
 	 */
-	public static void generate(String className, String method) throws IOException {
+	public static void generate(String className, String method) {
 		LOGGER.info("Starting test-generation");
 		RuntimeProperties.getInstance().setActivateTracking(false);
 		boolean trackingActivated = RuntimeProperties.getInstance().wasFieldTrackingActivated();
@@ -62,7 +62,11 @@ public class Testgenerator {
 
 		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build())
 				.skipJavaLangImports(true).build();
-		file.writeTo(System.out);
+		try {
+			file.writeTo(System.out);
+		} catch (IOException e) {
+			LOGGER.error(e);
+		}
 
 	}
 
