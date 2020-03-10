@@ -11,8 +11,8 @@ import de.nvg.proxy.Proxy;
 public class ReferenceProxy<E> extends Proxy {
 	private E value;
 
-	public ReferenceProxy(E value, Object parentObject, String fieldName) {
-		super(parentObject, fieldName, getClassName(value));
+	public ReferenceProxy(E value, Object parentObject, String fieldName, String fieldDataType) {
+		super(parentObject, fieldName, value != null ? getClassName(value) : fieldDataType);
 		this.value = value;
 	}
 

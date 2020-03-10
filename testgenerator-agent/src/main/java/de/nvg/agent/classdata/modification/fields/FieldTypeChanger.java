@@ -37,7 +37,7 @@ public class FieldTypeChanger {
 
 	private static final String REFERENCE_PROXY_CLASSNAME = "de/nvg/proxy/impl/ReferenceProxy";
 	private static final String REFERENCE_PROXY = "Lde/nvg/proxy/impl/ReferenceProxy;";
-	private static final String REFERENCE_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;)V";
+	private static final String REFERENCE_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
 	private static final String REFERENCE_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
 
 	private static final String BOOLEAN_PROXY_CLASSNAME = "de/nvg/proxy/impl/BooleanProxy";
@@ -208,6 +208,12 @@ public class FieldTypeChanger {
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
 							afterValueCreation.getSize() - 4);
 				} else {
+					// cant be in the if of the integer-proxy-classname,
+					// because if the instruction-before is a aconst-null-instruction a
+					// verifier-error is thrown
+					if (REFERENCE_PROXY_CLASSNAME == proxy) {
+						afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
+					}
 
 					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 							PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
