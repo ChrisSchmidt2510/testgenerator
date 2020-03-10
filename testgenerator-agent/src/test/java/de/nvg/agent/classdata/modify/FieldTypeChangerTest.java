@@ -24,8 +24,10 @@ public class FieldTypeChangerTest extends TestHelper {
 		FieldData partnerZuordnung = new FieldData.Builder().withName("partnerZuordnung")
 				.withDataType("de.nvg.agent.classdata.modify.testclasses.PartnerZuordnung").build();
 
-		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(Collections.singletonList(partnerZuordnung),
-				constantPool, ctClass);
+		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.PartnerEigenschaft");
+		classData.addFields(Collections.singletonList(partnerZuordnung));
+
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
 
 		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, codeAttribute);
 	}
@@ -36,14 +38,16 @@ public class FieldTypeChangerTest extends TestHelper {
 		init("de.nvg.agent.classdata.modify.testclasses.TeilDatum", "setzeDatum", "(Ljava/util/Date;)V",
 				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD, Opcode.RETURN));
 
-		FieldData tag = new FieldData.Builder().withName("tag").withDataType("java/lang/Integer").build();
-		FieldData monat = new FieldData.Builder().withName("monat").withDataType("java/lang/Integer").build();
-		FieldData jahr = new FieldData.Builder().withName("jahr").withDataType("java/lang/Integer").build();
-		FieldData stunde = new FieldData.Builder().withName("stunde").withDataType("java/lang/Integer").build();
-		FieldData minute = new FieldData.Builder().withName("minute").withDataType("java/lang/Integer").build();
+		FieldData tag = new FieldData.Builder().withName("tag").withDataType("java.lang.Integer").build();
+		FieldData monat = new FieldData.Builder().withName("monat").withDataType("java.lang.Integer").build();
+		FieldData jahr = new FieldData.Builder().withName("jahr").withDataType("java.lang.Integer").build();
+		FieldData stunde = new FieldData.Builder().withName("stunde").withDataType("java.lang.Integer").build();
+		FieldData minute = new FieldData.Builder().withName("minute").withDataType("java.lang.Integer").build();
 
-		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(Arrays.asList(tag, monat, jahr, stunde, //
-				minute), constantPool, ctClass);
+		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.TeilDatum");
+		classData.addFields(Arrays.asList(tag, monat, jahr, stunde, minute));
+
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
 
 		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, codeAttribute);
 	}
@@ -56,11 +60,13 @@ public class FieldTypeChangerTest extends TestHelper {
 		FieldData sparteID = new FieldData.Builder().withName("sparteID").withDataType("java.lang.Integer").build();
 		FieldData bezeichner = new FieldData.Builder().withName("bezeichner").withDataType("java.lang.String").build();
 
-		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(Arrays.asList(sparteID, bezeichner), constantPool,
-				ctClass);
+		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.Sparte");
+		classData.addFields(Arrays.asList(sparteID, bezeichner));
+
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
 
 		fieldTypeChanger.changeFieldInitialization(instructions, filteredInstructions.get(Opcode.PUTFIELD),
-				codeAttribute, new ClassData("de.nvg.agent.classdata.modify.testclasses.Sparte"));
+				codeAttribute);
 	}
 
 }
