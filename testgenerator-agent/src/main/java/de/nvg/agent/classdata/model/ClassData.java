@@ -111,7 +111,7 @@ public class ClassData {
 		}
 
 		throw new IllegalArgumentException(
-				"no Field in ClassHierachie found for name: " + name + " and type" + dataType);
+				"no Field in ClassHierachie found for name " + name + " and type " + dataType);
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public class LoggerRepository {
 
 	public Configuration getConfiguration(Class<?> clazz) {
 		return repository.stream()
-				.map(config -> new SimpleImmutableEntry<Configuration, Integer>(config,
+				.map(config -> new SimpleImmutableEntry<>(config,
 						countEqualTokens(config.getPackageName(), clazz.getPackage().getName())))
 				.max((entry1, entry2) -> entry1.getValue().compareTo(entry2.getValue()))
 				.orElseThrow(() -> new NoSuchElementException("No Logger-Configuration matched")).getKey();
