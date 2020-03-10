@@ -12,6 +12,7 @@ import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.classdata.constants.Primitives;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
@@ -149,8 +150,6 @@ public class FieldTypeChanger {
 
 		CodeArrayModificator codeArrayModificator = new CodeArrayModificator();
 
-		int codeArrayLastPutFieldInstruction = 0;
-
 		List<FieldData> initalizedFields = new ArrayList<>();
 
 		LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
@@ -163,8 +162,6 @@ public class FieldTypeChanger {
 						table, codeArrayModificator);
 				int lastAloadInstructionIndex = aloadInstruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
-
-				codeArrayLastPutFieldInstruction = instruction.getCodeArrayIndex() + 3;
 
 				int putFieldIndex = instructions.indexOf(instruction);
 				Instruction instructionBeforePutField = instructions.get(putFieldIndex - 1);
@@ -249,8 +246,11 @@ public class FieldTypeChanger {
 					codeArrayModificator);
 		}
 
-		initalizeUnitalizedFields(initalizedFields, codeArrayLastPutFieldInstruction, iterator,
-				codeArrayModificator.getModificator(codeArrayLastPutFieldInstruction));
+		Instruction superConstructorCall = instructions.stream()
+				.filter(inst -> isInstructionFromClassOrSuperClass(inst) && MethodInfo.nameInit.equals(inst.getName()))
+				.findFirst().orElse(null);
+
+		initalizeUnitalizedFields(initalizedFields, superConstructorCall.getCodeArrayIndex() + 3, iterator);
 
 		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
@@ -258,8 +258,11 @@ public class FieldTypeChanger {
 
 	}
 
-	private void initalizeUnitalizedFields(List<FieldData> initalizedFields, int codeArrayLastPutFieldInstruction,
-			CodeIterator iterator, int codeArrayModificator) throws BadBytecode {
+	private void initalizeUnitalizedFields(List<FieldData> initalizedFields, int codeArrayStartIndex, //
+			CodeIterator iterator) throws BadBytecode {
+
+		int codeArrayModificator = 0;
+
 		for (FieldData field : getUnitializedFields(initalizedFields)) {
 
 			String dataType = Descriptor.of(field.getDataType());
@@ -280,11 +283,7 @@ public class FieldTypeChanger {
 			bytecode.addInvokespecial(proxy, MethodInfo.nameInit, getInitDescriptor(proxy));
 			bytecode.addPutfield(loadingClass, field.getName(), PROXY_FIELD_MAPPER.get(proxy));
 
-			if (codeArrayLastPutFieldInstruction == 0) {
-				codeArrayLastPutFieldInstruction = 4;
-			}
-
-			iterator.insertEx(codeArrayLastPutFieldInstruction + codeArrayModificator, bytecode.get());
+			iterator.insertEx(codeArrayStartIndex + codeArrayModificator, bytecode.get());
 
 			codeArrayModificator = codeArrayModificator + bytecode.getSize();
 		}
@@ -487,6 +486,12 @@ public class FieldTypeChanger {
 		}
 
 		return unitalizedFields;
+	}
+
+	private boolean isInstructionFromClassOrSuperClass(Instruction inst) {
+		return classData.getName().equals(inst.getClassRef()) || classData.getSuperClass() != null
+				? classData.getSuperClass().getName().equals(inst.getClassRef())
+				: JavaTypes.OBJECT.equals(inst.getClassRef());
 	}
 
 }
