@@ -101,7 +101,7 @@ public class ClassData {
 
 		if (classField != null) {
 			return classField;
-		} else if (classField == null && superClass != null) {
+		} else if (superClass != null) {
 
 			FieldData superClassField = superClass.getField(name, dataType);
 
