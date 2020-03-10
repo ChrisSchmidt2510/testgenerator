@@ -6,7 +6,7 @@ import java.util.Objects;
 import de.nvg.proxy.impl.ReferenceProxy;
 
 public class ProxyTestBean {
-	private ReferenceProxy<LocalDate> date = new ReferenceProxy<>(LocalDate.now(), this, "date");
+	private ReferenceProxy<LocalDate> date = new ReferenceProxy<>(LocalDate.now(), this, "date", "java.time.LocalDate");
 
 	public LocalDate getDate() {
 		return date.getValue();
@@ -23,12 +23,15 @@ public class ProxyTestBean {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof ProxyTestBean))
+		}
+		if (!(obj instanceof ProxyTestBean)) {
 			return false;
+		}
 		ProxyTestBean other = (ProxyTestBean) obj;
 		return Objects.equals(date, other.date);
 	}
