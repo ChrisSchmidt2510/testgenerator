@@ -3,6 +3,7 @@ package de.nvg.testgenerator.generation.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -45,6 +46,8 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 		LOGGER.info("generating Complex-Object: " + bluePrint);
 
+		Set<BluePrint> usedBluePrints = new HashSet<>();
+
 		createComplexTypesOfObject(code, bluePrint, classData, calledFields);
 
 		if (classData.hasDefaultConstructor()) {
@@ -79,6 +82,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 				calledFields.remove(constructorField.getValue());
 
 				BluePrint constructorFieldBp = bluePrint.getBluePrintForName(constructorField.getValue().getName());
+				usedBluePrints.add(constructorFieldBp);
 
 				if (constructorFieldBp.isComplexBluePrint()) {
 					createComplexObject(code, constructorFieldBp);
@@ -108,11 +112,16 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 		} else {
 			code.addStatement(
 					"//no public constructor found for class: " + bluePrint.getReference().getClass().getName());
-			code.addStatement(bluePrint.getName() + " = null");
+
+			if (isField) {
+				code.addStatement(bluePrint.getName() + " = null");
+			} else {
+				code.addStatement("$T " + bluePrint.getName() + " = null", bluePrint.getReference().getClass());
+			}
 
 		}
 
-		addFieldsToObject(code, bluePrint, classData, calledFields, bluePrint.getName());
+		addFieldsToObject(code, bluePrint, classData, calledFields, bluePrint.getName(), usedBluePrints);
 
 		code.add("\n");
 
@@ -121,7 +130,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 	}
 
 	private void addFieldsToObject(CodeBlock.Builder code, ComplexBluePrint bluePrint, ClassData classData,
-			Set<FieldData> calledFields, String objectName) {
+			Set<FieldData> calledFields, String objectName, Set<BluePrint> usedBluePrints) {
 		if (properties.wasFieldTrackingActivated()) {
 			for (FieldData field : calledFields) {
 				LOGGER.info("add Field " + field + " to Object " + objectName);
@@ -139,17 +148,19 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 		} else {
 			for (BluePrint child : bluePrint.getChildBluePrints()) {
 
-				Class<?> descriptor = child.isCollectionBluePrint()
-						? child.castToCollectionBluePrint().getInterfaceClass()
-						: child.getReference().getClass();
+				if (!usedBluePrints.contains(child)) {
+					Class<?> descriptor = child.isCollectionBluePrint()
+							? child.castToCollectionBluePrint().getInterfaceClass()
+							: child.getReference().getClass();
 
-				SetterMethodData setter = classData.getSetterMethodData(child.getName(), descriptor);
+					SetterMethodData setter = classData.getSetterMethodData(child.getName(), descriptor);
 
-				if (setter == null && classData.getSuperclass() != null) {
-					setter = classData.getSuperclass().getSetterMethodData(child.getName(), descriptor);
+					if (setter == null && classData.getSuperclass() != null) {
+						setter = classData.getSuperclass().getSetterMethodData(child.getName(), descriptor);
+					}
+
+					addFieldToObject(code, child, setter, objectName);
 				}
-
-				addFieldToObject(code, child, setter, objectName);
 			}
 		}
 	}
@@ -196,7 +207,9 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 	private void createComplexTypesOfObject(Builder code, ComplexBluePrint bluePrint, ClassData classData,
 			Set<FieldData> calledFields) {
+
 		for (BluePrint bp : bluePrint.getPreExecuteBluePrints()) {
+
 			Optional<FieldData> calledField = calledFields.stream()
 					.filter(field -> field.getName().equals(bp.getName())).findAny();
 
@@ -216,7 +229,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					}
 
 					collectionsGeneration.createCollection(code, collection,
-							SetterType.COLLECTION_SETTER == setter.getType(), false);
+							setter != null ? SetterType.COLLECTION_SETTER == setter.getType() : false, false);
 				}
 			}
 		}
