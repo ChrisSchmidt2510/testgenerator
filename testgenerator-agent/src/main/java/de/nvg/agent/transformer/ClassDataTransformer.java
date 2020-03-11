@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.MethodAnalyser;
@@ -100,13 +101,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			LOGGER.info("create ClassHierachie for " + classFile.getName());
 			classData = createClassHierachie(loadingClass);
 
-			for (CtField field : loadingClass.getDeclaredFields()) {
-
-				if (!Instructions.isConstant(field.getModifiers()) && !AccessFlag.isPublic(field.getModifiers())) {
-					FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
-				}
-			}
-
 			MethodAnalyser methodAnalyser = new MethodAnalyser(loadingClass.getName(), classData.getFields());
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
@@ -114,11 +108,18 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			// only add the calledFields Set if the Flag is set
 			if (properties.isTraceReadFieldAccess()) {
+
+				for (CtField field : loadingClass.getDeclaredFields()) {
+
+					if (!Instructions.isConstant(field.getModifiers()) && !AccessFlag.isPublic(field.getModifiers())) {
+						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
+					}
+				}
+
 				fieldTypeChanger.addFieldCalledField();
 			}
 
-			checkAndAlterMethods(loadingClass, classFile.getMethods(), methodAnalyser, //
-					fieldTypeChanger, classData);
+			analyseAndManipulateMethods(classFile.getMethods(), classData, methodAnalyser, fieldTypeChanger);
 
 			addMetaDataToClassFile(loadingClass, constantPool, classData);
 
@@ -133,7 +134,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return bytecode;
 	}
 
-	private List<FieldData> getFieldsFromClass(ClassFile loadedClass) {
+	private List<FieldData> analyseFields(ClassFile loadedClass) {
 		List<FieldData> fieldsFromClass = new ArrayList<>();
 
 		for (FieldInfo field : loadedClass.getFields()) {
@@ -158,74 +159,20 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return fieldsFromClass;
 	}
 
-	private void checkAndAlterMethods(CtClass loadingClass, List<MethodInfo> methods, MethodAnalyser methodAnalyser,
-			FieldTypeChanger fieldTypeChanger, ClassData classData) throws Exception {
+	private void analyseAndManipulateMethods(List<MethodInfo> methods, ClassData classData,
+			MethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
-		// TODO reimplement with 2 functions analysis and modification
-		for (int i = 0; i < methods.size(); i++) {
-			MethodInfo method = methods.get(i);
-
-			LOGGER.info("Starte Transformation fuer die Methode " + method.getName() + method.getDescriptor());
-
-			if (MethodInfo.nameInit.equals(method.getName())) {
+		for (MethodInfo method : methods) {
+			if (!MethodInfo.nameClinit.equals(method.getName())) {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
+				analyseMethod(method, instructions, classData, methodAnalyser);
 
-				Map<Integer, List<Instruction>> filteredInstructions = Instructions
-						.getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.RETURN));
-
-				CodeAttribute codeAttribute = method.getCodeAttribute();
-
-				List<Instruction> putFieldInstructions = filteredInstructions.get(Opcode.PUTFIELD) == null
-						? Collections.emptyList()
-						: filteredInstructions.get(Opcode.PUTFIELD);
-
-				fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, codeAttribute);
-
-				if (!classData.hasDefaultConstructor() && AccessFlag.isPublic(method.getAccessFlags())) {
-
-					Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser.analyseConstructor(
-							method.getDescriptor(), filteredInstructions.get(Opcode.PUTFIELD), instructions);
-
-					if (constructorInitalizedFields.isEmpty()) {
-						classData.setDefaultConstructor(true);
-					} else {
-						ConstructorData constructor = new ConstructorData(constructorInitalizedFields);
-						classData.setConstructor(constructor);
-					}
-				}
-
-			} else if (MethodInfo.nameClinit.equals(method.getName())) {
-
-			} else {
-
-				List<Instruction> instructions = Instructions.getAllInstructions(method);
-
-				Map<Integer, List<Instruction>> filteredInstructions = Instructions
-						.getFilteredInstructions(instructions, Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
-
-				fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
-						method.getCodeAttribute());
-				method.rebuildStackMap(ClassPool.getDefault());
-
-				if (!MethodInfo.nameInit.equals(method.getName())
-						&& !JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
-						&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) == 0
-						&& !AccessFlag.isPrivate(method.getAccessFlags())) {
-
-					Wrapper<FieldData> fieldWrapper = new Wrapper<>();
-
-					MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
-							method.getAccessFlags(), instructions, fieldWrapper);
-
-					if (methodData != null) {
-						classData.addMethod(methodData, fieldWrapper.getValue());
-					}
-
+				if (properties.isTraceReadFieldAccess()) {
+					manipulateMethod(method, instructions, fieldTypeChanger);
 				}
 			}
 		}
-
 	}
 
 	private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
@@ -269,7 +216,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			ClassData newClassData = new ClassData(className);
 
 			LOGGER.info("ClassName: " + className);
-			newClassData.addFields(getFieldsFromClass(loadingClass.getClassFile()));
+			newClassData.addFields(analyseFields(loadingClass.getClassFile()));
 
 			if (loadingClass.getSuperclass() != null
 					&& !JavaTypes.OBJECT.equals(loadingClass.getSuperclass().getName())) {
@@ -285,5 +232,66 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		}
 
 		return classData;
+	}
+
+	private void analyseMethod(MethodInfo method, List<Instruction> instructions, ClassData classData,
+			MethodAnalyser methodAnalyser) throws BadBytecode {
+
+		if (MethodInfo.nameInit.equals(method.getName()) && !classData.hasDefaultConstructor()
+				&& AccessFlag.isPublic(method.getAccessFlags())) {
+
+			List<Instruction> filteredInstructions = instructions.stream()
+					.filter(inst -> Opcode.PUTFIELD == inst.getOpcode()).collect(Collectors.toList());
+
+			Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser
+					.analyseConstructor(method.getDescriptor(), filteredInstructions, instructions);
+
+			if (constructorInitalizedFields.isEmpty()) {
+				classData.setDefaultConstructor(true);
+			} else {
+				ConstructorData constructor = new ConstructorData(constructorInitalizedFields);
+				classData.setConstructor(constructor);
+			}
+
+		} else if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
+				&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) == 0
+				&& !AccessFlag.isPrivate(method.getAccessFlags())) {
+
+			Wrapper<FieldData> fieldWrapper = new Wrapper<>();
+
+			MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
+					method.getAccessFlags(), instructions, fieldWrapper);
+
+			if (methodData != null) {
+				classData.addMethod(methodData, fieldWrapper.getValue());
+			}
+
+		}
+	}
+
+	private void manipulateMethod(MethodInfo method, List<Instruction> instructions, FieldTypeChanger fieldTypeChanger)
+			throws BadBytecode {
+
+		LOGGER.info("Starte Transformation fuer die Methode " + method.getName() + method.getDescriptor());
+
+		if (MethodInfo.nameInit.equals(method.getName())) {
+			List<Instruction> filteredInstructions = instructions.stream()
+					.filter(inst -> Opcode.PUTFIELD == inst.getOpcode()).collect(Collectors.toList());
+
+			List<Instruction> putFieldInstructions = filteredInstructions == null ? Collections.emptyList()
+					: filteredInstructions;
+
+			CodeAttribute codeAttribute = method.getCodeAttribute();
+
+			fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, codeAttribute);
+
+		} else {
+			Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(instructions,
+					Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
+
+			fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
+					method.getCodeAttribute());
+			method.rebuildStackMap(ClassPool.getDefault());
+		}
 	}
 }
