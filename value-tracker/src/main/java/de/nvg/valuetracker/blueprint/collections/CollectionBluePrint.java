@@ -21,7 +21,7 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 	public void addBluePrint(BluePrint bluePrint) {
 		elementBluePrints.add(bluePrint);
 
-		if (elementType == Object.class) {
+		if (elementType != Object.class) {
 			elementType = bluePrint.getReference().getClass();
 		}
 	}

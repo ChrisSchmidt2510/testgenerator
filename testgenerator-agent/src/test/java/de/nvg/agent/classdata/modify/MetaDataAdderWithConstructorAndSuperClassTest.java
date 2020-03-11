@@ -134,13 +134,14 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 
 	private de.nvg.runtime.classdatamodel.ClassData createdClassData() {
 
-		de.nvg.runtime.classdatamodel.FieldData fieldStrasse = new de.nvg.runtime.classdatamodel.FieldData("strasse",
-				"java.lang.String");
-		de.nvg.runtime.classdatamodel.FieldData fieldHausnummer = new de.nvg.runtime.classdatamodel.FieldData(
+		de.nvg.runtime.classdatamodel.FieldData fieldStrasse = new de.nvg.runtime.classdatamodel.FieldData(false,
+				"strasse", "java.lang.String");
+		de.nvg.runtime.classdatamodel.FieldData fieldHausnummer = new de.nvg.runtime.classdatamodel.FieldData(false,
 				"hausnummer", "short");
-		de.nvg.runtime.classdatamodel.FieldData fieldOrt = new de.nvg.runtime.classdatamodel.FieldData("ort",
+		de.nvg.runtime.classdatamodel.FieldData fieldOrt = new de.nvg.runtime.classdatamodel.FieldData(false, "ort",
 				"java.lang.String");
-		de.nvg.runtime.classdatamodel.FieldData fieldPlz = new de.nvg.runtime.classdatamodel.FieldData("plz", "int");
+		de.nvg.runtime.classdatamodel.FieldData fieldPlz = new de.nvg.runtime.classdatamodel.FieldData(false, "plz",
+				"int");
 
 		de.nvg.runtime.classdatamodel.ConstructorData constructor = new de.nvg.runtime.classdatamodel.ConstructorData(
 				false);
@@ -152,10 +153,10 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 		de.nvg.runtime.classdatamodel.ClassData classData = new de.nvg.runtime.classdatamodel.ClassData(
 				"de.nvg.agent.classdata.modify.testclasses.Adresse", constructor);
 
-		classData.addField(fieldStrasse, new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false));
-		classData.addField(fieldHausnummer, new SetterMethodData("setHausnummer", "(S)V", false));
-		classData.addField(fieldOrt, new SetterMethodData("setOrt", "(Ljava/lang/String;)V", false));
-		classData.addField(fieldPlz, new SetterMethodData("setPlz", "(I)V", false));
+		classData.addFieldSetterPair(fieldStrasse, new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false));
+		classData.addFieldSetterPair(fieldHausnummer, new SetterMethodData("setHausnummer", "(S)V", false));
+		classData.addFieldSetterPair(fieldOrt, new SetterMethodData("setOrt", "(Ljava/lang/String;)V", false));
+		classData.addFieldSetterPair(fieldPlz, new SetterMethodData("setPlz", "(I)V", false));
 
 		return classData;
 	}

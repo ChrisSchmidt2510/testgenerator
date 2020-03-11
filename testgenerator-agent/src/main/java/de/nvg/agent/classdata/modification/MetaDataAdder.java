@@ -37,8 +37,10 @@ public class MetaDataAdder {
 	private static final String CLASS_DATA = "Lde/nvg/runtime/classdatamodel/ClassData;";
 	private static final String CLASS_DATA_CONSTRUCTOR = "(Ljava/lang/String;Lde/nvg/runtime/classdatamodel/ConstructorData;)V";
 	private static final String CLASS_DATA_CONSTRUCTOR_WITH_SUPERCLASS = "(Ljava/lang/String;Ljava/util/function/Supplier;Lde/nvg/runtime/classdatamodel/ConstructorData;)V";
+	private static final String CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR = "addFieldSetterPair";
+	private static final String CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR_DESC = "(Lde/nvg/runtime/classdatamodel/FieldData;Lde/nvg/runtime/classdatamodel/SetterMethodData;)V";
 	private static final String CLASS_DATA_METHOD_ADD_FIELD = "addField";
-	private static final String CLASS_DATA_METHOD_ADD_FIELD_DESC = "(Lde/nvg/runtime/classdatamodel/FieldData;Lde/nvg/runtime/classdatamodel/SetterMethodData;)V";
+	private static final String CLASS_DATA_METHOD_ADD_FIELD_DESC = "(Lde/nvg/runtime/classdatamodel/FieldData;)V";
 
 	private static final String CONSTRUCTOR_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/ConstructorData";
 	private static final String CONSTRUCTOR_DATA_CONSTRUCTOR = "(Z)V";
@@ -46,7 +48,7 @@ public class MetaDataAdder {
 	private static final String CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT_DESC = "(ILde/nvg/runtime/classdatamodel/FieldData;)V";
 
 	private static final String FIELD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/FieldData";
-	private static final String FIELD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;)V";
+	private static final String FIELD_DATA_CONSTRUCTOR = "(ZLjava/lang/String;Ljava/lang/String;)V";
 
 	private static final String SETTER_TYPE_CLASSNAME = "de/nvg/runtime/classdatamodel/SetterType";
 	private static final String SETTER_TYPE = "Lde/nvg/runtime/classdatamodel/SetterType;";
@@ -97,6 +99,7 @@ public class MetaDataAdder {
 		for (FieldData field : classData.getFields()) {
 			code.addNew(FIELD_DATA_CLASSNAME);
 			code.add(Opcode.DUP);
+			code.addIconst(field.isPublic() && field.isMutable() ? 1 : 0);
 			code.addLdc(field.getName());
 			code.addLdc(field.getDataType());
 			code.addInvokespecial(FIELD_DATA_CLASSNAME, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
@@ -146,6 +149,12 @@ public class MetaDataAdder {
 				classData.getSuperClass() != null ? CLASS_DATA_CONSTRUCTOR_WITH_SUPERCLASS : CLASS_DATA_CONSTRUCTOR);
 		code.addPutstatic(loadingClass, FIELD_NAME, CLASS_DATA);
 
+		for (Entry<String, Integer> field : localVariableIndex.entrySet()) {
+			code.addGetstatic(loadingClass, FIELD_NAME, CLASS_DATA);
+			code.addAload(field.getValue());
+			code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD, CLASS_DATA_METHOD_ADD_FIELD_DESC);
+		}
+
 		for (Entry<FieldData, List<MethodData>> entry : classData.getFieldsUsedInMethods().entrySet()) {
 			FieldData field = entry.getKey();
 			List<MethodData> methods = entry.getValue();
@@ -179,8 +188,8 @@ public class MetaDataAdder {
 						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
 								SETTER_METHOD_DATA_CONSTRUCTOR);
 					}
-					code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD,
-							CLASS_DATA_METHOD_ADD_FIELD_DESC);
+					code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR,
+							CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR_DESC);
 				}
 			}
 

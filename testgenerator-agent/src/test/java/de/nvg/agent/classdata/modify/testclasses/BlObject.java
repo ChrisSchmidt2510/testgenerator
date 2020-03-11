@@ -18,9 +18,9 @@ public abstract class BlObject {
 
 	static {
 		classData = new ClassData("de.nvg.BlObject", new ConstructorData(true));
-		classData.addField(new FieldData("erdat", "java.time.LocalDate"),
+		classData.addFieldSetterPair(new FieldData(false, "erdat", "java.time.LocalDate"),
 				new SetterMethodData("setErdat", "(Ljava/time/LocalDate;)V", false));
-		classData.addField(new FieldData("ersb", "java.lang.String"),
+		classData.addFieldSetterPair(new FieldData(false, "ersb", "java.lang.String"),
 				new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
 	}
 
@@ -31,12 +31,15 @@ public abstract class BlObject {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof BlObject))
+		}
+		if (!(obj instanceof BlObject)) {
 			return false;
+		}
 		BlObject other = (BlObject) obj;
 		return Objects.equals(aedat, other.aedat) && Objects.equals(aesb, other.aesb)
 				&& Objects.equals(erdat, other.erdat) && Objects.equals(ersb, other.ersb);

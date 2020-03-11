@@ -3,12 +3,22 @@ package de.nvg.runtime.classdatamodel;
 import java.util.Objects;
 
 public class FieldData {
+	private final boolean isPublic;
 	private final String name;
 	private final String descriptor;
 
 	public FieldData(String name, String descriptor) {
+		this(false, name, descriptor);
+	}
+
+	public FieldData(boolean isPublic, String name, String descriptor) {
+		this.isPublic = isPublic;
 		this.name = name;
 		this.descriptor = descriptor;
+	}
+
+	public boolean isPublic() {
+		return isPublic;
 	}
 
 	public String getName() {

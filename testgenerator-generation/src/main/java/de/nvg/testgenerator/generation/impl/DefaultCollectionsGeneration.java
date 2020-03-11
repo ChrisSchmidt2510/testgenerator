@@ -71,6 +71,15 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		}
 	}
 
+	public void addCollectionToObject(Builder code, BasicCollectionBluePrint<?> basicCollectionBP, FieldData field,
+			String objectName) {
+
+		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
+
+		code.addStatement(objectName + "." + field.getName() + "=" + basicCollectionBP.getName());
+
+	}
+
 	@Override
 	public void addFieldToClass(TypeSpec.Builder typeSpec, BasicCollectionBluePrint<?> bluePrint) {
 

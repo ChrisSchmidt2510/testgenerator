@@ -131,20 +131,29 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 	private void addFieldsToObject(CodeBlock.Builder code, ComplexBluePrint bluePrint, ClassData classData,
 			Set<FieldData> calledFields, String objectName, Set<BluePrint> usedBluePrints) {
+
 		if (properties.wasFieldTrackingActivated()) {
+
 			for (FieldData field : calledFields) {
 				LOGGER.info("add Field " + field + " to Object " + objectName);
 
 				BluePrint bpField = bluePrint.getBluePrintForName(field.getName());
 
-				SetterMethodData setter = classData.getSetterMethodData(field);
+				FieldData originalField = classData.getFieldInHierachie(field);
 
-				if (setter == null && classData.getSuperclass() != null) {
-					setter = classData.getSuperclass().getSetterMethodData(field);
+				if (originalField.isPublic()) {
+					addPublicFieldToObject(code, bpField, originalField, objectName);
+				} else {
+					SetterMethodData setter = classData.getSetterInHierarchie(field);
+
+					if (setter == null && classData.getSuperclass() != null) {
+						setter = classData.getSuperclass().getSetterInHierarchie(field);
+					}
+
+					addFieldToObject(code, bpField, setter, objectName);
 				}
-
-				addFieldToObject(code, bpField, setter, objectName);
 			}
+
 		} else {
 			for (BluePrint child : bluePrint.getChildBluePrints()) {
 
@@ -153,15 +162,36 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 							? child.castToCollectionBluePrint().getInterfaceClass()
 							: child.getReference().getClass();
 
-					SetterMethodData setter = classData.getSetterMethodData(child.getName(), descriptor);
+					FieldData field = classData.getFieldInHierarchie(child.getName(), descriptor);
 
-					if (setter == null && classData.getSuperclass() != null) {
-						setter = classData.getSuperclass().getSetterMethodData(child.getName(), descriptor);
+					LOGGER.info("add Field " + field + " to Object " + objectName);
+
+					if (field.isPublic()) {
+						addPublicFieldToObject(code, child, field, objectName);
+
+					} else {
+						SetterMethodData setter = classData.getSetterInHierarchie(field);
+						addFieldToObject(code, child, setter, objectName);
 					}
-
-					addFieldToObject(code, child, setter, objectName);
 				}
 			}
+		}
+	}
+
+	private void addPublicFieldToObject(CodeBlock.Builder code, BluePrint bluePrint, FieldData field,
+			String objectName) {
+		if (bluePrint.isComplexBluePrint()) {
+			code.addStatement(objectName + "." + field.getName() + "=" + bluePrint.getName());
+
+		} else if (bluePrint.isSimpleBluePrint()) {
+			SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
+
+			code.addStatement(objectName + "." + field.getName() + "=" + simpleBluePrint.valueCreation(),
+					simpleBluePrint.getReferenceClasses().toArray());
+
+		} else if (bluePrint.isCollectionBluePrint()) {
+			collectionsGeneration.addCollectionToObject(code, bluePrint.castToCollectionBluePrint(), //
+					field, objectName);
 		}
 	}
 
@@ -222,9 +252,9 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 					SetterMethodData setter = null;
 					if (properties.wasFieldTrackingActivated()) {
-						setter = classData.getSetterMethodData(calledField.get());
+						setter = classData.getSetterInHierarchie(calledField.get());
 					} else {
-						setter = classData.getSetterMethodData(
+						setter = classData.getSetterInHierarchie(
 								new FieldData(collection.getName(), collection.getInterfaceClass().getName()));
 					}
 

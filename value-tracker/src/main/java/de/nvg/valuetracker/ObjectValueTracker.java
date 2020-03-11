@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import de.nvg.proxy.Proxy;
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
 import de.nvg.proxy.impl.FloatProxy;
@@ -79,7 +80,8 @@ public class ObjectValueTracker {
 		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum()) {
 			return getBluePrintForReference(proxyValue, () -> SimpleBluePrintFactory.of(name, proxyValue));
 		} else if (isCollection(proxyValue)) {
-			return getBluePrintForReference(proxyValue, () -> trackValuesFromCollections(proxyValue, name));
+			return getBluePrintForReference(proxyValue,
+					() -> trackValuesFromCollections(proxyValue, name, proxyValue.getClass()));
 		} else {
 			return getBluePrintForReference(proxyValue, () -> trackValuesFromComplexTypes(proxyValue, name));
 		}
@@ -110,7 +112,7 @@ public class ObjectValueTracker {
 
 						LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
-						Class<?> fieldType = fieldValue.getClass();
+						Class<?> fieldType = getType(field, value);
 
 						BluePrint elementBluePrint;
 						if (DIRECT_OUTPUT_CLASSES.contains(fieldType) || fieldType.isEnum()) {
@@ -118,8 +120,9 @@ public class ObjectValueTracker {
 									() -> SimpleBluePrintFactory.of(field.getName(), fieldValue));
 
 						} else if (isCollection(fieldValue)) {
+							System.out.println("FieldType: " + fieldValue.getClass());
 							elementBluePrint = getBluePrintForReference(value,
-									() -> trackValuesFromCollections(fieldValue, field.getName()));
+									() -> trackValuesFromCollections(fieldValue, field.getName(), fieldType));
 
 						} else {
 							elementBluePrint = getBluePrintForReference(value,
@@ -136,19 +139,19 @@ public class ObjectValueTracker {
 		}
 	}
 
-	private BluePrint trackValuesFromCollections(Object object, String name) {
+	private BluePrint trackValuesFromCollections(Object object, String name, Class<?> type) {
 
 		CollectionBluePrint bluePrint = null;
 
-		if (object instanceof List) {
+		if (List.class.equals(type)) {
 			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, List.class);
 
-		} else if (object instanceof Set) {
+		} else if (Set.class.equals(type)) {
 			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Set.class);
 
-		} else if (object instanceof Queue) {
+		} else if (Queue.class.equals(type)) {
 			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Queue.class);
-		} else if (object instanceof Collection) {
+		} else if (Collection.class.equals(type)) {
 			bluePrint = new CollectionBluePrint(name, (Collection<?>) object, Collection.class);
 		}
 
@@ -157,7 +160,7 @@ public class ObjectValueTracker {
 			return bluePrint;
 		}
 
-		if (object instanceof Map) {
+		if (Map.class.equals(type)) {
 			return trackValuesMap((Map<?, ?>) object, name);
 		}
 
@@ -259,6 +262,15 @@ public class ObjectValueTracker {
 		}
 
 		return value;
+	}
+
+	private static Class<?> getType(Field field, Object value)
+			throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+		if (field.getType().equals(ReferenceProxy.class)) {
+			return Class.forName(((Proxy) field.get(value)).getDataType());
+		}
+
+		return field.getType();
 	}
 
 	private static boolean isCollection(Object value) {
