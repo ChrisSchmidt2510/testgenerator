@@ -61,6 +61,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		FieldData bezeichner = new FieldData.Builder().withName("bezeichner").withDataType("java.lang.String").build();
 
 		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.Sparte");
+		classData.setSuperClass(new ClassData("de.nvg.agent.classdata.modify.testclasses.BlObject"));
 		classData.addFields(Arrays.asList(sparteID, bezeichner));
 
 		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);

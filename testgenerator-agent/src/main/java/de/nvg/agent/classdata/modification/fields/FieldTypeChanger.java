@@ -489,9 +489,9 @@ public class FieldTypeChanger {
 	}
 
 	private boolean isInstructionFromClassOrSuperClass(Instruction inst) {
-		return classData.getName().equals(inst.getClassRef()) || classData.getSuperClass() != null
-				? classData.getSuperClass().getName().equals(inst.getClassRef())
-				: JavaTypes.OBJECT.equals(inst.getClassRef());
+		return classData.getName().equals(inst.getClassRef())
+				|| (classData.getSuperClass() != null ? classData.getSuperClass().getName().equals(inst.getClassRef())
+						: JavaTypes.OBJECT.equals(inst.getClassRef()));
 	}
 
 }
