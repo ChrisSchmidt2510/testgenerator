@@ -79,7 +79,7 @@ public class ObjectValueTracker {
 
 		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum()) {
 			return getBluePrintForReference(proxyValue, () -> SimpleBluePrintFactory.of(name, proxyValue));
-		} else if (isCollection(proxyValue)) {
+		} else if (isCollection(proxyValue) && isCollectionNotEmpty(value)) {
 			return getBluePrintForReference(proxyValue,
 					() -> trackValuesFromCollections(proxyValue, name, proxyValue.getClass()));
 		} else {
@@ -114,22 +114,25 @@ public class ObjectValueTracker {
 
 						Class<?> fieldType = getType(field, value);
 
-						BluePrint elementBluePrint;
+						BluePrint elementBluePrint = null;
 						if (DIRECT_OUTPUT_CLASSES.contains(fieldType) || fieldType.isEnum()) {
 							elementBluePrint = getBluePrintForReference(value,
 									() -> SimpleBluePrintFactory.of(field.getName(), fieldValue));
 
 						} else if (isCollection(fieldValue)) {
-							System.out.println("FieldType: " + fieldValue.getClass());
-							elementBluePrint = getBluePrintForReference(value,
-									() -> trackValuesFromCollections(fieldValue, field.getName(), fieldType));
+							if (isCollectionNotEmpty(fieldValue)) {
+								elementBluePrint = getBluePrintForReference(value,
+										() -> trackValuesFromCollections(fieldValue, field.getName(), fieldType));
+							}
 
 						} else {
 							elementBluePrint = getBluePrintForReference(value,
 									() -> trackValues(fieldValue, field.getName()));
 						}
 
-						complexBluePrint.addBluePrint(elementBluePrint);
+						if (elementBluePrint != null) {
+							complexBluePrint.addBluePrint(elementBluePrint);
+						}
 					}
 				}
 			} catch (Throwable e) {
@@ -276,6 +279,16 @@ public class ObjectValueTracker {
 	private static boolean isCollection(Object value) {
 		return value instanceof List<?> || value instanceof Set<?> || value instanceof Map<?, ?>
 				|| value instanceof Queue<?>;
+	}
+
+	private static boolean isCollectionNotEmpty(Object value) {
+		if (value instanceof Collection<?>) {
+			return !((Collection<?>) value).isEmpty();
+		} else if (value instanceof Map<?, ?>) {
+			return !((Map<?, ?>) value).isEmpty();
+		}
+
+		throw new IllegalArgumentException(value + "isnt a Collection");
 	}
 
 	private static boolean isTestgeneratorGeneratedField(Object value, String fieldName) {
