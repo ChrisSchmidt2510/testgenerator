@@ -20,8 +20,9 @@ public class NormalSetterAnalyser implements MethodAnalysis {
 
 				List<String> parameters = AnalysisHelper.getMethodParams(descriptor);
 
-				if (AnalysisHelper.isDescriptorEqual(instructions, index, instruction.getType(), parameters,
-						new Wrapper<>()) && instructions.size() < 25) {
+				if (!parameters.isEmpty() && instructions.size() < 25 && //
+						AnalysisHelper.isDescriptorEqual(instructions, index, //
+								instruction.getType(), parameters, new Wrapper<>())) {
 
 					FieldData field = new FieldData.Builder().withName(instruction.getName())
 							.withDataType(Descriptor.toClassName(instruction.getType())).build();
