@@ -4,24 +4,6 @@ public class Adresse {
 
 	public static final int KEY = 5;
 
-//	private static ClassData classData;
-//
-//	static {
-//		FieldData strasse = new FieldData("strasse", "java.lang.String");
-//		FieldData hausnummer = new FieldData("hausnummer", "S");
-//		FieldData ort = new FieldData("ort", "java.lang.String");
-//		FieldData plz = new FieldData("plz", "I");
-//
-//		ConstructorData constructorData = new ConstructorData(true);
-//		constructorData.addElement(0, strasse);
-//		constructorData.addElement(1, hausnummer);
-//		constructorData.addElement(2, ort);
-//		constructorData.addElement(3, plz);
-//
-//		classData = new ClassData("de.nvg.javaagent.classdata.modify.testclasses.Adresse", constructorData);
-//		classData.addField(strasse, new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false));
-//	}
-
 	private String strasse;
 	private short hausnummer;
 	private String ort;
@@ -40,27 +22,36 @@ public class Adresse {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Adresse other = (Adresse) obj;
-		if (hausnummer != other.hausnummer)
+		if (hausnummer != other.hausnummer) {
 			return false;
+		}
 		if (ort == null) {
-			if (other.ort != null)
+			if (other.ort != null) {
 				return false;
-		} else if (!ort.equals(other.ort))
+			}
+		} else if (!ort.equals(other.ort)) {
 			return false;
-		if (plz != other.plz)
+		}
+		if (plz != other.plz) {
 			return false;
+		}
 		if (strasse == null) {
-			if (other.strasse != null)
+			if (other.strasse != null) {
 				return false;
-		} else if (!strasse.equals(other.strasse))
+			}
+		} else if (!strasse.equals(other.strasse)) {
 			return false;
+		}
 		return true;
 	}
 
