@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.MethodAnalyser;
+import de.nvg.agent.classdata.analysis.SignatureParser;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
@@ -148,7 +149,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						.isMutable(!Modifier.isFinal(field.getAccessFlags()))
 						.isStatic(Modifier.isStatic(field.getAccessFlags()))
 						.isPublic(Modifier.isPublic(field.getAccessFlags()))
-						.withSignature(signature != null ? signature.getSignature() : null).build();
+						.withSignature(signature != null ? SignatureParser.parse(signature.getSignature()) : null)
+						.build();
 
 				LOGGER.info("added Field: " + fieldData);
 

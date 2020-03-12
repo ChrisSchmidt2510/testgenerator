@@ -3,7 +3,6 @@ package de.nvg.agent.classdata.analysis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
@@ -72,20 +71,6 @@ public final class AnalysisHelper {
 			return fieldDescriptor.equals(methodParameters.get(instruction.getLocalVariableIndex() - 1));
 		}
 		return false;
-	}
-
-	static List<String> getGenericTypesFromSignature(String signature) {
-		String genericType = signature.substring(signature.indexOf("<") + 1, signature.indexOf(">"));
-
-		StringTokenizer tokenizer = new StringTokenizer(genericType, ";");
-
-		List<String> genericTypes = new ArrayList<>(tokenizer.countTokens());
-
-		while (tokenizer.hasMoreTokens()) {
-			genericTypes.add(tokenizer.nextToken() + ";");
-		}
-
-		return Collections.unmodifiableList(genericTypes);
 	}
 
 	static FieldData getField(List<FieldData> fields, String name, String type) {

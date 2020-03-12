@@ -9,12 +9,12 @@ public class FieldData {
 	private final boolean isStatic;
 	private final boolean isPublic;
 	/** Is only used for genericTypes */
-	private final String signature;
+	private final SignatureData signature;
 
 	private String comment;
 
 	private FieldData(String dataType, String name, boolean mutable, boolean isStatic, boolean isPublic,
-			String signature) {
+			SignatureData signature) {
 		this.dataType = dataType;
 		this.name = name;
 		this.mutable = mutable;
@@ -43,7 +43,7 @@ public class FieldData {
 		return isPublic;
 	}
 
-	public String getSignature() {
+	public SignatureData getSignature() {
 		return signature;
 	}
 
@@ -85,7 +85,7 @@ public class FieldData {
 	public static class Builder {
 		private String name;
 		private String dataType;
-		private String signature;
+		private SignatureData signature;
 		private boolean mutable;
 		private boolean isStatic;
 		private boolean isPublic;
@@ -100,7 +100,7 @@ public class FieldData {
 			return this;
 		}
 
-		public Builder withSignature(String signature) {
+		public Builder withSignature(SignatureData signature) {
 			this.signature = signature;
 			return this;
 		}

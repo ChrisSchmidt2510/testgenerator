@@ -1,11 +1,13 @@
 package de.nvg.agent.classdata.analysis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
+import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;
 import javassist.bytecode.Descriptor;
@@ -47,7 +49,9 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 
 						List<String> params = AnalysisHelper.getMethodParams(descriptor);
 
-						List<String> genericTypes = AnalysisHelper.getGenericTypesFromSignature(field.getSignature());
+						List<String> genericTypes = field.getSignature() != null ? field.getSignature().getSubTypes()
+								.stream().map(SignatureData::getType).collect(Collectors.toList())
+								: Collections.emptyList();
 
 						if (checkParameterAndMethod(params, genericTypes, index)) {
 							fieldWrapper.setValue(field);
