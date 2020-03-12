@@ -6,6 +6,7 @@ public class FieldData {
 	private final boolean isPublic;
 	private final String name;
 	private final String descriptor;
+	private SignatureData signature;
 
 	public FieldData(String name, String descriptor) {
 		this(false, name, descriptor);
@@ -15,6 +16,15 @@ public class FieldData {
 		this.isPublic = isPublic;
 		this.name = name;
 		this.descriptor = descriptor;
+	}
+
+	public void setSignature(SignatureData signature) {
+		System.out.println("Signature: " + signature);
+		this.signature = signature;
+	}
+
+	public SignatureData getSignature() {
+		return signature;
 	}
 
 	public boolean isPublic() {

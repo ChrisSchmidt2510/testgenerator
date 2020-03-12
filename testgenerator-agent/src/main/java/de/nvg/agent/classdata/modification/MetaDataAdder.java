@@ -1,5 +1,6 @@
 package de.nvg.agent.classdata.modification;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
+import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.agent.classdata.modification.indy.InvocationType;
 import de.nvg.agent.classdata.modification.indy.SupplierBootstrapMethodCreator;
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
@@ -29,9 +31,6 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
 public class MetaDataAdder {
-	private final ConstPool constantPool;
-	private final CtClass loadingClass;
-	private final ClassData classData;
 
 	private static final String CLASS_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/ClassData";
 	private static final String CLASS_DATA = "Lde/nvg/runtime/classdatamodel/ClassData;";
@@ -49,6 +48,13 @@ public class MetaDataAdder {
 
 	private static final String FIELD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/FieldData";
 	private static final String FIELD_DATA_CONSTRUCTOR = "(ZLjava/lang/String;Ljava/lang/String;)V";
+	private static final String FIELD_DATA_METHOD_SET_SIGNATURE = "setSignature";
+	private static final String FIELD_DATA_METHOD_SET_SIGNATURE_DESC = "(Lde/nvg/runtime/classdatamodel/SignatureData;)V";
+
+	private static final String SIGNATURE_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/SignatureData";
+	private static final String SIGNATURE_DATA_CONSTRUCTOR = "(Ljava/lang/Class;)V";
+	private static final String SIGNATURE_DATA_METHOD_ADD_SUBTYPE = "addSubType";
+	private static final String SIGNATURE_DATA_METHOD_ADD_SUBTYPE_DESC = "(Lde/nvg/runtime/classdatamodel/SignatureData;)V";
 
 	private static final String SETTER_TYPE_CLASSNAME = "de/nvg/runtime/classdatamodel/SetterType";
 	private static final String SETTER_TYPE = "Lde/nvg/runtime/classdatamodel/SetterType;";
@@ -73,6 +79,13 @@ public class MetaDataAdder {
 
 	private static final String FIELD_NAME = "classData";
 
+	private final ConstPool constantPool;
+	private final CtClass loadingClass;
+	private final ClassData classData;
+
+	private final Map<String, Integer> localVariableIndex = new HashMap<>();
+	private int localVariableCounter = 0;
+
 	public MetaDataAdder(ConstPool constantPool, CtClass loadingClass, ClassData classData) {
 		this.constantPool = constantPool;
 		this.loadingClass = loadingClass;
@@ -92,45 +105,8 @@ public class MetaDataAdder {
 
 		Bytecode code = new Bytecode(constantPool);
 
-		int localVariableCounter = 0;
-
-		Map<String, Integer> localVariableIndex = new HashMap<>();
-
-		for (FieldData field : classData.getFields()) {
-			code.addNew(FIELD_DATA_CLASSNAME);
-			code.add(Opcode.DUP);
-			code.addIconst(field.isPublic() && field.isMutable() ? 1 : 0);
-			code.addLdc(field.getName());
-			code.addLdc(field.getDataType());
-			code.addInvokespecial(FIELD_DATA_CLASSNAME, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
-
-			localVariableIndex.put(field.getName(), localVariableCounter);
-			code.addAstore(localVariableCounter++);
-		}
-
-		boolean defaultConstructor = classData.hasDefaultConstructor();
-
-		code.addNew(CONSTRUCTOR_DATA_CLASSNAME);
-		code.add(Opcode.DUP);
-		code.addIconst(defaultConstructor ? 1 : 0);
-		code.addInvokespecial(CONSTRUCTOR_DATA_CLASSNAME, MethodInfo.nameInit, CONSTRUCTOR_DATA_CONSTRUCTOR);
-		code.addAstore(localVariableCounter++);
-
-		if (!defaultConstructor && classData.getConstructor() != null) {
-			for (Entry<Integer, FieldData> entry : classData.getConstructor().getConstructorElements().entrySet()) {
-				Integer argumentIndex = entry.getKey();
-				FieldData field = entry.getValue();
-
-				// load Local Variable ConstructorData
-				code.addAload(localVariableCounter - 1);
-
-				code.addIconst(argumentIndex);
-				code.addAload(localVariableIndex.get(field.getName()));
-				code.addInvokevirtual(CONSTRUCTOR_DATA_CLASSNAME, CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT,
-						CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT_DESC);
-			}
-
-		}
+		addFields(code);
+		addConstructor(code);
 
 		code.addNew(CLASS_DATA_CLASSNAME);
 		code.add(Opcode.DUP);
@@ -155,6 +131,99 @@ public class MetaDataAdder {
 			code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD, CLASS_DATA_METHOD_ADD_FIELD_DESC);
 		}
 
+		addSetter(code);
+
+		if (returnInstruction.isPresent()) {
+			codeAttribute.iterator().insertEx(returnInstruction.get().getCodeArrayIndex(), code.get());
+		} else {
+			code.add(Opcode.RETURN);
+			codeAttribute.iterator().append(code.get());
+		}
+
+		codeAttribute.setMaxLocals(localVariableCounter);
+		codeAttribute.computeMaxStack();
+	}
+
+	private void addFields(Bytecode code) {
+
+		for (FieldData field : classData.getFields()) {
+			code.addNew(FIELD_DATA_CLASSNAME);
+			code.add(Opcode.DUP);
+			code.addIconst(field.isPublic() && field.isMutable() ? 1 : 0);
+			code.addLdc(field.getName());
+			code.addLdc(field.getDataType());
+			code.addInvokespecial(FIELD_DATA_CLASSNAME, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
+
+			localVariableIndex.put(field.getName(), localVariableCounter);
+
+			int currentFieldIndex = localVariableCounter;
+			code.addAstore(localVariableCounter++);
+
+			if (field.getSignature() != null) {
+				code.addAload(currentFieldIndex);
+
+				int localSignatureIndex = addSignature(code, field.getSignature());
+				code.addAload(localSignatureIndex);
+				code.addInvokevirtual(FIELD_DATA_CLASSNAME, FIELD_DATA_METHOD_SET_SIGNATURE,
+						FIELD_DATA_METHOD_SET_SIGNATURE_DESC);
+
+			}
+
+		}
+	}
+
+	private int addSignature(Bytecode code, SignatureData signature) {
+		List<Integer> localVariableCounters = new ArrayList<>();
+
+		for (SignatureData subSignature : signature.getSubTypes()) {
+			localVariableCounters.add(addSignature(code, subSignature));
+		}
+
+		code.addNew(SIGNATURE_DATA_CLASSNAME);
+		code.add(Opcode.DUP);
+		code.addLdc(constantPool.addClassInfo(Descriptor.toJvmName(signature.getType())));
+		code.addInvokespecial(SIGNATURE_DATA_CLASSNAME, MethodInfo.nameInit, SIGNATURE_DATA_CONSTRUCTOR);
+
+		int currentSignature = localVariableCounter;
+		code.addAstore(localVariableCounter++);
+
+		for (Integer localVariable : localVariableCounters) {
+			code.addAload(currentSignature);
+			code.addAload(localVariable);
+			code.addInvokevirtual(SIGNATURE_DATA_CLASSNAME, SIGNATURE_DATA_METHOD_ADD_SUBTYPE,
+					SIGNATURE_DATA_METHOD_ADD_SUBTYPE_DESC);
+		}
+
+		return currentSignature;
+	}
+
+	private void addConstructor(Bytecode code) {
+		boolean defaultConstructor = classData.hasDefaultConstructor();
+
+		code.addNew(CONSTRUCTOR_DATA_CLASSNAME);
+		code.add(Opcode.DUP);
+		code.addIconst(defaultConstructor ? 1 : 0);
+		code.addInvokespecial(CONSTRUCTOR_DATA_CLASSNAME, MethodInfo.nameInit, CONSTRUCTOR_DATA_CONSTRUCTOR);
+		code.addAstore(localVariableCounter++);
+
+		if (!defaultConstructor && classData.getConstructor() != null) {
+			for (Entry<Integer, FieldData> entry : classData.getConstructor().getConstructorElements().entrySet()) {
+				Integer argumentIndex = entry.getKey();
+				FieldData field = entry.getValue();
+
+				// load Local Variable ConstructorData
+				code.addAload(localVariableCounter - 1);
+
+				code.addIconst(argumentIndex);
+				code.addAload(localVariableIndex.get(field.getName()));
+				code.addInvokevirtual(CONSTRUCTOR_DATA_CLASSNAME, CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT,
+						CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT_DESC);
+			}
+
+		}
+	}
+
+	private void addSetter(Bytecode code) {
 		for (Entry<FieldData, List<MethodData>> entry : classData.getFieldsUsedInMethods().entrySet()) {
 			FieldData field = entry.getKey();
 			List<MethodData> methods = entry.getValue();
@@ -194,16 +263,6 @@ public class MetaDataAdder {
 			}
 
 		}
-
-		if (returnInstruction.isPresent()) {
-			codeAttribute.iterator().insertEx(returnInstruction.get().getCodeArrayIndex(), code.get());
-		} else {
-			code.add(Opcode.RETURN);
-			codeAttribute.iterator().append(code.get());
-		}
-
-		codeAttribute.setMaxLocals(localVariableCounter);
-		codeAttribute.computeMaxStack();
 	}
 
 	private int createLambdaForSuperclass(ClassFile classFile) throws BadBytecode, DuplicateMemberException {
