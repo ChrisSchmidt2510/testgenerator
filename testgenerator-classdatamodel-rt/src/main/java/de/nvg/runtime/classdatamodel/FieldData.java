@@ -19,7 +19,6 @@ public class FieldData {
 	}
 
 	public void setSignature(SignatureData signature) {
-		System.out.println("Signature: " + signature);
 		this.signature = signature;
 	}
 
