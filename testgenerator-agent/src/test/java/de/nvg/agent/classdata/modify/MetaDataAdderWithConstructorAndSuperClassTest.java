@@ -20,6 +20,7 @@ import de.nvg.agent.classdata.model.MethodType;
 import de.nvg.agent.classdata.modification.MetaDataAdder;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.testgenerator.MethodHandles;
+import de.nvg.testgenerator.TestgeneratorConstants;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -95,7 +96,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 		Class<?> adresseClazz = classPool.toClass(adresse);
 
 		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				"classData");
+				TestgeneratorConstants.CLASS_DATA);
 
 		de.nvg.runtime.classdatamodel.ClassData superclass = runtimeClassData.getSuperclass();
 

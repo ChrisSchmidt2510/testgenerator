@@ -17,6 +17,7 @@ import de.nvg.runtime.classdatamodel.ConstructorData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SetterType;
+import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.logging.LogManager;
@@ -100,8 +101,9 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 					types.addAll(simpleBluePrint.getReferenceClasses());
 				} else if (constructorFieldBp.isCollectionBluePrint()) {
-					collectionsGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(), false,
-							false);
+
+					collectionsGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
+							constructorField.getValue().getSignature(), false, false);
 
 					statement.append(index == constructorFields.size() ? constructorFieldBp.getName() + ")"
 							: constructorFieldBp.getName() + ",");
@@ -251,14 +253,20 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					BasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
 
 					SetterMethodData setter = null;
+					SignatureData signature = null;
 					if (properties.wasFieldTrackingActivated()) {
-						setter = classData.getSetterInHierarchie(calledField.get());
+						FieldData field = classData.getFieldInHierachie(calledField.get());
+						signature = field.getSignature();
+						setter = classData.getSetterInHierarchie(field);
+
 					} else {
-						setter = classData.getSetterInHierarchie(
-								new FieldData(collection.getName(), collection.getInterfaceClass().getName()));
+						FieldData field = classData.getFieldInHierarchie(collection.getName(),
+								collection.getInterfaceClass());
+						signature = field.getSignature();
+						setter = classData.getSetterInHierarchie(field);
 					}
 
-					collectionsGeneration.createCollection(code, collection,
+					collectionsGeneration.createCollection(code, collection, signature,
 							setter != null ? SetterType.COLLECTION_SETTER == setter.getType() : false, false);
 				}
 			}

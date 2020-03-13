@@ -104,8 +104,8 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 			} else if (methodParameter.isCollectionBluePrint()) {
 				BasicCollectionBluePrint<?> collectionBluePrint = methodParameter.castToCollectionBluePrint();
 
-				collectionsGeneration.addFieldToClass(typeSpec, collectionBluePrint);
-				collectionsGeneration.createCollection(code, collectionBluePrint, false, true);
+				collectionsGeneration.addFieldToClass(typeSpec, collectionBluePrint, null);
+				collectionsGeneration.createCollection(code, collectionBluePrint, null, false, true);
 			}
 		}
 

@@ -1,12 +1,14 @@
 package de.nvg.agent.classdata.modify.testclasses;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.ConstructorData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
+import de.nvg.runtime.classdatamodel.SignatureData;
 
 public abstract class BlObject {
 	private LocalDate erdat;
@@ -14,14 +16,17 @@ public abstract class BlObject {
 	private LocalDate aedat;
 	private String aesb;
 
-	private static ClassData classData;
+	private static ClassData testgenerator$classData;
 
 	static {
-		classData = new ClassData("de.nvg.BlObject", new ConstructorData(true));
-		classData.addFieldSetterPair(new FieldData(false, "erdat", "java.time.LocalDate"),
+		testgenerator$classData = new ClassData("de.nvg.BlObject", new ConstructorData(true));
+		testgenerator$classData.addFieldSetterPair(new FieldData(false, "erdat", "java.time.LocalDate"),
 				new SetterMethodData("setErdat", "(Ljava/time/LocalDate;)V", false));
-		classData.addFieldSetterPair(new FieldData(false, "ersb", "java.lang.String"),
-				new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
+
+		FieldData ersb = new FieldData(false, "ersb", "java.lang.String");
+		SignatureData signature = new SignatureData(List.class);
+		signature.addSubType(new SignatureData(LocalDate.class));
+		testgenerator$classData.addFieldSetterPair(ersb, new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
 	}
 
 	@Override

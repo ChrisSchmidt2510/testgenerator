@@ -8,14 +8,17 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SetterType;
+import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.logging.LogManager;
@@ -41,17 +44,19 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void createCollection(Builder code, BasicCollectionBluePrint<?> basicCollectionBP,
-			boolean onlyCreateCollectionElements, boolean isField) {
+	public void createCollection(Builder code, BasicCollectionBluePrint<?> basicCollectionBP, //
+			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField) {
 
 		LOGGER.info("starting generation of Collection :" + basicCollectionBP);
 
 		if (basicCollectionBP.isNotBuild()) {
 			if (basicCollectionBP instanceof CollectionBluePrint) {
-				createCollection(code, (CollectionBluePrint) basicCollectionBP, onlyCreateCollectionElements, isField);
+				createCollection(code, (CollectionBluePrint) basicCollectionBP, signature, //
+						onlyCreateCollectionElements, isField);
 
 			} else if (basicCollectionBP instanceof MapBluePrint) {
-				createMap(code, (MapBluePrint) basicCollectionBP, onlyCreateCollectionElements, isField);
+				createMap(code, (MapBluePrint) basicCollectionBP, signature, //
+						onlyCreateCollectionElements, isField);
 			}
 		}
 
@@ -82,28 +87,39 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void addFieldToClass(TypeSpec.Builder typeSpec, BasicCollectionBluePrint<?> bluePrint) {
+	public void addFieldToClass(TypeSpec.Builder typeSpec, BasicCollectionBluePrint<?> bluePrint,
+			SignatureData signature) {
 
 		if (bluePrint instanceof CollectionBluePrint) {
-			addFieldToClass(typeSpec, (CollectionBluePrint) bluePrint);
+			addFieldToClass(typeSpec, (CollectionBluePrint) bluePrint, signature);
 
 		} else if (bluePrint instanceof MapBluePrint) {
-			addFieldToClass(typeSpec, (MapBluePrint) bluePrint);
+			addFieldToClass(typeSpec, (MapBluePrint) bluePrint, signature);
 		}
 	}
 
-	private void addFieldToClass(TypeSpec.Builder typeSpec, CollectionBluePrint collection) {
-		ParameterizedTypeName type = ParameterizedTypeName.get(collection.getInterfaceClass(),
-				collection.getElementClass());
+	private void addFieldToClass(TypeSpec.Builder typeSpec, CollectionBluePrint collection, SignatureData signature) {
+		TypeName collectionType;
 
-		typeSpec.addField(type, collection.getName(), Modifier.PRIVATE);
+		if (signature != null) {
+			collectionType = getParameterizedTypeName(signature);
+		} else {
+			collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
+		}
+
+		typeSpec.addField(collectionType, collection.getName(), Modifier.PRIVATE);
 	}
 
-	private void addFieldToClass(TypeSpec.Builder typeSpec, MapBluePrint map) {
-		ParameterizedTypeName type = ParameterizedTypeName.get(map.getInterfaceClass(), map.getKeyType(),
-				map.getValueType());
+	private void addFieldToClass(TypeSpec.Builder typeSpec, MapBluePrint map, SignatureData signature) {
+		TypeName mapType;
 
-		typeSpec.addField(type, map.getName(), Modifier.PRIVATE);
+		if (signature != null) {
+			mapType = getParameterizedTypeName(signature);
+		} else {
+			mapType = ParameterizedTypeName.get(map.getInterfaceClass(), Object.class, Object.class);
+		}
+
+		typeSpec.addField(mapType, map.getName(), Modifier.PRIVATE);
 	}
 
 	private void addCollectionToObject(Builder code, CollectionBluePrint collection, SetterMethodData setter,
@@ -148,20 +164,28 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		}
 	}
 
-	private void createCollection(Builder code, CollectionBluePrint collection, boolean onlyCreateCollectionElements,
-			boolean isField) {
+	private void createCollection(Builder code, CollectionBluePrint collection, SignatureData signature,
+			boolean onlyCreateCollectionElements, boolean isField) {
 		LOGGER.info("generating Collection for BluePrint: " + collection.getName());
 
+		SignatureData genericType = signature != null ? signature.getSubTypes().get(0) : null;
+
 		for (BluePrint bluePrint : collection.getBluePrints()) {
-			createComplexCollectionElement(code, bluePrint);
+			createComplexCollectionElement(code, bluePrint, //
+					genericType.isSimpleSignature() ? null : genericType);
 		}
 
 		if (!onlyCreateCollectionElements) {
 			if (isField) {
 				code.addStatement(collection.getName() + " = new $T<>()", collection.getImplementationClass());
 			} else {
-				ParameterizedTypeName collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(),
-						collection.getElementClass());
+
+				TypeName collectionType;
+				if (signature != null) {
+					collectionType = getParameterizedTypeName(signature);
+				} else {
+					collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
+				}
 
 				code.addStatement("$T " + collection.getName() + " = new $T<>()", collectionType,
 						collection.getImplementationClass());
@@ -183,10 +207,18 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		}
 	}
 
-	private void createMap(Builder code, MapBluePrint map, boolean onlyCreateCollectionElements, boolean isField) {
+	private void createMap(Builder code, MapBluePrint map, SignatureData signature,
+			boolean onlyCreateCollectionElements, boolean isField) {
+
 		for (Entry<BluePrint, BluePrint> pair : map.getBluePrints()) {
-			createComplexCollectionElement(code, pair.getKey());
-			createComplexCollectionElement(code, pair.getValue());
+			createComplexCollectionElement(code, pair.getKey(),
+					signature != null && !signature.getSubTypes().get(0).isSimpleSignature()
+							? signature.getSubTypes().get(0)
+							: null);
+			createComplexCollectionElement(code, pair.getValue(),
+					signature != null && !signature.getSubTypes().get(1).isSimpleSignature()
+							? signature.getSubTypes().get(1)
+							: null);
 		}
 
 		if (!onlyCreateCollectionElements) {
@@ -194,8 +226,13 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 			if (isField) {
 				code.addStatement(map.getName() + " = new $T<>()", map.getImplementationClass());
 			} else {
-				ParameterizedTypeName mapType = ParameterizedTypeName.get(Map.class, map.getKeyType(),
-						map.getValueType());
+				TypeName mapType;
+
+				if (signature != null) {
+					mapType = getParameterizedTypeName(signature);
+				} else {
+					mapType = ParameterizedTypeName.get(Map.class, Object.class, Object.class);
+				}
 
 				code.addStatement("$T " + map.getName() + " = new $T<>()", mapType, map.getImplementationClass());
 			}
@@ -213,6 +250,24 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 
 			code.add("\n");
 			map.setBuild();
+		}
+	}
+
+	TypeName getParameterizedTypeName(SignatureData signature) {
+
+		if (signature.isSimpleSignature()) {
+			return TypeName.get(signature.getType());
+
+		} else {
+			TypeName[] subTypes = new TypeName[signature.getSubTypes().size()];
+
+			for (int i = 0; i < signature.getSubTypes().size(); i++) {
+				SignatureData subSignature = signature.getSubTypes().get(i);
+
+				subTypes[i] = getParameterizedTypeName(subSignature);
+			}
+
+			return ParameterizedTypeName.get(ClassName.get(signature.getType()), subTypes);
 		}
 	}
 
@@ -234,7 +289,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		throw new IllegalArgumentException(bluePrint + "is not a valid BluePrinttype");
 	}
 
-	private void createComplexCollectionElement(Builder code, BluePrint bluePrint) {
+	private void createComplexCollectionElement(Builder code, BluePrint bluePrint, SignatureData signature) {
 		if (bluePrint.isComplexBluePrint() && bluePrint.isNotBuild()) {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
 
@@ -246,7 +301,8 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
 
 		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild()) {
-			createCollection(code, bluePrint.castToCollectionBluePrint(), false, false);
+			createCollection(code, bluePrint.castToCollectionBluePrint(), null, //
+					false, false);
 		}
 	}
 

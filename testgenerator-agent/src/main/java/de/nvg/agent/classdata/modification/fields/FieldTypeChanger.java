@@ -11,6 +11,7 @@ import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
 import de.nvg.testgenerator.MapBuilder;
+import de.nvg.testgenerator.TestgeneratorConstants;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.classdata.constants.Primitives;
@@ -317,8 +318,9 @@ public class FieldTypeChanger {
 	}
 
 	public void addFieldCalledField() throws CannotCompileException {
-		loadingClass
-				.addField(CtField.make("private java.util.Set calledFields = new java.util.HashSet();", loadingClass));
+		loadingClass.addField(CtField.make(
+				"private java.util.Set " + TestgeneratorConstants.CALLED_FIELDS + "= new java.util.HashSet();",
+				loadingClass));
 	}
 
 	public void overrideFieldAccess(Map<Integer, List<Instruction>> filteredInstructions,

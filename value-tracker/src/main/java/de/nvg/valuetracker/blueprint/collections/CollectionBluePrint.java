@@ -12,7 +12,6 @@ import de.nvg.valuetracker.blueprint.BluePrint;
 public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>> {
 
 	private List<BluePrint> elementBluePrints = new ArrayList<>();
-	private Class<?> elementType = Object.class;
 
 	public CollectionBluePrint(String name, Collection<?> value, Class<?> interfaceClass) {
 		super(name, value, interfaceClass);
@@ -20,10 +19,6 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 	public void addBluePrint(BluePrint bluePrint) {
 		elementBluePrints.add(bluePrint);
-
-		if (elementType != Object.class) {
-			elementType = bluePrint.getReference().getClass();
-		}
 	}
 
 	@Override
@@ -33,10 +28,6 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 	public List<BluePrint> getBluePrints() {
 		return Collections.unmodifiableList(elementBluePrints);
-	}
-
-	public Class<?> getElementClass() {
-		return elementType;
 	}
 
 }

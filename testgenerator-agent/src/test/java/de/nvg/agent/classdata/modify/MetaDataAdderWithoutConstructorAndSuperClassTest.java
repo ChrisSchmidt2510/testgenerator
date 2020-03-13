@@ -15,6 +15,7 @@ import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
 import de.nvg.agent.classdata.modification.MetaDataAdder;
 import de.nvg.testgenerator.MethodHandles;
+import de.nvg.testgenerator.TestgeneratorConstants;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -77,7 +78,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 		Class<?> adresseClazz = classPool.toClass(adresse);
 
 		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				"classData");
+				TestgeneratorConstants.CLASS_DATA);
 
 		// TODO CS vergleichs runtimeData object schreiben
 		System.out.println(runtimeClassData);

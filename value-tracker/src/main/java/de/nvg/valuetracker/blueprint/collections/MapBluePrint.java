@@ -17,9 +17,6 @@ public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 	private List<BluePrint> keyBluePrints = new ArrayList<>();
 	private List<BluePrint> valueBluePrints = new ArrayList<>();
 
-	private Class<?> keyType = Object.class;
-	private Class<?> valueType = Object.class;
-
 	public MapBluePrint(String name, Map<?, ?> value) {
 		super(name, value, Map.class);
 	}
@@ -30,14 +27,6 @@ public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 
 		keyBluePrints.add(key);
 		valueBluePrints.add(value);
-
-		if (keyType == Object.class) {
-			keyType = key.getReference().getClass();
-		}
-
-		if (valueType == Object.class) {
-			valueType = value.getReference().getClass();
-		}
 	}
 
 	@Override
@@ -58,14 +47,6 @@ public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 		}
 
 		return Collections.unmodifiableSet(set);
-	}
-
-	public Class<?> getKeyType() {
-		return keyType;
-	}
-
-	public Class<?> getValueType() {
-		return valueType;
 	}
 
 }

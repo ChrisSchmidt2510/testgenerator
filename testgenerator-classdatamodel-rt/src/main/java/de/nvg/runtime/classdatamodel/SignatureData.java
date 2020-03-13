@@ -7,11 +7,14 @@ import java.util.Objects;
 
 public class SignatureData {
 	private final Class<?> type;
-
 	private final List<SignatureData> subTypes = new ArrayList<>();
 
 	public SignatureData(Class<?> type) {
 		this.type = type;
+	}
+
+	public boolean isSimpleSignature() {
+		return subTypes.isEmpty();
 	}
 
 	public void addSubType(SignatureData subType) {
