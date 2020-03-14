@@ -37,7 +37,7 @@ public class LoggerRepository {
 
 		Configuration agentConfiguration = new Configuration("de.nvg.agent", Level.INFO, agentAppender);
 		Configuration instructionFilterConfiguration = new Configuration("de.nvg.agent.classdata.instructions",
-				Level.DEBUG, agentAppender);
+				Level.INFO, agentAppender);
 		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.INFO,
 				testgeneratorAppender);
 		Configuration valueTrackerConfiguration = new Configuration("de.nvg.valuetracker", Level.INFO,
