@@ -9,8 +9,15 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import de.nvg.agent.AgentException;
+import de.nvg.agent.classdata.analysis.signature.SignatureParser;
+import de.nvg.agent.classdata.analysis.signature.SignatureParserException;
 import de.nvg.agent.classdata.instructions.Instructions;
+import de.nvg.agent.classdata.model.SignatureData;
+import de.nvg.agent.classdata.modification.SignatureAdder;
 import de.nvg.agent.classdata.modification.TestGenerationAdder;
+import de.nvg.testgenerator.TestgeneratorConstants;
+import de.nvg.testgenerator.Wrapper;
+import de.nvg.testgenerator.classdata.constants.JVMTypes;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.AgentProperties;
@@ -28,6 +35,7 @@ import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.LocalVariableAttribute;
+import javassist.bytecode.LocalVariableTypeAttribute;
 import javassist.bytecode.MethodInfo;
 
 public class ValueTrackerTransformer implements ClassFileTransformer {
@@ -45,8 +53,6 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String TYPE = "Lde/nvg/valuetracker/blueprint/Type;";
 	private static final String TYPE_FIELDNAME_TESTOBJECT = "TESTOBJECT";
 	private static final String TYPE_FIELDNAME_METHODPARAMETER = "METHOD_PARAMETER";
-
-	private static final String FIELD_NAME = "valueTracker";
 
 	private final AgentProperties properties = AgentProperties.getInstance();
 
@@ -84,8 +90,15 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private byte[] reTransformMethodForObservObjectData(CtClass classToLoad)
 			throws IOException, CannotCompileException, NotFoundException, BadBytecode {
 
-		classToLoad.addField(CtField.make("de.nvg.valuetracker.ObjectValueTracker " + FIELD_NAME + ";", classToLoad),
+		classToLoad.addField(
+				CtField.make("de.nvg.valuetracker.ObjectValueTracker "
+						+ TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER + ";", classToLoad),
 				"new de.nvg.valuetracker.ObjectValueTracker();");
+
+		CtField methodSignature = CtField
+				.make("java.util.Map " + TestgeneratorConstants.FIELDNAME_METHOD_SIGNATURE + ";", classToLoad);
+		methodSignature.setModifiers(Modifier.PRIVATE | Modifier.FINAL);
+		classToLoad.addField(methodSignature, "new java.util.HashMap();");
 
 		CtMethod method = classToLoad.getMethod(properties.getMethod(), properties.getMethodDescriptor());
 
@@ -95,7 +108,9 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		constantPool = codeAttribute.getConstPool();
 		iterator = codeAttribute.iterator();
 
-		addValueTrackingToMethod(classToLoad, methodInfo);
+		SignatureAdder signatureAdder = new SignatureAdder(constantPool);
+
+		addValueTrackingToMethod(classToLoad, methodInfo, signatureAdder);
 
 		TestGenerationAdder testGeneration = new TestGenerationAdder(codeAttribute);
 		testGeneration.addTestgenerationToMethod(methodInfo);
@@ -107,14 +122,17 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		return bytecode;
 	}
 
-	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
+	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo, SignatureAdder signatureAdder)
+			throws BadBytecode {
 		// if a method is not static the first argument to a method is this
 		int lowestParameterIndex = Modifier.isStatic(methodInfo.getAccessFlags()) ? 0 : 1;
 
 		int parameterCount = Descriptor.numOfParameters(methodInfo.getDescriptor());
 
-		LocalVariableAttribute table = (LocalVariableAttribute) methodInfo.getCodeAttribute()
-				.getAttribute(LocalVariableAttribute.tag);
+		LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
+
+		LocalVariableTypeAttribute typeTable = (LocalVariableTypeAttribute) codeAttribute
+				.getAttribute(LocalVariableTypeAttribute.tag);
 
 		LOGGER.debug("Method before manipulation",
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
@@ -124,8 +142,15 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		for (int i = lowestParameterIndex; i <= parameterCount; i++) {
 			String variableName = table.variableName(i);
 
+			if (typeTable != null) {
+
+				String signature = getSignatureofLocalVariableTypeTable(typeTable, i);
+				addSignatureToMethodSignature(classToLoad, signatureAdder, valueTracking, signature, i);
+			}
+
 			valueTracking.addAload(0);
-			valueTracking.addGetfield(classToLoad, FIELD_NAME, OBJECT_VALUE_TRACKER);
+			valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
+					OBJECT_VALUE_TRACKER);
 			valueTracking.addAload(i);
 			valueTracking.addLdc(variableName);
 			valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_METHODPARAMETER, TYPE);
@@ -134,7 +159,8 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		}
 
 		valueTracking.addAload(0);
-		valueTracking.addGetfield(classToLoad, FIELD_NAME, OBJECT_VALUE_TRACKER);
+		valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
+				OBJECT_VALUE_TRACKER);
 		valueTracking.addAload(0);
 		valueTracking.addLdc(createNameForTestobject(classToLoad.getName()));
 		valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_TESTOBJECT, TYPE);
@@ -143,13 +169,53 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 		if (properties.isTraceReadFieldAccess()) {
 			valueTracking.addAload(0);
-			valueTracking.addGetfield(classToLoad, FIELD_NAME, OBJECT_VALUE_TRACKER);
+			valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
+					OBJECT_VALUE_TRACKER);
 			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
 					OBJECT_VALUE_TRACKER_METHOD_ENABLE_GETTER_CALLS,
 					OBJECT_VALUE_TRACKER_METHOD_ENABLE_GETTER_CALLS_DESC);
 		}
 
 		iterator.insert(0, valueTracking.get());
+	}
+
+	private void addSignatureToMethodSignature(CtClass classToLoad, SignatureAdder signatureAdder, Bytecode code,
+			String signature, int parameterIndex) {
+		if (signature != null) {
+			SignatureData signatureData = null;
+			try {
+				signatureData = SignatureParser.parse(signature);
+			} catch (SignatureParserException e) {
+				LOGGER.error(e);
+			}
+
+			if (signatureData != null) {
+
+				Wrapper<Integer> localVariableCounter = new Wrapper<>(codeAttribute.getMaxLocals());
+				int localVariableSignature = signatureAdder.add(code, signatureData, localVariableCounter);
+				codeAttribute.setMaxLocals(localVariableCounter.getValue());
+
+				code.addAload(0);
+				code.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_METHOD_SIGNATURE, JVMTypes.MAP);
+				code.addIconst(parameterIndex);
+				code.addInvokestatic(JVMTypes.INTEGER_CLASSNAME, JVMTypes.INTEGER_METHOD_VALUE_OF,
+						JVMTypes.INTEGER_METHOD_VALUE_OF_DESC);
+				code.addAload(localVariableSignature);
+				code.addInvokeinterface(JVMTypes.MAP_CLASSNAME, JVMTypes.MAP_METHOD_PUT, JVMTypes.MAP_METHOD_PUT_DESC,
+						3);
+
+			}
+		}
+	}
+
+	private String getSignatureofLocalVariableTypeTable(LocalVariableTypeAttribute typeTable, int slot) {
+		for (int i = 0; i < typeTable.tableLength(); i++) {
+			if (typeTable.index(i) == slot) {
+				return typeTable.signature(i);
+			}
+		}
+
+		return null;
 	}
 
 	private String createNameForTestobject(String className) {

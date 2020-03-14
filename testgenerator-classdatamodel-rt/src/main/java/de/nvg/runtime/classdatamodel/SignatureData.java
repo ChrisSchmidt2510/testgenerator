@@ -44,4 +44,9 @@ public class SignatureData {
 		return Objects.equals(subTypes, other.subTypes) && Objects.equals(type, other.type);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("SignatureData [type=%s, subTypes=%s]", type, subTypes);
+	}
+
 }

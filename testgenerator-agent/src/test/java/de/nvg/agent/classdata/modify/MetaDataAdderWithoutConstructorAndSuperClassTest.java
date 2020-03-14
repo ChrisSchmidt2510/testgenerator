@@ -78,7 +78,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 		Class<?> adresseClazz = classPool.toClass(adresse);
 
 		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				TestgeneratorConstants.CLASS_DATA);
+				TestgeneratorConstants.FIELDNAME_CLASS_DATA);
 
 		// TODO CS vergleichs runtimeData object schreiben
 		System.out.println(runtimeClassData);

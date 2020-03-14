@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.MethodAnalyser;
-import de.nvg.agent.classdata.analysis.SignatureParser;
+import de.nvg.agent.classdata.analysis.signature.SignatureParser;
+import de.nvg.agent.classdata.analysis.signature.SignatureParserException;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
@@ -23,8 +24,10 @@ import de.nvg.agent.classdata.model.ClassDataStorage;
 import de.nvg.agent.classdata.model.ConstructorData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
+import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.agent.classdata.modification.MetaDataAdder;
 import de.nvg.agent.classdata.modification.fields.FieldTypeChanger;
+import de.nvg.testgenerator.TestgeneratorConstants;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.LogManager;
@@ -112,7 +115,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				for (CtField field : loadingClass.getDeclaredFields()) {
 
-					if (!Instructions.isConstant(field.getModifiers()) && !AccessFlag.isPublic(field.getModifiers())) {
+					if (!Instructions.isConstant(field.getModifiers()) && !AccessFlag.isPublic(field.getModifiers())
+							&& !TestgeneratorConstants.isTestgeneratorField(field.getName())) {
 						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
 					}
 				}
@@ -144,13 +148,20 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				SignatureAttribute signature = (SignatureAttribute) field.getAttribute(SignatureAttribute.tag);
 
+				SignatureData signatureData = null;
+				try {
+					if (signature != null) {
+						signatureData = SignatureParser.parse(signature.getSignature());
+					}
+				} catch (SignatureParserException e) {
+					LOGGER.error(e);
+				}
+
 				FieldData fieldData = new FieldData.Builder()
 						.withDataType(Descriptor.toClassName(field.getDescriptor())).withName(field.getName())
 						.isMutable(!Modifier.isFinal(field.getAccessFlags()))
 						.isStatic(Modifier.isStatic(field.getAccessFlags()))
-						.isPublic(Modifier.isPublic(field.getAccessFlags()))
-						.withSignature(signature != null ? SignatureParser.parse(signature.getSignature()) : null)
-						.build();
+						.isPublic(Modifier.isPublic(field.getAccessFlags())).withSignature(signatureData).build();
 
 				LOGGER.info("added Field: " + fieldData);
 

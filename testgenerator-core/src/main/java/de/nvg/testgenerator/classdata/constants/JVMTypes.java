@@ -16,12 +16,16 @@ public class JVMTypes {
 	public static final String SET = "Ljava/util/Set;";
 	public static final String QUEUE = "Ljava/util/Queue;";
 	public static final String MAP = "Ljava/util/Map;";
+	public static final String MAP_CLASSNAME = "java/util/Map";
 
-	public static final String COLLECTIONS = "java.util.Collections";
+	public static final String INTEGER_CLASSNAME = "java/lang/Integer";
+	public static final String INTEGER_METHOD_VALUE_OF = "valueOf";
+	public static final String INTEGER_METHOD_VALUE_OF_DESC = "(I)Ljava/lang/Integer;";
 
 	public static final String COLLECTION_METHOD_ADD = "add";
 	public static final String QUEUE_METHOD_OFFER = "offer";
 	public static final String MAP_METHOD_PUT = "put";
+	public static final String MAP_METHOD_PUT_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;";
 
 	public static final List<String> COLLECTION_TYPES = Collections
 			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, QUEUE, MAP));

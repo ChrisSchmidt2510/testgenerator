@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Modifier;
@@ -14,6 +15,7 @@ import com.squareup.javapoet.TypeSpec.Builder;
 
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
+import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.impl.DefaultTestClassGeneration;
 import de.nvg.testgenerator.generation.impl.TestGenerationHelper;
 import de.nvg.testgenerator.logging.LogManager;
@@ -53,7 +55,11 @@ public class Testgenerator {
 		}
 
 		testGenerator.prepareTestObject(classBuilder, testObject, classData, calledFields);
-		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters());
+
+		Map<Integer, SignatureData> methodSignature = TestGenerationHelper
+				.getMethodSignature(testObject.getReference());
+		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters(),
+				methodSignature);
 		testGenerator.generateTestMethod(classBuilder, method);
 
 		classBuilder.addJavadoc(

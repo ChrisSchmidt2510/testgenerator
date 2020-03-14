@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import com.squareup.javapoet.TypeSpec.Builder;
 
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
+import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.TestClassGeneration;
@@ -72,8 +74,11 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	}
 
 	@Override
-	public void prepareMethodParameters(Builder typeSpec, Collection<BluePrint> methodParameters) {
+	public void prepareMethodParameters(Builder typeSpec, Collection<BluePrint> methodParameters,
+			Map<Integer, SignatureData> methodSignature) {
 		CodeBlock.Builder code = CodeBlock.builder();
+
+		int methodParameterIndex = 1;
 
 		for (BluePrint methodParameter : methodParameters) {
 			LOGGER.info("Starting generation of method-parameter: " + methodParameter);
@@ -104,9 +109,13 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 			} else if (methodParameter.isCollectionBluePrint()) {
 				BasicCollectionBluePrint<?> collectionBluePrint = methodParameter.castToCollectionBluePrint();
 
-				collectionsGeneration.addFieldToClass(typeSpec, collectionBluePrint, null);
-				collectionsGeneration.createCollection(code, collectionBluePrint, null, false, true);
+				collectionsGeneration.addFieldToClass(typeSpec, collectionBluePrint,
+						methodSignature.get(methodParameterIndex));
+				collectionsGeneration.createCollection(code, collectionBluePrint,
+						methodSignature.get(methodParameterIndex), false, true);
 			}
+
+			methodParameterIndex++;
 		}
 
 		typeSpec.addMethod(MethodSpec.methodBuilder(METHOD_INIT_METHOD_PARAMETER).addModifiers(Modifier.PRIVATE)

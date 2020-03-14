@@ -96,7 +96,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 		Class<?> adresseClazz = classPool.toClass(adresse);
 
 		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				TestgeneratorConstants.CLASS_DATA);
+				TestgeneratorConstants.FIELDNAME_CLASS_DATA);
 
 		de.nvg.runtime.classdatamodel.ClassData superclass = runtimeClassData.getSuperclass();
 

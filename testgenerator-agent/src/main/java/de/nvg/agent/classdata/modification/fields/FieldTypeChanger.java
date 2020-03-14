@@ -157,7 +157,8 @@ public class FieldTypeChanger {
 
 		for (Instruction instruction : putFieldInstructions) {
 
-			if (!classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()) {
+			if (!classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
+					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
 				Instruction aloadInstruction = Instructions.filterForMatchingAloadInstruction(instructions, instruction,
 						table, codeArrayModificator);
@@ -318,9 +319,8 @@ public class FieldTypeChanger {
 	}
 
 	public void addFieldCalledField() throws CannotCompileException {
-		loadingClass.addField(CtField.make(
-				"private java.util.Set " + TestgeneratorConstants.CALLED_FIELDS + "= new java.util.HashSet();",
-				loadingClass));
+		loadingClass.addField(CtField.make("private java.util.Set " + TestgeneratorConstants.FIELDNAME_CALLED_FIELDS
+				+ "= new java.util.HashSet();", loadingClass));
 	}
 
 	public void overrideFieldAccess(Map<Integer, List<Instruction>> filteredInstructions,
@@ -361,7 +361,9 @@ public class FieldTypeChanger {
 		for (Instruction instruction : putFieldInstructions) {
 
 			if (classData.getName().equals(instruction.getClassRef()) && !classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()) {
+					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
+					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
+
 				Instruction loadInstruction = Instructions.//
 						filterForMatchingAloadInstruction(instructions, instruction, table, codeArrayModificator);
 
@@ -397,7 +399,9 @@ public class FieldTypeChanger {
 		for (Instruction instruction : getFieldInstructions) {
 
 			if (classData.getName().equals(instruction.getClassRef()) && !classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()) {
+					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
+					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
+
 				String dataType = instruction.getType();
 				String proxy = getProxyClassname(dataType);
 
@@ -482,12 +486,13 @@ public class FieldTypeChanger {
 		List<FieldData> unitalizedFields = new ArrayList<>();
 
 		for (FieldData fieldData : classData.getFields()) {
-			if (!initalizedFields.contains(fieldData) && !fieldData.isPublic()) {
+			if (!initalizedFields.contains(fieldData) && !fieldData.isPublic()
+					&& !TestgeneratorConstants.isTestgeneratorField(fieldData.getName()))
 				unitalizedFields.add(fieldData);
-			}
 		}
 
 		return unitalizedFields;
+
 	}
 
 	private boolean isInstructionFromClassOrSuperClass(Instruction inst) {
