@@ -9,14 +9,6 @@ public abstract class BlObject {
 	private LocalDate aedat;
 	private String aesb;
 
-//	private static ClassData classData;
-//
-//	static {
-//		classData = new ClassData("de.nvg.BlObject",
-//				() -> (ClassData) MethodHandles.getStaticFieldValue(Object.class, "classData"),
-//				new ConstructorData(true));
-//	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(aedat, aesb, erdat, ersb);
@@ -24,12 +16,15 @@ public abstract class BlObject {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof BlObject))
+		}
+		if (!(obj instanceof BlObject)) {
 			return false;
+		}
 		BlObject other = (BlObject) obj;
 		return Objects.equals(aedat, other.aedat) && Objects.equals(aesb, other.aesb)
 				&& Objects.equals(erdat, other.erdat) && Objects.equals(ersb, other.ersb);
