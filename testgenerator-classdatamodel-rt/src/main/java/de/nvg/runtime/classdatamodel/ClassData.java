@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import de.nvg.testgenerator.MapBuilder;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 
 public class ClassData {
 	private final String name;
@@ -72,6 +74,20 @@ public class ClassData {
 
 		throw new IllegalArgumentException(
 				"no field found in hierarchie for name " + name + " and descriptor " + descriptor.getName());
+	}
+
+	public FieldData getCollectionFieldInHierarchie(String name) {
+		List<FieldData> matchedFields = fields.stream().filter(
+				field -> field.getName().equals(name) && JavaTypes.COLLECTION_LIST.contains(field.getDescriptor()))
+				.collect(Collectors.toList());
+
+		if (matchedFields.size() == 1) {
+			return matchedFields.get(0);
+		} else if (matchedFields.isEmpty() && superClass != null) {
+			return superClass.get().getCollectionFieldInHierarchie(name);
+		}
+
+		throw new IllegalArgumentException("no collection-field found in hierarchie for name " + name);
 	}
 
 	public FieldData getFieldInHierachie(FieldData field) {

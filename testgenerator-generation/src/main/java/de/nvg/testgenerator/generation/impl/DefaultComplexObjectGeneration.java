@@ -160,11 +160,10 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			for (BluePrint child : bluePrint.getChildBluePrints()) {
 
 				if (!usedBluePrints.contains(child)) {
-					Class<?> descriptor = child.isCollectionBluePrint()
-							? child.castToCollectionBluePrint().getInterfaceClass()
-							: child.getReference().getClass();
 
-					FieldData field = classData.getFieldInHierarchie(child.getName(), descriptor);
+					FieldData field = child.isCollectionBluePrint()
+							? classData.getCollectionFieldInHierarchie(child.getName())
+							: classData.getFieldInHierarchie(child.getName(), child.getReference().getClass());
 
 					LOGGER.info("add Field " + field + " to Object " + objectName);
 
@@ -260,8 +259,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 						setter = classData.getSetterInHierarchie(field);
 
 					} else {
-						FieldData field = classData.getFieldInHierarchie(collection.getName(),
-								collection.getInterfaceClass());
+						FieldData field = classData.getCollectionFieldInHierarchie(collection.getName());
 						signature = field.getSignature();
 						setter = classData.getSetterInHierarchie(field);
 					}
