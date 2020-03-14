@@ -47,16 +47,20 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 						FieldData field = AnalysisHelper.getField(fields, instruction.getName(),
 								Descriptor.toClassName(instruction.getType()));
 
-						List<String> params = AnalysisHelper.getMethodParams(descriptor);
+						// if field is null, the field isnt in the class -> checked method can't be a
+						// setter for this field
+						if (field != null) {
+							List<String> params = AnalysisHelper.getMethodParams(descriptor);
 
-						List<String> genericTypes = field.getSignature() != null ? field.getSignature().getSubTypes()
-								.stream().map(SignatureData::getType).collect(Collectors.toList())
-								: Collections.emptyList();
+							List<String> genericTypes = field.getSignature() != null ? field.getSignature()
+									.getSubTypes().stream().map(SignatureData::getType).collect(Collectors.toList())
+									: Collections.emptyList();
 
-						if (checkParameterAndMethod(params, genericTypes, index)) {
-							fieldWrapper.setValue(field);
+							if (checkParameterAndMethod(params, genericTypes, index)) {
+								fieldWrapper.setValue(field);
 
-							return true;
+								return true;
+							}
 						}
 					}
 				}
