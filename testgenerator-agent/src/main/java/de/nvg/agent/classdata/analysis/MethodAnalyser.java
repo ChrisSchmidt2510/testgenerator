@@ -57,7 +57,7 @@ public class MethodAnalyser {
 			FieldData field = AnalysisHelper.getField(fields, foundedField.getName(), foundedField.getDataType());
 
 			methodData = new MethodData(name, descriptor,
-					field.isMutable() || (!field.isMutable() && JavaTypes.COLLECTIONS.contains(field.getDataType()))
+					field.isMutable() || (!field.isMutable() && JavaTypes.COLLECTION_LIST.contains(field.getDataType()))
 							? MethodType.REFERENCE_VALUE_GETTER
 							: MethodType.IMMUTABLE_GETTER, //
 					-1, Modifier.isStatic(modifier));

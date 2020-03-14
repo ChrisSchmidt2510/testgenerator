@@ -32,7 +32,9 @@ public final class JavaTypes {
 	public static final String MAP = "java.util.Map";
 	public static final String QUEUE = "java.util.Queue";
 
-	public static final List<String> COLLECTIONS = Collections
+	public static final String COLLECTIONS = "java.util.Collections";
+
+	public static final List<String> COLLECTION_LIST = Collections
 			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, MAP, QUEUE));
 
 }
