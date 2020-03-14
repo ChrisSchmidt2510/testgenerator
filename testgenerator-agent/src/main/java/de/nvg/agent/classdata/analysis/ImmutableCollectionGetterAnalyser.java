@@ -6,6 +6,7 @@ import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.testgenerator.Wrapper;
 import de.nvg.testgenerator.classdata.constants.JVMTypes;
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 
@@ -22,7 +23,7 @@ public class ImmutableCollectionGetterAnalyser implements MethodAnalysis {
 
 				if (JVMTypes.COLLECTION_TYPES.contains(instruction.getType())
 						&& Opcode.INVOKESTATIC == invokeStatic.getOpcode()
-						&& JVMTypes.COLLECTIONS.equals(invokeStatic.getClassRef())
+						&& JavaTypes.COLLECTIONS.equals(invokeStatic.getClassRef())
 						&& invokeStatic.getName().startsWith("unmodifiable") && instructions.size() >= i + 2
 						&& Opcode.ARETURN == instructions.get(i + 2).getOpcode()) {
 
