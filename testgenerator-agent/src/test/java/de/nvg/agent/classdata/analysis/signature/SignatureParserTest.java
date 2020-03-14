@@ -1,7 +1,11 @@
-package de.nvg.agent.classdata.analysis;
+package de.nvg.agent.classdata.analysis.signature;
+
+import static org.junit.Assert.fail;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import de.nvg.agent.classdata.model.SignatureData;
 
@@ -9,11 +13,20 @@ public class SignatureParserTest {
 	private final SignatureData adresse = new SignatureData("Lde/nvg/bl/partner/Adresse;");
 	private final SignatureData integer = new SignatureData("Ljava/lang/Integer;");
 
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+
 	@Test
 	public void testParseNestedSignature() {
 
-		SignatureData signature = SignatureParser
-				.parse("Ljava/util/Map<Ljava/lang/Integer;Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;");
+		SignatureData signature = null;
+		try {
+			signature = SignatureParser
+					.parse("Ljava/util/Map<Ljava/lang/Integer;Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;");
+		} catch (SignatureParserException e) {
+			e.printStackTrace();
+			fail();
+		}
 
 		System.out.println(signature);
 
@@ -29,8 +42,16 @@ public class SignatureParserTest {
 
 	@Test
 	public void testParseMultipleNestedSignatures() {
-		SignatureData signature = SignatureParser.parse(
-				"Ljava/util/Map<Ljava/lang/Integer;Ljava/util/List<Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;>;");
+		SignatureData signature = null;
+
+		try {
+			signature = SignatureParser.parse(
+					"Ljava/util/Map<Ljava/lang/Integer;Ljava/util/List<Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;>;");
+		} catch (SignatureParserException e) {
+			e.printStackTrace();
+			fail();
+		}
+
 		System.out.println(signature);
 
 		SignatureData nestedList = new SignatureData("Ljava/util/List;");
@@ -48,8 +69,15 @@ public class SignatureParserTest {
 
 	@Test
 	public void testParseMultipleNestedSignaturesAtStart() {
-		SignatureData signature = SignatureParser.parse(
-				"Ljava/util/Map<Ljava/util/List<Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;Ljava/lang/Integer;>;");
+		SignatureData signature = null;
+
+		try {
+			signature = SignatureParser.parse(
+					"Ljava/util/Map<Ljava/util/List<Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;Ljava/lang/Integer;>;");
+		} catch (SignatureParserException e) {
+			e.printStackTrace();
+			fail();
+		}
 
 		System.out.println(signature);
 
@@ -68,8 +96,15 @@ public class SignatureParserTest {
 
 	@Test
 	public void testParseMultipleSignatures() {
-		SignatureData signature = SignatureParser.parse(
-				"Ljava/util/Map<Ljava/util/List<Ljava/lang/Integer;>;Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;");
+		SignatureData signature = null;
+
+		try {
+			signature = SignatureParser.parse(
+					"Ljava/util/Map<Ljava/util/List<Ljava/lang/Integer;>;Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;");
+		} catch (SignatureParserException e) {
+			e.printStackTrace();
+			fail();
+		}
 
 		System.out.println(signature);
 
@@ -84,6 +119,23 @@ public class SignatureParserTest {
 		map.addSubType(adressList);
 
 		Assert.assertEquals(map, signature);
+	}
+
+	@Test
+	public void testNonParsableSignatureAtTheStart() throws SignatureParserException {
+		exception.expect(SignatureParserException.class);
+		exception.expectMessage("TE; cant't be parsed into a valid Signature");
+
+		SignatureParser.parse("TE<Ljava/util/List<Ljava/lang/Integer;>;>;");
+
+	}
+
+	@Test
+	public void testNonParsableSignatureInTheMiddle() throws SignatureParserException {
+		exception.expect(SignatureParserException.class);
+		exception.expectMessage("TK; cant't be parsed into a valid Signature");
+
+		SignatureParser.parse("Ljava/util/Map<Ljava/util/List<Ljava/lang/Integer;>;TK;>;");
 	}
 
 }

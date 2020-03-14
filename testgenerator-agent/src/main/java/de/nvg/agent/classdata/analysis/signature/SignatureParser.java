@@ -1,4 +1,4 @@
-package de.nvg.agent.classdata.analysis;
+package de.nvg.agent.classdata.analysis.signature;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +10,15 @@ public final class SignatureParser {
 	private static final Character GENERIC_PARAM_END = '>';
 	private static final Character TYPE_DELIMETER = ';';
 
-	public static SignatureData parse(String signature) {
+	public static SignatureData parse(String signature) throws SignatureParserException {
 		if (signature.contains(GENERIC_PARAM_START.toString())) {
 			int genericParamStart = signature.indexOf(GENERIC_PARAM_START);
 			int typeDelimeter = signature.substring(0, genericParamStart).indexOf(TYPE_DELIMETER);
 
 			String type = signature.substring(typeDelimeter == -1 ? 0 : typeDelimeter + 1, genericParamStart)
 					+ TYPE_DELIMETER;
+
+			validate(type);
 
 			SignatureData model = new SignatureData(type);
 
@@ -34,14 +36,17 @@ public final class SignatureParser {
 
 	}
 
-	private static List<SignatureData> parseSubSignatureElements(String signature) {
+	private static List<SignatureData> parseSubSignatureElements(String signature) throws SignatureParserException {
 		List<SignatureData> signatures = new ArrayList<>();
 
 		while (signature.contains(TYPE_DELIMETER.toString())) {
-			String signatureElement = signature.substring(0, signature.indexOf(TYPE_DELIMETER));
+			String signatureElement = signature.substring(0, signature.indexOf(TYPE_DELIMETER) + 1);
 
 			if (!signatureElement.contains(GENERIC_PARAM_START.toString())) {
-				signatures.add(new SignatureData(signatureElement + TYPE_DELIMETER));
+
+				validate(signatureElement);
+
+				signatures.add(new SignatureData(signatureElement));
 				signature = signature.substring(signature.indexOf(TYPE_DELIMETER) + 1);
 
 			} else {
@@ -53,6 +58,12 @@ public final class SignatureParser {
 		}
 
 		return signatures;
+	}
+
+	private static void validate(String signatureElement) throws SignatureParserException {
+		if (!signatureElement.startsWith("L") || !signatureElement.endsWith(TYPE_DELIMETER.toString())) {
+			throw new SignatureParserException(signatureElement + " cant't be parsed into a valid Signature");
+		}
 	}
 
 	private static int findCorrectGenericParamEnd(String param) {
