@@ -36,6 +36,10 @@ public class LoggerRepository {
 				consoleAppender);
 
 		Configuration agentConfiguration = new Configuration("de.nvg.agent", Level.INFO, agentAppender);
+		Configuration manipulationConfig = new Configuration("de.nvg.agent.classdata.modification", Level.INFO,
+				agentAppender);
+		Configuration analysisConfig = new Configuration("de.nvg.agent.classdata.analysis", Level.INFO, agentAppender);
+		Configuration transformerConfig = new Configuration("de.nvg.agent.transformer", Level.INFO, agentAppender);
 		Configuration instructionFilterConfiguration = new Configuration("de.nvg.agent.classdata.instructions",
 				Level.INFO, agentAppender);
 		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.INFO,
@@ -44,6 +48,9 @@ public class LoggerRepository {
 				valueTrackerAppender);
 
 		repository.add(agentConfiguration);
+		repository.add(manipulationConfig);
+		repository.add(analysisConfig);
+		repository.add(transformerConfig);
 		repository.add(instructionFilterConfiguration);
 		repository.add(testgeneratorConfiguration);
 		repository.add(valueTrackerConfiguration);
