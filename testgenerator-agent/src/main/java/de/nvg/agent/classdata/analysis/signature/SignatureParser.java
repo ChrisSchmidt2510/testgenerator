@@ -11,6 +11,7 @@ public final class SignatureParser {
 	private static final Character TYPE_DELIMETER = ';';
 
 	public static SignatureData parse(String signature) throws SignatureParserException {
+
 		if (signature.contains(GENERIC_PARAM_START.toString())) {
 			int genericParamStart = signature.indexOf(GENERIC_PARAM_START);
 			int typeDelimeter = signature.substring(0, genericParamStart).indexOf(TYPE_DELIMETER);
@@ -67,7 +68,7 @@ public final class SignatureParser {
 	}
 
 	private static int findCorrectGenericParamEnd(String param) {
-		int neededSemiColons = 0;
+		int neededGenericParamEnds = 0;
 
 		char[] paramArray = param.toCharArray();
 
@@ -75,13 +76,13 @@ public final class SignatureParser {
 			char c = paramArray[i];
 
 			if (GENERIC_PARAM_START == c) {
-				neededSemiColons++;
+				neededGenericParamEnds++;
 			} else if (TYPE_DELIMETER == c) {
-				if (neededSemiColons == 0) {
+				if (neededGenericParamEnds == 0) {
 					return i;
-				} else {
-					neededSemiColons--;
 				}
+			} else if (GENERIC_PARAM_END == c) {
+				neededGenericParamEnds--;
 			}
 		}
 

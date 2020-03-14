@@ -1,6 +1,6 @@
 package de.nvg.agent.classdata.analysis.signature;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -117,6 +117,31 @@ public class SignatureParserTest {
 		SignatureData map = new SignatureData("Ljava/util/Map;");
 		map.addSubType(integerList);
 		map.addSubType(adressList);
+
+		Assert.assertEquals(map, signature);
+	}
+
+	@Test
+	public void testParseNestedMaps() {
+		SignatureData signature = null;
+
+		try {
+			signature = SignatureParser.parse(
+					"Ljava/util/Map<Ljava/time/LocalDate;Ljava/util/Map<Ljava/lang/Integer;Ljava/math/BigDecimal;>;>;");
+		} catch (SignatureParserException e) {
+			e.printStackTrace();
+			fail();
+		}
+
+		System.out.println(signature);
+
+		SignatureData nestedMap = new SignatureData("Ljava/util/Map;");
+		nestedMap.addSubType(new SignatureData("Ljava/lang/Integer;"));
+		nestedMap.addSubType(new SignatureData("Ljava/math/BigDecimal;"));
+
+		SignatureData map = new SignatureData("Ljava/util/Map;");
+		map.addSubType(new SignatureData("Ljava/time/LocalDate;"));
+		map.addSubType(nestedMap);
 
 		Assert.assertEquals(map, signature);
 	}
