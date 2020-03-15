@@ -17,7 +17,6 @@ import de.nvg.agent.classdata.model.ConstructorData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
-import de.nvg.agent.classdata.modification.MetaDataAdder;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.testgenerator.MethodHandles;
 import de.nvg.testgenerator.TestgeneratorConstants;
@@ -50,7 +49,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {
 
-		adresse = classPool.get("de.nvg.agent.classdata.modify.testclasses.Adresse");
+		adresse = classPool.get("de.nvg.agent.classdata.testclasses.Adresse");
 
 		ClassFile classFile = adresse.getClassFile();
 		constantPool = classFile.getConstPool();
@@ -76,7 +75,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 	public void testMetaDataAdderWithConstructorAndSuperClass()
 			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException {
 		ClassData classData = prepareClassData();
-		classData.setSuperClass(new ClassData("de.nvg.agent.classdata.modify.testclasses.BlObject"));
+		classData.setSuperClass(new ClassData("de.nvg.agent.classdata.testclasses.BlObject"));
 
 		ConstructorData constructor = new ConstructorData(false);
 		constructor.addConstructorElement(0, fieldStrasse);
@@ -108,7 +107,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 
 	private ClassData prepareClassData() {
 
-		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.Adresse");
+		ClassData classData = new ClassData("de.nvg.agent.classdata.testclasses.Adresse");
 		classData.setConstructor(new ConstructorData(true));
 
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
@@ -152,7 +151,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 		constructor.addElement(3, fieldPlz);
 
 		de.nvg.runtime.classdatamodel.ClassData classData = new de.nvg.runtime.classdatamodel.ClassData(
-				"de.nvg.agent.classdata.modify.testclasses.Adresse", constructor);
+				"de.nvg.agent.classdata.testclasses.Adresse", constructor);
 
 		classData.addFieldSetterPair(fieldStrasse, new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false));
 		classData.addFieldSetterPair(fieldHausnummer, new SetterMethodData("setHausnummer", "(S)V", false));

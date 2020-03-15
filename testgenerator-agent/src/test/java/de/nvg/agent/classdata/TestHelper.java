@@ -1,4 +1,4 @@
-package de.nvg.agent.classdata.modification;
+package de.nvg.agent.classdata;
 
 import java.util.List;
 import java.util.Map;
@@ -16,12 +16,12 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.MethodInfo;
 
 public class TestHelper {
-	ClassFile classFile;
-	CtClass ctClass;
-	ConstPool constantPool;
-	List<Instruction> instructions;
-	Map<Integer, List<Instruction>> filteredInstructions;
-	CodeAttribute codeAttribute;
+	protected ClassFile classFile;
+	protected CtClass ctClass;
+	protected ConstPool constantPool;
+	protected List<Instruction> instructions;
+	protected Map<Integer, List<Instruction>> filteredInstructions;
+	protected CodeAttribute codeAttribute;
 
 	public TestHelper init(String className, String methodName, String methodDiscriptor, List<Integer> opcodes)
 			throws NotFoundException, BadBytecode {

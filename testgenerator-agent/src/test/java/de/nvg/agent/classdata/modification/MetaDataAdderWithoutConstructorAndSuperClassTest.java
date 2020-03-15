@@ -13,7 +13,6 @@ import de.nvg.agent.classdata.model.ConstructorData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
-import de.nvg.agent.classdata.modification.MetaDataAdder;
 import de.nvg.testgenerator.MethodHandles;
 import de.nvg.testgenerator.TestgeneratorConstants;
 import javassist.CannotCompileException;
@@ -45,7 +44,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {
 
-		adresse = classPool.get("de.nvg.agent.classdata.modify.testclasses.Adresse");
+		adresse = classPool.get("de.nvg.agent.classdata.testclasses.Adresse");
 
 		ClassFile classFile = adresse.getClassFile();
 		constantPool = classFile.getConstPool();
@@ -119,7 +118,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 
 	private ClassData prepareClassData() {
 
-		ClassData classData = new ClassData("de.nvg.agent.classdata.modify.testclasses.Adresse");
+		ClassData classData = new ClassData("de.nvg.agent.classdata.testclasses.Adresse");
 		classData.setConstructor(new ConstructorData(true));
 
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));

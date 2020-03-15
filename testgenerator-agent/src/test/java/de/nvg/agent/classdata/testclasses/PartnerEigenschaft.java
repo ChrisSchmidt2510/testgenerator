@@ -1,4 +1,4 @@
-package de.nvg.agent.classdata.modification.testclasses;
+package de.nvg.agent.classdata.testclasses;
 
 public class PartnerEigenschaft
 {
