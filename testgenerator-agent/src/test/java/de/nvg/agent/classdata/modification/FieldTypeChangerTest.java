@@ -1,4 +1,4 @@
-package de.nvg.agent.classdata.modify;
+package de.nvg.agent.classdata.modification;
 
 import java.util.Arrays;
 import java.util.Collections;

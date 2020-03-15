@@ -1,4 +1,4 @@
-package de.nvg.agent.classdata.modify.testclasses;
+package de.nvg.agent.classdata.modification.testclasses;
 
 import java.time.LocalDate;
 import java.util.List;

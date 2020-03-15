@@ -1,4 +1,4 @@
-package de.nvg.agent.classdata.modify.testclasses;
+package de.nvg.agent.classdata.modification.testclasses;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
