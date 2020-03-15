@@ -98,9 +98,45 @@ public class InstructionFilterTest extends TestHelper {
 		InstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
+				// this method has multiple putField-instructions, but only the first is for
+				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
 		Assert.assertEquals(4, aloadInstruction.getCodeArrayIndex());
+		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+	}
+
+	@Test
+	public void testFilterForInstructionCallWithSetFieldWithConstant() throws NotFoundException, BadBytecode {
+		init("de.nvg.agent.classdata.testclasses.Value", MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		InstructionFilter filter = createInstructionFilter();
+
+		Instruction aloadInstruction = filter
+				// this method has multiple putField-instructions, but only the first is for
+				// this test interesting
+				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
+
+		Assert.assertEquals(8, aloadInstruction.getCodeArrayIndex());
+		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+	}
+
+	@Test
+	public void testFilterForInstructionCallWithIfs() throws NotFoundException, BadBytecode {
+		init("de.nvg.agent.classdata.testclasses.Value", "setValue", Arrays.asList(Opcode.PUTFIELD));
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		InstructionFilter filter = createInstructionFilter();
+
+		Instruction aloadInstruction = filter
+				// this method has multiple putField-instructions, but only the first is for
+				// this test interesting
+				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
+
+		Assert.assertEquals(0, aloadInstruction.getCodeArrayIndex());
 		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 

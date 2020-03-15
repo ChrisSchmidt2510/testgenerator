@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.classdata.constants.Primitives;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
@@ -48,15 +49,13 @@ public class InstructionFilter {
 		if (Instructions.isLoadInstruction(instruction)) {
 			operandStack.pop();
 
-		} else if (Opcode.ACONST_NULL == instruction.getOpcode()) {
 			// remove the first entry in the operand-stack for aconst_null instruction
-			operandStack.pop();
-		} else if (Opcode.DUP == instruction.getOpcode()) {
-			// pop the element, before the dup instruction the first and second-instructions
-			// should be of the same type
-			operandStack.pop();
+		} else if (Opcode.ACONST_NULL == instruction.getOpcode() || //
+		// pop the element, before the dup instruction the first and second-instructions
+		// should be of the same type
+				Opcode.DUP == instruction.getOpcode() || //
+				Opcode.NEW == instruction.getOpcode() || Opcode.GETSTATIC == instruction.getOpcode()) {
 
-		} else if (Opcode.NEW == instruction.getOpcode()) {
 			operandStack.pop();
 
 		} else if (Opcode.GETFIELD == instruction.getOpcode()) {
@@ -71,6 +70,24 @@ public class InstructionFilter {
 			// push the same type to the operandStack, cause the primitive-math-operations
 			// need always the primitive type 2 times for execution of the instruction
 			operandStack.push(type);
+		} else if (Instructions.isOneItemComparison(instruction)) {
+			if (Opcode.IFNULL == instruction.getOpcode() || Opcode.IFNONNULL == instruction.getOpcode()) {
+				// can't know which type gets popped, so a the most common type is pushed
+				operandStack.push(JavaTypes.OBJECT);
+			} else {
+				// all other one-item-comparisions like IFEQ popping an int
+				operandStack.push(Primitives.JAVA_INT);
+			}
+		} else if (Instructions.isTwoItemComparison(instruction)) {
+			if (Opcode.IF_ACMPEQ == instruction.getOpcode() || Opcode.IF_ACMPNE == instruction.getOpcode()) {
+				// can't know which types gets popped, so a the most common types are pushed
+				operandStack.push(JavaTypes.OBJECT);
+				operandStack.push(JavaTypes.OBJECT);
+			} else {
+				// all other two-item-comparisions like IF_ICMPEQ popping ints
+				operandStack.push(Primitives.JAVA_INT);
+				operandStack.push(Primitives.JAVA_INT);
+			}
 		}
 
 		Instruction beforeInstruction = Instructions.getBeforeInstruction(instructions, instruction);

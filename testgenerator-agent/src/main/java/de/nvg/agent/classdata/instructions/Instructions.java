@@ -38,6 +38,15 @@ public class Instructions {
 			Opcode.LLOAD, Opcode.LLOAD_0, Opcode.LLOAD_1, Opcode.LLOAD_2, Opcode.LLOAD_3, Opcode.LCONST_0,
 			Opcode.LCONST_1));
 
+	private static final List<Integer> ONE_ITEM_COMPARISONS = Collections
+			.unmodifiableList(Arrays.asList(Opcode.IFNULL, Opcode.IFNONNULL, //
+					Opcode.IFEQ, Opcode.IFNE, Opcode.IFNE, Opcode.IFLT, Opcode.IFGE, Opcode.IFGT, Opcode.IFLE));
+
+	private static final List<Integer> TWO_ITEM_COMPARISONS = Collections
+			.unmodifiableList(Arrays.asList(Opcode.IF_ACMPEQ, Opcode.IF_ACMPNE, //
+					Opcode.IF_ICMPEQ, Opcode.IF_ICMPNE, Opcode.IF_ICMPLT, Opcode.IF_ICMPGE, Opcode.IF_ICMPGT,
+					Opcode.IF_ICMPLE));
+
 	private static final List<Integer> MATH_OPERATIONS = Collections.unmodifiableList(Arrays.asList(//
 			Opcode.IADD, Opcode.IREM, Opcode.IMUL, Opcode.IDIV, //
 			Opcode.FADD, Opcode.FREM, Opcode.FMUL, Opcode.FDIV, //
@@ -243,6 +252,14 @@ public class Instructions {
 	public static boolean isLoadInstruction(Instruction instruction) {
 		return ALOAD_OPCODES.contains(instruction.getOpcode())
 				|| PRIMITIVE_LOAD_OPCODES.contains(instruction.getOpcode());
+	}
+
+	public static boolean isOneItemComparison(Instruction instruction) {
+		return ONE_ITEM_COMPARISONS.contains(instruction.getOpcode());
+	}
+
+	public static boolean isTwoItemComparison(Instruction instruction) {
+		return TWO_ITEM_COMPARISONS.contains(instruction.getOpcode());
 	}
 
 }
