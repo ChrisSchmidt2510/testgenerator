@@ -131,6 +131,14 @@ public class InstructionFilterTest extends TestHelper {
 
 		InstructionFilter filter = createInstructionFilter();
 
+//				0: aload_0
+//				1: aload_1
+//				2: ifnull 9
+//9: getstatic #18 = Field de.nvg.agent.classdata.testclasses.Value.DEFAULT_VALUE(Ljava/lang/Integer;)	5: aload_1
+//																										6: goto 12
+//				12: putfield #26 = Field de.nvg.agent.classdata.testclasses.Value.value(Ljava/lang/Integer;)
+//				15: return
+
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
 				// this test interesting
