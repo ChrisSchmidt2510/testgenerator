@@ -10,23 +10,40 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
+import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.InstructionPrinter;
-import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
 public class Instructions {
 
-	private static final List<Integer> LOAD_OPCODES = Collections
+	private static final List<Integer> ALOAD_OPCODES = Collections
 			.unmodifiableList(Arrays.asList(Opcode.ALOAD, Opcode.ALOAD_0, Opcode.ALOAD_1, //
 					Opcode.ALOAD_2, Opcode.ALOAD_3));
+
+	private static final List<Integer> PRIMITIVE_LOAD_OPCODES = Collections.unmodifiableList(Arrays.asList(//
+			Opcode.ILOAD, Opcode.ILOAD_0, Opcode.ILOAD_1, Opcode.ILOAD_2, Opcode.ILOAD_3, Opcode.ICONST_0,
+			Opcode.ICONST_1, Opcode.ICONST_2, Opcode.ICONST_3, Opcode.ICONST_4, Opcode.ICONST_5, Opcode.ICONST_M1,
+			Opcode.SIPUSH, Opcode.BIPUSH, //
+			Opcode.FLOAD, Opcode.FLOAD_0, Opcode.FLOAD_1, Opcode.FLOAD_2, Opcode.FLOAD_3, Opcode.FCONST_0,
+			Opcode.FCONST_1, Opcode.FCONST_2, //
+			Opcode.DLOAD, Opcode.DLOAD_0, Opcode.DLOAD_1, Opcode.DLOAD_2, Opcode.DLOAD_3, //
+			Opcode.DCONST_0, Opcode.DCONST_1, //
+			Opcode.LLOAD, Opcode.LLOAD_0, Opcode.LLOAD_1, Opcode.LLOAD_2, Opcode.LLOAD_3, Opcode.LCONST_0,
+			Opcode.LCONST_1));
+
+	private static final List<Integer> MATH_OPERATIONS = Collections.unmodifiableList(Arrays.asList(//
+			Opcode.IADD, Opcode.IREM, Opcode.IMUL, Opcode.IDIV, //
+			Opcode.FADD, Opcode.FREM, Opcode.FMUL, Opcode.FDIV, //
+			Opcode.DADD, Opcode.DREM, Opcode.DMUL, Opcode.DDIV, //
+			Opcode.LADD, Opcode.LREM, Opcode.LMUL, Opcode.LDIV));
+
 	private static final List<Integer> INVOKE_OPCODES = Collections
 			.unmodifiableList(Arrays.asList(Opcode.INVOKEVIRTUAL, Opcode.INVOKESPECIAL, //
 					Opcode.INVOKEINTERFACE, Opcode.INVOKESTATIC));
@@ -154,13 +171,6 @@ public class Instructions {
 		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
 	}
 
-	public static final Instruction filterForMatchingAloadInstruction(List<Instruction> instructions,
-			Instruction putFieldInstruction, LocalVariableAttribute table, CodeArrayModificator codeArrayModificator) {
-		InstructionFilter filter = new InstructionFilter(instructions, table, codeArrayModificator);
-
-		return filter.filterForMatchingAloadInstruction(putFieldInstruction);
-	}
-
 	public static final void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
 		iterator.begin();
 
@@ -177,7 +187,7 @@ public class Instructions {
 	}
 
 	public static boolean isAloadInstruction(Instruction instruction) {
-		return LOAD_OPCODES.contains(instruction.getOpcode());
+		return ALOAD_OPCODES.contains(instruction.getOpcode());
 	}
 
 	public static boolean isInvokeInstruction(Instruction instruction) {
@@ -202,8 +212,37 @@ public class Instructions {
 		return followingInstruction.getCodeArrayIndex() - instruction.getCodeArrayIndex();
 	}
 
+	public static List<String> getMethodParams(String descriptor) {
+		List<String> parameters = new ArrayList<>();
+
+		String methodParameters = descriptor.substring(descriptor.indexOf("(") + 1, descriptor.indexOf(")"));
+
+		while (methodParameters.length() > 0) {
+			if (Primitives.isPrimitiveDataType(methodParameters)) {
+				parameters.add(String.valueOf(methodParameters.charAt(0)));
+				methodParameters = methodParameters.substring(1);
+			} else {
+				int index = methodParameters.indexOf(";") + 1;
+
+				parameters.add(methodParameters.substring(0, index));
+				methodParameters = methodParameters.substring(index);
+			}
+		}
+
+		return Collections.unmodifiableList(parameters);
+	}
+
 	public static String getReturnType(String methodDesc) {
 		return methodDesc.substring(methodDesc.indexOf(")") + 1);
+	}
+
+	public static boolean isPrimitiveMathOperation(Instruction instruction) {
+		return MATH_OPERATIONS.contains(instruction.getOpcode());
+	}
+
+	public static boolean isLoadInstruction(Instruction instruction) {
+		return ALOAD_OPCODES.contains(instruction.getOpcode())
+				|| PRIMITIVE_LOAD_OPCODES.contains(instruction.getOpcode());
 	}
 
 }

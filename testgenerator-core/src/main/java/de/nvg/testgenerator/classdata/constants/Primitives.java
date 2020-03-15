@@ -10,6 +10,7 @@ public class Primitives {
 	public static final String JVM_FLOAT = "F";
 	public static final String JVM_DOUBLE = "D";
 	public static final String JVM_LONG = "L";
+	public static final String JVM_VOID = "V";
 
 	public static final String JAVA_BYTE = "byte";
 	public static final String JAVA_BOOLEAN = "boolean";

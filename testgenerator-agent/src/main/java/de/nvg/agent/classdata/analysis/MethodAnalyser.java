@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
@@ -69,7 +70,7 @@ public class MethodAnalyser {
 	}
 
 	public boolean isDefaultConstructor(String descriptor) {
-		List<String> params = AnalysisHelper.getMethodParams(descriptor);
+		List<String> params = Instructions.getMethodParams(descriptor);
 		return params.isEmpty();
 	}
 
@@ -78,7 +79,7 @@ public class MethodAnalyser {
 		Map<Integer, FieldData> initialzedFields = new HashMap<>();
 
 		if (putFieldInstructions != null) {
-			List<String> params = AnalysisHelper.getMethodParams(methodDescriptor);
+			List<String> params = Instructions.getMethodParams(methodDescriptor);
 
 			for (Instruction instruction : putFieldInstructions) {
 

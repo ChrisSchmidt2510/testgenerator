@@ -1,38 +1,15 @@
 package de.nvg.agent.classdata.analysis;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.bytecode.Opcode;
 
 public final class AnalysisHelper {
 
 	private AnalysisHelper() {
-	}
-
-	static List<String> getMethodParams(String descriptor) {
-		List<String> parameters = new ArrayList<>();
-
-		String methodParameters = descriptor.substring(descriptor.indexOf("(") + 1, descriptor.indexOf(")"));
-
-		while (methodParameters.length() > 0) {
-			if (Primitives.isPrimitiveDataType(methodParameters)) {
-				parameters.add(String.valueOf(methodParameters.charAt(0)));
-				methodParameters = methodParameters.substring(1);
-			} else {
-				int index = methodParameters.indexOf(";") + 1;
-
-				parameters.add(methodParameters.substring(0, index));
-				methodParameters = methodParameters.substring(index);
-			}
-		}
-
-		return Collections.unmodifiableList(parameters);
 	}
 
 	static boolean isDescriptorEqual(List<Instruction> instructions, int fieldInstructionIndex, String fieldDescriptor,

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.InstructionFilter;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
@@ -29,7 +30,6 @@ import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.FieldInfo;
-import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
@@ -153,15 +153,15 @@ public class FieldTypeChanger {
 
 		List<FieldData> initalizedFields = new ArrayList<>();
 
-		LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
+		InstructionFilter filter = new InstructionFilter(instructions);
 
 		for (Instruction instruction : putFieldInstructions) {
 
 			if (!classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
-				Instruction aloadInstruction = Instructions.filterForMatchingAloadInstruction(instructions, instruction,
-						table, codeArrayModificator);
+				Instruction aloadInstruction = filter.filterForAloadInstruction(instruction);
+
 				int lastAloadInstructionIndex = aloadInstruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
 
@@ -336,11 +336,9 @@ public class FieldTypeChanger {
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		if (putFieldInstructions != null) {
-			LocalVariableAttribute table = (LocalVariableAttribute) codeAttribute
-					.getAttribute(LocalVariableAttribute.tag);
 
 			overrideFieldAccessPutFieldInstructions(instructions, putFieldInstructions, //
-					iterator, codeArrayModificator, table);
+					iterator, codeArrayModificator);
 		}
 
 		List<Instruction> getFieldInstructions = filteredInstructions.get(Opcode.GETFIELD);
@@ -357,15 +355,17 @@ public class FieldTypeChanger {
 
 	private void overrideFieldAccessPutFieldInstructions(List<Instruction> instructions,
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
-			CodeArrayModificator codeArrayModificator, LocalVariableAttribute table) throws BadBytecode {
+			CodeArrayModificator codeArrayModificator) throws BadBytecode {
+
+		InstructionFilter filter = new InstructionFilter(instructions);
+
 		for (Instruction instruction : putFieldInstructions) {
 
 			if (classData.getName().equals(instruction.getClassRef()) && !classData
 					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
-				Instruction loadInstruction = Instructions.//
-						filterForMatchingAloadInstruction(instructions, instruction, table, codeArrayModificator);
+				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
 
 				int codeArrayIndex = loadInstruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());

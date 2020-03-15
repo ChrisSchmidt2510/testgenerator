@@ -3,6 +3,7 @@ package de.nvg.agent.classdata.analysis;
 import java.util.List;
 
 import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.testgenerator.Wrapper;
 import javassist.bytecode.Descriptor;
@@ -18,7 +19,7 @@ public class NormalSetterAnalyser implements MethodAnalysis {
 
 			if (Opcode.PUTFIELD == instruction.getOpcode()) {
 
-				List<String> parameters = AnalysisHelper.getMethodParams(descriptor);
+				List<String> parameters = Instructions.getMethodParams(descriptor);
 
 				if (!parameters.isEmpty() && instructions.size() < 25 && //
 						AnalysisHelper.isDescriptorEqual(instructions, index, //

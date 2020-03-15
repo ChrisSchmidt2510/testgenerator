@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import de.nvg.agent.classdata.instructions.Instruction;
+import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.testgenerator.Wrapper;
@@ -50,7 +51,7 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 						// if field is null, the field isnt in the class -> checked method can't be a
 						// setter for this field
 						if (field != null) {
-							List<String> params = AnalysisHelper.getMethodParams(descriptor);
+							List<String> params = Instructions.getMethodParams(descriptor);
 
 							List<String> genericTypes = field.getSignature() != null ? field.getSignature()
 									.getSubTypes().stream().map(SignatureData::getType).collect(Collectors.toList())
@@ -81,7 +82,7 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 				Instruction bytecodeInvokeInterface = instructions
 						.get(instructionIndex + 1 + collectionGenericType.size());
 
-				List<String> interfaceParams = AnalysisHelper.getMethodParams(bytecodeInvokeInterface.getType());
+				List<String> interfaceParams = Instructions.getMethodParams(bytecodeInvokeInterface.getType());
 
 				List<String> methodNames = JVMTypes.COLLECTION_ADD_METHODS
 						.get(Descriptor.of(bytecodeInvokeInterface.getClassRef()));
