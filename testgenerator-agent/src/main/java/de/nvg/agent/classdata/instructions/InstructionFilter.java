@@ -1,5 +1,6 @@
 package de.nvg.agent.classdata.instructions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -109,10 +110,6 @@ public class InstructionFilter {
 
 	private Instruction filterForInstructionBeforeInvokeInstruction(Instruction searchInstruction,
 			Instruction invokeInstruction, Stack<String> operandStack) {
-		List<String> methodParams = Instructions.getMethodParams(invokeInstruction.getType());
-		// reverse the list cause the lifo-principle ->last methodparameter gets pushed
-		// first
-		Collections.reverse(methodParams);
 
 		String returnType = Instructions.getReturnType(invokeInstruction.getType());
 
@@ -120,11 +117,20 @@ public class InstructionFilter {
 			operandStack.pop();
 		}
 
+		List<String> methodParams = Instructions.getMethodParams(invokeInstruction.getType());
+		if (methodParams.isEmpty() && Opcode.INVOKESTATIC == invokeInstruction.getOpcode()) {
+			return invokeInstruction;
+		}
+
 		Stack<String> methodOperandStack = new Stack<>();
 
 		if (Opcode.INVOKESTATIC != invokeInstruction.getOpcode()) {
 			methodOperandStack.add(invokeInstruction.getClassRef());
 		}
+
+		// reverse the list cause the lifo-principle ->last methodparameter gets pushed
+		// first
+		Collections.reverse(methodParams);
 
 		for (String param : methodParams) {
 			methodOperandStack.push(Descriptor.toClassName(param));
@@ -146,16 +152,19 @@ public class InstructionFilter {
 	 *         else-branch
 	 */
 	private List<Instruction> simplifyInstructionTree(List<Instruction> instructions) {
-		Optional<Instruction> branchOptional = instructions.stream()
+		List<Instruction> branches = instructions.stream()
 				.filter(inst -> Instructions.isOneItemComparison(inst) || Instructions.isTwoItemComparison(inst))
-				.findAny();
+				.collect(Collectors.toList());
 
-		if (branchOptional.isPresent()) {
-			Instruction branchInstruction = branchOptional.get();
+		List<Instruction> modifiedInstructions = new ArrayList<>(instructions);
+
+		for (Instruction branchInstruction : branches) {
 
 			int ifEnd = branchInstruction.getCodeArrayIndex() + branchInstruction.getOffset();
 			Optional<Instruction> gotoOptional = instructions.stream()
-					.filter(inst -> Opcode.GOTO == inst.getOpcode() && ifEnd > inst.getCodeArrayIndex())//
+					.filter(inst -> Opcode.GOTO == inst.getOpcode()
+							&& inst.getCodeArrayIndex() > branchInstruction.getCodeArrayIndex()
+							&& ifEnd > inst.getCodeArrayIndex())//
 					.findAny();
 
 			if (gotoOptional.isPresent()) {
@@ -165,17 +174,21 @@ public class InstructionFilter {
 
 				if (instructions.stream().anyMatch(
 						inst -> Opcode.PUTFIELD == inst.getOpcode() && branchEnd == inst.getCodeArrayIndex())) {
-					List<Instruction> modifiedInstructionSet = instructions.stream()
-							.filter(inst -> gotoInstruction.getCodeArrayIndex() > inst.getCodeArrayIndex()
-									|| inst.getCodeArrayIndex() >= branchEnd)
+
+					List<Instruction> removedInstructions = instructions.stream()
+							.filter(inst -> inst.getCodeArrayIndex() >= gotoInstruction.getCodeArrayIndex()
+									&& inst.getCodeArrayIndex() < branchEnd)
 							.collect(Collectors.toList());
 
-					return modifiedInstructionSet;
+					LOGGER.debug("removedInstructions",
+							stream -> removedInstructions.forEach(inst -> stream.println(inst)));
+
+					modifiedInstructions.removeAll(removedInstructions);
 				}
 			}
 		}
 
-		return instructions;
+		return modifiedInstructions;
 	}
 
 }
