@@ -38,7 +38,7 @@ public class InstructionFilter {
 
 	/**
 	 * filtering throw the instructions of a method and returns the caller of the
-	 * searchInstruction. To reach this goal, a operandStack is build, in reserve
+	 * searchInstruction. To reach this goal, a operandStack is build, in reverse
 	 * order to the normal operandstack the jvm is using.
 	 * 
 	 * @param searchInstruction
@@ -108,6 +108,21 @@ public class InstructionFilter {
 				"No matching caller-instruction for search-instruction " + searchInstruction + " found");
 	}
 
+	/**
+	 * Filtering for the call-instruction of the method-invocation. If the
+	 * invoke-instruction has a return-type, its pops the return-type from the
+	 * commited operandStack. In order to get the call-instruction a new
+	 * operandStack is created and the parameter of the invoke-instruction getting
+	 * pushed. After that the method
+	 * {@link InstructionFilter#filterForInstructionCallerIntern(Instruction, Instruction, Stack)}.
+	 * Exclusion: if the invoke-instruction has the Opcode INVOKE_STATIC and the
+	 * method has no parameters, the invokeinstruction gets returned
+	 * 
+	 * @param searchInstruction
+	 * @param invokeInstruction
+	 * @param operandStack
+	 * @return
+	 */
 	private Instruction filterForInstructionBeforeInvokeInstruction(Instruction searchInstruction,
 			Instruction invokeInstruction, Stack<String> operandStack) {
 
