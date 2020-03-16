@@ -124,20 +124,12 @@ public class InstructionFilterTest extends TestHelper {
 	}
 
 	@Test
-	public void testFilterForInstructionCallWithIfs() throws NotFoundException, BadBytecode {
+	public void testFilterForInstructionCallWithIfElseBranch() throws NotFoundException, BadBytecode {
 		init("de.nvg.agent.classdata.testclasses.Value", "setValue", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
 		InstructionFilter filter = createInstructionFilter();
-
-//				0: aload_0
-//				1: aload_1
-//				2: ifnull 9
-//9: getstatic #18 = Field de.nvg.agent.classdata.testclasses.Value.DEFAULT_VALUE(Ljava/lang/Integer;)	5: aload_1
-//																										6: goto 12
-//				12: putfield #26 = Field de.nvg.agent.classdata.testclasses.Value.value(Ljava/lang/Integer;)
-//				15: return
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -145,6 +137,23 @@ public class InstructionFilterTest extends TestHelper {
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
 		Assert.assertEquals(0, aloadInstruction.getCodeArrayIndex());
+		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+	}
+
+	@Test
+	public void testFilterForInstructionCallWithIfBranch() throws NotFoundException, BadBytecode {
+		init("de.nvg.agent.classdata.testclasses.Value", "setValueID", Arrays.asList(Opcode.PUTFIELD));
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		InstructionFilter filter = createInstructionFilter();
+
+		Instruction aloadInstruction = filter
+				// this method has multiple putField-instructions, but only the first is for
+				// this test interesting
+				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
+
+		Assert.assertEquals(4, aloadInstruction.getCodeArrayIndex());
 		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 

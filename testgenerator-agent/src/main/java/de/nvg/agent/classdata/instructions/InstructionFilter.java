@@ -3,7 +3,9 @@ package de.nvg.agent.classdata.instructions;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.classdata.constants.Primitives;
@@ -19,7 +21,7 @@ public class InstructionFilter {
 	private final List<Instruction> instructions;
 
 	public InstructionFilter(List<Instruction> instructions) {
-		this.instructions = instructions;
+		this.instructions = simplifyInstructionTree(instructions);
 	}
 
 	public final Instruction filterForAloadInstruction(Instruction instruction) {
@@ -34,6 +36,9 @@ public class InstructionFilter {
 	}
 
 	/**
+	 * filtering throw the instructions of a method and returns the caller of the
+	 * searchInstruction. To reach this goal, a operandStack is build, in reserve
+	 * order to the normal operandstack the jvm is using.
 	 * 
 	 * @param searchInstruction
 	 * @param currentInstruction
@@ -127,6 +132,50 @@ public class InstructionFilter {
 
 		return filterForInstructionCallerIntern(invokeInstruction,
 				Instructions.getBeforeInstruction(instructions, invokeInstruction), methodOperandStack);
+	}
+
+	/**
+	 * Modifies the instruction-set of a method in the case that a if-else-cascade
+	 * exists to manipulate the value of a field. Then will the else-instructions
+	 * excluded from the modified instructionsset. This is necessary to enable the
+	 * reverse filtering of the correct aload-instruction of a field.
+	 * 
+	 * @param instructions
+	 * @return a modified-instructionsset without else-branch bytecodes, if a field
+	 *         gets manipulated directly after the last instruction of the
+	 *         else-branch
+	 */
+	private List<Instruction> simplifyInstructionTree(List<Instruction> instructions) {
+		Optional<Instruction> branchOptional = instructions.stream()
+				.filter(inst -> Instructions.isOneItemComparison(inst) || Instructions.isTwoItemComparison(inst))
+				.findAny();
+
+		if (branchOptional.isPresent()) {
+			Instruction branchInstruction = branchOptional.get();
+
+			int ifEnd = branchInstruction.getCodeArrayIndex() + branchInstruction.getOffset();
+			Optional<Instruction> gotoOptional = instructions.stream()
+					.filter(inst -> Opcode.GOTO == inst.getOpcode() && ifEnd > inst.getCodeArrayIndex())//
+					.findAny();
+
+			if (gotoOptional.isPresent()) {
+				Instruction gotoInstruction = gotoOptional.get();
+
+				int branchEnd = gotoInstruction.getCodeArrayIndex() + gotoInstruction.getOffset();
+
+				if (instructions.stream().anyMatch(
+						inst -> Opcode.PUTFIELD == inst.getOpcode() && branchEnd == inst.getCodeArrayIndex())) {
+					List<Instruction> modifiedInstructionSet = instructions.stream()
+							.filter(inst -> gotoInstruction.getCodeArrayIndex() > inst.getCodeArrayIndex()
+									|| inst.getCodeArrayIndex() >= branchEnd)
+							.collect(Collectors.toList());
+
+					return modifiedInstructionSet;
+				}
+			}
+		}
+
+		return instructions;
 	}
 
 }

@@ -22,7 +22,8 @@ public class Value {
 	}
 
 	public void setValueID(Integer valueID) {
-		this.valueID = valueID;
+		if (valueID != null)
+			this.valueID = valueID;
 	}
 
 	public Integer getValue() {
