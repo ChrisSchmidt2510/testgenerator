@@ -238,7 +238,7 @@ public class Instructions {
 			}
 		}
 
-		return Collections.unmodifiableList(parameters);
+		return parameters;
 	}
 
 	public static String getReturnType(String methodDesc) {
