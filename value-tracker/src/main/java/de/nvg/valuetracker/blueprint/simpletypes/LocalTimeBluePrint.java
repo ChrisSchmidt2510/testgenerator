@@ -13,8 +13,8 @@ public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> {
 	}
 
 	@Override
-	public String valueCreation() {
-		return "$T.of(" + value.getHour() + "," + value.getMinute() + "," + value.getSecond() + ");";
+	protected String createValue(LocalTime value) {
+		return "$T.of(" + value.getHour() + "," + value.getMinute() + "," + value.getSecond() + ")";
 	}
 
 	@Override

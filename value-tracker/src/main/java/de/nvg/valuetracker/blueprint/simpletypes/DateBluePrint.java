@@ -12,15 +12,21 @@ public class DateBluePrint extends SimpleBluePrint<Date> {
 		super(fieldName, value);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
-	public String valueCreation() {
-		// TODO CS mit Andi reden, selbe wie bei sql.Date
-		return "new $T(" + value.getTime() + ")";
+	protected String createValue(Date value) {
+
+		if (value instanceof java.sql.Date) {
+			return "new $T(" + (value.getYear() + 1900) + " - 1900, " + (value.getMonth() + 1) + "-1 , "
+					+ value.getDate() + ")";
+		}
+		return "new $T(" + (value.getYear() + 1900) + " - 1900, " + (value.getMonth() + 1) + "-1 , " + value.getDate()//
+				+ " , " + value.getHours() + " , " + value.getMinutes() + " , " + value.getSeconds() + ")";
 	}
 
 	@Override
 	public List<Class<?>> getReferenceClasses() {
-		return Arrays.asList(Date.class);
+		return Arrays.asList(value.getClass());
 	}
 
 }

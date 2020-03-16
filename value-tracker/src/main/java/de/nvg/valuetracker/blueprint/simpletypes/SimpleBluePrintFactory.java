@@ -34,10 +34,8 @@ public class SimpleBluePrintFactory {
 			return new LocalTimeBluePrint(fieldName, (LocalTime) value);
 		} else if (value instanceof LocalDateTime) {
 			return new LocalDateTimeBluePrint(fieldName, (LocalDateTime) value);
-		} else if (value instanceof Date) {
+		} else if (value instanceof Date || value instanceof java.sql.Date) {
 			return new DateBluePrint(fieldName, (Date) value);
-		} else if (value instanceof java.sql.Date) {
-			return new SqlDateBluePrint(fieldName, (java.sql.Date) value);
 		} else if (value instanceof String) {
 			return new StringBluePrint(fieldName, (String) value);
 		} else if (value instanceof Enum) {

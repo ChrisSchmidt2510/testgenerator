@@ -14,7 +14,7 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 	}
 
 	@Override
-	public String valueCreation() {
+	protected String createValue(Number value) {
 		if (value instanceof Integer) {
 			return String.valueOf(value.intValue());
 		} else if (value instanceof Short) {
@@ -22,11 +22,11 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 		} else if (value instanceof Byte) {
 			return "(byte)" + String.valueOf(value.intValue());
 		} else if (value instanceof Float) {
-			return String.valueOf(value.floatValue());
+			return String.valueOf(value.floatValue() + "f");
 		} else if (value instanceof Double) {
 			return String.valueOf(value.doubleValue());
 		} else if (value instanceof Long) {
-			return String.valueOf(value.longValue());
+			return String.valueOf(value.longValue() + "L");
 		} else if (value instanceof BigDecimal) {
 			BigDecimal decimal = (BigDecimal) value;
 			return "$T.valueOf(" + decimal.doubleValue() + ").setScale(" + decimal.scale() + ")";

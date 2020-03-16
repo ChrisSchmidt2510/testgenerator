@@ -1,11 +1,14 @@
 package de.nvg.valuetracker.blueprint;
 
+import java.util.Collections;
 import java.util.List;
 
 public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
+	private final String createdValue;
 
 	protected SimpleBluePrint(String name, E value) {
 		super(name, value);
+		this.createdValue = createValue(value);
 	}
 
 	@Override
@@ -13,9 +16,15 @@ public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 		return null;
 	}
 
-	public abstract String valueCreation();
+	protected abstract String createValue(E value);
 
-	public abstract List<Class<?>> getReferenceClasses();
+	public String valueCreation() {
+		return createdValue;
+	}
+
+	public List<Class<?>> getReferenceClasses() {
+		return Collections.emptyList();
+	}
 
 	@Override
 	public boolean isComplexType() {
@@ -24,8 +33,6 @@ public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 
 	@Override
 	public String toString() {
-		// TODO just temporary
-
 		return "Field: " + name + " Value: " + valueCreation();
 	}
 

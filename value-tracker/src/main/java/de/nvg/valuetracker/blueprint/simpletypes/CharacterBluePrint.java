@@ -1,8 +1,5 @@
 package de.nvg.valuetracker.blueprint.simpletypes;
 
-import java.util.Collections;
-import java.util.List;
-
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class CharacterBluePrint extends SimpleBluePrint<Character> {
@@ -12,13 +9,8 @@ public class CharacterBluePrint extends SimpleBluePrint<Character> {
 	}
 
 	@Override
-	public String valueCreation() {
+	protected String createValue(Character value) {
 		return "'" + value.toString() + "'";
-	}
-
-	@Override
-	public List<Class<?>> getReferenceClasses() {
-		return Collections.emptyList();
 	}
 
 }

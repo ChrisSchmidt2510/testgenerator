@@ -13,15 +13,15 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> {
 	}
 
 	@Override
-	public String valueCreation() {
-		return "new $T(" + value.get(Calendar.YEAR) + ", " + value.get(Calendar.MONTH) + ", "
+	protected String createValue(Calendar value) {
+		return "new $T(" + value.get(Calendar.YEAR) + ", " + (value.get(Calendar.MONTH) + 1) + "-1, "
 				+ value.get(Calendar.DAY_OF_MONTH) + ", " + value.get(Calendar.HOUR_OF_DAY) + ", "
 				+ value.get(Calendar.MINUTE) + ", " + value.get(Calendar.SECOND) + ")";
 	}
 
 	@Override
 	public List<Class<?>> getReferenceClasses() {
-		return Arrays.asList(Calendar.class);
+		return Arrays.asList(value.getClass());
 	}
 
 }
