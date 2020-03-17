@@ -2,7 +2,7 @@ package de.nvg.agent.classdata.model;
 
 import java.util.Objects;
 
-public class FieldData {
+public final class FieldData {
 	private final String dataType;
 	private final String name;
 	private final boolean mutable;

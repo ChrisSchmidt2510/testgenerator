@@ -46,8 +46,9 @@ public final class AnalysisHelper {
 		case Opcode.LLOAD:
 			argumentIndex.setValue(instruction.getLocalVariableIndex());
 			return fieldDescriptor.equals(methodParameters.get(instruction.getLocalVariableIndex() - 1));
+		default:
+			return false;
 		}
-		return false;
 	}
 
 	static FieldData getField(List<FieldData> fields, String name, String type) {

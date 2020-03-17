@@ -5,7 +5,7 @@ import java.util.Objects;
 import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
-public class Instruction {
+public final class Instruction {
 	private final int codeArrayIndex;
 	private final int opcode;
 	private final int localVariableIndex;
@@ -83,6 +83,8 @@ public class Instruction {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + localVariableIndex;
 		} else if (Opcode.NEW == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " Class: " + classRef;
+		} else if (Opcode.IFNULL == opcode || Opcode.GOTO == opcode) {
+			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + offset;
 		}
 
 		return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode];
@@ -133,10 +135,8 @@ public class Instruction {
 		}
 
 		public Instruction build() {
-			Instruction bytecode = new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, type, name,
-					classRef);
+			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, type, name, classRef);
 
-			return bytecode;
 		}
 	}
 

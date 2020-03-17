@@ -3,7 +3,7 @@ package de.nvg.agent.classdata.modification.indy;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 
-public class SupplierBootstrapMethodCreator extends BootstrapMethodCreator {
+public class SupplierBootstrapMethodCreator extends AbstractBootstrapMethodCreator {
 	private static final String INDY_SUPPLIER_GENERIC_RETURN_TYPE = "()Ljava/lang/Object;";
 	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lde/nvg/runtime/classdatamodel/ClassData;";
 

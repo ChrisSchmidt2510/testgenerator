@@ -1,7 +1,9 @@
 package de.nvg.agent.classdata.instructions;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,7 +30,7 @@ public class InstructionFilter {
 	public final Instruction filterForAloadInstruction(Instruction instruction) {
 		LOGGER.debug("searching for instruction-caller of " + instruction);
 
-		Stack<String> operandStack = new Stack<>();
+		Deque<String> operandStack = new ArrayDeque<>();
 		operandStack.push(instruction.getClassRef());
 		operandStack.push(Descriptor.toClassName(instruction.getType()));
 
@@ -47,7 +49,7 @@ public class InstructionFilter {
 	 * @return the caller-instruction of the searchInstruction
 	 */
 	private Instruction filterForInstructionCallerIntern(Instruction searchInstruction, Instruction instruction,
-			Stack<String> operandStack) {
+			Deque<String> operandStack) {
 		LOGGER.debug("search-instruction " + searchInstruction + "\n" + //
 				"current-instruction " + instruction + "\n" + //
 				"current operandStack: " + operandStack + "\n");
@@ -70,7 +72,7 @@ public class InstructionFilter {
 
 		} else if (Instructions.isInvokeInstruction(instruction)) {
 			// update the instruction to the instruction, who starts the invoke-instruction
-			instruction = filterForInstructionBeforeInvokeInstruction(searchInstruction, instruction, operandStack);
+			instruction = filterForInstructionBeforeInvokeInstruction(instruction, operandStack);
 		} else if (Instructions.isPrimitiveMathOperation(instruction)) {
 			String type = operandStack.peek();
 			// push the same type to the operandStack, cause the primitive-math-operations
@@ -123,8 +125,8 @@ public class InstructionFilter {
 	 * @param operandStack
 	 * @return
 	 */
-	private Instruction filterForInstructionBeforeInvokeInstruction(Instruction searchInstruction,
-			Instruction invokeInstruction, Stack<String> operandStack) {
+	private Instruction filterForInstructionBeforeInvokeInstruction(Instruction invokeInstruction,
+			Deque<String> operandStack) {
 
 		String returnType = Instructions.getReturnType(invokeInstruction.getType());
 
@@ -137,7 +139,7 @@ public class InstructionFilter {
 			return invokeInstruction;
 		}
 
-		Stack<String> methodOperandStack = new Stack<>();
+		Deque<String> methodOperandStack = new ArrayDeque<>();
 
 		if (Opcode.INVOKESTATIC != invokeInstruction.getOpcode()) {
 			methodOperandStack.add(invokeInstruction.getClassRef());
@@ -195,8 +197,7 @@ public class InstructionFilter {
 									&& inst.getCodeArrayIndex() < branchEnd)
 							.collect(Collectors.toList());
 
-					LOGGER.debug("removedInstructions",
-							stream -> removedInstructions.forEach(inst -> stream.println(inst)));
+					LOGGER.debug("removedInstructions", stream -> removedInstructions.forEach(stream::println));
 
 					modifiedInstructions.removeAll(removedInstructions);
 				}

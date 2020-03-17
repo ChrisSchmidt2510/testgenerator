@@ -8,7 +8,10 @@ import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
-public class ClassTransformerAgent {
+public final class ClassTransformerAgent {
+
+	private ClassTransformerAgent() {
+	}
 
 	public static void premain(String agentArgs, Instrumentation instrumentation) {
 

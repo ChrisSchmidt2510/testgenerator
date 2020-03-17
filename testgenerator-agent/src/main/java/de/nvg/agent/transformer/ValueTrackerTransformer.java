@@ -219,7 +219,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	}
 
 	private String createNameForTestobject(String className) {
-		String newClassName = className.substring(className.lastIndexOf(".") + 1);
+		String newClassName = className.substring(className.lastIndexOf('.') + 1);
 
 		newClassName = newClassName.replace(newClassName.charAt(0), Character.toLowerCase(newClassName.charAt(0)));
 

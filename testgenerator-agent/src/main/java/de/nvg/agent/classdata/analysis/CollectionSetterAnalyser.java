@@ -29,7 +29,7 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 	}
 
 	@Override
-	public boolean analyse(String descriptor, List<Instruction> instructions, Wrapper<FieldData> fieldWrapper) {
+	public boolean analyse(String descriptor, final List<Instruction> instructions, Wrapper<FieldData> fieldWrapper) {
 		this.instructions = instructions;
 
 		List<Instruction> filteredInstructions = instructions.stream()
@@ -74,26 +74,23 @@ public class CollectionSetterAnalyser implements MethodAnalysis {
 	private boolean checkParameterAndMethod(List<String> methodParameter, List<String> collectionGenericType,
 			int instructionIndex) {
 
-		if (methodParameter.equals(collectionGenericType) && instructions.size() < 25) {
+		if (methodParameter.equals(collectionGenericType) && instructions.size() < 25
+				&& Opcode.INVOKEINTERFACE == instructions.get(instructionIndex + 1 + collectionGenericType.size())
+						.getOpcode()) {
 
-			if (Opcode.INVOKEINTERFACE == instructions.get(instructionIndex + 1 + collectionGenericType.size())
-					.getOpcode()) {
+			Instruction bytecodeInvokeInterface = instructions.get(instructionIndex + 1 + collectionGenericType.size());
 
-				Instruction bytecodeInvokeInterface = instructions
-						.get(instructionIndex + 1 + collectionGenericType.size());
+			List<String> interfaceParams = Instructions.getMethodParams(bytecodeInvokeInterface.getType());
 
-				List<String> interfaceParams = Instructions.getMethodParams(bytecodeInvokeInterface.getType());
+			List<String> methodNames = JVMTypes.COLLECTION_ADD_METHODS
+					.get(Descriptor.of(bytecodeInvokeInterface.getClassRef()));
 
-				List<String> methodNames = JVMTypes.COLLECTION_ADD_METHODS
-						.get(Descriptor.of(bytecodeInvokeInterface.getClassRef()));
+			List<String> paramList = createParamList(interfaceParams.size());
 
-				List<String> paramList = createParamList(interfaceParams.size());
+			if (methodNames != null && methodNames.contains(bytecodeInvokeInterface.getName())
+					&& interfaceParams.size() == methodParameter.size() && paramList.equals(interfaceParams)) {
 
-				if (methodNames != null && methodNames.contains(bytecodeInvokeInterface.getName())
-						&& interfaceParams.size() == methodParameter.size() && paramList.equals(interfaceParams)) {
-
-					return true;
-				}
+				return true;
 			}
 		}
 

@@ -77,7 +77,7 @@ public class MetaDataAdder {
 	private final ClassData classData;
 
 	private final Map<String, Integer> localVariableIndex = new HashMap<>();
-	private int localVariableCounter = 0;
+	private int localVariableCounter;
 
 	private final SignatureAdder signatureAdder;
 
@@ -210,8 +210,9 @@ public class MetaDataAdder {
 
 				MethodType type = method.getMethodType();
 
-				if (MethodType.REFERENCE_VALUE_SETTER == type || JavaTypes.COLLECTION_LIST.contains(field.getDataType())
-						&& (MethodType.COLLECTION_SETTER == type || MethodType.REFERENCE_VALUE_GETTER == type)) {
+				if (MethodType.REFERENCE_VALUE_SETTER == type || (JavaTypes.COLLECTION_LIST
+						.contains(field.getDataType())
+						&& (MethodType.COLLECTION_SETTER == type || MethodType.REFERENCE_VALUE_GETTER == type))) {
 
 					code.addGetstatic(loadingClass, TestgeneratorConstants.FIELDNAME_CLASS_DATA, CLASS_DATA);
 					// load specific LocalVariable Field

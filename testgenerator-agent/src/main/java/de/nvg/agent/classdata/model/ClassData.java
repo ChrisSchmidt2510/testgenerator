@@ -19,7 +19,7 @@ public class ClassData {
 	private ConstructorData constructor;
 
 	private Map<MethodData, FieldData> methods = new HashMap<>();
-	private Map<FieldData, List<MethodData>> fieldsUsedInMethods = null;
+	private Map<FieldData, List<MethodData>> fieldsUsedInMethods;
 
 	public ClassData(String name) {
 		this.name = name;
@@ -58,7 +58,7 @@ public class ClassData {
 	}
 
 	public boolean hasDefaultConstructor() {
-		return constructor == null ? false : constructor.isDefaultConstructor();
+		return constructor != null && constructor.isDefaultConstructor();
 	}
 
 	public void setConstructor(ConstructorData constructor) {

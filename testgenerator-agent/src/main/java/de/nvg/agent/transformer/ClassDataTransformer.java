@@ -3,6 +3,7 @@ package de.nvg.agent.transformer;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -61,7 +62,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (properties.getBlPackage().stream().anyMatch(packageName -> className.startsWith(packageName))
+		if (properties.getBlPackage().stream().anyMatch(className::startsWith)
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
 				|| properties.getClassName().equals(className)) {
 
@@ -90,7 +91,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return classfileBuffer;
 	}
 
-	private byte[] collectAndAlterMetaData(CtClass loadingClass) throws Exception {
+	private byte[] collectAndAlterMetaData(CtClass loadingClass)
+			throws NotFoundException, CannotCompileException, BadBytecode, IOException {
 		ClassData classData;
 
 		ClassFile classFile = loadingClass.getClassFile();
@@ -248,7 +250,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	}
 
 	private void analyseMethod(MethodInfo method, List<Instruction> instructions, ClassData classData,
-			MethodAnalyser methodAnalyser) throws BadBytecode {
+			MethodAnalyser methodAnalyser) {
 
 		if (MethodInfo.nameInit.equals(method.getName()) && !classData.hasDefaultConstructor()
 				&& AccessFlag.isPublic(method.getAccessFlags())) {

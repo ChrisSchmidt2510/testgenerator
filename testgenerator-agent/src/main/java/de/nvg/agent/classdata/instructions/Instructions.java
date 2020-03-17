@@ -21,7 +21,7 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
-public class Instructions {
+public final class Instructions {
 
 	private static final List<Integer> ALOAD_OPCODES = Collections
 			.unmodifiableList(Arrays.asList(Opcode.ALOAD, Opcode.ALOAD_0, Opcode.ALOAD_1, //
@@ -40,7 +40,7 @@ public class Instructions {
 
 	private static final List<Integer> ONE_ITEM_COMPARISONS = Collections
 			.unmodifiableList(Arrays.asList(Opcode.IFNULL, Opcode.IFNONNULL, //
-					Opcode.IFEQ, Opcode.IFNE, Opcode.IFNE, Opcode.IFLT, Opcode.IFGE, Opcode.IFGT, Opcode.IFLE));
+					Opcode.IFEQ, Opcode.IFNE, Opcode.IFLT, Opcode.IFGE, Opcode.IFGT, Opcode.IFLE));
 
 	private static final List<Integer> TWO_ITEM_COMPARISONS = Collections
 			.unmodifiableList(Arrays.asList(Opcode.IF_ACMPEQ, Opcode.IF_ACMPNE, //
@@ -56,6 +56,9 @@ public class Instructions {
 	private static final List<Integer> INVOKE_OPCODES = Collections
 			.unmodifiableList(Arrays.asList(Opcode.INVOKEVIRTUAL, Opcode.INVOKESPECIAL, //
 					Opcode.INVOKEINTERFACE, Opcode.INVOKESTATIC));
+
+	private Instructions() {
+	}
 
 	public static List<Instruction> getAllInstructions(MethodInfo methodInfo) throws BadBytecode {
 		List<Instruction> instructions = new ArrayList<>();
@@ -180,7 +183,7 @@ public class Instructions {
 		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
 	}
 
-	public static final void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
+	public static void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
 		iterator.begin();
 
 		while (iterator.hasNext()) {
@@ -224,14 +227,14 @@ public class Instructions {
 	public static List<String> getMethodParams(String descriptor) {
 		List<String> parameters = new ArrayList<>();
 
-		String methodParameters = descriptor.substring(descriptor.indexOf("(") + 1, descriptor.indexOf(")"));
+		String methodParameters = descriptor.substring(descriptor.indexOf('(') + 1, descriptor.indexOf(')'));
 
 		while (methodParameters.length() > 0) {
 			if (Primitives.isPrimitiveDataType(methodParameters)) {
 				parameters.add(String.valueOf(methodParameters.charAt(0)));
 				methodParameters = methodParameters.substring(1);
 			} else {
-				int index = methodParameters.indexOf(";") + 1;
+				int index = methodParameters.indexOf(';') + 1;
 
 				parameters.add(methodParameters.substring(0, index));
 				methodParameters = methodParameters.substring(index);
@@ -242,7 +245,7 @@ public class Instructions {
 	}
 
 	public static String getReturnType(String methodDesc) {
-		return methodDesc.substring(methodDesc.indexOf(")") + 1);
+		return methodDesc.substring(methodDesc.indexOf(')') + 1);
 	}
 
 	public static boolean isPrimitiveMathOperation(Instruction instruction) {

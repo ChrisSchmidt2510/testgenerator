@@ -10,13 +10,16 @@ public final class SignatureParser {
 	private static final Character GENERIC_PARAM_END = '>';
 	private static final Character TYPE_DELIMETER = ';';
 
+	private SignatureParser() {
+	}
+
 	public static SignatureData parse(String signature) throws SignatureParserException {
 
 		if (signature.contains(GENERIC_PARAM_START.toString())) {
 			int genericParamStart = signature.indexOf(GENERIC_PARAM_START);
 			int typeDelimeter = signature.substring(0, genericParamStart).indexOf(TYPE_DELIMETER);
 
-			String type = signature.substring(typeDelimeter == -1 ? 0 : typeDelimeter + 1, genericParamStart)
+			String type = signature.substring(typeDelimeter == -1 ? 0 : (typeDelimeter + 1), genericParamStart)
 					+ TYPE_DELIMETER;
 
 			validate(type);

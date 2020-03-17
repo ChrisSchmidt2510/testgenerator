@@ -5,7 +5,10 @@ import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.ConstPool;
 
-public class BytecodeUtils {
+public final class BytecodeUtils {
+
+	private BytecodeUtils() {
+	}
 
 	public static void addClassInfoToBytecode(Bytecode code, ConstPool constantPool, String descriptor) {
 		if (Primitives.PRIMTIVE_JAVA_TYPES.contains(descriptor)) {

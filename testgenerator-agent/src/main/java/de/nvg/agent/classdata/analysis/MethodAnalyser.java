@@ -15,7 +15,6 @@ import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import javassist.Modifier;
-import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Descriptor;
 
 public class MethodAnalyser {
@@ -75,7 +74,7 @@ public class MethodAnalyser {
 	}
 
 	public Map<Integer, FieldData> analyseConstructor(String methodDescriptor, //
-			List<Instruction> putFieldInstructions, List<Instruction> allInstructions) throws BadBytecode {
+			List<Instruction> putFieldInstructions, List<Instruction> allInstructions) {
 		Map<Integer, FieldData> initialzedFields = new HashMap<>();
 
 		if (putFieldInstructions != null) {

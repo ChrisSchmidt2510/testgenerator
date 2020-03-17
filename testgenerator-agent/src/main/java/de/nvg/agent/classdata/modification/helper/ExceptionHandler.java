@@ -6,7 +6,7 @@ import java.util.List;
 
 public class ExceptionHandler {
 	private final List<ExceptionHandlerModel> exceptionHandlers = new ArrayList<>();
-	private int startIndex = 0;
+	private int startIndex;
 
 	public void addExceptionHandler(int endIndex, int codeLength, String exceptionClassName) {
 		ExceptionHandlerModel handler = new ExceptionHandlerModel(startIndex, endIndex, exceptionClassName);
@@ -19,7 +19,7 @@ public class ExceptionHandler {
 		return Collections.unmodifiableList(exceptionHandlers);
 	}
 
-	public class ExceptionHandlerModel {
+	public static class ExceptionHandlerModel {
 		/** included */
 		public final int startIndex;
 		/** excluded */

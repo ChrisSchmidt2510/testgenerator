@@ -10,7 +10,7 @@ public enum InvocationType {
 
 	private int index;
 
-	private InvocationType(int index) {
+	InvocationType(int index) {
 		this.index = index;
 	}
 

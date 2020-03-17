@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CodeArrayModificator {
-	private final List<CodeArrayModificatorModel> codeArrayModificator = new ArrayList<>();
+	private final List<CodeArrayModificatorModel> codeArrayModificatorModel = new ArrayList<>();
 
 	public int getModificator(int startIndex) {
-		return codeArrayModificator.stream().filter(model -> model.codeArrayStartIndex <= startIndex)
+		return codeArrayModificatorModel.stream().filter(model -> model.codeArrayStartIndex <= startIndex)
 				.collect(Collectors.summingInt(model -> model.modificator));
 	}
 
 	public void addCodeArrayModificator(int startIndex, int modificator) {
-		codeArrayModificator.add(new CodeArrayModificatorModel(startIndex, modificator));
+		codeArrayModificatorModel.add(new CodeArrayModificatorModel(startIndex, modificator));
 	}
 
 	class CodeArrayModificatorModel {
@@ -32,7 +32,7 @@ public class CodeArrayModificator {
 
 		@Override
 		public String toString() {
-			return "ModificatorModel: StartIndex: " + codeArrayStartIndex + " Modificator: " + codeArrayModificator;
+			return "ModificatorModel: StartIndex: " + codeArrayStartIndex + " Modificator: " + codeArrayModificatorModel;
 		}
 	}
 

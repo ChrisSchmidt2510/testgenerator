@@ -22,7 +22,6 @@ import de.nvg.testgenerator.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
-import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.ClassFile;
@@ -287,7 +286,7 @@ public class FieldTypeChanger {
 	}
 
 	public static void changeFieldDataTypeToProxy(ClassFile loadingClass, FieldInfo field)
-			throws CannotCompileException, NotFoundException {
+			throws CannotCompileException {
 
 		loadingClass.getFields().remove(field);
 
