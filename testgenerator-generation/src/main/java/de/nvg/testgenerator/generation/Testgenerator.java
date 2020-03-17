@@ -30,7 +30,7 @@ public class Testgenerator {
 	private static final Logger LOGGER = LogManager.getLogger(Testgenerator.class);
 
 	/*
-	 * Einstiegspunkt für die Generierung der Testklasse
+	 * Einstiegspunkt fuer die Generierung der Testklasse
 	 * 
 	 * @Param className Name der Klasse fuer die der Test generiert wird
 	 * 
