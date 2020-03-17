@@ -1,8 +1,8 @@
 package de.nvg.proxy.impl;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 
-public class FloatProxy extends Proxy {
+public class FloatProxy extends AbstractProxy {
 	private float value;
 
 	public FloatProxy(float value, Object parent, String fieldName) {

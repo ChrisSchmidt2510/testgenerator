@@ -12,7 +12,7 @@ import de.nvg.testgenerator.logging.config.appender.Appender;
 import de.nvg.testgenerator.logging.config.appender.ConsoleAppender;
 import de.nvg.testgenerator.logging.config.appender.FileAppender;
 
-public class LoggerRepository {
+public final class LoggerRepository {
 
 	private static final LoggerRepository INSTANCE = new LoggerRepository();
 
@@ -41,7 +41,7 @@ public class LoggerRepository {
 		Configuration analysisConfig = new Configuration("de.nvg.agent.classdata.analysis", Level.INFO, agentAppender);
 		Configuration transformerConfig = new Configuration("de.nvg.agent.transformer", Level.INFO, agentAppender);
 		Configuration instructionFilterConfiguration = new Configuration("de.nvg.agent.classdata.instructions",
-				Level.INFO, agentAppender);
+				Level.DEBUG, agentAppender);
 		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.INFO,
 				testgeneratorAppender);
 		Configuration valueTrackerConfiguration = new Configuration("de.nvg.valuetracker", Level.INFO,
@@ -55,7 +55,7 @@ public class LoggerRepository {
 		repository.add(testgeneratorConfiguration);
 		repository.add(valueTrackerConfiguration);
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> repository.forEach(config -> {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> repository.forEach((Configuration config) -> {
 			try {
 				config.getAppender().close();
 			} catch (IOException e) {

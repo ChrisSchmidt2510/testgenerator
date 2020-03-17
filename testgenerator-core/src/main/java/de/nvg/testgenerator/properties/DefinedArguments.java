@@ -3,13 +3,16 @@ package de.nvg.testgenerator.properties;
 import de.nvg.testgenerator.properties.parser.Arguments;
 import de.nvg.testgenerator.properties.parser.Parameter;
 
-public class DefinedArguments {
+public final class DefinedArguments {
 	public static final String ARG_CLASS_NAME = "ClassName";
 	public static final String ARG_METHOD_NAME = "MethodName";
 	public static final String ARG_METHOD_DESC = "MethodDescriptor";
 	public static final String ARG_BL_PACKAGE = "BlPackage";
 	public static final String ARG_BL_PACKGE_JAR_DEST = "BlPackageJarDestination";
 	public static final String ARG_TRACE_READ_FIELD_ACCESS = "TraceReadFieldAccess";
+
+	private DefinedArguments() {
+	}
 
 	public static Arguments getArguments() {
 		Arguments definedArgs = new Arguments();

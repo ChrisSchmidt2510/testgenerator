@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapBuilder<K, V> {
+public final class MapBuilder<K, V> {
 	private final Map<K, V> map;
 
 	private MapBuilder(Map<K, V> map) {

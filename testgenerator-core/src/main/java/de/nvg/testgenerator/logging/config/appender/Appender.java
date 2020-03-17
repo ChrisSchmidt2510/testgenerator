@@ -6,10 +6,10 @@ import java.util.function.Consumer;
 
 public interface Appender extends Closeable {
 
-	public void write(String message);
+	void write(String message);
 
-	public void write(Throwable throwable);
+	void write(Throwable throwable);
 
-	public void write(Consumer<PrintStream> message);
+	void write(Consumer<PrintStream> message);
 
 }

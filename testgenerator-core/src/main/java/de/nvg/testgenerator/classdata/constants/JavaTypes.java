@@ -5,10 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 public final class JavaTypes {
-
-	private JavaTypes() {
-	}
-
 	public static final String OBJECT = "java.lang.Object";
 
 	public static final String OBJECT_METHOD_EQUALS = "equals";
@@ -36,5 +32,8 @@ public final class JavaTypes {
 
 	public static final List<String> COLLECTION_LIST = Collections
 			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, MAP, QUEUE));
+
+	private JavaTypes() {
+	}
 
 }

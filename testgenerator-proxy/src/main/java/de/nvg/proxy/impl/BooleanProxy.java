@@ -1,8 +1,8 @@
 package de.nvg.proxy.impl;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 
-public class BooleanProxy extends Proxy {
+public class BooleanProxy extends AbstractProxy {
 	private boolean value;
 
 	public BooleanProxy(boolean value, Object parent, String fieldName) {

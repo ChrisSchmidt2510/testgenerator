@@ -7,7 +7,7 @@ import java.util.Map;
 
 import de.nvg.testgenerator.MapBuilder;
 
-public class JVMTypes {
+public final class JVMTypes {
 
 	public static final String OBJECT = "Ljava/lang/Object;";
 
@@ -49,5 +49,8 @@ public class JVMTypes {
 			.add(SET, Collections.singletonList(COLLECTION_METHOD_ADD))
 			.add(QUEUE, Arrays.asList(COLLECTION_METHOD_ADD, QUEUE_METHOD_OFFER))
 			.add(MAP, Collections.singletonList(MAP_METHOD_PUT)).toUnmodifiableMap();
+
+	private JVMTypes() {
+	}
 
 }

@@ -2,9 +2,9 @@ package de.nvg.proxy.impl;
 
 import java.util.Objects;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 
-public class ReferenceProxy<E> extends Proxy {
+public class ReferenceProxy<E> extends AbstractProxy {
 	private E value;
 
 	public ReferenceProxy(E value, Object parentObject, String fieldName, Class<?> fieldDataType) {
@@ -36,7 +36,7 @@ public class ReferenceProxy<E> extends Proxy {
 	@Override
 	public boolean equals(Object obj) {
 
-		if (obj != null && obj instanceof ReferenceProxy) {
+		if (obj instanceof ReferenceProxy) {
 			return value.equals(((ReferenceProxy<?>) obj).getValue());
 		}
 

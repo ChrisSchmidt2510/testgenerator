@@ -5,12 +5,12 @@ import java.lang.management.RuntimeMXBean;
 
 import de.nvg.testgenerator.properties.parser.ArgumentParser;
 
-public class RuntimeProperties {
+public final class RuntimeProperties {
 	private static final String JAVA_AGENT = "-javaagent";
 	private static final RuntimeProperties INSTANCE = new RuntimeProperties();
 	private ArgumentParser argParser;
 
-	private boolean activateTracking = false;
+	private boolean activateTracking;
 
 	private RuntimeProperties() {
 	}
@@ -39,7 +39,7 @@ public class RuntimeProperties {
 		RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
 		String javaAgent = runtime.getInputArguments().stream().filter(args -> args.startsWith(JAVA_AGENT)).findAny()
 				.orElse(null);
-		String agentArgs = javaAgent.substring(javaAgent.indexOf("=") + 1);
+		String agentArgs = javaAgent.substring(javaAgent.indexOf('=') + 1);
 
 		argParser = new ArgumentParser(agentArgs, DefinedArguments.getArguments());
 	}

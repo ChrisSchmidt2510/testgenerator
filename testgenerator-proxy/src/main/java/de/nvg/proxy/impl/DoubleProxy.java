@@ -1,8 +1,8 @@
 package de.nvg.proxy.impl;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 
-public class DoubleProxy extends Proxy {
+public class DoubleProxy extends AbstractProxy {
 	private double value;
 
 	public DoubleProxy(double value, Object parent, String fieldName) {

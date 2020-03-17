@@ -4,8 +4,11 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 
-public class MethodHandles {
+public final class MethodHandles {
 	private static final Lookup LOOKUP = java.lang.invoke.MethodHandles.lookup();
+
+	private MethodHandles() {
+	}
 
 	public static void setFieldValue(Object reference, String fieldName, Object value) {
 

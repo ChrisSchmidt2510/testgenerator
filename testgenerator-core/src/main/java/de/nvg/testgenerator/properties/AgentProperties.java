@@ -4,9 +4,9 @@ import java.util.List;
 
 import de.nvg.testgenerator.properties.parser.ArgumentParser;
 
-public class AgentProperties {
+public final class AgentProperties {
 
-	private static AgentProperties INSTANCE;
+	private static AgentProperties instance;
 
 	private String className;
 	private String method;
@@ -31,14 +31,14 @@ public class AgentProperties {
 		agentProperties.blPackageJarDestination = parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST);
 		agentProperties.traceReadFieldAccess = parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS);
 
-		if (INSTANCE == null) {
-			INSTANCE = agentProperties;
+		if (instance == null) {
+			instance = agentProperties;
 		}
 
 	}
 
 	public static AgentProperties getInstance() {
-		return INSTANCE;
+		return instance;
 	}
 
 	public String getClassName() {
