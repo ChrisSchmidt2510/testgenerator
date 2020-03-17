@@ -48,6 +48,7 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {
+		System.out.println(int.class);
 
 		adresse = classPool.get("de.nvg.agent.classdata.testclasses.Adresse");
 
@@ -135,13 +136,13 @@ public class MetaDataAdderWithConstructorAndSuperClassTest {
 	private de.nvg.runtime.classdatamodel.ClassData createdClassData() {
 
 		de.nvg.runtime.classdatamodel.FieldData fieldStrasse = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"strasse", "java.lang.String");
+				"strasse", String.class);
 		de.nvg.runtime.classdatamodel.FieldData fieldHausnummer = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"hausnummer", "short");
+				"hausnummer", short.class);
 		de.nvg.runtime.classdatamodel.FieldData fieldOrt = new de.nvg.runtime.classdatamodel.FieldData(false, "ort",
-				"java.lang.String");
+				String.class);
 		de.nvg.runtime.classdatamodel.FieldData fieldPlz = new de.nvg.runtime.classdatamodel.FieldData(false, "plz",
-				"int");
+				int.class);
 
 		de.nvg.runtime.classdatamodel.ConstructorData constructor = new de.nvg.runtime.classdatamodel.ConstructorData(
 				false);

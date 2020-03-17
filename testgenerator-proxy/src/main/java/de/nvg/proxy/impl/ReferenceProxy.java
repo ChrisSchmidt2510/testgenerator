@@ -1,22 +1,18 @@
 package de.nvg.proxy.impl;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
 
 import de.nvg.proxy.Proxy;
 
 public class ReferenceProxy<E> extends Proxy {
 	private E value;
 
-	public ReferenceProxy(E value, Object parentObject, String fieldName, String fieldDataType) {
-		super(parentObject, fieldName, value != null ? getClassName(value) : fieldDataType);
+	public ReferenceProxy(E value, Object parentObject, String fieldName, Class<?> fieldDataType) {
+		super(parentObject, fieldName, fieldDataType);
 		this.value = value;
 	}
 
-	public ReferenceProxy(Object parentObject, String fieldName, String fieldDataType) {
+	public ReferenceProxy(Object parentObject, String fieldName, Class<?> fieldDataType) {
 		super(parentObject, fieldName, fieldDataType);
 	}
 
@@ -55,19 +51,5 @@ public class ReferenceProxy<E> extends Proxy {
 	@Override
 	public String toString() {
 		return Objects.toString(value);
-	}
-
-	private static String getClassName(Object value) {
-		if (value instanceof List) {
-			return List.class.getName();
-		} else if (value instanceof Map) {
-			return Map.class.getName();
-		} else if (value instanceof Set) {
-			return Set.class.getName();
-		} else if (value instanceof Queue) {
-			return Queue.class.getName();
-		}
-
-		return value.getClass().getName();
 	}
 }

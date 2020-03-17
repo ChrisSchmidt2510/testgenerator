@@ -10,6 +10,7 @@ import de.nvg.agent.classdata.instructions.InstructionFilter;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
+import de.nvg.agent.classdata.modification.BytecodeUtils;
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.TestgeneratorConstants;
@@ -39,8 +40,8 @@ public class FieldTypeChanger {
 
 	private static final String REFERENCE_PROXY_CLASSNAME = "de/nvg/proxy/impl/ReferenceProxy";
 	private static final String REFERENCE_PROXY = "Lde/nvg/proxy/impl/ReferenceProxy;";
-	private static final String REFERENCE_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
-	private static final String REFERENCE_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
+	private static final String REFERENCE_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
+	private static final String REFERENCE_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
 
 	private static final String BOOLEAN_PROXY_CLASSNAME = "de/nvg/proxy/impl/BooleanProxy";
 	private static final String BOOLEAN_PROXY = "Lde/nvg/proxy/impl/BooleanProxy;";
@@ -56,8 +57,8 @@ public class FieldTypeChanger {
 
 	private static final String INTEGER_PROXY_CLASSNAME = "de/nvg/proxy/impl/IntegerProxy";
 	private static final String INTEGER_PROXY = "Lde/nvg/proxy/impl/IntegerProxy;";
-	private static final String INTEGER_PROXY_CONSTRUCTOR = "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
-	private static final String INTEGER_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
+	private static final String INTEGER_PROXY_CONSTRUCTOR = "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
+	private static final String INTEGER_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
 
 	private static final String LONG_PROXY_CLASSNAME = "de/nvg/proxy/impl/LongProxy";
 	private static final String LONG_PROXY = "Lde/nvg/proxy/impl/LongProxy;";
@@ -184,12 +185,12 @@ public class FieldTypeChanger {
 				afterValueCreation.addAload(0);
 				afterValueCreation.addLdc(instruction.getName());
 
-				if (INTEGER_PROXY_CLASSNAME.equals(proxy)) {
-					afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
+				if (INTEGER_PROXY_CLASSNAME.equals(proxy) || REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
+					BytecodeUtils.addClassInfoToBytecode(afterValueCreation, constantPool,
+							Descriptor.toClassName(instruction.getType()));
 				}
 
 				if (Opcode.ACONST_NULL == instructionBeforePutField.getOpcode()) {
-					afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
 
 					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 							REFERENCE_PROXY_DEFAULT_CONSTRUCTOR);
@@ -207,12 +208,6 @@ public class FieldTypeChanger {
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
 							afterValueCreation.getSize() - 4);
 				} else {
-					// cant be in the if of the integer-proxy-classname,
-					// because if the instruction-before is a aconst-null-instruction a
-					// verifier-error is thrown
-					if (REFERENCE_PROXY_CLASSNAME == proxy) {
-						afterValueCreation.addLdc(Descriptor.toClassName(instruction.getType()));
-					}
 
 					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 							PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
@@ -279,7 +274,7 @@ public class FieldTypeChanger {
 			bytecode.addLdc(field.getName());
 
 			if (REFERENCE_PROXY_CLASSNAME.equals(proxy) || INTEGER_PROXY_CLASSNAME.equals(proxy)) {
-				bytecode.addLdc(Descriptor.toClassName(dataType));
+				BytecodeUtils.addClassInfoToBytecode(bytecode, constantPool, Descriptor.toClassName(dataType));
 			}
 
 			bytecode.addInvokespecial(proxy, MethodInfo.nameInit, getInitDescriptor(proxy));

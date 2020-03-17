@@ -42,7 +42,7 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 	private FieldData fieldOrt = new FieldData.Builder().withName("dateOfBirth").withDataType("java.time.LocalDate")
 			.build();
 	private FieldData fieldPlz = new FieldData.Builder().withName("geschlecht")
-			.withDataType("de.nvg.agent.classdata.testclasses.Person.Geschlecht").build();
+			.withDataType("de.nvg.agent.classdata.testclasses.Person$Geschlecht").build();
 
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {

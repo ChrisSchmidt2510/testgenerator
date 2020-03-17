@@ -6,12 +6,12 @@ public class DoubleProxy extends Proxy {
 	private double value;
 
 	public DoubleProxy(double value, Object parent, String fieldName) {
-		super(parent, fieldName, "double");
+		super(parent, fieldName, double.class);
 		this.value = value;
 	}
 
 	public DoubleProxy(Object parent, String fieldName) {
-		super(parent, fieldName, "double");
+		super(parent, fieldName, double.class);
 	}
 
 	public double getValue() {

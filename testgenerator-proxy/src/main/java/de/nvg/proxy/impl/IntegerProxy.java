@@ -5,12 +5,12 @@ import de.nvg.proxy.Proxy;
 public class IntegerProxy extends Proxy {
 	private int value;
 
-	public IntegerProxy(int value, Object parent, String fieldName, String dataType) {
+	public IntegerProxy(int value, Object parent, String fieldName, Class<?> dataType) {
 		super(parent, fieldName, dataType);
 		this.value = value;
 	}
 
-	public IntegerProxy(Object parent, String fieldName, String dataType) {
+	public IntegerProxy(Object parent, String fieldName, Class<?> dataType) {
 		super(parent, fieldName, dataType);
 	}
 

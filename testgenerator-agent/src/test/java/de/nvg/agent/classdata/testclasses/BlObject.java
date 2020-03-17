@@ -20,13 +20,14 @@ public abstract class BlObject {
 
 	static {
 		testgenerator$classData = new ClassData("de.nvg.BlObject", new ConstructorData(true));
-		testgenerator$classData.addFieldSetterPair(new FieldData(false, "erdat", "java.time.LocalDate"),
+		testgenerator$classData.addFieldSetterPair(new FieldData(false, "erdat", LocalDate.class),
 				new SetterMethodData("setErdat", "(Ljava/time/LocalDate;)V", false));
 
-		FieldData ersb = new FieldData(false, "ersb", "java.lang.String");
+		FieldData ersb = new FieldData(false, "ersb", String.class);
 		SignatureData signature = new SignatureData(List.class);
 		signature.addSubType(new SignatureData(LocalDate.class));
-		testgenerator$classData.addFieldSetterPair(ersb, new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
+		testgenerator$classData.addFieldSetterPair(ersb,
+				new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
 	}
 
 	@Override

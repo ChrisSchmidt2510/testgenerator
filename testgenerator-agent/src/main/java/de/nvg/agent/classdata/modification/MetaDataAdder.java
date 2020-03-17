@@ -47,7 +47,7 @@ public class MetaDataAdder {
 	private static final String CONSTRUCTOR_DATA_METHOD_ADD_ELEMENT_DESC = "(ILde/nvg/runtime/classdatamodel/FieldData;)V";
 
 	private static final String FIELD_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/FieldData";
-	private static final String FIELD_DATA_CONSTRUCTOR = "(ZLjava/lang/String;Ljava/lang/String;)V";
+	private static final String FIELD_DATA_CONSTRUCTOR = "(ZLjava/lang/String;Ljava/lang/Class;)V";
 	private static final String FIELD_DATA_METHOD_SET_SIGNATURE = "setSignature";
 	private static final String FIELD_DATA_METHOD_SET_SIGNATURE_DESC = "(Lde/nvg/runtime/classdatamodel/SignatureData;)V";
 
@@ -147,7 +147,7 @@ public class MetaDataAdder {
 			code.add(Opcode.DUP);
 			code.addIconst(field.isPublic() && field.isMutable() ? 1 : 0);
 			code.addLdc(field.getName());
-			code.addLdc(field.getDataType());
+			BytecodeUtils.addClassInfoToBytecode(code, constantPool, field.getDataType());
 			code.addInvokespecial(FIELD_DATA_CLASSNAME, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
 
 			localVariableIndex.put(field.getName(), localVariableCounter);

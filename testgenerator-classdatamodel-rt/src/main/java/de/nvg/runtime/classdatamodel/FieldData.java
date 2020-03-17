@@ -5,14 +5,14 @@ import java.util.Objects;
 public class FieldData {
 	private final boolean isPublic;
 	private final String name;
-	private final String descriptor;
+	private final Class<?> descriptor;
 	private SignatureData signature;
 
-	public FieldData(String name, String descriptor) {
+	public FieldData(String name, Class<?> descriptor) {
 		this(false, name, descriptor);
 	}
 
-	public FieldData(boolean isPublic, String name, String descriptor) {
+	public FieldData(boolean isPublic, String name, Class<?> descriptor) {
 		this.isPublic = isPublic;
 		this.name = name;
 		this.descriptor = descriptor;
@@ -34,7 +34,7 @@ public class FieldData {
 		return name;
 	}
 
-	public String getDescriptor() {
+	public Class<?> getDescriptor() {
 		return descriptor;
 	}
 

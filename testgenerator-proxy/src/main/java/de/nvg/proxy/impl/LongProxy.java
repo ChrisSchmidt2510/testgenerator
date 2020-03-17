@@ -6,12 +6,12 @@ public class LongProxy extends Proxy {
 	private long value;
 
 	public LongProxy(long value, Object parent, String fieldName) {
-		super(parent, fieldName, "long");
+		super(parent, fieldName, long.class);
 		this.value = value;
 	}
 
 	public LongProxy(Object parent, String fieldName) {
-		super(parent, fieldName, "long");
+		super(parent, fieldName, long.class);
 	}
 
 	public long getValue() {

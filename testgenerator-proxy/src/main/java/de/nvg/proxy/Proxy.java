@@ -12,7 +12,7 @@ public abstract class Proxy {
 	private final FieldData field;
 	private WeakReference<? extends Object> parent;
 
-	public Proxy(Object parent, String fieldName, String fieldDataType) {
+	public Proxy(Object parent, String fieldName, Class<?> fieldDataType) {
 		this.field = new FieldData(fieldName, fieldDataType);
 		this.parent = new WeakReference<>(parent);
 	}
@@ -25,7 +25,7 @@ public abstract class Proxy {
 		}
 	}
 
-	public String getDataType() {
+	public Class<?> getDataType() {
 		return field.getDescriptor();
 	}
 

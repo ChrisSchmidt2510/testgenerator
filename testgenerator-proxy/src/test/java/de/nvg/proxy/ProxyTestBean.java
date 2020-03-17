@@ -6,7 +6,7 @@ import java.util.Objects;
 import de.nvg.proxy.impl.ReferenceProxy;
 
 public class ProxyTestBean {
-	private ReferenceProxy<LocalDate> date = new ReferenceProxy<>(LocalDate.now(), this, "date", "java.time.LocalDate");
+	private ReferenceProxy<LocalDate> date = new ReferenceProxy<>(LocalDate.now(), this, "date", LocalDate.class);
 
 	public LocalDate getDate() {
 		return date.getValue();

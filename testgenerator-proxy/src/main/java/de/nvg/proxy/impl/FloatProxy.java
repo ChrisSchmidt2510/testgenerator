@@ -6,12 +6,12 @@ public class FloatProxy extends Proxy {
 	private float value;
 
 	public FloatProxy(float value, Object parent, String fieldName) {
-		super(parent, fieldName, "float");
+		super(parent, fieldName, float.class);
 		this.value = value;
 	}
 
 	public FloatProxy(Object parent, String fieldName) {
-		super(parent, fieldName, "float");
+		super(parent, fieldName, float.class);
 	}
 
 	public float getValue() {

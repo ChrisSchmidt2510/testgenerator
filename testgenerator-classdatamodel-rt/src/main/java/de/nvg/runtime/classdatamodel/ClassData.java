@@ -1,15 +1,19 @@
 package de.nvg.runtime.classdatamodel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import de.nvg.testgenerator.MapBuilder;
-import de.nvg.testgenerator.classdata.constants.JavaTypes;
 
 public class ClassData {
 	private final String name;
@@ -22,6 +26,9 @@ public class ClassData {
 			.add(Short.class, Short.TYPE).add(Byte.class, Byte.TYPE).add(Integer.class, Integer.TYPE)
 			.add(Float.class, Float.TYPE).add(Double.class, Double.TYPE).add(Boolean.class, Boolean.TYPE)
 			.add(Character.class, Character.TYPE).toUnmodifiableMap();
+
+	private static final List<Class<?>> COLLECTIONS = Collections
+			.unmodifiableList(Arrays.asList(Collection.class, List.class, Queue.class, Set.class, Map.class));
 
 	public ClassData(String name, Supplier<ClassData> superClass, ConstructorData constructor) {
 		this.name = name;
@@ -56,12 +63,12 @@ public class ClassData {
 	}
 
 	public FieldData getFieldInHierarchie(String name, Class<?> descriptor) {
-		FieldData field = new FieldData(name, descriptor.getName());
+		FieldData field = new FieldData(name, descriptor);
 
 		if (fields.contains(field)) {
 			return fields.get(fields.indexOf(field));
 		} else if (PRIMITIVES.containsKey(descriptor)) {
-			field = new FieldData(name, PRIMITIVES.get(descriptor).getName());
+			field = new FieldData(name, PRIMITIVES.get(descriptor));
 
 			if (fields.contains(field)) {
 				return fields.get(fields.indexOf(field));
@@ -77,8 +84,8 @@ public class ClassData {
 	}
 
 	public FieldData getCollectionFieldInHierarchie(String name) {
-		List<FieldData> matchedFields = fields.stream().filter(
-				field -> field.getName().equals(name) && JavaTypes.COLLECTION_LIST.contains(field.getDescriptor()))
+		List<FieldData> matchedFields = fields.stream()
+				.filter(field -> field.getName().equals(name) && COLLECTIONS.contains(field.getDescriptor()))
 				.collect(Collectors.toList());
 
 		if (matchedFields.size() == 1) {

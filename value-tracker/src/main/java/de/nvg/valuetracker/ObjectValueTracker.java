@@ -31,7 +31,6 @@ import de.nvg.proxy.impl.LongProxy;
 import de.nvg.proxy.impl.ReferenceProxy;
 import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.TestgeneratorConstants;
-import de.nvg.testgenerator.classdata.constants.Primitives;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
@@ -50,12 +49,12 @@ public class ObjectValueTracker {
 			Boolean.class, LocalDate.class, LocalTime.class, LocalDateTime.class, java.util.Date.class, Date.class,
 			Calendar.class, GregorianCalendar.class, BigDecimal.class, String.class));
 
-	private static final Map<String, Function<IntegerProxy, Object>> INTEGER_PROXY_METHODS = //
-			MapBuilder.<String, Function<IntegerProxy, Object>>hashMapBuilder()
-					.add(Primitives.JAVA_INT, IntegerProxy::getUntrackedValue)
-					.add(Primitives.JAVA_BYTE, IntegerProxy::getUntrackedByteValue)
-					.add(Primitives.JAVA_CHAR, IntegerProxy::getUntrackedCharValue)
-					.add(Primitives.JAVA_SHORT, IntegerProxy::getUntrackedShortValue).toUnmodifiableMap();
+	private static final Map<Class<?>, Function<IntegerProxy, Object>> INTEGER_PROXY_METHODS = //
+			MapBuilder.<Class<?>, Function<IntegerProxy, Object>>hashMapBuilder()
+					.add(int.class, IntegerProxy::getUntrackedValue)
+					.add(byte.class, IntegerProxy::getUntrackedByteValue)
+					.add(char.class, IntegerProxy::getUntrackedCharValue)
+					.add(short.class, IntegerProxy::getUntrackedShortValue).toUnmodifiableMap();
 
 	private static final Logger LOGGER = LogManager.getLogger(ObjectValueTracker.class);
 
@@ -264,7 +263,7 @@ public class ObjectValueTracker {
 	private static Class<?> getType(Field field, Object value)
 			throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 		if (field.getType().equals(ReferenceProxy.class)) {
-			return Class.forName(((Proxy) field.get(value)).getDataType());
+			return ((Proxy) field.get(value)).getDataType();
 		}
 
 		return field.getType();

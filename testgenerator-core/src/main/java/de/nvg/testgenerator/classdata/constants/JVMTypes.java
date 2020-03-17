@@ -18,7 +18,19 @@ public class JVMTypes {
 	public static final String MAP = "Ljava/util/Map;";
 	public static final String MAP_CLASSNAME = "java/util/Map";
 
+	public static final String BOOLEAN_CLASSNAME = "java/lang/Boolean";
+	public static final String BYTE_CLASSNAME = "java/lang/Byte";
+	public static final String CHAR_CLASSNAME = "java/lang/Character";
+	public static final String SHORT_CLASSNAME = "java/lang/Short";
 	public static final String INTEGER_CLASSNAME = "java/lang/Integer";
+	public static final String FLOAT_CLASSNAME = "java/lang/Float";
+	public static final String LONG_CLASSNAME = "java/lang/Long";
+	public static final String DOUBLE_CLASSNAME = "java/lang/Double";
+
+	public static final String CLASS = "Ljava/lang/Class;";
+
+	public static final String WRAPPER_CLASSES_FIELD_TYPE = "TYPE";
+
 	public static final String INTEGER_METHOD_VALUE_OF = "valueOf";
 	public static final String INTEGER_METHOD_VALUE_OF_DESC = "(I)Ljava/lang/Integer;";
 
