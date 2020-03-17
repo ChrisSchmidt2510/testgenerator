@@ -19,6 +19,9 @@ public class Person extends BlObject {
 	private List<Adresse> adressen = new ArrayList<>();
 
 	public Person(String name, String firstName, LocalDate dateOfBirth, Geschlecht geschlecht) {
+		if (name == null) {
+			throw new NullPointerException("SparteID darf nicht null sein");
+		}
 		this.name = name;
 		this.firstName = firstName;
 		this.dateOfBirth = dateOfBirth;

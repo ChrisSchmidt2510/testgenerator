@@ -31,7 +31,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallerWithOpcodeDup() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.TeilDatum", "addiereMonate", Arrays.asList(Opcode.PUTFIELD));
+		init("de.nvg.agent.classdata.testclasses.FragmentDate", "addMonths", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -55,7 +55,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithOpcodeAconstNull() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.TeilDatum", "setzeDatum", "(Ljava/util/Date;)V",
+		init("de.nvg.agent.classdata.testclasses.FragmentDate", "setDate", "(Ljava/util/Date;)V",
 				Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
@@ -73,7 +73,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithOpcodeNew() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.TeilDatum", "setzeDatum", "(Ljava/util/Date;)V",
+		init("de.nvg.agent.classdata.testclasses.FragmentDate", "setDate", "(Ljava/util/Date;)V",
 				Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
