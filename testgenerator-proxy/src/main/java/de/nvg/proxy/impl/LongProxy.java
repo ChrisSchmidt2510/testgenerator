@@ -1,8 +1,8 @@
 package de.nvg.proxy.impl;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 
-public class LongProxy extends Proxy {
+public class LongProxy extends AbstractProxy {
 	private long value;
 
 	public LongProxy(long value, Object parent, String fieldName) {

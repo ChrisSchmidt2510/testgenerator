@@ -1,8 +1,8 @@
 package de.nvg.proxy.impl;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 
-public class IntegerProxy extends Proxy {
+public class IntegerProxy extends AbstractProxy {
 	private int value;
 
 	public IntegerProxy(int value, Object parent, String fieldName, Class<?> dataType) {
