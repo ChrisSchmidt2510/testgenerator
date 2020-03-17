@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class AgentLog {
+public final class AgentLog {
 	private static final String CLASSNAME = "ClassName:";
 	private static final String SUPERCLASS = "Superclass:";
 
@@ -14,6 +14,9 @@ public class AgentLog {
 	private static final String ANALYSIS_END = "Result of Analysis:";
 
 	private static final String COLON = ":";
+
+	private AgentLog() {
+	}
 
 	public static void processMethodAnalysisLog(Path directory) throws IOException {
 		List<String> lines = Files.readAllLines(directory, StandardCharsets.ISO_8859_1);
