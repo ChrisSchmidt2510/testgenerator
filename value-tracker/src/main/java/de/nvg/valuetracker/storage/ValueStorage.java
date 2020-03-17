@@ -8,7 +8,7 @@ import java.util.List;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.Type;
 
-public class ValueStorage {
+public final class ValueStorage {
 	private static final ValueStorage INSTANCE = new ValueStorage();
 
 	private List<BluePrint> methodParameters = new ArrayList<>();

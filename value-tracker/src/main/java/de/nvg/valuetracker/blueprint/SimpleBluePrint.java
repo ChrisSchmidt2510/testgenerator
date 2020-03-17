@@ -3,7 +3,7 @@ package de.nvg.valuetracker.blueprint;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
+public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 	private final String createdValue;
 
 	protected SimpleBluePrint(String name, E value) {

@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import de.nvg.proxy.Proxy;
+import de.nvg.proxy.AbstractProxy;
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
 import de.nvg.proxy.impl.FloatProxy;
@@ -260,10 +260,9 @@ public class ObjectValueTracker {
 		return value;
 	}
 
-	private static Class<?> getType(Field field, Object value)
-			throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+	private static Class<?> getType(Field field, Object value) throws IllegalAccessException {
 		if (field.getType().equals(ReferenceProxy.class)) {
-			return ((Proxy) field.get(value)).getDataType();
+			return ((AbstractProxy) field.get(value)).getDataType();
 		}
 
 		return field.getType();

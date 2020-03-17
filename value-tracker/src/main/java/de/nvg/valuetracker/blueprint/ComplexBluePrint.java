@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
-public class ComplexBluePrint extends BasicBluePrint<Object> {
+public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 	private List<BluePrint> bluePrints = new ArrayList<>();
 

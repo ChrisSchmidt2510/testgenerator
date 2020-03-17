@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 
-public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>> {
+public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collection<?>> {
 
 	private List<BluePrint> elementBluePrints = new ArrayList<>();
 

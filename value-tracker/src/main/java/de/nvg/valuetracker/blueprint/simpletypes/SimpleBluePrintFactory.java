@@ -12,10 +12,13 @@ import java.util.List;
 
 import de.nvg.valuetracker.blueprint.BluePrint;
 
-public class SimpleBluePrintFactory {
+public final class SimpleBluePrintFactory {
 
 	private static final List<Class<?>> INTEGERS = Arrays.asList(Integer.class, Short.class, Byte.class, Long.class,
 			Float.class, Double.class, BigDecimal.class);
+
+	private SimpleBluePrintFactory() {
+	}
 
 	public static BluePrint of(String fieldName, Object value) {
 		if (value == null) {

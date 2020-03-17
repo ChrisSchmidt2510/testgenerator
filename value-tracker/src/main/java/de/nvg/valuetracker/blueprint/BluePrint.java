@@ -4,35 +4,35 @@ import java.util.List;
 
 public interface BluePrint {
 
-	public List<BluePrint> getPreExecuteBluePrints();
+	List<BluePrint> getPreExecuteBluePrints();
 
-	public Object getReference();
+	Object getReference();
 
-	public String getName();
+	String getName();
 
-	public boolean isComplexType();
+	boolean isComplexType();
 
-	public boolean isNotBuild();
+	boolean isNotBuild();
 
-	public void setBuild();
+	void setBuild();
 
-	public default boolean isCollectionBluePrint() {
-		return this instanceof BasicCollectionBluePrint<?>;
+	default boolean isCollectionBluePrint() {
+		return this instanceof AbstractBasicCollectionBluePrint<?>;
 	}
 
-	public default BasicCollectionBluePrint<?> castToCollectionBluePrint() {
+	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {
 		if (isCollectionBluePrint()) {
-			return (BasicCollectionBluePrint<?>) this;
+			return (AbstractBasicCollectionBluePrint<?>) this;
 		}
 
 		return null;
 	}
 
-	public default boolean isComplexBluePrint() {
+	default boolean isComplexBluePrint() {
 		return this instanceof ComplexBluePrint;
 	}
 
-	public default ComplexBluePrint castToComplexBluePrint() {
+	default ComplexBluePrint castToComplexBluePrint() {
 		if (isComplexBluePrint()) {
 			return (ComplexBluePrint) this;
 		}
@@ -40,11 +40,11 @@ public interface BluePrint {
 		return null;
 	}
 
-	public default boolean isSimpleBluePrint() {
+	default boolean isSimpleBluePrint() {
 		return this instanceof SimpleBluePrint<?>;
 	}
 
-	public default SimpleBluePrint<?> castToSimpleBluePrint() {
+	default SimpleBluePrint<?> castToSimpleBluePrint() {
 		if (isSimpleBluePrint()) {
 			return (SimpleBluePrint<?>) this;
 		}

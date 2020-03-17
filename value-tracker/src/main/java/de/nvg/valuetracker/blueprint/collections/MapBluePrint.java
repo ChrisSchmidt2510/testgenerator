@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 
-public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
+public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 	private List<BluePrint> keyBluePrints = new ArrayList<>();
 	private List<BluePrint> valueBluePrints = new ArrayList<>();
 

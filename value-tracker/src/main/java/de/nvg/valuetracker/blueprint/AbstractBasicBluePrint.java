@@ -1,11 +1,11 @@
 package de.nvg.valuetracker.blueprint;
 
-public abstract class BasicBluePrint<E> implements BluePrint {
+public abstract class AbstractBasicBluePrint<E> implements BluePrint {
 	protected final String name;
 	protected final E value;
 	protected boolean build;
 
-	protected BasicBluePrint(String name, E value) {
+	protected AbstractBasicBluePrint(String name, E value) {
 		this.name = name;
 		this.value = value;
 	}
