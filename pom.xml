@@ -89,26 +89,6 @@
 				<artifactId>value-tracker</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-
-
-			<!-- Plugins -->
-			<dependency>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven.surefire</groupId>
-				<artifactId>surefire-junit47</artifactId>
-				<version>3.0.0-M3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
-			</dependency>
-
-
 		</dependencies>
 	</dependencyManagement>
 
@@ -127,6 +107,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.5</version>
 				<executions>
 					<!-- set arg line property for surefire -->
 					<execution>
@@ -159,6 +140,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M3</version>
 				<dependencies>
 					<dependency>
 						<groupId>org.apache.maven.surefire</groupId>
