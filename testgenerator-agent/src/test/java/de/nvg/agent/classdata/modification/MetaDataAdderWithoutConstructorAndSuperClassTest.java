@@ -28,6 +28,7 @@ import javassist.bytecode.DuplicateMemberException;
 import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.MethodInfo;
 
+//TODO CS refactoren
 public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 
 	private CtClass adresse;
@@ -35,16 +36,18 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 	private ConstPool constantPool;
 	private CodeAttribute codeAttribute;
 
-	private FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String")
+	private FieldData fieldName = new FieldData.Builder().withName("name").withDataType("java.lang.String").build();
+	private FieldData fieldVorname = new FieldData.Builder().withName("firstName").withDataType("java.lang.String")
 			.build();
-	private FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short").build();
-	private FieldData fieldOrt = new FieldData.Builder().withName("ort").withDataType("java.lang.String").build();
-	private FieldData fieldPlz = new FieldData.Builder().withName("plz").withDataType("int").build();
+	private FieldData fieldOrt = new FieldData.Builder().withName("dateOfBirth").withDataType("java.time.LocalDate")
+			.build();
+	private FieldData fieldPlz = new FieldData.Builder().withName("geschlecht")
+			.withDataType("de.nvg.agent.classdata.testclasses.Person.Geschlecht").build();
 
 	@Before
 	public void init() throws NotFoundException, DuplicateMemberException {
 
-		adresse = classPool.get("de.nvg.agent.classdata.testclasses.Adresse");
+		adresse = classPool.get("de.nvg.agent.classdata.testclasses.Person");
 
 		ClassFile classFile = adresse.getClassFile();
 		constantPool = classFile.getConstPool();
@@ -83,53 +86,20 @@ public class MetaDataAdderWithoutConstructorAndSuperClassTest {
 		System.out.println(runtimeClassData);
 	}
 
-//	@Test
-//	public void testMetaDataAdderWithConstructorAndSuperClass()
-//			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException {
-//		ClassData classData = prepareClassData();
-//		classData.setSuperClass("de.nvg.javaagent.classdata.modify.testclasses.BlObject");
-//
-//		ConstructorData constructor = new ConstructorData(false);
-//		constructor.addConstructorElement(0, fieldStrasse);
-//		constructor.addConstructorElement(1, fieldHausnummer);
-//		constructor.addConstructorElement(2, fieldOrt);
-//		constructor.addConstructorElement(3, fieldPlz);
-//
-//		classData.setConstructor(constructor);
-//
-//		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, adresse, classData);
-//		metaDataAdder.add(codeAttribute, new ArrayList<>());
-//
-//		try (FileOutputStream stream = new FileOutputStream(new File("D:\\Adresse.class"))) {
-//			stream.write(adresse.toBytecode());
-//		}
-//
-//		Class<?> adresseClazz = classPool.toClass(adresse);
-//
-//		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-//				"classData");
-//
-//		de.nvg.runtime.classdatamodel.ClassData superclass = runtimeClassData.getSuperclass();
-//
-//		// TODO CS vergleichs runtimeData object schreiben
-//		System.out.println(runtimeClassData);
-//		System.out.println(superclass);
-//	}
-
 	private ClassData prepareClassData() {
 
 		ClassData classData = new ClassData("de.nvg.agent.classdata.testclasses.Adresse");
 		classData.setConstructor(new ConstructorData(true));
 
-		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
+		classData.addFields(Arrays.asList(fieldName, fieldVorname, fieldOrt, fieldPlz));
 
 		MethodData methodSetStrasse = new MethodData("setStrasse", "(Ljava/lang/String;)V",
 				MethodType.REFERENCE_VALUE_SETTER, 0, false);
-		classData.addMethod(methodSetStrasse, fieldStrasse);
+		classData.addMethod(methodSetStrasse, fieldName);
 
 		MethodData methodSetHausnummer = new MethodData("setHausnummer", "(I)V", MethodType.REFERENCE_VALUE_SETTER, 0,
 				false);
-		classData.addMethod(methodSetHausnummer, fieldHausnummer);
+		classData.addMethod(methodSetHausnummer, fieldVorname);
 
 		MethodData methodSetOrt = new MethodData("setOrt", "(Ljava/lang/String;)V", MethodType.REFERENCE_VALUE_SETTER,
 				0, false);
