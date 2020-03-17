@@ -2,6 +2,7 @@ package de.nvg.agent.classdata.modification.fields;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -128,7 +129,7 @@ public class FieldTypeChanger {
 		this.loadingClass = loadingClass;
 	}
 
-	public void changeFieldInitialization(List<Instruction> instructions, List<Instruction> putFieldInstructions,
+	public void changeFieldInitialization(List<Instruction> instructions, Collection<Instruction> putFieldInstructions,
 			CodeAttribute codeAttribute) throws BadBytecode {
 		CodeIterator iterator = codeAttribute.iterator();
 

@@ -1,5 +1,6 @@
 package de.nvg.agent.classdata.modification;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class MetaDataAdder {
 		this.signatureAdder = new SignatureAdder(constantPool);
 	}
 
-	public void add(CodeAttribute codeAttribute, List<Instruction> instructions)
+	public void add(CodeAttribute codeAttribute, Collection<Instruction> instructions)
 			throws CannotCompileException, BadBytecode {
 		ClassFile classFile = loadingClass.getClassFile();
 

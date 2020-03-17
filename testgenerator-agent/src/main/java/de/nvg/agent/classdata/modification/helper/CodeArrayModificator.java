@@ -2,14 +2,13 @@ package de.nvg.agent.classdata.modification.helper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CodeArrayModificator {
 	private final List<CodeArrayModificatorModel> codeArrayModificatorModel = new ArrayList<>();
 
 	public int getModificator(int startIndex) {
 		return codeArrayModificatorModel.stream().filter(model -> model.codeArrayStartIndex <= startIndex)
-				.collect(Collectors.summingInt(model -> model.modificator));
+				.mapToInt(model -> model.modificator).sum();
 	}
 
 	public void addCodeArrayModificator(int startIndex, int modificator) {
@@ -32,7 +31,8 @@ public class CodeArrayModificator {
 
 		@Override
 		public String toString() {
-			return "ModificatorModel: StartIndex: " + codeArrayStartIndex + " Modificator: " + codeArrayModificatorModel;
+			return "ModificatorModel: StartIndex: " + codeArrayStartIndex + " Modificator: "
+					+ codeArrayModificatorModel;
 		}
 	}
 
