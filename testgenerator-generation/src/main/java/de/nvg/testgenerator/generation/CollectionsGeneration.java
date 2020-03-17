@@ -6,22 +6,21 @@ import com.squareup.javapoet.TypeSpec;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SignatureData;
-import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 
 public interface CollectionsGeneration {
 
-	public void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration);
+	void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration);
 
-	public void createCollection(Builder code, BasicCollectionBluePrint<?> basicCollectionBP, //
+	void createCollection(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
 			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField);
 
-	public void addCollectionToObject(Builder code, BasicCollectionBluePrint<?> basicCollectionBP,
-			SetterMethodData setter, String objectName);
+	void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, SetterMethodData setter,
+			String objectName);
 
-	public void addCollectionToObject(Builder code, BasicCollectionBluePrint<?> basicCollectionBP, //
+	void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
 			FieldData field, String objectName);
 
-	public void addFieldToClass(TypeSpec.Builder typeSpec, BasicCollectionBluePrint<?> bluePrint,
-			SignatureData signature);
+	void addFieldToClass(TypeSpec.Builder typeSpec, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureData signature);
 
 }

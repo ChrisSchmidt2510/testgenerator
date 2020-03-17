@@ -23,7 +23,7 @@ import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
-import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
@@ -88,16 +88,16 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 				if (constructorFieldBp.isComplexBluePrint()) {
 					createComplexObject(code, constructorFieldBp);
 
-					statement.append(index == constructorFields.size() ? constructorFieldBp.getName() + ")"
-							: constructorFieldBp.getName() + ",");
+					statement.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+							: (constructorFieldBp.getName() + ","));
 
 					types.add(constructorFieldBp.getReference().getClass());
 
 				} else if (constructorFieldBp.isSimpleBluePrint()) {
 					SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
 
-					statement.append(index == constructorFields.size() ? simpleBluePrint.valueCreation() + ")"
-							: simpleBluePrint.valueCreation() + ",");
+					statement.append(index == constructorFields.size() ? (simpleBluePrint.valueCreation() + ")")
+							: (simpleBluePrint.valueCreation() + ","));
 
 					types.addAll(simpleBluePrint.getReferenceClasses());
 				} else if (constructorFieldBp.isCollectionBluePrint()) {
@@ -105,8 +105,8 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					collectionsGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
 							constructorField.getValue().getSignature(), false, false);
 
-					statement.append(index == constructorFields.size() ? constructorFieldBp.getName() + ")"
-							: constructorFieldBp.getName() + ",");
+					statement.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+							: (constructorFieldBp.getName() + ","));
 				}
 			}
 
@@ -249,7 +249,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					createComplexObject(code, bp);
 
 				} else if (bp.isCollectionBluePrint()) {
-					BasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
+					AbstractBasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
 
 					SetterMethodData setter = null;
 					SignatureData signature = null;
@@ -265,7 +265,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					}
 
 					collectionsGeneration.createCollection(code, collection, signature,
-							setter != null ? SetterType.COLLECTION_SETTER == setter.getType() : false, false);
+							setter != null && SetterType.COLLECTION_SETTER == setter.getType(), false);
 				}
 			}
 		}

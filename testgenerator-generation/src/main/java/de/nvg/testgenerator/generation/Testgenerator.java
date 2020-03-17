@@ -24,10 +24,13 @@ import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.storage.ValueStorage;
 
-public class Testgenerator {
+public final class Testgenerator {
 	private static final String TEST = "Test";
 
 	private static final Logger LOGGER = LogManager.getLogger(Testgenerator.class);
+
+	private Testgenerator() {
+	}
 
 	/*
 	 * Einstiegspunkt fuer die Generierung der Testklasse
@@ -77,11 +80,11 @@ public class Testgenerator {
 	}
 
 	private static String getClassNameWithoutPackage(String className) {
-		return className.substring(className.lastIndexOf("/") + 1);
+		return className.substring(className.lastIndexOf('/') + 1);
 	}
 
 	private static String getPackageWithoutClassname(String className) {
-		return className.substring(0, className.lastIndexOf("/")).replace('/', '.');
+		return className.substring(0, className.lastIndexOf('/')).replace('/', '.');
 	}
 
 }

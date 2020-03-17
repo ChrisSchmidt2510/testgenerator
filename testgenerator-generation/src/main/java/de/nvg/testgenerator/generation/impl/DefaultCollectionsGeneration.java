@@ -24,7 +24,7 @@ import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
-import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
@@ -33,6 +33,8 @@ import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
 public class DefaultCollectionsGeneration implements CollectionsGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultCollectionsGeneration.class);
+
+	private static final String GENERIC_CONSTRUCTOR = " = new $T<>()";
 
 	private ComplexObjectGeneration objectGeneration;
 
@@ -44,7 +46,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void createCollection(Builder code, BasicCollectionBluePrint<?> basicCollectionBP, //
+	public void createCollection(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
 			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField) {
 
 		LOGGER.info("starting generation of Collection :" + basicCollectionBP);
@@ -63,7 +65,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void addCollectionToObject(Builder code, BasicCollectionBluePrint<?> basicCollectionBP,
+	public void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP,
 			SetterMethodData setter, String objectName) {
 
 		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
@@ -77,7 +79,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void addCollectionToObject(Builder code, BasicCollectionBluePrint<?> basicCollectionBP, FieldData field,
+	public void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, FieldData field,
 			String objectName) {
 
 		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
@@ -87,7 +89,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void addFieldToClass(TypeSpec.Builder typeSpec, BasicCollectionBluePrint<?> bluePrint,
+	public void addFieldToClass(TypeSpec.Builder typeSpec, AbstractBasicCollectionBluePrint<?> bluePrint,
 			SignatureData signature) {
 
 		if (bluePrint instanceof CollectionBluePrint) {
@@ -177,7 +179,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 
 		if (!onlyCreateCollectionElements) {
 			if (isField) {
-				code.addStatement(collection.getName() + " = new $T<>()", collection.getImplementationClass());
+				code.addStatement(collection.getName() + GENERIC_CONSTRUCTOR, collection.getImplementationClass());
 			} else {
 
 				TypeName collectionType;
@@ -187,7 +189,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 					collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
 				}
 
-				code.addStatement("$T " + collection.getName() + " = new $T<>()", collectionType,
+				code.addStatement("$T " + collection.getName() + GENERIC_CONSTRUCTOR, collectionType,
 						collection.getImplementationClass());
 			}
 
@@ -224,7 +226,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		if (!onlyCreateCollectionElements) {
 
 			if (isField) {
-				code.addStatement(map.getName() + " = new $T<>()", map.getImplementationClass());
+				code.addStatement(map.getName() + GENERIC_CONSTRUCTOR, map.getImplementationClass());
 			} else {
 				TypeName mapType;
 
@@ -234,7 +236,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 					mapType = ParameterizedTypeName.get(Map.class, Object.class, Object.class);
 				}
 
-				code.addStatement("$T " + map.getName() + " = new $T<>()", mapType, map.getImplementationClass());
+				code.addStatement("$T " + map.getName() + GENERIC_CONSTRUCTOR, mapType, map.getImplementationClass());
 			}
 
 			for (Entry<BluePrint, BluePrint> entry : map.getBluePrints()) {
@@ -301,7 +303,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
 
 		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild()) {
-			createCollection(code, bluePrint.castToCollectionBluePrint(), null, //
+			createCollection(code, bluePrint.castToCollectionBluePrint(), signature, //
 					false, false);
 		}
 	}

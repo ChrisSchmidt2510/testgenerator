@@ -9,7 +9,10 @@ import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.MethodHandles;
 import de.nvg.testgenerator.TestgeneratorConstants;
 
-public class TestGenerationHelper {
+public final class TestGenerationHelper {
+
+	private TestGenerationHelper() {
+	}
 
 	public static ClassData getClassData(Object reference) {
 		return MethodHandles.getStaticFieldValue(reference.getClass(), TestgeneratorConstants.FIELDNAME_CLASS_DATA);

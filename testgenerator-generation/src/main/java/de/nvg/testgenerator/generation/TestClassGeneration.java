@@ -13,12 +13,12 @@ import de.nvg.valuetracker.blueprint.BluePrint;
 
 public interface TestClassGeneration {
 
-	public void prepareTestObject(TypeSpec.Builder typeSpec, BluePrint testObject, ClassData classData,
+	void prepareTestObject(TypeSpec.Builder typeSpec, BluePrint testObject, ClassData classData,
 			Set<FieldData> calledFields);
 
-	public void prepareMethodParameters(TypeSpec.Builder typeSpec, Collection<BluePrint> methodParameters, //
+	void prepareMethodParameters(TypeSpec.Builder typeSpec, Collection<BluePrint> methodParameters, //
 			Map<Integer, SignatureData> methodSignature);
 
-	public void generateTestMethod(TypeSpec.Builder typeSpec, String methodName);
+	void generateTestMethod(TypeSpec.Builder typeSpec, String methodName);
 
 }

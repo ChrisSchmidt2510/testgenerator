@@ -25,7 +25,7 @@ import de.nvg.testgenerator.generation.TestClassGeneration;
 import de.nvg.testgenerator.logging.LogManager;
 import de.nvg.testgenerator.logging.Logger;
 import de.nvg.testgenerator.properties.RuntimeProperties;
-import de.nvg.valuetracker.blueprint.BasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
@@ -107,7 +107,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				code.addStatement(methodParameter.getName() + " = " + bluePrint.valueCreation(),
 						bluePrint.getReferenceClasses().toArray());
 			} else if (methodParameter.isCollectionBluePrint()) {
-				BasicCollectionBluePrint<?> collectionBluePrint = methodParameter.castToCollectionBluePrint();
+				AbstractBasicCollectionBluePrint<?> collectionBluePrint = methodParameter.castToCollectionBluePrint();
 
 				collectionsGeneration.addFieldToClass(typeSpec, collectionBluePrint,
 						methodSignature.get(methodParameterIndex));
