@@ -41,18 +41,18 @@ public class PartnerEigenschaft {
 				this.partnerZuordnung = param;
 			} else {
 				throw new IllegalStateException(
-						"Rückverweis auf die Partnerzuordnung kann nicht gesetzt werden, diese Partnereigenschaft ist noch nicht in dieser Partnerzuordnung enthalten");
+						"Rueckverweis auf die Partnerzuordnung kann nicht gesetzt werden, diese Partnereigenschaft ist noch nicht in dieser Partnerzuordnung enthalten");
 			}
 		} else if (param == null && this.partnerZuordnung != null) {
 			if (this.partnerZuordnung.getPartnerEigenschaft().contains(this)) {
 				throw new IllegalStateException(
-						"Rückverweis kann nicht gelöscht werden, diese Partnereigenschaft ist noch in der Partnerzuordnung enthalten");
+						"Rueckverweis kann nicht geloescht werden, diese Partnereigenschaft ist noch in der Partnerzuordnung enthalten");
 			} else {
 				this.partnerZuordnung = param;
 			}
 		} else if (param != null && this.partnerZuordnung != null && !param.equals(this.partnerZuordnung)) {
 			throw new IllegalStateException(
-					"Rückverweis kann nicht umgehängt werden, bitte addTo... und removeFrom... Methoden der Partnerzuordnung benutzen");
+					"Rueckverweis kann nicht umgehaengt werden, bitte addTo... und removeFrom... Methoden der Partnerzuordnung benutzen");
 		} else {
 			this.partnerZuordnung = param;
 		}

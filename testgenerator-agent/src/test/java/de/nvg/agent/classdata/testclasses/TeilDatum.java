@@ -115,7 +115,7 @@ public class TeilDatum {
 		if (stunde != null) {
 			int hh = stunde.intValue();
 			if (hh < 0 || hh > 23) {
-				throw new IllegalArgumentException("Der Wert für Stunde muss zwischen 0 und 23 liegen");
+				throw new IllegalArgumentException("Der Wert fuer Stunde muss zwischen 0 und 23 liegen");
 			}
 		}
 		this.stunde = stunde;
@@ -135,7 +135,7 @@ public class TeilDatum {
 		if (minute != null) {
 			int mm = minute.intValue();
 			if (mm < 0 || mm > 59) {
-				throw new IllegalArgumentException("Der Wert für Minute muss zwischen 0 und 59 liegen");
+				throw new IllegalArgumentException("Der Wert fuer Minute muss zwischen 0 und 59 liegen");
 			}
 		}
 		this.minute = minute;
