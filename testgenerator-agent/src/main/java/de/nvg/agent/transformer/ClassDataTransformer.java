@@ -201,7 +201,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		if (clinit != null) {
 			instructions = Instructions.getAllInstructions(clinit);
 		} else {
-			LOGGER.info("Erstelle " + MethodInfo.nameClinit + " für Klasse " + loadingClass.getName());
+			LOGGER.info("Erstelle " + MethodInfo.nameClinit + " fuer Klasse " + loadingClass.getName());
 
 			clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
 

@@ -32,9 +32,9 @@ public class Testgenerator {
 	/*
 	 * Einstiegspunkt für die Generierung der Testklasse
 	 * 
-	 * @Param className Name der Klasse für die der Test generiert wird
+	 * @Param className Name der Klasse fuer die der Test generiert wird
 	 * 
-	 * @Param Name der Methode für die ein Testfall erstellt wird
+	 * @Param Name der Methode fuer die ein Testfall erstellt wird
 	 */
 	public static void generate(String className, String method) {
 		LOGGER.info("Starting test-generation");

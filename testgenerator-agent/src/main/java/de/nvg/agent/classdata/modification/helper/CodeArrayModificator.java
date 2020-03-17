@@ -17,7 +17,7 @@ public class CodeArrayModificator {
 	}
 
 	class CodeArrayModificatorModel {
-		/** Punkt in dem ursprünglichen Codearray ab dem der Modificator gilt */
+		/** Punkt in dem urspruenglichen Codearray ab dem der Modificator gilt */
 		final int codeArrayStartIndex;
 		/**
 		 * Wert der zudem urspruenglichen Index addiert werden muss, um gueltige

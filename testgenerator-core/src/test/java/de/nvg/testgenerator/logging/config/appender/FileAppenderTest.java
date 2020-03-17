@@ -13,7 +13,7 @@ public class FileAppenderTest {
 	public void testFileAppenderFileCreation() throws IOException {
 		try (FileAppender fileAppender = new FileAppender("Agent", 5,
 				System.getProperty("user.home") + "\\testgenerator\\agent")) {
-			fileAppender.write("Der Lachs löppt");
+			fileAppender.write("Der Lachs loeppt");
 		}
 
 		Assert.assertTrue(true);
