@@ -1,6 +1,7 @@
 package de.nvg.testgenerator.properties.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class ArgumentParser {
 			} else if (arg.isRequired()) {
 				throw new ParserException("required Argument " + argument + " is missing");
 			} else {
-				return null;
+				return Collections.emptyList();
 			}
 		}
 

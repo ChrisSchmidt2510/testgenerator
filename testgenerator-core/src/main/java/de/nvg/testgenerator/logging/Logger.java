@@ -6,16 +6,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import de.nvg.testgenerator.logging.config.Configuration;
 import de.nvg.testgenerator.logging.config.Level;
-import de.nvg.testgenerator.logging.config.appender.Appender;
 
 public class Logger {
-	private final Level level;
-	private final Appender appender;
+	private final Configuration config;
 
-	Logger(Level level, Appender appender) {
-		this.level = level;
-		this.appender = appender;
+	Logger(Configuration config) {
+		this.config = config;
 	}
 
 	public void error(String message) {
@@ -23,6 +21,11 @@ public class Logger {
 	}
 
 	public void error(Throwable exception) {
+		log(Level.ERROR, exception);
+	}
+
+	public void error(String message, Throwable exception) {
+		log(Level.ERROR, message);
 		log(Level.ERROR, exception);
 	}
 
@@ -106,14 +109,14 @@ public class Logger {
 
 	public void log(Level level, Throwable exception) {
 		if (isLevelActive(level)) {
-			appender.write(exception);
+			config.getAppender().write(exception);
 		}
 	}
 
 	public void log(Level level, String message, Consumer<PrintStream> messagePrinter) {
 		if (isLevelActive(level)) {
 			printMessage(level, message);
-			appender.write(messagePrinter);
+			config.getAppender().write(messagePrinter);
 		}
 	}
 
@@ -124,16 +127,17 @@ public class Logger {
 	}
 
 	public boolean isLevelActive(Level level) {
-		return this.level.ordinal() >= level.ordinal();
+		return this.config.getLevel().ordinal() >= level.ordinal();
 	}
 
 	private void printMessage(Level messageLevel, String message) {
-		appender.write((startLogMessage(messageLevel) + message + "\n"));
+		config.getAppender().write((startLogMessage(messageLevel) + message + "\n"));
 	}
 
 	private String startLogMessage(Level messageLevel) {
-		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " ["
-				+ Thread.currentThread().getName() + "] " + messageLevel + " ";
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + //
+				" [" + config.getPackageName() + "] [" + Thread.currentThread().getName() + "] "//
+				+ messageLevel + " ";
 	}
 
 }
