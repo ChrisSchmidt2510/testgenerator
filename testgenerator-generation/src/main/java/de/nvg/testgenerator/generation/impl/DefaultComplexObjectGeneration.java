@@ -74,7 +74,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			}
 
 			ConstructorData constructor = classData.getConstructor();
-			Set<Entry<Integer, FieldData>> constructorFields = constructor.getConstructorFieldIndex().entrySet();
+			Set<Entry<Integer, FieldData>> constructorFields = constructor.getConstructorFields().entrySet();
 			int index = 0;
 
 			for (Entry<Integer, FieldData> constructorField : constructorFields) {
@@ -141,7 +141,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 				BluePrint bpField = bluePrint.getBluePrintForName(field.getName());
 
-				FieldData originalField = classData.getFieldInHierachie(field);
+				FieldData originalField = classData.getFieldInHierarchie(field);
 
 				if (originalField.isPublic()) {
 					addPublicFieldToObject(code, bpField, originalField, objectName);
@@ -254,7 +254,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					SetterMethodData setter = null;
 					SignatureData signature = null;
 					if (properties.wasFieldTrackingActivated()) {
-						FieldData field = classData.getFieldInHierachie(calledField.get());
+						FieldData field = classData.getFieldInHierarchie(calledField.get());
 						signature = field.getSignature();
 						setter = classData.getSetterInHierarchie(field);
 

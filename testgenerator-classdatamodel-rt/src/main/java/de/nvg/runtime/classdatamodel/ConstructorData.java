@@ -6,14 +6,14 @@ import java.util.Map;
 
 public class ConstructorData {
 	private final boolean defaultConstructor;
-	private final Map<Integer, FieldData> constructorFieldIndex = new LinkedHashMap<>();
+	private final Map<Integer, FieldData> constructorFields = new LinkedHashMap<>();
 
 	public ConstructorData(boolean defaultConstructor) {
 		this.defaultConstructor = defaultConstructor;
 	}
 
 	public void addElement(int index, FieldData field) {
-		this.constructorFieldIndex.put(index, field);
+		this.constructorFields.put(index, field);
 	}
 
 	public boolean hasDefaultConstructor() {
@@ -21,17 +21,17 @@ public class ConstructorData {
 	}
 
 	public boolean isNotEmpty() {
-		return !constructorFieldIndex.isEmpty();
+		return !constructorFields.isEmpty();
 	}
 
-	public Map<Integer, FieldData> getConstructorFieldIndex() {
-		return Collections.unmodifiableMap(constructorFieldIndex);
+	public Map<Integer, FieldData> getConstructorFields() {
+		return Collections.unmodifiableMap(constructorFields);
 	}
 
 	@Override
 	public String toString() {
 		return "ConstructorData [defaultConstructor=" + defaultConstructor + ", constructorFieldIndex="
-				+ constructorFieldIndex + "]";
+				+ constructorFields + "]";
 	}
 
 }

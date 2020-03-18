@@ -97,11 +97,11 @@ public class ClassData {
 		throw new IllegalArgumentException("no collection-field found in hierarchie for name " + name);
 	}
 
-	public FieldData getFieldInHierachie(FieldData field) {
+	public FieldData getFieldInHierarchie(FieldData field) {
 		if (fields.contains(field)) {
 			return fields.get(fields.indexOf(field));
 		} else if (superClass != null) {
-			return superClass.get().getFieldInHierachie(field);
+			return superClass.get().getFieldInHierarchie(field);
 		}
 
 		throw new IllegalArgumentException("no field found in hierarchie for field " + field);
