@@ -12,7 +12,7 @@ public final class Primitives {
 	public static final String JVM_INT = "I";
 	public static final String JVM_FLOAT = "F";
 	public static final String JVM_DOUBLE = "D";
-	public static final String JVM_LONG = "L";
+	public static final String JVM_LONG = "J";
 	public static final String JVM_VOID = "V";
 
 	public static final String JAVA_BYTE = "byte";
@@ -27,11 +27,14 @@ public final class Primitives {
 	public static final List<String> PRIMTIVE_JAVA_TYPES = Collections.unmodifiableList(Arrays.asList(JAVA_BYTE,
 			JAVA_BOOLEAN, JAVA_CHAR, JAVA_SHORT, JAVA_INT, JAVA_FLOAT, JAVA_LONG, JAVA_DOUBLE));
 
+	public static final List<String> PRIMTIVE_JVM_TYPES = Collections.unmodifiableList(
+			Arrays.asList(JVM_BYTE, JVM_BOOLEAN, JVM_CHAR, JVM_SHORT, JVM_INT, JVM_FLOAT, JVM_LONG, JVM_DOUBLE));
+
 	private Primitives() {
 	}
 
 	public static boolean isPrimitiveDataType(String dataType) {
-		return !dataType.endsWith(";");
+		return PRIMTIVE_JVM_TYPES.contains(dataType);
 	}
 
 }
