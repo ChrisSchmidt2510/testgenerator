@@ -77,6 +77,8 @@ public class MethodAnalyser {
 			List<Instruction> putFieldInstructions, List<Instruction> allInstructions) {
 		Map<Integer, FieldData> initialzedFields = new HashMap<>();
 
+		LOGGER.info("Starting Analysing Constructor " + methodDescriptor);
+
 		if (putFieldInstructions != null) {
 			List<String> params = Instructions.getMethodParams(methodDescriptor);
 

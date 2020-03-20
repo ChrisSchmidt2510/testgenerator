@@ -230,9 +230,10 @@ public final class Instructions {
 		String methodParameters = descriptor.substring(descriptor.indexOf('(') + 1, descriptor.indexOf(')'));
 
 		while (methodParameters.length() > 0) {
-			if (Primitives.isPrimitiveDataType(methodParameters)) {
-				parameters.add(String.valueOf(methodParameters.charAt(0)));
+			if (Primitives.isPrimitiveDataType(Character.toString(methodParameters.charAt(0)))) {
+				parameters.add(Character.toString(methodParameters.charAt(0)));
 				methodParameters = methodParameters.substring(1);
+
 			} else {
 				int index = methodParameters.indexOf(';') + 1;
 

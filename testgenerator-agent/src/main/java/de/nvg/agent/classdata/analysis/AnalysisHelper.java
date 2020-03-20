@@ -23,32 +23,42 @@ public final class AnalysisHelper {
 		case Opcode.DLOAD_1:
 		case Opcode.FLOAD_1:
 		case Opcode.LLOAD_1:
-			argumentIndex.setValue(1);
-			return fieldDescriptor.equals(methodParameters.get(0));
+			return compareDescriptors(fieldDescriptor, 1, //
+					methodParameters, argumentIndex);
 		case Opcode.ALOAD_2:
 		case Opcode.ILOAD_2:
 		case Opcode.DLOAD_2:
 		case Opcode.FLOAD_2:
 		case Opcode.LLOAD_2:
-			argumentIndex.setValue(2);
-			return fieldDescriptor.equals(methodParameters.get(1));
+			return compareDescriptors(fieldDescriptor, 2, //
+					methodParameters, argumentIndex);
 		case Opcode.ALOAD_3:
 		case Opcode.ILOAD_3:
 		case Opcode.DLOAD_3:
 		case Opcode.FLOAD_3:
 		case Opcode.LLOAD_3:
-			argumentIndex.setValue(3);
-			return fieldDescriptor.equals(methodParameters.get(2));
+			return compareDescriptors(fieldDescriptor, 3, //
+					methodParameters, argumentIndex);
 		case Opcode.ALOAD:
 		case Opcode.ILOAD:
 		case Opcode.DLOAD:
 		case Opcode.FLOAD:
 		case Opcode.LLOAD:
-			argumentIndex.setValue(instruction.getLocalVariableIndex());
-			return fieldDescriptor.equals(methodParameters.get(instruction.getLocalVariableIndex() - 1));
+			return compareDescriptors(fieldDescriptor, instruction.getLocalVariableIndex(), methodParameters,
+					argumentIndex);
 		default:
 			return false;
 		}
+	}
+
+	private static boolean compareDescriptors(String fieldDescriptor, int localVariableIndex,
+			List<String> methodParameters, Wrapper<Integer> argumentIndex) {
+		if ((localVariableIndex - 1) < methodParameters.size()) {
+			argumentIndex.setValue(localVariableIndex);
+			return fieldDescriptor.equals(methodParameters.get(localVariableIndex - 1));
+		}
+
+		return false;
 	}
 
 	static FieldData getField(List<FieldData> fields, String name, String type) {
