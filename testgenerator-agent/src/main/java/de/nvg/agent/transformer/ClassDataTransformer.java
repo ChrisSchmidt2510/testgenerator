@@ -296,9 +296,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			List<Instruction> putFieldInstructions = filteredInstructions == null ? Collections.emptyList()
 					: filteredInstructions;
 
-			CodeAttribute codeAttribute = method.getCodeAttribute();
-
-			fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, codeAttribute);
+			fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, method.getCodeAttribute());
 
 		} else {
 			Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(instructions,
@@ -306,7 +304,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
 					method.getCodeAttribute());
-			method.rebuildStackMap(ClassPool.getDefault());
 		}
+
+		method.rebuildStackMap(ClassPool.getDefault());
 	}
 }

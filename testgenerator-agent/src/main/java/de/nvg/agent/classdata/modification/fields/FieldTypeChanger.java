@@ -200,7 +200,7 @@ public class FieldTypeChanger {
 					iterator.insertGapAt(
 							instructionBeforePutField.getCodeArrayIndex() + codeArrayModificator
 									.getModificator(instructionBeforePutField.getCodeArrayIndex()),
-							afterValueCreation.getSize() - 4, true);
+							afterValueCreation.getSize() - 4, false);
 
 					iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
@@ -216,7 +216,7 @@ public class FieldTypeChanger {
 					iterator.insertGapAt(
 							instruction.getCodeArrayIndex()
 									+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
-							afterValueCreation.getSize() - 3, true);
+							afterValueCreation.getSize() - 3, false);
 
 					iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
@@ -420,12 +420,12 @@ public class FieldTypeChanger {
 
 				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
 					bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
-					iterator.insertGapAt(codeArrayIndex, 6, true);
+					iterator.insertGapAt(codeArrayIndex, 6, false);
 					iterator.write(bytecode.get(), codeArrayIndex);
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
 
 				} else {
-					iterator.insertGapAt(codeArrayIndex, 3, true);
+					iterator.insertGapAt(codeArrayIndex, 3, false);
 					iterator.write(bytecode.get(), codeArrayIndex);
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
 				}
