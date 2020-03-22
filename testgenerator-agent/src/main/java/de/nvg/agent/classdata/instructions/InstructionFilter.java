@@ -80,7 +80,7 @@ public class InstructionFilter {
 			operandStack.push(type);
 		} else if (Instructions.isOneItemComparison(instruction)) {
 			if (Opcode.IFNULL == instruction.getOpcode() || Opcode.IFNONNULL == instruction.getOpcode()) {
-				// can't know which type gets popped, so a the most common type is pushed
+				// can't know which type gets popped, so the most common type is pushed
 				operandStack.push(JavaTypes.OBJECT);
 			} else {
 				// all other one-item-comparisions like IFEQ popping an int
@@ -88,7 +88,7 @@ public class InstructionFilter {
 			}
 		} else if (Instructions.isTwoItemComparison(instruction)) {
 			if (Opcode.IF_ACMPEQ == instruction.getOpcode() || Opcode.IF_ACMPNE == instruction.getOpcode()) {
-				// can't know which types gets popped, so a the most common types are pushed
+				// can't know which types gets popped, so the most common types are pushed
 				operandStack.push(JavaTypes.OBJECT);
 				operandStack.push(JavaTypes.OBJECT);
 			} else {
@@ -112,15 +112,15 @@ public class InstructionFilter {
 
 	/**
 	 * Filtering for the call-instruction of the method-invocation. If the
-	 * invoke-instruction has a return-type, its pops the return-type from the
+	 * invoke-instruction has a return-type, it pops the return-type from the
 	 * commited operandStack. In order to get the call-instruction a new
 	 * operandStack is created and the parameter of the invoke-instruction getting
 	 * pushed. After that the method
-	 * {@link InstructionFilter#filterForInstructionCallerIntern(Instruction, Instruction, Stack)}.
+	 * {@link InstructionFilter#filterForInstructionCallerIntern(Instruction, Instruction, Stack)}
+	 * gets called. <br>
 	 * Exclusion: if the invoke-instruction has the Opcode INVOKE_STATIC and the
-	 * method has no parameters, the invokeinstruction gets returned
+	 * method has no parameters, the invokeInstruction gets returned
 	 * 
-	 * @param searchInstruction
 	 * @param invokeInstruction
 	 * @param operandStack
 	 * @return
