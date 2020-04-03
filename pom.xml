@@ -9,6 +9,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<sonar.organization>testgenerator</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.login>8ace829383664926944a044619fce8dd1c9d5ed2</sonar.login>
 	</properties>
 
 	<modules>
@@ -98,7 +101,7 @@
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.6.0.1398</version>
+					<version>3.6.1.1688</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
