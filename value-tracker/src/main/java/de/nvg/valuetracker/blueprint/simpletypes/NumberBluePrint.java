@@ -18,9 +18,9 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 		if (value instanceof Integer) {
 			return String.valueOf(value.intValue());
 		} else if (value instanceof Short) {
-			return "(short)" + String.valueOf(value.intValue());
+			return "(short)" + value.intValue();
 		} else if (value instanceof Byte) {
-			return "(byte)" + String.valueOf(value.intValue());
+			return "(byte)" + value.intValue();
 		} else if (value instanceof Float) {
 			return String.valueOf(value.floatValue() + "f");
 		} else if (value instanceof Double) {
