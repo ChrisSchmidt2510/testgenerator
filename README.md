@@ -1,4 +1,4 @@
-![Java CI with Maven](https://github.com/ChrisSchmidt2510/testgenerator/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop)
+![build](https://github.com/ChrisSchmidt2510/testgenerator/workflows/build/badge.svg)
 # testgenerator
 A Java Agent that generates at application runtime a Test with all needed Objects for the marked Method.
 
