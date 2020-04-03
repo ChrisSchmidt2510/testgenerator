@@ -10,6 +10,10 @@ public class Value {
 	private Integer value;
 	private Calendar calendar;
 
+	public Value() {
+		this(null, null);
+	}
+
 	public Value(Integer value, Calendar calendar) {
 		if (value == null) {
 			this.value = DEFAULT_VALUE;

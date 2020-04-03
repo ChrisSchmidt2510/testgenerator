@@ -20,7 +20,7 @@ public class Person extends BlObject {
 
 	public Person(String name, String firstName, LocalDate dateOfBirth, Geschlecht geschlecht) {
 		if (name == null) {
-			throw new NullPointerException("SparteID darf nicht null sein");
+			throw new NullPointerException("name can`t be null");
 		}
 		this.name = name;
 		this.firstName = firstName;

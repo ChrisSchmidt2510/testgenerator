@@ -71,8 +71,10 @@ public final class Instructions {
 			int opcode = iterator.byteAt(index);
 
 			switch (opcode) {
-			case Opcode.PUTFIELD:
 			case Opcode.GETFIELD:
+			case Opcode.GETSTATIC:
+			case Opcode.PUTFIELD:
+			case Opcode.PUTSTATIC:
 				int cpIndex = iterator.s16bitAt(index + 1);
 
 				Instruction instructionField = new Instruction.Builder().withCodeArrayIndex(index)//
@@ -135,6 +137,7 @@ public final class Instructions {
 				break;
 
 			case Opcode.NEW:
+			case Opcode.CHECKCAST:
 				cpIndex = iterator.s16bitAt(index + 1);
 
 				Instruction instruction = new Instruction.Builder().withCodeArrayIndex(index)
@@ -142,6 +145,21 @@ public final class Instructions {
 						.withOpcode(opcode).build();
 
 				instructions.add(instruction);
+				break;
+			case Opcode.LDC:
+				Instruction ldcInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
+						.withOpcode(opcode).withConstantValue(ldc(constantPool, iterator.byteAt(index + 1)))//
+						.build();
+
+				instructions.add(ldcInstruction);
+				break;
+			case Opcode.LDC_W:
+			case Opcode.LDC2_W:
+				Instruction ldcwInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
+						.withOpcode(opcode).withConstantValue(ldc(constantPool, iterator.u16bitAt(index + 1)))//
+						.build();
+
+				instructions.add(ldcwInstruction);
 				break;
 			default:
 				Instruction defaultInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
@@ -153,6 +171,27 @@ public final class Instructions {
 		}
 
 		return Collections.unmodifiableList(instructions);
+	}
+
+	private static String ldc(ConstPool constantPool, int index) {
+		int tag = constantPool.getTag(index);
+		switch (tag) {
+		case ConstPool.CONST_String:
+			return constantPool.getStringInfo(index);
+		case ConstPool.CONST_Integer:
+			return Integer.toString(constantPool.getIntegerInfo(index));
+		case ConstPool.CONST_Float:
+			return Float.toString(constantPool.getFloatInfo(index));
+		case ConstPool.CONST_Long:
+			return Long.toString(constantPool.getLongInfo(index));
+		case ConstPool.CONST_Double:
+			return Double.toString(constantPool.getDoubleInfo(index));
+		case ConstPool.CONST_Class:
+			return constantPool.getClassInfo(index);
+		default:
+			throw new RuntimeException("bad LDC: " + tag);
+		}
+
 	}
 
 	/**

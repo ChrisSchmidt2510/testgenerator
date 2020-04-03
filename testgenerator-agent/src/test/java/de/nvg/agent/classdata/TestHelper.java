@@ -18,50 +18,54 @@ import javassist.bytecode.MethodInfo;
 public class TestHelper {
 	protected ClassFile classFile;
 	protected CtClass ctClass;
+	protected MethodInfo methodInfo;
 	protected ConstPool constantPool;
 	protected List<Instruction> instructions;
 	protected Map<Integer, List<Instruction>> filteredInstructions;
 	protected CodeAttribute codeAttribute;
 
-	public TestHelper init(String className, String methodName, String methodDiscriptor, List<Integer> opcodes)
+	public void init(Class<?> clazz, String methodName, String methodDiscriptor, List<Integer> opcodes)
 			throws NotFoundException, BadBytecode {
 		ClassPool classPool = ClassPool.getDefault();
 
-		ctClass = classPool.get(className);
+		ctClass = classPool.get(clazz.getName());
 
 		classFile = ctClass.getClassFile();
 
-		MethodInfo methodInfo = null;
+		if (methodName != null) {
+			MethodInfo methodInfo = null;
 
-		if (methodDiscriptor == null) {
-			methodInfo = classFile.getMethod(methodName);
-		} else {
-			methodInfo = classFile.getMethods().stream().filter(
-					method -> method.getName().equals(methodName) && method.getDescriptor().equals(methodDiscriptor))
-					.findAny().orElseThrow(() -> new NoSuchElementException());
+			if (methodDiscriptor == null) {
+				methodInfo = classFile.getMethod(methodName);
+			} else {
+				methodInfo = classFile.getMethods().stream()
+						.filter(method -> method.getName().equals(methodName)
+								&& method.getDescriptor().equals(methodDiscriptor))
+						.findAny().orElseThrow(() -> new NoSuchElementException());
+			}
+			this.methodInfo = methodInfo;
+
+			constantPool = methodInfo.getConstPool();
+
+			codeAttribute = methodInfo.getCodeAttribute();
+
+			instructions = Instructions.getAllInstructions(methodInfo);
+
+			filteredInstructions = Instructions.getFilteredInstructions(instructions, opcodes);
+
 		}
-
-		constantPool = methodInfo.getConstPool();
-
-		codeAttribute = methodInfo.getCodeAttribute();
-
-		instructions = Instructions.getAllInstructions(methodInfo);
-
-		filteredInstructions = Instructions.getFilteredInstructions(instructions, opcodes);
-
-		// TODO CS
-//		Logger.getInstance().setLevel(Level.TRACE);
-
-		return this;
 	}
 
-	public TestHelper init(String className, String methodName, List<Integer> opcodes)
-			throws NotFoundException, BadBytecode {
-		return init(className, methodName, null, opcodes);
+	public void init(Class<?> clazz, String methodName, List<Integer> opcodes) throws NotFoundException, BadBytecode {
+		init(clazz, methodName, null, opcodes);
 	}
 
-	public TestHelper init(String className, String methodName) throws NotFoundException, BadBytecode {
-		return init(className, methodName, null, null);
+	public void init(Class<?> clazz, String methodName) throws NotFoundException, BadBytecode {
+		init(clazz, methodName, null, null);
+	}
+
+	public void init(Class<?> clazz) throws NotFoundException, BadBytecode {
+		init(clazz, null, null, null);
 	}
 
 }

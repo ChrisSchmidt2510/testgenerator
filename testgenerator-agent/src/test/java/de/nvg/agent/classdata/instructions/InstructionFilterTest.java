@@ -6,6 +6,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.nvg.agent.classdata.TestHelper;
+import de.nvg.agent.classdata.testclasses.Adresse;
+import de.nvg.agent.classdata.testclasses.FragmentDate;
+import de.nvg.agent.classdata.testclasses.Person;
+import de.nvg.agent.classdata.testclasses.Value;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.MethodInfo;
@@ -15,7 +19,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallerWithSimplestSetter() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.Adresse", "setStrasse", Arrays.asList(Opcode.PUTFIELD));
+		init(Adresse.class, "setStrasse", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -31,7 +35,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallerWithOpcodeDup() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.FragmentDate", "addMonths", Arrays.asList(Opcode.PUTFIELD));
+		init(FragmentDate.class, "addMonths", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -55,8 +59,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithOpcodeAconstNull() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.FragmentDate", "setDate", "(Ljava/util/Date;)V",
-				Arrays.asList(Opcode.PUTFIELD));
+		init(FragmentDate.class, "setDate", "(Ljava/util/Date;)V", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -73,8 +76,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithOpcodeNew() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.FragmentDate", "setDate", "(Ljava/util/Date;)V",
-				Arrays.asList(Opcode.PUTFIELD));
+		init(FragmentDate.class, "setDate", "(Ljava/util/Date;)V", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 		// for this test we need the put-field-instruction at index 54
@@ -91,7 +93,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithObjectCreationForInterface() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.Person", MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
+		init(Person.class, MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -108,7 +110,8 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithSetFieldWithConstant() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.Value", MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
+		init(Value.class, MethodInfo.nameInit, "(Ljava/lang/Integer;Ljava/util/Calendar;)V",
+				Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -125,7 +128,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithIfElseBranch() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.Value", "setValue", Arrays.asList(Opcode.PUTFIELD));
+		init(Value.class, "setValue", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
@@ -142,7 +145,7 @@ public class InstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallWithIfBranch() throws NotFoundException, BadBytecode {
-		init("de.nvg.agent.classdata.testclasses.Value", "setValueID", Arrays.asList(Opcode.PUTFIELD));
+		init(Value.class, "setValueID", Arrays.asList(Opcode.PUTFIELD));
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 

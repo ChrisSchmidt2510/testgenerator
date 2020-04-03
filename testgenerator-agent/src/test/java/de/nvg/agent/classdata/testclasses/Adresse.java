@@ -4,10 +4,15 @@ public class Adresse {
 
 	public static final int KEY = 5;
 
-	private String strasse;
+	private String strasse = null;
 	private short hausnummer;
 	private String ort;
 	private int plz;
+
+	public Adresse(String ort, int plz) {
+		this.ort = ort;
+		this.plz = plz;
+	}
 
 	@Override
 	public int hashCode() {

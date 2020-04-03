@@ -13,9 +13,10 @@ public final class Instruction {
 	private final String type;
 	private final String name;
 	private final String classRef;
+	private final String constantValue;
 
 	private Instruction(int codeArrayIndex, int opcode, int localVariableIndex, int offset, String type, String name,
-			String classRef) {
+			String classRef, String constantValue) {
 		this.codeArrayIndex = codeArrayIndex;
 		this.opcode = opcode;
 		this.localVariableIndex = localVariableIndex;
@@ -23,6 +24,7 @@ public final class Instruction {
 		this.type = type;
 		this.name = name;
 		this.classRef = classRef;
+		this.constantValue = constantValue;
 	}
 
 	public int getCodeArrayIndex() {
@@ -53,25 +55,26 @@ public final class Instruction {
 		return offset;
 	}
 
+	public String getConstantValue() {
+		return constantValue;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, opcode, type);
+		return Objects.hash(classRef, codeArrayIndex, localVariableIndex, name, offset, opcode, type, constantValue);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (!(obj instanceof Instruction))
 			return false;
-		}
-		if (!(obj instanceof Instruction)) {
-			return false;
-		}
 		Instruction other = (Instruction) obj;
-		return codeArrayIndex == other.codeArrayIndex && Objects.equals(name, other.name) && opcode == other.opcode
-				&& Objects.equals(type, other.type);
+		return Objects.equals(classRef, other.classRef) && codeArrayIndex == other.codeArrayIndex
+				&& localVariableIndex == other.localVariableIndex && Objects.equals(name, other.name)
+				&& offset == other.offset && opcode == other.opcode && Objects.equals(type, other.type)
+				&& Objects.equals(constantValue, other.constantValue);
 	}
 
 	@Override
@@ -98,6 +101,7 @@ public final class Instruction {
 		private String type;
 		private String name;
 		private String classRef;
+		private String constantValue;
 
 		public Builder withCodeArrayIndex(int codeArrayIndex) {
 			this.codeArrayIndex = codeArrayIndex;
@@ -134,8 +138,14 @@ public final class Instruction {
 			return this;
 		}
 
+		public Builder withConstantValue(String constantValue) {
+			this.constantValue = constantValue;
+			return this;
+		}
+
 		public Instruction build() {
-			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, type, name, classRef);
+			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, type, name, classRef,
+					constantValue);
 
 		}
 	}
