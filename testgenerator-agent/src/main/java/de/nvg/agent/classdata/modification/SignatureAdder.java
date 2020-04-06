@@ -7,7 +7,6 @@ import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.testgenerator.Wrapper;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.ConstPool;
-import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
@@ -32,7 +31,7 @@ public class SignatureAdder {
 
 		code.addNew(SIGNATURE_DATA_CLASSNAME);
 		code.add(Opcode.DUP);
-		code.addLdc(constantPool.addClassInfo(Descriptor.toJvmName(signature.getType())));
+		code.addLdc(constantPool.addClassInfo(BytecodeUtils.cnvDescriptorToJvmName(signature.getType())));
 		code.addInvokespecial(SIGNATURE_DATA_CLASSNAME, MethodInfo.nameInit, SIGNATURE_DATA_CONSTRUCTOR);
 
 		int currentSignature = localVariableCounter.getValue();

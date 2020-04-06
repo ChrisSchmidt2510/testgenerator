@@ -38,4 +38,8 @@ public final class BytecodeUtils {
 		}
 	}
 
+	public static String cnvDescriptorToJvmName(String descriptor) {
+		return descriptor.substring(1, descriptor.length() - 1);
+	}
+
 }
