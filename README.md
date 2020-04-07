@@ -1,5 +1,6 @@
 ![build](https://github.com/ChrisSchmidt2510/testgenerator/workflows/build/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=de.nvg%3Atestgenerator-parent&metric=alert_status)](https://sonarcloud.io/dashboard?id=de.nvg%3Atestgenerator-parent)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=de.nvg%3Atestgenerator-parent&metric=coverage)](https://sonarcloud.io/dashboard?id=de.nvg%3Atestgenerator-parent)
 # testgenerator
 A Java Agent that generates at application runtime a Test with all needed Objects for the marked Method.
 
