@@ -24,3 +24,5 @@ jobs:
       run: mvn verify sonar:sonar
     - name: Maven-Build
       run: mvn -B package --file pom.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
