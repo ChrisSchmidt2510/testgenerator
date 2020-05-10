@@ -2,6 +2,7 @@ package de.nvg.agent.classdata.instructions;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -20,6 +21,13 @@ import javassist.bytecode.Opcode;
 public class InstructionFilter {
 
 	private static final Logger LOGGER = LogManager.getLogger(InstructionFilter.class);
+
+	private static final List<Integer> POP_OPCODES = Collections.unmodifiableList(Arrays.asList(
+			// remove the first entry in the operand-stack for aconst_null instruction
+			Opcode.ACONST_NULL, Opcode.NEW, Opcode.GETSTATIC, //
+			// pop the element, before the dup instruction the first and second-instructions
+			// should be of the same type
+			Opcode.DUP, Opcode.LDC, Opcode.LDC_W, Opcode.LDC2_W));
 
 	private final List<Instruction> instructions;
 
@@ -54,16 +62,8 @@ public class InstructionFilter {
 				"current-instruction " + instruction + "\n" + //
 				"current operandStack: " + operandStack + "\n");
 
-		if (Instructions.isLoadInstruction(instruction)) {
-			operandStack.pop();
-
-			// remove the first entry in the operand-stack for aconst_null instruction
-		} else if (Opcode.ACONST_NULL == instruction.getOpcode() || //
-		// pop the element, before the dup instruction the first and second-instructions
-		// should be of the same type
-				Opcode.DUP == instruction.getOpcode() || //
-				Opcode.NEW == instruction.getOpcode() || Opcode.GETSTATIC == instruction.getOpcode()) {
-
+		if (Instructions.isLoadInstruction(instruction) || //
+				POP_OPCODES.contains(instruction.getOpcode())) {
 			operandStack.pop();
 
 		} else if (Opcode.GETFIELD == instruction.getOpcode()) {
@@ -73,11 +73,13 @@ public class InstructionFilter {
 		} else if (Instructions.isInvokeInstruction(instruction)) {
 			// update the instruction to the instruction, who starts the invoke-instruction
 			instruction = filterForInstructionBeforeInvokeInstruction(instruction, operandStack);
+
 		} else if (Instructions.isPrimitiveMathOperation(instruction)) {
 			String type = operandStack.peek();
 			// push the same type to the operandStack, cause the primitive-math-operations
 			// need always the primitive type 2 times for execution of the instruction
 			operandStack.push(type);
+
 		} else if (Instructions.isOneItemComparison(instruction)) {
 			if (Opcode.IFNULL == instruction.getOpcode() || Opcode.IFNONNULL == instruction.getOpcode()) {
 				// can't know which type gets popped, so the most common type is pushed
@@ -86,6 +88,7 @@ public class InstructionFilter {
 				// all other one-item-comparisions like IFEQ popping an int
 				operandStack.push(Primitives.JAVA_INT);
 			}
+
 		} else if (Instructions.isTwoItemComparison(instruction)) {
 			if (Opcode.IF_ACMPEQ == instruction.getOpcode() || Opcode.IF_ACMPNE == instruction.getOpcode()) {
 				// can't know which types gets popped, so the most common types are pushed
