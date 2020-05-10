@@ -11,6 +11,10 @@
 	</parent>
 
 	<name>testgenerator-agent</name>
+	
+	<properties>
+		<sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
+	</properties>
 
 	<dependencies>
 		<dependency>

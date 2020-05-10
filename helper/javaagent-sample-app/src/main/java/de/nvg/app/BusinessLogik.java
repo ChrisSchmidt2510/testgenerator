@@ -1,5 +1,7 @@
 package de.nvg.app;
 
+import java.util.List;
+
 import de.nvg.bl.Account;
 import de.nvg.bl.partner.Adresse;
 import de.nvg.bl.partner.Person;
@@ -10,7 +12,15 @@ public class BusinessLogik {
 		person.addAdresse(adresse);
 	}
 
-	public void changePassword(Account account, String password) {
+	public String changePassword(Account account, String password) {
+		if (password == null) {
+			System.out.println("im if Block");
+//				throw new RuntimeException("Fehler!");
+
+			return method(password);
+//				return null;
+		}
+
 		System.out.println("Output Application");
 
 		Person person = account.getPerson();
@@ -29,6 +39,19 @@ public class BusinessLogik {
 				.forEach((dateTime, action) -> System.out.println("DateTime: " + dateTime + " Action:" + action));
 
 		account.setPassword(password);
+
+//			return method(password);
+		return password;
+
+	}
+
+	public String method(String passwort) {
+		System.out.println(passwort);
+		return passwort;
+	}
+
+	public void method2(String password, List<String> oldPasswords) {
+		System.out.println(oldPasswords);
 	}
 
 }

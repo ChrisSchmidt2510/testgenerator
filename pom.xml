@@ -12,6 +12,7 @@
 		<sonar.organization>testgenerator</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.login>8ace829383664926944a044619fce8dd1c9d5ed2</sonar.login>
+		<aggregate.report.dir>testgenerator-agent-full/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
 	</properties>
 
 	<modules>
@@ -34,15 +35,21 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.squareup</groupId>
+				<artifactId>javapoet</artifactId>
+				<version>1.11.1</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>2.10.0</version>
+			</dependency>
+
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.12</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.squareup</groupId>
-				<artifactId>javapoet</artifactId>
-				<version>1.11.1</version>
 			</dependency>
 
 			<dependency>
@@ -165,6 +172,13 @@
 								<goals>
 									<goal>prepare-agent</goal>
 								</goals>
+							</execution>
+							<execution>
+								<id>report</id>
+								<goals>
+									<goal>report-aggregate</goal>
+								</goals>
+								<phase>verify</phase>
 							</execution>
 						</executions>
 					</plugin>
