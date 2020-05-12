@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
@@ -30,7 +32,7 @@ public final class Instructions {
 	private static final List<Integer> PRIMITIVE_LOAD_OPCODES = Collections.unmodifiableList(Arrays.asList(//
 			Opcode.ILOAD, Opcode.ILOAD_0, Opcode.ILOAD_1, Opcode.ILOAD_2, Opcode.ILOAD_3, Opcode.ICONST_0,
 			Opcode.ICONST_1, Opcode.ICONST_2, Opcode.ICONST_3, Opcode.ICONST_4, Opcode.ICONST_5, Opcode.ICONST_M1,
-			Opcode.SIPUSH, Opcode.BIPUSH, //
+			Opcode.BIPUSH, Opcode.SIPUSH, //
 			Opcode.FLOAD, Opcode.FLOAD_0, Opcode.FLOAD_1, Opcode.FLOAD_2, Opcode.FLOAD_3, Opcode.FCONST_0,
 			Opcode.FCONST_1, Opcode.FCONST_2, //
 			Opcode.DLOAD, Opcode.DLOAD_0, Opcode.DLOAD_1, Opcode.DLOAD_2, Opcode.DLOAD_3, //
@@ -56,6 +58,13 @@ public final class Instructions {
 	private static final List<Integer> INVOKE_OPCODES = Collections
 			.unmodifiableList(Arrays.asList(Opcode.INVOKEVIRTUAL, Opcode.INVOKESPECIAL, //
 					Opcode.INVOKEINTERFACE, Opcode.INVOKESTATIC));
+
+	private static final Map<List<Integer>, String> PRIMITVE_CASTS = MapBuilder.<List<Integer>, String>hashMapBuilder()
+			.add(Arrays.asList(Opcode.D2F, Opcode.D2I, Opcode.D2L), Primitives.JAVA_DOUBLE)//
+			.add(Arrays.asList(Opcode.I2B, Opcode.I2C, Opcode.I2D, //
+					Opcode.I2F, Opcode.I2L, Opcode.I2S), Primitives.JAVA_INT)
+			.add(Arrays.asList(Opcode.L2D, Opcode.L2F, Opcode.L2I), Primitives.JAVA_LONG)
+			.add(Arrays.asList(Opcode.F2D, Opcode.F2I, Opcode.F2L), Primitives.JAVA_FLOAT).toUnmodifiableMap();
 
 	private Instructions() {
 	}
@@ -243,6 +252,17 @@ public final class Instructions {
 
 	public static boolean isInvokeInstruction(Instruction instruction) {
 		return INVOKE_OPCODES.contains(instruction.getOpcode());
+	}
+
+	public static boolean isPrimitiveCast(Instruction instruction) {
+		return PRIMITVE_CASTS.keySet().stream()//
+				.anyMatch(list -> list.contains(instruction.getOpcode()));
+	}
+
+	public static String getPrimitiveCastType(Instruction instruction) {
+		return PRIMITVE_CASTS.entrySet().stream()
+				.filter(returnType -> returnType.getKey().contains(instruction.getOpcode()))//
+				.map(Entry::getValue).findAny().orElse(null);
 	}
 
 	public static boolean isConstant(int modifier) {

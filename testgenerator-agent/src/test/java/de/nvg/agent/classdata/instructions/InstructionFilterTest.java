@@ -160,6 +160,24 @@ public class InstructionFilterTest extends TestHelper {
 		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
+	@Test
+	public void testFilterWithPrimitveCasts() throws NotFoundException, BadBytecode {
+		init(Value.class, "setSmallValue", Arrays.asList(Opcode.PUTFIELD));
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		InstructionFilter filter = createInstructionFilter();
+
+		Instruction aloadInstruction = filter
+				// for this method only the first aload-instruction is for
+				// this test interesting
+				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
+
+		Assert.assertEquals(0, aloadInstruction.getCodeArrayIndex());
+		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+
+	}
+
 	private InstructionFilter createInstructionFilter() {
 		return new InstructionFilter(instructions);
 	}

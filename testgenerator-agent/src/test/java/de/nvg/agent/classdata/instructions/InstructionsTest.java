@@ -6,6 +6,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javassist.bytecode.Opcode;
+
 public class InstructionsTest {
 
 	@Test
@@ -21,7 +23,11 @@ public class InstructionsTest {
 
 		List<String> paramsWithOnlyPrimitives = Instructions.getMethodParams("(IIDJ)V");
 		Assert.assertEquals(Arrays.asList("I", "I", "D", "J"), paramsWithOnlyPrimitives);
+	}
 
+	@Test
+	public void testIsPrimitiveCast() {
+		Assert.assertTrue(Instructions.isPrimitiveCast(new Instruction.Builder().withOpcode(Opcode.I2B).build()));
 	}
 
 }

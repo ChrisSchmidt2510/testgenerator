@@ -10,6 +10,8 @@ public class Value {
 	private Integer value;
 	private Calendar calendar;
 
+	private int smallValue;
+
 	public Value() {
 		this(null, null);
 	}
@@ -49,6 +51,10 @@ public class Value {
 
 	public void setCalendar(Calendar calendar) {
 		this.calendar = calendar;
+	}
+
+	public void setSmallValue(float value) {
+		smallValue = (int) value;
 	}
 
 }

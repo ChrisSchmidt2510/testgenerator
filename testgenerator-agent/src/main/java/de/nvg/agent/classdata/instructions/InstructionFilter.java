@@ -27,7 +27,7 @@ public class InstructionFilter {
 			Opcode.ACONST_NULL, Opcode.NEW, Opcode.GETSTATIC, //
 			// pop the element, before the dup instruction the first and second-instructions
 			// should be of the same type
-			Opcode.DUP, Opcode.LDC, Opcode.LDC_W, Opcode.LDC2_W));
+			Opcode.DUP, Opcode.LDC, Opcode.LDC_W, Opcode.LDC2_W, Opcode.POP, Opcode.POP2));
 
 	private final List<Instruction> instructions;
 
@@ -99,6 +99,11 @@ public class InstructionFilter {
 				operandStack.push(Primitives.JAVA_INT);
 				operandStack.push(Primitives.JAVA_INT);
 			}
+		} else if (Instructions.isPrimitiveCast(instruction)) {
+			operandStack.pop();
+
+			String dataType = Instructions.getPrimitiveCastType(instruction);
+			operandStack.push(dataType);
 		}
 
 		Instruction beforeInstruction = Instructions.getBeforeInstruction(instructions, instruction);
