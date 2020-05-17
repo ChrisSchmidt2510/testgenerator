@@ -15,5 +15,24 @@
 			<groupId>com.sun</groupId>
 			<artifactId>tools</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-core</artifactId>
+		</dependency>
+		<!-- Test-Dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-classdatamodel-rt</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-proxy</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
