@@ -351,37 +351,46 @@ public class FieldTypeChanger {
 	private void overrideFieldAccessPutFieldInstructions(List<Instruction> instructions,
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
-
+	
 		InstructionFilter filter = new InstructionFilter(instructions);
-
+	
 		for (Instruction instruction : putFieldInstructions) {
-
+	
 			if (classData.getName().equals(instruction.getClassRef()) && !classData
 					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
-
+	
 				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
-
+	
 				int codeArrayIndex = loadInstruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
-
+	
 				String dataType = instruction.getType();
 				String proxy = getProxyClassname(dataType);
 				Bytecode beforeLoad = new Bytecode(constantPool);
 				beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-
+	
 				if (loadInstruction.getCodeArrayIndex() == 0) {
-					iterator.insertAt(1, beforeLoad.get());
+					
+					if (loadInstruction.getOpcode() == Opcode.ALOAD) {
+						iterator.insertAt(2, beforeLoad.get());
+					} else {
+						iterator.insertAt(1, beforeLoad.get());
+					}
 				} else {
-
-					iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
+	
+					if (loadInstruction.getOpcode() == Opcode.ALOAD) {
+						iterator.insertEx(codeArrayIndex + 2, beforeLoad.get());
+					} else {
+						iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
+					}
 				}
-
+	
 				Bytecode afterLoad = new Bytecode(constantPool);
 				afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
-
+	
 				codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
-
+	
 				iterator.write(afterLoad.get(),
 						instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
 			}
@@ -482,8 +491,9 @@ public class FieldTypeChanger {
 
 		for (FieldData fieldData : classData.getFields()) {
 			if (!initalizedFields.contains(fieldData) && !fieldData.isPublic()
-					&& !TestgeneratorConstants.isTestgeneratorField(fieldData.getName()))
+					&& !TestgeneratorConstants.isTestgeneratorField(fieldData.getName())) {
 				unitalizedFields.add(fieldData);
+			}
 		}
 
 		return unitalizedFields;

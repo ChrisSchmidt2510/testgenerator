@@ -15,6 +15,8 @@ import de.nvg.testgenerator.MapBuilder;
 import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
+import javassist.bytecode.Bytecode;
+import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
@@ -323,6 +325,15 @@ public final class Instructions {
 
 	public static boolean isTwoItemComparison(Instruction instruction) {
 		return TWO_ITEM_COMPARISONS.contains(instruction.getOpcode());
+	}
+
+	/** only used for debugging */
+	private static void printBytecode(Bytecode code) {
+		CodeAttribute ca = new CodeAttribute(code.getConstPool(), code.getMaxStack(), code.getMaxLocals(), code.get(),
+				code.getExceptionTable());
+
+		showCodeArray(System.out, ca.iterator(), code.getConstPool());
+
 	}
 
 }
