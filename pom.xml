@@ -17,6 +17,7 @@
 
 	<modules>
 		<module>testgenerator-agent</module>
+		<module>testgenerator-compiler-plugin</module>
 		<module>testgenerator-agent-full</module>
 		<module>testgenerator-classdatamodel-rt</module>
 		<module>testgenerator-core</module>
@@ -29,6 +30,14 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>com.sun</groupId>
+				<artifactId>tools</artifactId>
+				<version>1.8.0</version>
+				<scope>system</scope>
+				<systemPath>${java.home}/../lib/tools.jar</systemPath>
+			</dependency>
+
+			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>
 				<version>3.24.1-GA</version>
@@ -38,11 +47,6 @@
 				<groupId>com.squareup</groupId>
 				<artifactId>javapoet</artifactId>
 				<version>1.11.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>2.10.0</version>
 			</dependency>
 
 			<dependency>
@@ -55,6 +59,12 @@
 			<dependency>
 				<groupId>de.nvg</groupId>
 				<artifactId>testgenerator-agent</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>de.nvg</groupId>
+				<artifactId>testgenerator-compiler-plugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
