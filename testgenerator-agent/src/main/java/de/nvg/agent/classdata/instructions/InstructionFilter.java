@@ -11,10 +11,11 @@ import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import de.nvg.testgenerator.classdata.constants.JavaTypes;
-import de.nvg.testgenerator.classdata.constants.Primitives;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
+import org.testgen.core.classdata.constants.JavaTypes;
+import org.testgen.core.classdata.constants.Primitives;
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 

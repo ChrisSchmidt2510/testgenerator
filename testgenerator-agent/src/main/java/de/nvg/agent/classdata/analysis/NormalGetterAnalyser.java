@@ -3,11 +3,12 @@ package de.nvg.agent.classdata.analysis;
 import java.util.List;
 import java.util.Map;
 
+import org.testgen.core.MapBuilder;
+import org.testgen.core.Wrapper;
+import org.testgen.core.classdata.constants.Primitives;
+
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
-import de.nvg.testgenerator.MapBuilder;
-import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.Primitives;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 

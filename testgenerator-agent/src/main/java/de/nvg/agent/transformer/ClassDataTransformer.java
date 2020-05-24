@@ -14,6 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.Wrapper;
+import org.testgen.core.classdata.constants.JavaTypes;
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.AgentProperties;
+
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.MethodAnalyser;
 import de.nvg.agent.classdata.analysis.signature.SignatureParser;
@@ -28,12 +35,6 @@ import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.agent.classdata.modification.MetaDataAdder;
 import de.nvg.agent.classdata.modification.fields.FieldTypeChanger;
-import de.nvg.testgenerator.TestgeneratorConstants;
-import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.JavaTypes;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -55,6 +56,8 @@ import javassist.bytecode.SignatureAttribute;
 public class ClassDataTransformer implements ClassFileTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ClassDataTransformer.class);
+
+	private static final String PROXIFIED = "Lde/nvg/proxy/Proxified;";
 
 	private final AgentProperties properties = AgentProperties.getInstance();
 
@@ -114,6 +117,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			// only add the calledFields Set if the Flag is set
 			if (properties.isTraceReadFieldAccess()) {
+
+				classFile.addInterface(PROXIFIED);
 
 				for (CtField field : loadingClass.getDeclaredFields()) {
 

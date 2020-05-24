@@ -2,11 +2,12 @@ package de.nvg.agent;
 
 import java.lang.instrument.Instrumentation;
 
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.AgentProperties;
+
 import de.nvg.agent.transformer.ClassDataTransformer;
 import de.nvg.agent.transformer.ValueTrackerTransformer;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 

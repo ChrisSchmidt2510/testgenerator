@@ -8,6 +8,13 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.Wrapper;
+import org.testgen.core.classdata.constants.JVMTypes;
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.AgentProperties;
+
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.signature.SignatureParser;
 import de.nvg.agent.classdata.analysis.signature.SignatureParserException;
@@ -15,12 +22,6 @@ import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.agent.classdata.modification.SignatureAdder;
 import de.nvg.agent.classdata.modification.TestGenerationAdder;
-import de.nvg.testgenerator.TestgeneratorConstants;
-import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.JVMTypes;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;

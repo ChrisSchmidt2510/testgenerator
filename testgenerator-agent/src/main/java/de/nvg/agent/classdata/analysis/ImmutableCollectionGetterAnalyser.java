@@ -2,11 +2,12 @@ package de.nvg.agent.classdata.analysis;
 
 import java.util.List;
 
+import org.testgen.core.Wrapper;
+import org.testgen.core.classdata.constants.JVMTypes;
+import org.testgen.core.classdata.constants.JavaTypes;
+
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
-import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.JVMTypes;
-import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 

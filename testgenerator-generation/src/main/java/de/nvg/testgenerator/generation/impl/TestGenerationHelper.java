@@ -3,11 +3,12 @@ package de.nvg.testgenerator.generation.impl;
 import java.util.Map;
 import java.util.Set;
 
+import org.testgen.core.MethodHandles;
+import org.testgen.core.TestgeneratorConstants;
+
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SignatureData;
-import de.nvg.testgenerator.MethodHandles;
-import de.nvg.testgenerator.TestgeneratorConstants;
 
 public final class TestGenerationHelper {
 

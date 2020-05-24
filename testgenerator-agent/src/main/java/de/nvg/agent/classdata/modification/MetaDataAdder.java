@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.Wrapper;
+import org.testgen.core.classdata.constants.JavaTypes;
+
 import java.util.Optional;
 
 import de.nvg.agent.classdata.instructions.Instruction;
@@ -14,9 +19,6 @@ import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
 import de.nvg.agent.classdata.modification.indy.InvocationType;
 import de.nvg.agent.classdata.modification.indy.SupplierBootstrapMethodCreator;
-import de.nvg.testgenerator.TestgeneratorConstants;
-import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.JavaTypes;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.bytecode.AccessFlag;

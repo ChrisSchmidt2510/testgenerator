@@ -6,6 +6,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.RuntimeProperties;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,9 +25,6 @@ import de.nvg.runtime.classdatamodel.SetterType;
 import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;

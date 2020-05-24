@@ -9,6 +9,10 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.RuntimeProperties;
+
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
@@ -18,9 +22,6 @@ import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.impl.DefaultTestClassGeneration;
 import de.nvg.testgenerator.generation.impl.TestGenerationHelper;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.storage.ValueStorage;
 

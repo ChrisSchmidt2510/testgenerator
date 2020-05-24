@@ -3,10 +3,11 @@ package de.nvg.proxy;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
+import org.testgen.core.MethodHandles;
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.properties.RuntimeProperties;
+
 import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.testgenerator.MethodHandles;
-import de.nvg.testgenerator.TestgeneratorConstants;
-import de.nvg.testgenerator.properties.RuntimeProperties;
 
 public abstract class AbstractProxy {
 	private final FieldData field;

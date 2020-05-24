@@ -5,13 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.AgentProperties;
+
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.modification.helper.ExceptionHandler;
 import de.nvg.agent.classdata.modification.helper.ExceptionHandler.ExceptionHandlerModel;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.AgentProperties;
 import javassist.ClassPool;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;

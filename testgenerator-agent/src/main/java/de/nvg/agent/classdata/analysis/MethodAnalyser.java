@@ -5,15 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.testgen.core.Wrapper;
+import org.testgen.core.classdata.constants.JavaTypes;
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
-import de.nvg.testgenerator.Wrapper;
-import de.nvg.testgenerator.classdata.constants.JavaTypes;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
 import javassist.Modifier;
 import javassist.bytecode.Descriptor;
 

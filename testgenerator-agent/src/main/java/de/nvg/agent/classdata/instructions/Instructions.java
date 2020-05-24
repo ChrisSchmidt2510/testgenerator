@@ -11,8 +11,9 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import de.nvg.testgenerator.MapBuilder;
-import de.nvg.testgenerator.classdata.constants.Primitives;
+import org.testgen.core.MapBuilder;
+import org.testgen.core.classdata.constants.Primitives;
+
 import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;

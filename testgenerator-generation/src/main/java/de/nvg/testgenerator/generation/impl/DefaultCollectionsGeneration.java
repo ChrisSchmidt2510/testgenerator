@@ -8,6 +8,10 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.RuntimeProperties;
+
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -21,9 +25,6 @@ import de.nvg.runtime.classdatamodel.SetterType;
 import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
@@ -79,8 +80,8 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, FieldData field,
-			String objectName) {
+	public void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP,
+			FieldData field, String objectName) {
 
 		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
 

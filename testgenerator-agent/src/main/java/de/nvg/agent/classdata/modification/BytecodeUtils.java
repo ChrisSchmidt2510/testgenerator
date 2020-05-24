@@ -1,7 +1,8 @@
 package de.nvg.agent.classdata.modification;
 
-import de.nvg.testgenerator.classdata.constants.JVMTypes;
-import de.nvg.testgenerator.classdata.constants.Primitives;
+import org.testgen.core.classdata.constants.JVMTypes;
+import org.testgen.core.classdata.constants.Primitives;
+
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.ConstPool;
 

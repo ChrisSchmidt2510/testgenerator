@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import de.nvg.testgenerator.MapBuilder;
+import org.testgen.core.MapBuilder;
 
 public class ClassData {
 	private final String name;
@@ -105,6 +105,11 @@ public class ClassData {
 		}
 
 		throw new IllegalArgumentException("no field found in hierarchie for field " + field);
+	}
+
+	public Class<?> getClassOfField(String name) {
+		return fields.stream().filter(f -> f.getName().equals(name)).map(FieldData::getDescriptor).findAny()
+				.orElse(null);
 	}
 
 	public SetterMethodData getSetterInHierarchie(FieldData field) {

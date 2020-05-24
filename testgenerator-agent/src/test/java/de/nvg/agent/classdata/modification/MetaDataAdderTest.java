@@ -10,6 +10,8 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.testgen.core.MethodHandles;
+import org.testgen.core.TestgeneratorConstants;
 
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.ConstructorData;
@@ -22,8 +24,6 @@ import de.nvg.agent.classdata.testclasses.BlObject;
 import de.nvg.agent.classdata.testclasses.Person.Geschlecht;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SetterType;
-import de.nvg.testgenerator.MethodHandles;
-import de.nvg.testgenerator.TestgeneratorConstants;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;

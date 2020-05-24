@@ -3,8 +3,9 @@ package de.nvg.agent.classdata.modification;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testgen.core.Wrapper;
+
 import de.nvg.agent.classdata.model.SignatureData;
-import de.nvg.testgenerator.Wrapper;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.MethodInfo;
