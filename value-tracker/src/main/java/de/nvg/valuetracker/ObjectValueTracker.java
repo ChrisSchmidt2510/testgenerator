@@ -22,6 +22,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.testgen.core.MapBuilder;
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.logging.LogManager;
+import org.testgen.core.logging.Logger;
+import org.testgen.core.properties.RuntimeProperties;
+
 import de.nvg.proxy.AbstractProxy;
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
@@ -29,11 +35,6 @@ import de.nvg.proxy.impl.FloatProxy;
 import de.nvg.proxy.impl.IntegerProxy;
 import de.nvg.proxy.impl.LongProxy;
 import de.nvg.proxy.impl.ReferenceProxy;
-import de.nvg.testgenerator.MapBuilder;
-import de.nvg.testgenerator.TestgeneratorConstants;
-import de.nvg.testgenerator.logging.LogManager;
-import de.nvg.testgenerator.logging.Logger;
-import de.nvg.testgenerator.properties.RuntimeProperties;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 import de.nvg.valuetracker.blueprint.Type;

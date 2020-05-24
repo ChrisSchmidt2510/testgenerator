@@ -20,6 +20,7 @@ import org.testgen.compiler.tree.TreeHelper;
 import org.testgen.compiler.util.ClassUtils;
 import org.testgen.compiler.util.JDKClasses;
 import org.testgen.compiler.util.Utils;
+import org.testgen.core.MapBuilder;
 
 import com.sun.source.tree.ParameterizedTypeTree;
 import com.sun.source.tree.PrimitiveTypeTree;
@@ -31,8 +32,6 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.ListBuffer;
-
-import de.nvg.testgenerator.MapBuilder;
 
 public class FieldAdapter extends AbstractAdapter<VariableTree> {
 	private static final Map<TypeKind, String> PROXY_MAPPER = //
