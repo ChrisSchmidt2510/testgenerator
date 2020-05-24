@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import de.nvg.BlObject;
+import de.nvg.bl.BlObject;
 
 public class Person extends BlObject {
 

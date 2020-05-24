@@ -1,6 +1,6 @@
 package de.nvg.bl.partner;
 
-import de.nvg.BlObject;
+import de.nvg.bl.BlObject;
 
 public class Adresse extends BlObject {
 
