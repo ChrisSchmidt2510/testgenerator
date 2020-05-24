@@ -1,4 +1,4 @@
-package de.nvg;
+package de.nvg.bl;
 
 import java.time.LocalDate;
 import java.util.Objects;
