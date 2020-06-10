@@ -37,7 +37,7 @@ public class ReferenceProxy<E> extends AbstractProxy {
 	public boolean equals(Object obj) {
 
 		if (obj instanceof ReferenceProxy) {
-			return value.equals(((ReferenceProxy<?>) obj).getValue());
+			return value.equals(((ReferenceProxy<?>) obj).value);
 		}
 
 		return value.equals(obj);

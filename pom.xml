@@ -24,6 +24,7 @@
 		<module>testgenerator-generation</module>
 		<module>testgenerator-proxy</module>
 		<module>testgenerator-rt</module>
+		<module>testgenerator-reflection</module>
 		<module>value-tracker</module>
 	</modules>
 
@@ -103,6 +104,12 @@
 				<artifactId>testgenerator-rt</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
+			
+			<dependency>
+				<groupId>de.nvg</groupId>
+				<artifactId>testgenerator-reflection</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
 
 			<dependency>
 				<groupId>de.nvg</groupId>
@@ -144,6 +151,10 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<compilerArgs>
+						<compilerArg>-XDignore.symbol.file</compilerArg>
+					</compilerArgs>
+					<fork>true</fork>
 				</configuration>
 			</plugin>
 
