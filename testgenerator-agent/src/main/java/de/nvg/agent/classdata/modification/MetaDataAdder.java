@@ -5,12 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
 import org.testgen.core.classdata.constants.JavaTypes;
-
-import java.util.Optional;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.ClassData;
@@ -71,7 +70,7 @@ public class MetaDataAdder {
 	private static final String SUPPLIER_METHOD_DESC = "()Ljava/util/function/Supplier;";
 	private static final String SUPPLIER_METHOD_NAME = "get";
 
-	private static final String METHODHANDLES_CLASSNAME = "de/nvg/testgenerator/MethodHandles";
+	private static final String METHODHANDLES_CLASSNAME = "org/testgen/core/MethodHandles";
 	private static final String METHODHANDLES_METHOD_NAME = "getStaticFieldValue";
 	private static final String METHODHANDLES_RETURN_TYPE = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;";
 
