@@ -131,7 +131,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				fieldTypeChanger.addFieldCalledField();
 			}
 
+			long start = System.currentTimeMillis();
+
 			analyseAndManipulateMethods(classFile.getMethods(), classData, methodAnalyser, fieldTypeChanger);
+
+			long end = System.currentTimeMillis();
+
+			LOGGER.error("Processing of manipulation for class " + classData + " :" + (end - start));
 
 			addMetaDataToClassFile(loadingClass, constantPool, classData);
 
