@@ -307,6 +307,10 @@ public final class Instructions {
 		return parameters;
 	}
 
+	public static boolean isArrayType(String dataType) {
+		return dataType.startsWith("[");
+	}
+
 	public static String getReturnType(String methodDesc) {
 		return methodDesc.substring(methodDesc.indexOf(')') + 1);
 	}
@@ -329,6 +333,7 @@ public final class Instructions {
 	}
 
 	/** only used for debugging */
+	@SuppressWarnings("unused")
 	private static void printBytecode(Bytecode code) {
 		CodeAttribute ca = new CodeAttribute(code.getConstPool(), code.getMaxStack(), code.getMaxLocals(), code.get(),
 				code.getExceptionTable());
