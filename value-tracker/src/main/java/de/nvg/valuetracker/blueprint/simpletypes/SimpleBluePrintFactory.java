@@ -1,21 +1,16 @@
 package de.nvg.valuetracker.blueprint.simpletypes;
 
-import java.math.BigDecimal;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import de.nvg.valuetracker.blueprint.BluePrint;
 
 public final class SimpleBluePrintFactory {
-
-	private static final List<Class<?>> INTEGERS = Arrays.asList(Integer.class, Short.class, Byte.class, Long.class,
-			Float.class, Double.class, BigDecimal.class);
 
 	private SimpleBluePrintFactory() {
 	}
@@ -23,7 +18,7 @@ public final class SimpleBluePrintFactory {
 	public static BluePrint of(String fieldName, Object value) {
 		if (value == null) {
 			return new NullBluePrint(fieldName);
-		} else if (INTEGERS.contains(value.getClass())) {
+		} else if (value instanceof Number) {
 			return new NumberBluePrint(fieldName, (Number) value);
 		} else if (value instanceof Boolean) {
 			return new BooleanBluePrint(fieldName, (Boolean) value);

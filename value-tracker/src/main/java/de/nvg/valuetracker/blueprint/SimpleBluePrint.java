@@ -30,6 +30,11 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 	public boolean isComplexType() {
 		return false;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return value.equals(value);
+	}
 
 	@Override
 	public String toString() {

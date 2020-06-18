@@ -1,5 +1,6 @@
 package de.nvg.valuetracker;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ import de.nvg.proxy.impl.FloatProxy;
 import de.nvg.proxy.impl.IntegerProxy;
 import de.nvg.proxy.impl.LongProxy;
 import de.nvg.proxy.impl.ReferenceProxy;
+import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 import de.nvg.valuetracker.blueprint.Type;
@@ -71,7 +73,7 @@ public class ObjectValueTracker {
 		RuntimeProperties.getInstance().setActivateTracking(true);
 	}
 
-	private BluePrint trackValues(Object value, String name) {
+	 BluePrint trackValues(Object value, String name) {
 		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
 		Object proxyValue = getProxyValue(value);
 
@@ -79,6 +81,8 @@ public class ObjectValueTracker {
 			return getBluePrintForReference(proxyValue, () -> SimpleBluePrintFactory.of(name, proxyValue));
 		} else if (isCollection(proxyValue)) {
 			return getBluePrintForReference(proxyValue, () -> trackValuesFromCollections(proxyValue, name));
+		} else if (proxyValue.getClass().isArray()) {
+			return getBluePrintForReference(proxyValue, () -> trackValuesArray(proxyValue, name));
 		} else {
 			return getBluePrintForReference(proxyValue, () -> trackValuesFromComplexTypes(proxyValue, name));
 		}
@@ -117,11 +121,13 @@ public class ObjectValueTracker {
 									() -> SimpleBluePrintFactory.of(field.getName(), fieldValue));
 
 						} else if (isCollection(fieldValue)) {
-							elementBluePrint = getBluePrintForReference(value,
+							elementBluePrint = getBluePrintForReference(fieldValue,
 									() -> trackValuesFromCollections(fieldValue, field.getName()));
-
+						} else if (fieldType.isArray()) {
+							elementBluePrint = getBluePrintForReference(fieldValue,
+									() -> trackValuesArray(fieldValue, field.getName()));
 						} else {
-							elementBluePrint = getBluePrintForReference(value,
+							elementBluePrint = getBluePrintForReference(fieldValue,
 									() -> trackValues(fieldValue, field.getName()));
 						}
 
@@ -191,6 +197,22 @@ public class ObjectValueTracker {
 
 		}
 		return mapBluePrint;
+	}
+
+	private ArrayBluePrint trackValuesArray(Object array, String name) {
+		int length = Array.getLength(array);
+		int counter = 1;
+
+		ArrayBluePrint arrayBluePrint = new ArrayBluePrint(name, array, length);
+
+		for (int i = 0; i < length; i++) {
+			Object element = Array.get(array, i);
+			BluePrint bluePrint = trackValues(element, name + counter++);
+
+			arrayBluePrint.add(i, bluePrint);
+		}
+
+		return arrayBluePrint;
 	}
 
 	private static boolean isConstant(Field field) {
