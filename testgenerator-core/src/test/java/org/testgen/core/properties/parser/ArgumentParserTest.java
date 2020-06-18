@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.core.properties.DefinedArguments;
-import org.testgen.core.properties.parser.ArgumentParser;
 
 public class ArgumentParserTest {
 

@@ -3,7 +3,6 @@ package org.testgen.core;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.testgen.core.MethodHandles;
 
 public class MethodHandlesTest {
 	private String setFieldValue = "fieldName";
