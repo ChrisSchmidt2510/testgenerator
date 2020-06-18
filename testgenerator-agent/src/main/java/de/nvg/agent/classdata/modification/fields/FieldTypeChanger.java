@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.testgen.core.MapBuilder;
 import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.classdata.constants.JVMTypes;
 import org.testgen.core.classdata.constants.JavaTypes;
 import org.testgen.core.classdata.constants.Primitives;
 import org.testgen.core.logging.LogManager;
@@ -20,8 +21,6 @@ import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.modification.BytecodeUtils;
 import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
-import de.nvg.agent.classdata.modification.helper.cache.CodeCache;
-import de.nvg.agent.classdata.modification.helper.cache.CodeType;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
@@ -68,6 +67,13 @@ public class FieldTypeChanger {
 
 	private static final String DEFAULT_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;)V";
 
+	private static final String SET_VALUE = "setValue";
+
+	private static final String GET_VALUE = "getValue";
+	private static final String GET_BYTE_VALUE = "getByteValue";
+	private static final String GET_SHORT_VALUE = "getShortValue";
+	private static final String GET_CHAR_VALUE = "getCharValue";
+
 	private static final Map<String, String> PRIMITIVE_PROXIES = MapBuilder.<String, String>hashMapBuilder()
 			.add(Primitives.JVM_BYTE, INTEGER_PROXY)//
 			.add(Primitives.JVM_BOOLEAN, BOOLEAN_PROXY)//
@@ -88,6 +94,24 @@ public class FieldTypeChanger {
 			.add(Primitives.JVM_DOUBLE, DOUBLE_PROXY_CLASSNAME)//
 			.add(Primitives.JVM_LONG, LONG_PROXY_CLASSNAME).toUnmodifiableMap();
 
+	private static final Map<String, String> PROXY_CONSTRUCTOR_WITH_INITALIZATION = //
+			MapBuilder.<String, String>hashMapBuilder()//
+					.add(REFERENCE_PROXY_CLASSNAME, REFERENCE_PROXY_CONSTRUCTOR)//
+					.add(BOOLEAN_PROXY_CLASSNAME, BOOLEAN_PROXY_CONSTRUCTOR)//
+					.add(INTEGER_PROXY_CLASSNAME, INTEGER_PROXY_CONSTRUCTOR)//
+					.add(FLOAT_PROXY_CLASSNAME, FLOAT_PROXY_CONSTRUCTOR)//
+					.add(DOUBLE_PROXY_CLASSNAME, DOUBLE_PROXY_CONSTRUCTOR)//
+					.add(LONG_PROXY_CLASSNAME, LONG_PROXY_CONSTRUCTOR).toUnmodifiableMap();
+
+	private static final Map<String, String> PROXY_SET_VALUE_DESCRIPTOR = //
+			MapBuilder.<String, String>hashMapBuilder()//
+					.add(REFERENCE_PROXY_CLASSNAME, JVMTypes.OBJECT) //
+					.add(INTEGER_PROXY_CLASSNAME, Primitives.JVM_INT)//
+					.add(BOOLEAN_PROXY_CLASSNAME, Primitives.JVM_BOOLEAN)//
+					.add(FLOAT_PROXY_CLASSNAME, Primitives.JVM_FLOAT)//
+					.add(DOUBLE_PROXY_CLASSNAME, Primitives.JVM_DOUBLE)//
+					.add(LONG_PROXY_CLASSNAME, Primitives.JVM_LONG).toUnmodifiableMap();
+
 	private static final Map<String, String> PROXY_FIELD_MAPPER = MapBuilder.<String, String>hashMapBuilder()
 			.add(REFERENCE_PROXY_CLASSNAME, REFERENCE_PROXY)//
 			.add(INTEGER_PROXY_CLASSNAME, INTEGER_PROXY)//
@@ -100,13 +124,10 @@ public class FieldTypeChanger {
 	private final ConstPool constantPool;
 	private final CtClass loadingClass;
 
-	private final CodeCache cache;
-
 	public FieldTypeChanger(ClassData classData, ConstPool constantPool, CtClass loadingClass) {
 		this.classData = classData;
 		this.constantPool = constantPool;
 		this.loadingClass = loadingClass;
-		this.cache = new CodeCache(loadingClass, constantPool);
 	}
 
 	public void changeFieldInitialization(List<Instruction> instructions, Collection<Instruction> putFieldInstructions,
@@ -149,42 +170,61 @@ public class FieldTypeChanger {
 				int putFieldIndex = instructions.indexOf(instruction);
 				Instruction instructionBeforePutField = instructions.get(putFieldIndex - 1);
 
-				byte[] createProxy = cache.getCodeOrGenerate(CodeType.typeNewProxy(instruction.getType()));
+				String proxy = getProxyClassname(instruction.getType());
 
-				iterator.insertEx(lastAloadInstructionIndex + 1, createProxy);
+				Bytecode beforeValueCreation = new Bytecode(constantPool);
+				beforeValueCreation.addNew(proxy);
+				beforeValueCreation.addOpcode(Opcode.DUP);
+
+				iterator.insertEx(lastAloadInstructionIndex + 1, beforeValueCreation.get());
 
 				// new =3 + dup=1 =4
-				codeArrayModificator.addCodeArrayModificator(aloadInstruction.getCodeArrayIndex(), createProxy.length);
+				codeArrayModificator.addCodeArrayModificator(aloadInstruction.getCodeArrayIndex(),
+						beforeValueCreation.getSize());
+
+				Bytecode afterValueCreation = new Bytecode(constantPool);
+				afterValueCreation.addAload(0);
+				afterValueCreation.addLdc(instruction.getName());
+
+				if (INTEGER_PROXY_CLASSNAME.equals(proxy) || REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
+					BytecodeUtils.addClassInfoToBytecode(afterValueCreation, constantPool,
+							Descriptor.toClassName(instruction.getType()));
+				}
 
 				if (Opcode.ACONST_NULL == instructionBeforePutField.getOpcode()) {
-					byte[] proxyInit = cache.getCodeOrGenerate(
-							CodeType.typeProxyInit(instruction.getType(), instruction.getName(), true));
+
+					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
+							REFERENCE_PROXY_DEFAULT_CONSTRUCTOR);
+					afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
 
 					// aconst_null (1) + putField(3)
 					iterator.insertGapAt(
 							instructionBeforePutField.getCodeArrayIndex() + codeArrayModificator
 									.getModificator(instructionBeforePutField.getCodeArrayIndex()),
-							proxyInit.length - 4, false);
+							afterValueCreation.getSize() - 4, false);
 
-					iterator.write(proxyInit, instructionBeforePutField.getCodeArrayIndex()
+					iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
 
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), proxyInit.length - 4);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
+							afterValueCreation.getSize() - 4);
 				} else {
 
-					byte[] proxyInit = cache.getCodeOrGenerate(
-							CodeType.typeProxyInit(instruction.getType(), instruction.getName(), false));
+					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
+							PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
+					afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
 
 					iterator.insertGapAt(
 							instruction.getCodeArrayIndex()
 									+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
-							proxyInit.length - 3, false);
+							afterValueCreation.getSize() - 3, false);
 
-					iterator.write(proxyInit, instruction.getCodeArrayIndex()
+					iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
 
 					// for the new invokespecial + aload0 instruction
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), proxyInit.length - 3);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
+							afterValueCreation.getSize() - 3);
 				}
 
 				FieldData field = new FieldData.Builder().withDataType(Descriptor.toClassName(instruction.getType()))
@@ -312,46 +352,47 @@ public class FieldTypeChanger {
 	private void overrideFieldAccessPutFieldInstructions(List<Instruction> instructions,
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
-
+	
 		InstructionFilter filter = new InstructionFilter(instructions);
-
+	
 		for (Instruction instruction : putFieldInstructions) {
-
+	
 			if (classData.getName().equals(instruction.getClassRef()) && !classData
 					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
-
+	
 				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
-
+	
 				int codeArrayIndex = loadInstruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
-
+	
 				String dataType = instruction.getType();
-
-				byte[] beforeLoad = cache.getCodeOrGenerate(CodeType.//
-						typeSetProxyValue(dataType, instruction.getName()));
-
+				String proxy = getProxyClassname(dataType);
+				Bytecode beforeLoad = new Bytecode(constantPool);
+				beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+	
 				if (loadInstruction.getCodeArrayIndex() == 0) {
-
+					
 					if (loadInstruction.getOpcode() == Opcode.ALOAD) {
-						iterator.insertAt(2, beforeLoad);
+						iterator.insertAt(2, beforeLoad.get());
 					} else {
-						iterator.insertAt(1, beforeLoad);
+						iterator.insertAt(1, beforeLoad.get());
 					}
 				} else {
-
+	
 					if (loadInstruction.getOpcode() == Opcode.ALOAD) {
-						iterator.insertEx(codeArrayIndex + 2, beforeLoad);
+						iterator.insertEx(codeArrayIndex + 2, beforeLoad.get());
 					} else {
-						iterator.insertEx(codeArrayIndex + 1, beforeLoad);
+						iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
 					}
 				}
-
-				byte[] afterLoad = cache.getCodeOrGenerate(CodeType.typeSetProxyValueMethod(dataType));
-
+	
+				Bytecode afterLoad = new Bytecode(constantPool);
+				afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
+	
 				codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
-
-				iterator.write(afterLoad,
+	
+				iterator.write(afterLoad.get(),
 						instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
 			}
 		}
@@ -367,6 +408,7 @@ public class FieldTypeChanger {
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
 				String dataType = instruction.getType();
+				String proxy = getProxyClassname(dataType);
 
 				Instruction thisInstruction = Instructions.getBeforeInstruction(instructions, instruction);
 				if (Opcode.DUP == thisInstruction.getOpcode()) {
@@ -382,13 +424,21 @@ public class FieldTypeChanger {
 				int codeArrayIndex = instruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
 
-				byte[] code = cache
-						.getCodeOrGenerate(CodeType.typeGetProxyValue(dataType, instruction.getName()));
+				Bytecode bytecode = new Bytecode(constantPool);
+				bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+				bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
 
-				int size = code.length - 3;
-				iterator.insertGapAt(codeArrayIndex, size, false);
-				iterator.write(code, codeArrayIndex);
-				codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), size);
+				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
+					bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
+					iterator.insertGapAt(codeArrayIndex, 6, false);
+					iterator.write(bytecode.get(), codeArrayIndex);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
+
+				} else {
+					iterator.insertGapAt(codeArrayIndex, 3, false);
+					iterator.write(bytecode.get(), codeArrayIndex);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
+				}
 			}
 		}
 	}
@@ -407,6 +457,19 @@ public class FieldTypeChanger {
 		return REFERENCE_PROXY_CLASSNAME;
 	}
 
+	private static String getValueMethodName(String dataType) {
+		switch (dataType) {
+		case Primitives.JVM_BYTE:
+			return GET_BYTE_VALUE;
+		case Primitives.JVM_CHAR:
+			return GET_CHAR_VALUE;
+		case Primitives.JVM_SHORT:
+			return GET_SHORT_VALUE;
+		default:
+			return GET_VALUE;
+		}
+	}
+
 	private static String getInitDescriptor(String proxy) {
 		if (INTEGER_PROXY_CLASSNAME.equals(proxy)) {
 			return INTEGER_PROXY_DEFAULT_CONSTRUCTOR;
@@ -414,6 +477,14 @@ public class FieldTypeChanger {
 			return REFERENCE_PROXY_DEFAULT_CONSTRUCTOR;
 		}
 		return DEFAULT_PROXY_CONSTRUCTOR;
+	}
+
+	private static String getSetValueDescriptor(String proxy) {
+		return "(" + PROXY_SET_VALUE_DESCRIPTOR.get(proxy) + ")V";
+	}
+
+	private static String getGetValueDescriptor(String dataType) {
+		return "()" + (Primitives.isPrimitiveDataType(dataType) ? dataType : JVMTypes.OBJECT);
 	}
 
 	private List<FieldData> getUnitializedFields(List<FieldData> initalizedFields) {
