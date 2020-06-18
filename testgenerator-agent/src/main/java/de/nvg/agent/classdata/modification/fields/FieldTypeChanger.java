@@ -112,14 +112,6 @@ public class FieldTypeChanger {
 					.add(DOUBLE_PROXY_CLASSNAME, Primitives.JVM_DOUBLE)//
 					.add(LONG_PROXY_CLASSNAME, Primitives.JVM_LONG).toUnmodifiableMap();
 
-	private static final Map<String, String> PROXY_FIELD_MAPPER = MapBuilder.<String, String>hashMapBuilder()
-			.add(REFERENCE_PROXY_CLASSNAME, REFERENCE_PROXY)//
-			.add(INTEGER_PROXY_CLASSNAME, INTEGER_PROXY)//
-			.add(BOOLEAN_PROXY_CLASSNAME, BOOLEAN_PROXY)//
-			.add(FLOAT_PROXY_CLASSNAME, FLOAT_PROXY)//
-			.add(DOUBLE_PROXY_CLASSNAME, DOUBLE_PROXY)//
-			.add(LONG_PROXY_CLASSNAME, LONG_PROXY).toUnmodifiableMap();
-
 	private final ClassData classData;
 	private final ConstPool constantPool;
 	private final CtClass loadingClass;
@@ -195,7 +187,7 @@ public class FieldTypeChanger {
 
 					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 							REFERENCE_PROXY_DEFAULT_CONSTRUCTOR);
-					afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+					afterValueCreation.addPutfield(loadingClass, instruction.getName(), toDescriptor(proxy));
 
 					// aconst_null (1) + putField(3)
 					iterator.insertGapAt(
@@ -212,7 +204,7 @@ public class FieldTypeChanger {
 
 					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 							PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
-					afterValueCreation.addPutfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+					afterValueCreation.addPutfield(loadingClass, instruction.getName(), toDescriptor(proxy));
 
 					iterator.insertGapAt(
 							instruction.getCodeArrayIndex()
@@ -279,7 +271,7 @@ public class FieldTypeChanger {
 			}
 
 			bytecode.addInvokespecial(proxy, MethodInfo.nameInit, getInitDescriptor(proxy));
-			bytecode.addPutfield(loadingClass, field.getName(), PROXY_FIELD_MAPPER.get(proxy));
+			bytecode.addPutfield(loadingClass, field.getName(), toDescriptor(proxy));
 
 			iterator.insertEx(codeArrayStartIndex + codeArrayModificator, bytecode.get());
 
@@ -352,46 +344,46 @@ public class FieldTypeChanger {
 	private void overrideFieldAccessPutFieldInstructions(List<Instruction> instructions,
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
-	
+
 		InstructionFilter filter = new InstructionFilter(instructions);
-	
+
 		for (Instruction instruction : putFieldInstructions) {
-	
+
 			if (classData.getName().equals(instruction.getClassRef()) && !classData
 					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
-	
+
 				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
-	
+
 				int codeArrayIndex = loadInstruction.getCodeArrayIndex()
 						+ codeArrayModificator.getModificator(loadInstruction.getCodeArrayIndex());
-	
+
 				String dataType = instruction.getType();
 				String proxy = getProxyClassname(dataType);
 				Bytecode beforeLoad = new Bytecode(constantPool);
-				beforeLoad.addGetfield(loadingClass, instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
-	
+				beforeLoad.addGetfield(loadingClass, instruction.getName(), toDescriptor(proxy));
+
 				if (loadInstruction.getCodeArrayIndex() == 0) {
-					
+
 					if (loadInstruction.getOpcode() == Opcode.ALOAD) {
 						iterator.insertAt(2, beforeLoad.get());
 					} else {
 						iterator.insertAt(1, beforeLoad.get());
 					}
 				} else {
-	
+
 					if (loadInstruction.getOpcode() == Opcode.ALOAD) {
 						iterator.insertEx(codeArrayIndex + 2, beforeLoad.get());
 					} else {
 						iterator.insertEx(codeArrayIndex + 1, beforeLoad.get());
 					}
 				}
-	
+
 				Bytecode afterLoad = new Bytecode(constantPool);
 				afterLoad.addInvokevirtual(proxy, SET_VALUE, getSetValueDescriptor(proxy));
-	
+
 				codeArrayModificator.addCodeArrayModificator(loadInstruction.getCodeArrayIndex(), 3);
-	
+
 				iterator.write(afterLoad.get(),
 						instruction.getCodeArrayIndex() + codeArrayModificator.getModificator(codeArrayIndex));
 			}
@@ -425,7 +417,7 @@ public class FieldTypeChanger {
 						+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex());
 
 				Bytecode bytecode = new Bytecode(constantPool);
-				bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), PROXY_FIELD_MAPPER.get(proxy));
+				bytecode.addGetfield(instruction.getClassRef(), instruction.getName(), toDescriptor(proxy));
 				bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
 
 				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
@@ -468,6 +460,10 @@ public class FieldTypeChanger {
 		default:
 			return GET_VALUE;
 		}
+	}
+
+	private static String toDescriptor(String proxy) {
+		return "L" + proxy + ";";
 	}
 
 	private static String getInitDescriptor(String proxy) {
