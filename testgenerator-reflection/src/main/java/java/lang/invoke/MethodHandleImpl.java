@@ -26,7 +26,12 @@
 package java.lang.invoke;
 
 import static java.lang.invoke.LambdaForm.arguments;
-import static java.lang.invoke.MethodHandleStatics.*;
+import static java.lang.invoke.MethodHandleStatics.DONT_INLINE_THRESHOLD;
+import static java.lang.invoke.MethodHandleStatics.PROFILE_GWT;
+import static java.lang.invoke.MethodHandleStatics.UNSAFE;
+import static java.lang.invoke.MethodHandleStatics.newIllegalArgumentException;
+import static java.lang.invoke.MethodHandleStatics.newInternalError;
+import static java.lang.invoke.MethodHandleStatics.uncaughtException;
 import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 
 import java.lang.invoke.LambdaForm.BasicType;
@@ -41,6 +46,7 @@ import java.util.Collections;
 import java.util.function.Function;
 
 import org.testgen.extension.ClassExtension;
+import org.testgen.extension.Modified;
 
 import sun.invoke.empty.Empty;
 import sun.invoke.util.ValueConversions;
@@ -420,13 +426,14 @@ import sun.reflect.Reflection;
 	 * @param x an arbitrary reference value
 	 * @return the same value x
 	 */
+	@Modified
 	@ForceInline
 	@SuppressWarnings("unchecked")
 	static <T, U> Object castReference(Class<? extends T> t, U x) {
-		// inlined Class.cast because we can't ForceInline it
+		
 		if (ClassExtension.isProxy(t))
 			return x;
-
+		// inlined Class.cast because we can't ForceInline it
 		if (x != null && !t.isInstance(x))
 			throw newClassCastException(t, x);
 		return (T) x;

@@ -3,6 +3,8 @@ package sun.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import org.testgen.extension.Modified;
+
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
 import de.nvg.proxy.impl.FloatProxy;
@@ -15,6 +17,7 @@ public final class UnsafeFieldAccessorFactory {
 	private UnsafeFieldAccessorFactory() {
 	}
 
+	@Modified
 	public static FieldAccessor newFieldAccessor(Field field, boolean override) {
 		Class<?> type = field.getOriginalType();
 

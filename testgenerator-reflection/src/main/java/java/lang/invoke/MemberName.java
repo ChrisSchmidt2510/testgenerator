@@ -3,7 +3,25 @@
 
 package java.lang.invoke;
 
-import static java.lang.invoke.MethodHandleNatives.Constants.*;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_CALLER_SENSITIVE;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_IS_CONSTRUCTOR;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_IS_FIELD;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_IS_METHOD;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_IS_TYPE;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_REFERENCE_KIND_MASK;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_REFERENCE_KIND_SHIFT;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_SEARCH_INTERFACES;
+import static java.lang.invoke.MethodHandleNatives.Constants.MN_SEARCH_SUPERCLASSES;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_NONE;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_getField;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_getStatic;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeInterface;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeSpecial;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeStatic;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeVirtual;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_newInvokeSpecial;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_putField;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_putStatic;
 import static java.lang.invoke.MethodHandleStatics.newIllegalArgumentException;
 import static java.lang.invoke.MethodHandleStatics.newInternalError;
 
@@ -18,6 +36,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
+import org.testgen.extension.Modified;
 
 import sun.invoke.util.BytecodeDescriptor;
 import sun.invoke.util.VerifyAccess;
@@ -677,7 +697,9 @@ import sun.invoke.util.VerifyAccess;
 		this(fld, false);
 	}
 
+	
 	@SuppressWarnings("LeakingThisInConstructor")
+	@Modified
 	public MemberName(Field fld, boolean makeSetter) {
 		fld.getClass(); // NPE check
 		// fill in vmtarget, vmindex while we have fld in hand:

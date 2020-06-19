@@ -29,10 +29,23 @@ import static java.lang.invoke.LambdaForm.LAST_RESULT;
 import static java.lang.invoke.LambdaForm.arguments;
 import static java.lang.invoke.LambdaForm.basicTypeSignature;
 import static java.lang.invoke.LambdaForm.shortenSignature;
-import static java.lang.invoke.MethodHandleNatives.Constants.*;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_getField;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_getStatic;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeInterface;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeSpecial;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeStatic;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_invokeVirtual;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_newInvokeSpecial;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_putField;
+import static java.lang.invoke.MethodHandleNatives.Constants.REF_putStatic;
 import static java.lang.invoke.MethodHandleStatics.UNSAFE;
 import static java.lang.invoke.MethodHandleStatics.newInternalError;
-import static java.lang.invoke.MethodTypeForm.*;
+import static java.lang.invoke.MethodTypeForm.LF_INVINTERFACE;
+import static java.lang.invoke.MethodTypeForm.LF_INVSPECIAL;
+import static java.lang.invoke.MethodTypeForm.LF_INVSTATIC;
+import static java.lang.invoke.MethodTypeForm.LF_INVSTATIC_INIT;
+import static java.lang.invoke.MethodTypeForm.LF_INVVIRTUAL;
+import static java.lang.invoke.MethodTypeForm.LF_NEWINVSPECIAL;
 
 import java.lang.invoke.LambdaForm.Name;
 import java.lang.invoke.LambdaForm.NamedFunction;
@@ -42,6 +55,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.testgen.extension.ClassExtension;
+import org.testgen.extension.Modified;
 
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
@@ -506,6 +520,7 @@ class DirectMethodHandle extends MethodHandle {
 			this.fieldOffset = fieldOffset;
 		}
 
+		@Modified
 		@Override
 		Object checkCast(Object obj) {
 			if (ClassExtension.isProxy(fieldType))
@@ -707,6 +722,7 @@ class DirectMethodHandle extends MethodHandle {
 		return lform;
 	}
 
+	@Modified
 	private static LambdaForm makePreparedFieldLambdaForm(byte formOp, boolean isVolatile, int ftypeKind,
 			boolean isProxy) {
 		boolean isGetter = (formOp & 1) == (AF_GETFIELD & 1);

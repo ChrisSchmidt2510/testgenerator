@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.extension.ClassExtension;
+import org.testgen.extension.Modified;
 
 import de.nvg.runtime.classdatamodel.ClassData;
 import sun.reflect.CallerSensitive;
@@ -192,6 +193,7 @@ public final class Field extends AccessibleObject implements Member {
 	 * @return a {@code Class} object identifying the declared type of the field
 	 *         represented by this object
 	 */
+	@Modified
 	public Class<?> getType() {
 		if (ClassExtension.isProxifiedClass(clazz)) {
 
