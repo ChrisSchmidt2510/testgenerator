@@ -17,6 +17,7 @@ public class Application {
 		adresse.setStrasse("Ostendstrasse");
 		adresse.setOrt("Nuernberg");
 		adresse.setPlz(90154);
+		adresse.getAedat()[1] = LocalDate.now();
 
 		Person person = new Person("Christoph", "Schmidt", LocalDate.of(2018, Month.OCTOBER, 25), Geschlecht.Maennlich);
 		System.out.println("calling person");

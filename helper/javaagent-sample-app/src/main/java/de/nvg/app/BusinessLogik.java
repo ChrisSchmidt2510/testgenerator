@@ -1,5 +1,6 @@
 package de.nvg.app;
 
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 import de.nvg.bl.Account;
@@ -21,6 +22,11 @@ public class BusinessLogik {
 //				return null;
 		}
 
+		Greeter proxy = (Greeter) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+				new Class[] { Greeter.class }, new Handler());
+
+		System.out.println(proxy.greet("Christoph"));
+
 		System.out.println("Output Application");
 
 		Person person = account.getPerson();
@@ -34,6 +40,7 @@ public class BusinessLogik {
 		System.out.println(includedAdresse.getStrasse());
 		System.out.println(includedAdresse.getHausnummer());
 		System.out.println(includedAdresse.getPlz());
+		System.out.println(includedAdresse.getAedat());
 
 		account.getHistorie()
 				.forEach((dateTime, action) -> System.out.println("DateTime: " + dateTime + " Action:" + action));

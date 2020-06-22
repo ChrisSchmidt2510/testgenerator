@@ -6,7 +6,7 @@ import java.util.Objects;
 public abstract class BlObject {
 	private LocalDate erdat;
 	private String ersb;
-	private LocalDate aedat;
+	private LocalDate[] aedat = new LocalDate[5];
 	private String aesb;
 
 	@Override
@@ -46,12 +46,16 @@ public abstract class BlObject {
 		this.ersb = ersb;
 	}
 
-	public LocalDate getAedat() {
+	public LocalDate[] getAedat() {
 		return aedat;
 	}
 
-	public void setAedat(LocalDate aedat) {
-		this.aedat = aedat;
+//	public void setAedat(LocalDate[] aedat) {
+//		this.aedat = aedat;
+//	}
+
+	public void addAeDat(LocalDate aedat, int index) {
+		this.aedat[index] = aedat;
 	}
 
 	public String getAesb() {
