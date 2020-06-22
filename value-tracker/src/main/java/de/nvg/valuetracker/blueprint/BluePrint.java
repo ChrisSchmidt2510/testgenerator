@@ -20,10 +20,24 @@ public interface BluePrint {
 		return this instanceof AbstractBasicCollectionBluePrint<?>;
 	}
 
+	default boolean isContainerBluePrint() {
+		return this instanceof AbstractBasicCollectionBluePrint<?> || this instanceof ArrayBluePrint;
+	}
+
 	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {
-		if (isCollectionBluePrint()) {
+		if (isContainerBluePrint())
 			return (AbstractBasicCollectionBluePrint<?>) this;
-		}
+
+		return null;
+	}
+
+	default boolean isArrayBluePrint() {
+		return this instanceof ArrayBluePrint;
+	}
+
+	default ArrayBluePrint castToArrayBluePrint() {
+		if (isArrayBluePrint())
+			return (ArrayBluePrint) this;
 
 		return null;
 	}
@@ -33,9 +47,8 @@ public interface BluePrint {
 	}
 
 	default ComplexBluePrint castToComplexBluePrint() {
-		if (isComplexBluePrint()) {
+		if (isComplexBluePrint())
 			return (ComplexBluePrint) this;
-		}
 
 		return null;
 	}
@@ -45,9 +58,8 @@ public interface BluePrint {
 	}
 
 	default SimpleBluePrint<?> castToSimpleBluePrint() {
-		if (isSimpleBluePrint()) {
+		if (isSimpleBluePrint())
 			return (SimpleBluePrint<?>) this;
-		}
 
 		return null;
 	}

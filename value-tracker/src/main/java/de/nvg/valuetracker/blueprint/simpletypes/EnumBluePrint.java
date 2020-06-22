@@ -13,7 +13,7 @@ public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 
 	@Override
 	protected String createValue(Enum<?> value) {
-		return "$T." + value;
+		return "$T." + value.name();
 	}
 
 	@Override

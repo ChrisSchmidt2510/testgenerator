@@ -5,14 +5,39 @@ import java.util.List;
 
 public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	private final BluePrint[] elements;
+	private Class<?> arrayType;
+	private int dimensions;
 
 	public ArrayBluePrint(String name, Object value, int size) {
 		super(name, value);
+
 		elements = new BluePrint[size];
+		init(value);
+	}
+
+	private void init(Object array) {
+		int dimenisons = 0;
+		Class<?> arrayType = array.getClass();
+
+		while (arrayType.isArray()) {
+			dimenisons++;
+			arrayType = arrayType.getComponentType();
+		}
+
+		this.dimensions = dimenisons;
+		this.arrayType = arrayType;
 	}
 
 	public Class<?> getType() {
 		return value.getClass();
+	}
+
+	public Class<?> getBaseType() {
+		return arrayType;
+	}
+
+	public int getDimensions() {
+		return dimensions;
 	}
 
 	@Override
@@ -54,7 +79,10 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 		ArrayBluePrint other = (ArrayBluePrint) obj;
 		return Arrays.equals(elements, other.elements);
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return value.getClass().getTypeName() + " " + name;
+	}
 
 }

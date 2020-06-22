@@ -73,7 +73,7 @@ public class ObjectValueTracker {
 		RuntimeProperties.getInstance().setActivateTracking(true);
 	}
 
-	 BluePrint trackValues(Object value, String name) {
+	BluePrint trackValues(Object value, String name) {
 		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
 		Object proxyValue = getProxyValue(value);
 
@@ -207,9 +207,12 @@ public class ObjectValueTracker {
 
 		for (int i = 0; i < length; i++) {
 			Object element = Array.get(array, i);
-			BluePrint bluePrint = trackValues(element, name + counter++);
-
-			arrayBluePrint.add(i, bluePrint);
+			if (element != null) {
+				BluePrint bluePrint = trackValues(element, name + counter++);
+				arrayBluePrint.add(i, bluePrint);
+			} else {
+				arrayBluePrint.add(i, SimpleBluePrintFactory.of(name + counter++, null));
+			}
 		}
 
 		return arrayBluePrint;

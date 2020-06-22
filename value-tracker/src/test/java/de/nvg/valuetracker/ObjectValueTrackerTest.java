@@ -46,21 +46,21 @@ public class ObjectValueTrackerTest {
 		ArrayBluePrint arrayBluePrint = (ArrayBluePrint) bluePrint;
 		BluePrint[] elements = arrayBluePrint.getElements();
 
-		ArrayBluePrint firstRow = new ArrayBluePrint("array1", null, 4);
+		ArrayBluePrint firstRow = new ArrayBluePrint("array1", first, 4);
 		firstRow.add(0, SimpleBluePrintFactory.of("array11", 1));
 		firstRow.add(1, SimpleBluePrintFactory.of("array12", 2));
 		firstRow.add(2, SimpleBluePrintFactory.of("array13", 3));
 		firstRow.add(3, SimpleBluePrintFactory.of("array14", 4));
-		
-		ArrayBluePrint secondRow = new ArrayBluePrint("array2", null, 5);
+
+		ArrayBluePrint secondRow = new ArrayBluePrint("array2", second, 5);
 		secondRow.add(0, SimpleBluePrintFactory.of("array21", 10));
 		secondRow.add(1, SimpleBluePrintFactory.of("array22", 9));
 		secondRow.add(2, SimpleBluePrintFactory.of("array23", 8));
 		secondRow.add(3, SimpleBluePrintFactory.of("array24", 7));
 		secondRow.add(4, SimpleBluePrintFactory.of("array25", 6));
-		
-		BluePrint[] expected = new BluePrint[] {firstRow, secondRow};
-		
+
+		BluePrint[] expected = new BluePrint[] { firstRow, secondRow };
+
 		Assert.assertArrayEquals(expected, elements);
 
 	}
