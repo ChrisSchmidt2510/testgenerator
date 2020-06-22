@@ -44,14 +44,13 @@ public class WrappingInvocationHandler implements InvocationHandler {
 	private void init() {
 		if (valueTrackerClass == null) {
 			try {
-
 				ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-				valueTrackerClass = Class.forName(OBJECT_VALUE_TRACKER, true, loader);
+				this.valueTrackerClass = Class.forName(OBJECT_VALUE_TRACKER, true, loader);
 				Class<?> type = Class.forName(TYPE, true, loader);
-				track = valueTrackerClass.getMethod(METHOD_TRACK, Object.class, String.class, type);
+				this.track = valueTrackerClass.getMethod(METHOD_TRACK, Object.class, String.class, type);
 
-				valueTracker = valueTrackerClass.newInstance();
+				this.valueTracker = valueTrackerClass.newInstance();
 
 				Field field = type.getDeclaredField(FIELD_PROXY);
 				this.type = field.get(null);

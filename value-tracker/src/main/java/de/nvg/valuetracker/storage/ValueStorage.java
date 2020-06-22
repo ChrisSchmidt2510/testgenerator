@@ -13,6 +13,8 @@ public final class ValueStorage {
 
 	private List<BluePrint> methodParameters = new ArrayList<>();
 
+	private List<BluePrint> proxyObjects = new ArrayList<>();
+	
 	private BluePrint testObjectBluePrint;
 
 	private ValueStorage() {
@@ -27,11 +29,17 @@ public final class ValueStorage {
 			testObjectBluePrint = bluePrint;
 		} else if (Type.METHOD_PARAMETER == type) {
 			methodParameters.add(bluePrint);
+		} else if(Type.PROXY == type) {
+			proxyObjects.add(bluePrint);
 		}
 	}
 
 	public Collection<BluePrint> getMethodParameters() {
 		return Collections.unmodifiableCollection(methodParameters);
+	}
+	
+	public Collection<BluePrint> getProxyObjects(){
+		return Collections.unmodifiableCollection(proxyObjects);
 	}
 
 	public BluePrint getTestObject() {

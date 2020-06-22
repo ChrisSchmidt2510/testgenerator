@@ -34,6 +34,8 @@ import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 public class DefaultTestClassGeneration implements TestClassGeneration {
 	private static final String METHOD_INIT_TESTOBJECT = "initTestobject";
 	private static final String METHOD_INIT_METHOD_PARAMETER = "initMethodParameter";
+
+	private static final String METHOD_INIT_PROXY_OBJECTS = "initProxyObjects";
 	private static final String METHOD_INIT = "init";
 
 	private static final String JUNIT_ANNOTATION_TEST = "org.junit.Test";
@@ -48,15 +50,15 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	private String testObjectName;
 	private List<String> methodParameterNames = new ArrayList<>();
 
-	private ContainerGeneration collectionsGeneration;
+	private ContainerGeneration containerGeneration;
 	private ComplexObjectGeneration objectGeneration;
 
 	{
-		collectionsGeneration = new DefaultContainerGeneration();
+		containerGeneration = new DefaultContainerGeneration();
 		objectGeneration = new DefaultComplexObjectGeneration();
 
-		collectionsGeneration.setComplexObjectGeneration(objectGeneration);
-		objectGeneration.setContainerGeneration(collectionsGeneration);
+		containerGeneration.setComplexObjectGeneration(objectGeneration);
+		objectGeneration.setContainerGeneration(containerGeneration);
 	}
 
 	@Override
@@ -94,9 +96,8 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				ClassData classData = TestGenerationHelper.getClassData(methodParameter.getReference());
 
 				Set<FieldData> calledFields = Collections.emptySet();
-				if (properties.wasFieldTrackingActivated()) {
+				if (properties.wasFieldTrackingActivated())
 					calledFields = TestGenerationHelper.getCalledFields(methodParameter.getReference());
-				}
 
 				objectGeneration.createObject(code, methodParameter.castToComplexBluePrint(), true, classData,
 						calledFields);
@@ -111,15 +112,15 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 			} else if (methodParameter.isCollectionBluePrint()) {
 				AbstractBasicCollectionBluePrint<?> collectionBluePrint = methodParameter.castToCollectionBluePrint();
 
-				collectionsGeneration.addFieldToClass(typeSpec, collectionBluePrint,
+				containerGeneration.addFieldToClass(typeSpec, collectionBluePrint,
 						methodSignature.get(methodParameterIndex));
-				collectionsGeneration.createCollection(code, collectionBluePrint,
+				containerGeneration.createCollection(code, collectionBluePrint,
 						methodSignature.get(methodParameterIndex), false, true);
 			} else if (methodParameter.isArrayBluePrint()) {
 				ArrayBluePrint arrayBluePrint = methodParameter.castToArrayBluePrint();
 
-				collectionsGeneration.addFieldToClass(typeSpec, arrayBluePrint, null);
-				collectionsGeneration.createArray(code, arrayBluePrint, false, true);
+				containerGeneration.addFieldToClass(typeSpec, arrayBluePrint, null);
+				containerGeneration.createArray(code, arrayBluePrint, false, true);
 			}
 
 			methodParameterIndex++;
@@ -131,9 +132,47 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	}
 
 	@Override
+	public void prepareProxyObjects(Builder typeSpec, Collection<BluePrint> proxyObjects) {
+		CodeBlock.Builder code = CodeBlock.builder();
+
+		for (BluePrint proxyObject : proxyObjects) {
+			LOGGER.info("Starting generation of proxy-object: " + proxyObject);
+			code.addStatement("// generating Object for Proxy-Method " + proxyObject.getName());
+
+			if (proxyObject.isComplexBluePrint()) {
+				ClassData classData = TestGenerationHelper.getClassData(proxyObject.getReference());
+
+				Set<FieldData> calledFields = Collections.emptySet();
+				if (properties.wasFieldTrackingActivated())
+					calledFields = TestGenerationHelper.getCalledFields(proxyObject.getReference());
+
+				objectGeneration.createObject(code, proxyObject.castToComplexBluePrint(), false, classData,
+						calledFields);
+			} else if (proxyObject.isSimpleBluePrint()) {
+				SimpleBluePrint<?> bluePrint = proxyObject.castToSimpleBluePrint();
+
+				List<Class<?>> types = new ArrayList<>();
+				types.add(bluePrint.getReference().getClass());
+				types.addAll(bluePrint.getReferenceClasses());
+
+				code.addStatement("$T " + bluePrint.getName() + " = " + bluePrint.valueCreation(), types.toArray());
+			} else if (proxyObject.isCollectionBluePrint()) {
+				containerGeneration.createCollection(code, proxyObject.castToCollectionBluePrint(), //
+						null, false, false);
+			} else if (proxyObject.isArrayBluePrint()) {
+				containerGeneration.createArray(code, proxyObject.castToArrayBluePrint(), false, false);
+			}
+		}
+
+		typeSpec.addMethod(MethodSpec.methodBuilder(METHOD_INIT_PROXY_OBJECTS).addModifiers(Modifier.PRIVATE)
+				.addCode(code.build()).build());
+	}
+
+	@Override
 	public void generateTestMethod(Builder typeSpec, String methodName) {
 		CodeBlock codeInit = CodeBlock.builder().addStatement(METHOD_INIT_TESTOBJECT + "()")
-				.addStatement(METHOD_INIT_METHOD_PARAMETER + "()").build();
+				.addStatement(METHOD_INIT_METHOD_PARAMETER + "()")//
+				.addStatement(METHOD_INIT_PROXY_OBJECTS + "()").build();
 
 		typeSpec.addMethod(MethodSpec.methodBuilder(METHOD_INIT).addModifiers(Modifier.PUBLIC)
 				.addAnnotation(AnnotationSpec.builder(ClassName.bestGuess(JUNIT_ANNOTATION_BEFORE)).build())

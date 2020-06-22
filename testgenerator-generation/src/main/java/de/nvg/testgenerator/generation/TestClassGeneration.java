@@ -19,6 +19,8 @@ public interface TestClassGeneration {
 	void prepareMethodParameters(TypeSpec.Builder typeSpec, Collection<BluePrint> methodParameters, //
 			Map<Integer, SignatureData> methodSignature);
 
+	void prepareProxyObjects(TypeSpec.Builder typeSpec, Collection<BluePrint> proxyObjects);
+
 	void generateTestMethod(TypeSpec.Builder typeSpec, String methodName);
 
 }

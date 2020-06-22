@@ -64,6 +64,9 @@ public final class Testgenerator {
 				.getMethodSignature(testObject.getReference());
 		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters(),
 				methodSignature);
+
+		testGenerator.prepareProxyObjects(classBuilder, ValueStorage.getInstance().getProxyObjects());
+
 		testGenerator.generateTestMethod(classBuilder, method);
 
 		classBuilder.addJavadoc(

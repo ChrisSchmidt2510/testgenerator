@@ -3,6 +3,7 @@ package de.nvg.valuetracker;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -64,7 +65,7 @@ public class ObjectValueTracker {
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
 
 	public void track(Object value, String name, Type type) {
-		if (value != null) {
+		if (value != null && !Proxy.isProxyClass(value.getClass())) {
 			ValueStorage.getInstance().addBluePrint(trackValues(value, name), type);
 		}
 	}
