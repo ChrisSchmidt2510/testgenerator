@@ -7,20 +7,24 @@ import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.ArrayBluePrint;
+import de.nvg.valuetracker.blueprint.BluePrint;
 
-public interface CollectionsGeneration {
+public interface ContainerGeneration {
 
 	void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration);
 
 	void createCollection(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
 			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField);
 
-	void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, SetterMethodData setter,
+	void createArray(Builder code, ArrayBluePrint arrayBluePrint, boolean onlyCreateElements, //
+			boolean isField);
+
+	void addContainerToObject(Builder code, BluePrint containerBP, SetterMethodData setter, //
 			String objectName);
 
-	void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
-			FieldData field, String objectName);
+	void addContainerToObject(Builder code, BluePrint containerBP, FieldData field, String objectName);
 
-	void addFieldToClass(TypeSpec.Builder typeSpec, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureData signature);
+	void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureData signature);
 
 }

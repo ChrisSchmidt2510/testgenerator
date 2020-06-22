@@ -1,5 +1,6 @@
 package de.nvg.testgenerator.generation.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,17 +24,18 @@ import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SetterMethodData;
 import de.nvg.runtime.classdatamodel.SetterType;
 import de.nvg.runtime.classdatamodel.SignatureData;
-import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
+import de.nvg.testgenerator.generation.ContainerGeneration;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
 import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
 
-public class DefaultCollectionsGeneration implements CollectionsGeneration {
+public class DefaultContainerGeneration implements ContainerGeneration {
 
-	private static final Logger LOGGER = LogManager.getLogger(DefaultCollectionsGeneration.class);
+	private static final Logger LOGGER = LogManager.getLogger(DefaultContainerGeneration.class);
 
 	private static final String GENERIC_CONSTRUCTOR = " = new $T<>()";
 
@@ -50,7 +52,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	public void createCollection(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
 			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField) {
 
-		LOGGER.info("starting generation of Collection :" + basicCollectionBP);
+		LOGGER.info("starting generation of Collection:" + basicCollectionBP);
 
 		if (basicCollectionBP.isNotBuild()) {
 			if (basicCollectionBP instanceof CollectionBluePrint) {
@@ -66,39 +68,108 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 	}
 
 	@Override
-	public void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP,
-			SetterMethodData setter, String objectName) {
+	public void createArray(Builder code, ArrayBluePrint array, boolean onlyCreateElements, boolean isField) {
+		LOGGER.info("starting generation of Array: " + array);
 
-		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
+		if (array.isNotBuild()) {
 
-		if (basicCollectionBP instanceof CollectionBluePrint) {
-			addCollectionToObject(code, (CollectionBluePrint) basicCollectionBP, setter, objectName);
+			for (BluePrint bluePrint : array.getElements()) {
+				createComplexContainerElement(code, bluePrint, null);
+			}
 
-		} else if (basicCollectionBP instanceof MapBluePrint) {
-			addMapToObject(code, (MapBluePrint) basicCollectionBP, setter, objectName);
+			if (!onlyCreateElements) {
+				if (isField) {
+					StringBuilder arrayCreation = new StringBuilder(array.getName() + " =");
+					createArrayConstructor(array, arrayCreation, true);
+					code.addStatement(arrayCreation.toString(), array.getBaseType());
+
+				} else {
+
+					StringBuilder arrayCreation = new StringBuilder("$T " + array.getName() + " =");
+					createArrayConstructor(array, arrayCreation, false);
+
+					List<Class<?>> types = new ArrayList<>();
+					types.add(array.getType());
+					types.add(array.getBaseType());
+
+					String[] arrayElements = new String[array.size()];
+
+					BluePrint[] elements = array.getElements();
+
+					for (int i = 0; i < elements.length; i++) {
+						BluePrint bluePrint = elements[i];
+
+						if (bluePrint.isComplexType()) {
+							arrayElements[i] = bluePrint.getName();
+						} else if (bluePrint.isSimpleBluePrint()) {
+							SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
+							arrayElements[i] = simpleBluePrint.valueCreation();
+							types.addAll(simpleBluePrint.getReferenceClasses());
+						}
+					}
+
+					arrayCreation.append("{" + String.join(", ", arrayElements) + "}");
+
+					code.addStatement(arrayCreation.toString(), types.toArray());
+				}
+			}
+		}
+
+		array.setBuild();
+	}
+
+	private void createArrayConstructor(ArrayBluePrint array, StringBuilder code, boolean withDimensionInit) {
+		code.append(" new $T");
+
+		int dimensions = array.getDimensions();
+
+		if (withDimensionInit) {
+			code.append("[" + array.size() + "]");
+			dimensions--;
+		}
+
+		while (dimensions > 0) {
+			code.append("[]");
+			dimensions--;
 		}
 	}
 
 	@Override
-	public void addCollectionToObject(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP,
-			FieldData field, String objectName) {
+	public void addContainerToObject(Builder code, BluePrint containerBP, SetterMethodData setter, String objectName) {
 
-		LOGGER.info("add Collection " + basicCollectionBP + " to Object " + objectName);
+		LOGGER.info("add Collection " + containerBP + " to Object " + objectName);
 
-		code.addStatement(objectName + "." + field.getName() + "=" + basicCollectionBP.getName());
+		if (containerBP instanceof CollectionBluePrint)
+			addCollectionToObject(code, (CollectionBluePrint) containerBP, setter, objectName);
+
+		else if (containerBP instanceof MapBluePrint)
+			addMapToObject(code, (MapBluePrint) containerBP, setter, objectName);
+
+		else if (containerBP instanceof ArrayBluePrint)
+			addArrayToObject(code, (ArrayBluePrint) containerBP, setter, objectName);
 
 	}
 
 	@Override
-	public void addFieldToClass(TypeSpec.Builder typeSpec, AbstractBasicCollectionBluePrint<?> bluePrint,
-			SignatureData signature) {
+	public void addContainerToObject(Builder code, BluePrint containerBP, FieldData field, String objectName) {
 
-		if (bluePrint instanceof CollectionBluePrint) {
-			addFieldToClass(typeSpec, (CollectionBluePrint) bluePrint, signature);
+		LOGGER.info("add Collection " + containerBP + " to Object " + objectName);
 
-		} else if (bluePrint instanceof MapBluePrint) {
-			addFieldToClass(typeSpec, (MapBluePrint) bluePrint, signature);
-		}
+		code.addStatement(objectName + "." + field.getName() + "=" + containerBP.getName());
+
+	}
+
+	@Override
+	public void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureData signature) {
+
+		if (containerBP instanceof CollectionBluePrint)
+			addFieldToClass(typeSpec, (CollectionBluePrint) containerBP, signature);
+
+		else if (containerBP instanceof MapBluePrint)
+			addFieldToClass(typeSpec, (MapBluePrint) containerBP, signature);
+
+		else if (containerBP instanceof ArrayBluePrint)
+			addFieldToClass(typeSpec, (ArrayBluePrint) containerBP);
 	}
 
 	private void addFieldToClass(TypeSpec.Builder typeSpec, CollectionBluePrint collection, SignatureData signature) {
@@ -123,6 +194,10 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		}
 
 		typeSpec.addField(mapType, map.getName(), Modifier.PRIVATE);
+	}
+
+	private void addFieldToClass(TypeSpec.Builder typeSpec, ArrayBluePrint array) {
+		typeSpec.addField(array.getType(), array.getName(), Modifier.PRIVATE);
 	}
 
 	private void addCollectionToObject(Builder code, CollectionBluePrint collection, SetterMethodData setter,
@@ -174,7 +249,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		SignatureData genericType = signature != null ? signature.getSubTypes().get(0) : null;
 
 		for (BluePrint bluePrint : collection.getBluePrints()) {
-			createComplexCollectionElement(code, bluePrint, //
+			createComplexContainerElement(code, bluePrint, //
 					genericType.isSimpleSignature() ? null : genericType);
 		}
 
@@ -214,11 +289,11 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 			boolean onlyCreateCollectionElements, boolean isField) {
 
 		for (Entry<BluePrint, BluePrint> pair : map.getBluePrints()) {
-			createComplexCollectionElement(code, pair.getKey(),
+			createComplexContainerElement(code, pair.getKey(),
 					signature != null && !signature.getSubTypes().get(0).isSimpleSignature()
 							? signature.getSubTypes().get(0)
 							: null);
-			createComplexCollectionElement(code, pair.getValue(),
+			createComplexContainerElement(code, pair.getValue(),
 					signature != null && !signature.getSubTypes().get(1).isSimpleSignature()
 							? signature.getSubTypes().get(1)
 							: null);
@@ -292,7 +367,7 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 		throw new IllegalArgumentException(bluePrint + "is not a valid BluePrinttype");
 	}
 
-	private void createComplexCollectionElement(Builder code, BluePrint bluePrint, SignatureData signature) {
+	private void createComplexContainerElement(Builder code, BluePrint bluePrint, SignatureData signature) {
 		if (bluePrint.isComplexBluePrint() && bluePrint.isNotBuild()) {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
 
@@ -303,9 +378,34 @@ public class DefaultCollectionsGeneration implements CollectionsGeneration {
 
 			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
 
-		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild()) {
+		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild())
 			createCollection(code, bluePrint.castToCollectionBluePrint(), signature, //
 					false, false);
+		else if (bluePrint.isArrayBluePrint() && bluePrint.isNotBuild()) {
+			createArray(code, bluePrint.castToArrayBluePrint(), false, false);
+		}
+	}
+
+	private void addArrayToObject(Builder code, ArrayBluePrint array, SetterMethodData setter, String objectName) {
+		if (SetterType.VALUE_GETTER == setter.getType()) {
+			BluePrint[] elements = array.getElements();
+			for (int i = 0; i < elements.length; i++) {
+				BluePrint bluePrint = elements[i];
+
+				if (bluePrint.isComplexType())
+					code.addStatement(objectName + "." + setter.getName() + "()[" + i + "] = " + bluePrint.getName());
+
+				else if (bluePrint.isSimpleBluePrint()) {
+					SimpleBluePrint<?> simpleBp = bluePrint.castToSimpleBluePrint();
+
+					code.addStatement(
+							objectName + "." + setter.getName() + "()[" + i + "] = " + simpleBp.valueCreation(),
+							simpleBp.getReferenceClasses().toArray());
+				}
+			}
+
+		} else if (SetterType.VALUE_SETTER == setter.getType()) {
+			code.addStatement(objectName + "." + setter.getName() + "(" + array.getName() + ")");
 		}
 	}
 

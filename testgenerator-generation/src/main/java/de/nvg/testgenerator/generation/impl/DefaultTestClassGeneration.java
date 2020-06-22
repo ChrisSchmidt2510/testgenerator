@@ -23,10 +23,11 @@ import com.squareup.javapoet.TypeSpec.Builder;
 import de.nvg.runtime.classdatamodel.ClassData;
 import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.runtime.classdatamodel.SignatureData;
-import de.nvg.testgenerator.generation.CollectionsGeneration;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
+import de.nvg.testgenerator.generation.ContainerGeneration;
 import de.nvg.testgenerator.generation.TestClassGeneration;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
@@ -47,15 +48,15 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	private String testObjectName;
 	private List<String> methodParameterNames = new ArrayList<>();
 
-	private CollectionsGeneration collectionsGeneration;
+	private ContainerGeneration collectionsGeneration;
 	private ComplexObjectGeneration objectGeneration;
 
 	{
-		collectionsGeneration = new DefaultCollectionsGeneration();
+		collectionsGeneration = new DefaultContainerGeneration();
 		objectGeneration = new DefaultComplexObjectGeneration();
 
 		collectionsGeneration.setComplexObjectGeneration(objectGeneration);
-		objectGeneration.setCollectionsGeneration(collectionsGeneration);
+		objectGeneration.setContainerGeneration(collectionsGeneration);
 	}
 
 	@Override
@@ -114,6 +115,11 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 						methodSignature.get(methodParameterIndex));
 				collectionsGeneration.createCollection(code, collectionBluePrint,
 						methodSignature.get(methodParameterIndex), false, true);
+			} else if (methodParameter.isArrayBluePrint()) {
+				ArrayBluePrint arrayBluePrint = methodParameter.castToArrayBluePrint();
+
+				collectionsGeneration.addFieldToClass(typeSpec, arrayBluePrint, null);
+				collectionsGeneration.createArray(code, arrayBluePrint, false, true);
 			}
 
 			methodParameterIndex++;

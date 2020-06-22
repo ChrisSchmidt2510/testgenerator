@@ -10,7 +10,7 @@ import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 
 public interface ComplexObjectGeneration {
 	/* init */
-	void setCollectionsGeneration(CollectionsGeneration collectionsGeneration);
+	void setContainerGeneration(ContainerGeneration containerGeneration);
 
 	void createObject(Builder builder, ComplexBluePrint bluePrint, boolean isField, ClassData classData,
 			Set<FieldData> calledFields);
