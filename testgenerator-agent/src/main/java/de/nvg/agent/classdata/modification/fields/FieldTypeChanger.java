@@ -421,7 +421,7 @@ public class FieldTypeChanger {
 				bytecode.addInvokevirtual(proxy, getValueMethodName(dataType), getGetValueDescriptor(dataType));
 
 				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
-					bytecode.addCheckcast(dataType.substring(1, dataType.length() - 1));
+					bytecode.addCheckcast(BytecodeUtils.cnvDescriptorToJvmName(dataType));
 					iterator.insertGapAt(codeArrayIndex, 6, false);
 					iterator.write(bytecode.get(), codeArrayIndex);
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);

@@ -1,6 +1,7 @@
 package de.nvg.agent.classdata.modification;
 
 import org.testgen.core.classdata.constants.JVMTypes;
+import org.testgen.core.classdata.constants.JavaTypes;
 import org.testgen.core.classdata.constants.Primitives;
 
 import javassist.bytecode.Bytecode;
@@ -34,13 +35,33 @@ public final class BytecodeUtils {
 			}
 
 			code.addGetstatic(className, JVMTypes.WRAPPER_CLASSES_FIELD_TYPE, JVMTypes.CLASS);
+		} else if (JavaTypes.isArray(descriptor)) {
+
+			int dimCounter = 0;
+			while (descriptor.contains("[]")) {
+				dimCounter++;
+				descriptor = descriptor.substring(0, descriptor.length() - 2);
+			}
+
+			StringBuilder builder = new StringBuilder();
+			while (dimCounter > 0) {
+				builder.append("[");
+				dimCounter--;
+			}
+
+			builder.append("L" + descriptor + ";");
+			code.addLdc(constantPool.addClassInfo(builder.toString()));
 		} else {
 			code.addLdc(constantPool.addClassInfo(descriptor));
 		}
 	}
 
 	public static String cnvDescriptorToJvmName(String descriptor) {
-		return descriptor.substring(1, descriptor.length() - 1);
+		return isArrayType(descriptor) ? descriptor : descriptor.substring(1, descriptor.length() - 1);
+	}
+
+	public static boolean isArrayType(String dataType) {
+		return dataType.startsWith("[");
 	}
 
 }

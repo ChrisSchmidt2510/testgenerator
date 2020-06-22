@@ -307,10 +307,6 @@ public final class Instructions {
 		return parameters;
 	}
 
-	public static boolean isArrayType(String dataType) {
-		return dataType.startsWith("[");
-	}
-
 	public static String getReturnType(String methodDesc) {
 		return methodDesc.substring(methodDesc.indexOf(')') + 1);
 	}

@@ -33,6 +33,10 @@ public final class JavaTypes {
 	public static final List<String> COLLECTION_LIST = Collections
 			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, MAP, QUEUE));
 
+	public static boolean isArray(String dataType) {
+		return dataType.endsWith("[]");
+	}
+
 	private JavaTypes() {
 	}
 

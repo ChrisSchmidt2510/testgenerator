@@ -211,10 +211,12 @@ public class MetaDataAdder {
 				MethodData method = methods.get(0);
 
 				MethodType type = method.getMethodType();
+				String dataType = field.getDataType();
 
-				if (MethodType.REFERENCE_VALUE_SETTER == type || (JavaTypes.COLLECTION_LIST
-						.contains(field.getDataType())
-						&& (MethodType.COLLECTION_SETTER == type || MethodType.REFERENCE_VALUE_GETTER == type))) {
+				if (MethodType.REFERENCE_VALUE_SETTER == type
+						|| (JavaTypes.COLLECTION_LIST.contains(dataType)
+								&& (MethodType.COLLECTION_SETTER == type || MethodType.REFERENCE_VALUE_GETTER == type))
+						|| JavaTypes.isArray(dataType) && MethodType.REFERENCE_VALUE_GETTER == type) {
 
 					code.addGetstatic(loadingClass, TestgeneratorConstants.FIELDNAME_CLASS_DATA, CLASS_DATA);
 					// load specific LocalVariable Field
@@ -226,7 +228,7 @@ public class MetaDataAdder {
 					code.addLdc(method.getDescriptor());
 					code.addIconst(method.isStatic() ? 1 : 0);
 
-					if (JavaTypes.COLLECTION_LIST.contains(field.getDataType())) {
+					if (JavaTypes.COLLECTION_LIST.contains(dataType) || JavaTypes.isArray(dataType)) {
 						code.addGetstatic(SETTER_TYPE_CLASSNAME, getSetterType(type), SETTER_TYPE);
 						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
 								SETTER_METHOD_DATA_CONSTRUCTOR_WITH_SETTER_TYPE);
@@ -234,6 +236,7 @@ public class MetaDataAdder {
 						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
 								SETTER_METHOD_DATA_CONSTRUCTOR);
 					}
+
 					code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR,
 							CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR_DESC);
 				}
