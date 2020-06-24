@@ -15,6 +15,7 @@ import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.testclasses.Adresse;
 import de.nvg.agent.classdata.testclasses.Person;
+import de.nvg.agent.classdata.testclasses.Switch;
 import de.nvg.agent.classdata.testclasses.Value;
 import javassist.CannotCompileException;
 import javassist.CtField;
@@ -261,6 +262,31 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(72)//
 				.withOpcode(Opcode.RETURN).build());
 		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+	}
+
+	/*
+	 * If this test doesn't throw an exception it was successful
+	 */
+	@Test
+	public void testOverrideFieldAccessTableSwitch() throws NotFoundException, BadBytecode {
+		init(Switch.class, "tableSwitch", Arrays.asList(Opcode.GETFIELD));
+
+		FieldData constants = new FieldData.Builder().withName("switchConstants")//
+				.withDataType("java.lang.String[]").build();
+		FieldData list = new FieldData.Builder().withName("list")//
+				.withDataType("java.util.List").build();
+
+		ClassData classData = new ClassData("de.nvg.agent.classdata.testclasses.Switch");
+		classData.addFields(Arrays.asList(constants, list));
+
+		System.out.println("Before");
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
+		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, codeAttribute);
+
+		System.out.println("After");
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 	}
 
 	@Test

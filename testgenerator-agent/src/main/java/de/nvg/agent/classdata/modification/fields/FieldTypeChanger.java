@@ -29,6 +29,7 @@ import javassist.bytecode.Bytecode;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
+import javassist.bytecode.CodeIterator.Gap;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.FieldInfo;
@@ -190,7 +191,7 @@ public class FieldTypeChanger {
 					afterValueCreation.addPutfield(loadingClass, instruction.getName(), toDescriptor(proxy));
 
 					// aconst_null (1) + putField(3)
-					iterator.insertGapAt(
+					Gap gap = iterator.insertGapAt(
 							instructionBeforePutField.getCodeArrayIndex() + codeArrayModificator
 									.getModificator(instructionBeforePutField.getCodeArrayIndex()),
 							afterValueCreation.getSize() - 4, false);
@@ -198,15 +199,14 @@ public class FieldTypeChanger {
 					iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
 
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
-							afterValueCreation.getSize() - 4);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), gap.length);
 				} else {
 
 					afterValueCreation.addInvokespecial(proxy, MethodInfo.nameInit,
 							PROXY_CONSTRUCTOR_WITH_INITALIZATION.get(proxy));
 					afterValueCreation.addPutfield(loadingClass, instruction.getName(), toDescriptor(proxy));
 
-					iterator.insertGapAt(
+					Gap gap = iterator.insertGapAt(
 							instruction.getCodeArrayIndex()
 									+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
 							afterValueCreation.getSize() - 3, false);
@@ -215,8 +215,7 @@ public class FieldTypeChanger {
 							+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
 
 					// for the new invokespecial + aload0 instruction
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(),
-							afterValueCreation.getSize() - 3);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), gap.length);
 				}
 
 				FieldData field = new FieldData.Builder().withDataType(Descriptor.toClassName(instruction.getType()))
@@ -422,14 +421,14 @@ public class FieldTypeChanger {
 
 				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
 					bytecode.addCheckcast(BytecodeUtils.cnvDescriptorToJvmName(dataType));
-					iterator.insertGapAt(codeArrayIndex, 6, false);
+					Gap gap = iterator.insertGapAt(codeArrayIndex, 6, false);
 					iterator.write(bytecode.get(), codeArrayIndex);
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 6);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), gap.length);
 
 				} else {
-					iterator.insertGapAt(codeArrayIndex, 3, false);
+					Gap gap = iterator.insertGapAt(codeArrayIndex, 3, false);
 					iterator.write(bytecode.get(), codeArrayIndex);
-					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), 3);
+					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), gap.length);
 				}
 			}
 		}
