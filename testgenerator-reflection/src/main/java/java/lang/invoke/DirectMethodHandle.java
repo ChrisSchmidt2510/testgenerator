@@ -808,7 +808,7 @@ class DirectMethodHandle extends MethodHandle {
 				names[POST_CAST] = new Name(Lazy.NF_checkCast, names[DMH_THIS], names[LINKER_CALL]);
 		}
 
-		if (isProxy)
+		if (isProxy && !isGetter)
 			names[PROXY_SETVALUE] = new Name(Lazy.NF_setProxyValue, names[LINKER_CALL], names[SET_VALUE]);
 		for (Name n : names)
 			assert (n != null);
