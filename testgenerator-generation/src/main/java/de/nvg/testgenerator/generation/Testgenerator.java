@@ -3,6 +3,7 @@ package de.nvg.testgenerator.generation;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +43,8 @@ public final class Testgenerator {
 	 */
 	public static void generate(String className, String method) {
 		LOGGER.info("Starting test-generation");
-		RuntimeProperties.getInstance().setActivateTracking(false);
+		RuntimeProperties.getInstance().setFieldTracking(false);
+		RuntimeProperties.getInstance().setProxyTracking(false);
 		boolean trackingActivated = RuntimeProperties.getInstance().wasFieldTrackingActivated();
 
 		TestClassGeneration testGenerator = new DefaultTestClassGeneration();
@@ -65,7 +67,9 @@ public final class Testgenerator {
 		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters(),
 				methodSignature);
 
-		testGenerator.prepareProxyObjects(classBuilder, ValueStorage.getInstance().getProxyObjects());
+		Collection<BluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
+		if (!proxyObjects.isEmpty())
+			testGenerator.prepareProxyObjects(classBuilder, proxyObjects);
 
 		testGenerator.generateTestMethod(classBuilder, method);
 

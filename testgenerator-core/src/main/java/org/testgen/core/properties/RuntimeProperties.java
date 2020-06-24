@@ -10,7 +10,11 @@ public final class RuntimeProperties {
 	private static final RuntimeProperties INSTANCE = new RuntimeProperties();
 	private ArgumentParser argParser;
 
-	private boolean activateTracking;
+	private boolean fieldTracking;
+
+	private boolean proxyTracking;
+
+//	private boolean 
 
 	private RuntimeProperties() {
 	}
@@ -19,12 +23,20 @@ public final class RuntimeProperties {
 		return INSTANCE;
 	}
 
-	public boolean isTrackingActive() {
-		return activateTracking;
+	public boolean isFieldTrackingActive() {
+		return fieldTracking;
 	}
 
-	public void setActivateTracking(boolean activateTracking) {
-		this.activateTracking = activateTracking;
+	public void setFieldTracking(boolean fieldTracking) {
+		this.fieldTracking = fieldTracking;
+	}
+
+	public boolean isProxyTrackingActive() {
+		return proxyTracking;
+	}
+
+	public void setProxyTracking(boolean proxyTracking) {
+		this.proxyTracking = proxyTracking;
 	}
 
 	public boolean wasFieldTrackingActivated() {

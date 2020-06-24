@@ -14,7 +14,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 
 	private static final String TYPE = "de.nvg.valuetracker.blueprint.Type";
 	private static final String FIELD_PROXY = "PROXY";
-	
+
 	private static final Logger LOGGER = LogManager.getLogger(WrappingInvocationHandler.class);
 
 	private final InvocationHandler originalInvoker;
@@ -35,7 +35,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 
 		Object result = originalInvoker.invoke(proxy, method, args);
 
-		if (RuntimeProperties.getInstance().isTrackingActive()) {
+		if (RuntimeProperties.getInstance().isProxyTrackingActive()) {
 			track.invoke(valueTracker, result, method.getName(), type);
 		}
 		return result;

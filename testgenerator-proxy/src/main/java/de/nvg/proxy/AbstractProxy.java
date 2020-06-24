@@ -19,7 +19,7 @@ public abstract class AbstractProxy {
 	}
 
 	protected void trackReadFieldCalls() {
-		if (RuntimeProperties.getInstance().isTrackingActive()) {
+		if (RuntimeProperties.getInstance().isFieldTrackingActive()) {
 			Set<FieldData> calledFields = MethodHandles.getFieldValue(parent.get(),
 					TestgeneratorConstants.FIELDNAME_CALLED_FIELDS);
 			calledFields.add(field);

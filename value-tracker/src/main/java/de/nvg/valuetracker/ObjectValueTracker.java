@@ -70,8 +70,12 @@ public class ObjectValueTracker {
 		}
 	}
 
-	public void enableGetterCallsTracking() {
-		RuntimeProperties.getInstance().setActivateTracking(true);
+	public void enableFieldTracking() {
+		RuntimeProperties.getInstance().setFieldTracking(true);
+	}
+
+	public void enableProxyTracking() {
+
 	}
 
 	BluePrint trackValues(Object value, String name) {

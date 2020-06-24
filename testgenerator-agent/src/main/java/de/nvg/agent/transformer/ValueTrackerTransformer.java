@@ -47,8 +47,9 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String OBJECT_VALUE_TRACKER = "Lde/nvg/valuetracker/ObjectValueTracker;";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK = "track";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC = "(Ljava/lang/Object;Ljava/lang/String;Lde/nvg/valuetracker/blueprint/Type;)V";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_GETTER_CALLS = "enableGetterCallsTracking";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_GETTER_CALLS_DESC = "()V";
+	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING = "enableFieldTracking";
+	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING = "enableProxyTracking";
+	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC = "()V";
 
 	private static final String TYPE_CLASSNAME = "de/nvg/valuetracker/blueprint/Type";
 	private static final String TYPE = "Lde/nvg/valuetracker/blueprint/Type;";
@@ -168,13 +169,20 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
 				OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
 
+		valueTracking.addAload(0);
+		valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
+				OBJECT_VALUE_TRACKER);
+		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
+				OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING, //
+				OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC);
+
 		if (properties.isTraceReadFieldAccess()) {
 			valueTracking.addAload(0);
 			valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
 					OBJECT_VALUE_TRACKER);
 			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
-					OBJECT_VALUE_TRACKER_METHOD_ENABLE_GETTER_CALLS,
-					OBJECT_VALUE_TRACKER_METHOD_ENABLE_GETTER_CALLS_DESC);
+					OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING,
+					OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC);
 		}
 
 		iterator.insert(0, valueTracking.get());
