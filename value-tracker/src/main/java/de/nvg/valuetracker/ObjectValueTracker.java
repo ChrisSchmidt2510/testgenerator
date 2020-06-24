@@ -75,7 +75,7 @@ public class ObjectValueTracker {
 	}
 
 	public void enableProxyTracking() {
-
+		RuntimeProperties.getInstance().setProxyTracking(true);
 	}
 
 	BluePrint trackValues(Object value, String name) {
