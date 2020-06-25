@@ -68,10 +68,12 @@ public final class Testgenerator {
 				methodSignature);
 
 		Collection<BluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
-		if (!proxyObjects.isEmpty())
+
+		boolean withProxyObjects = !proxyObjects.isEmpty();
+		if (withProxyObjects)
 			testGenerator.prepareProxyObjects(classBuilder, proxyObjects);
 
-		testGenerator.generateTestMethod(classBuilder, method);
+		testGenerator.generateTestMethod(classBuilder, method, withProxyObjects);
 
 		classBuilder.addJavadoc(
 				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))

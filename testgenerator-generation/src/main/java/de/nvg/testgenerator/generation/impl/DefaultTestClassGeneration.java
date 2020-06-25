@@ -169,14 +169,16 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	}
 
 	@Override
-	public void generateTestMethod(Builder typeSpec, String methodName) {
-		CodeBlock codeInit = CodeBlock.builder().addStatement(METHOD_INIT_TESTOBJECT + "()")
-				.addStatement(METHOD_INIT_METHOD_PARAMETER + "()")//
-				.addStatement(METHOD_INIT_PROXY_OBJECTS + "()").build();
+	public void generateTestMethod(Builder typeSpec, String methodName, boolean withProxyObjects) {
+		com.squareup.javapoet.CodeBlock.Builder codeInit = CodeBlock.builder()//
+				.addStatement(METHOD_INIT_TESTOBJECT + "()")//
+				.addStatement(METHOD_INIT_METHOD_PARAMETER + "()");
+		if (withProxyObjects)
+			codeInit.addStatement(METHOD_INIT_PROXY_OBJECTS + "()");
 
 		typeSpec.addMethod(MethodSpec.methodBuilder(METHOD_INIT).addModifiers(Modifier.PUBLIC)
 				.addAnnotation(AnnotationSpec.builder(ClassName.bestGuess(JUNIT_ANNOTATION_BEFORE)).build())
-				.addCode(codeInit).build());
+				.addCode(codeInit.build()).build());
 
 		CodeBlock codeTestMethod = CodeBlock.builder()
 				.addStatement(testObjectName + "." + methodName + "("

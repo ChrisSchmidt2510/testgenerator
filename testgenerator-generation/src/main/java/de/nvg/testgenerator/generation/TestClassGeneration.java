@@ -21,6 +21,6 @@ public interface TestClassGeneration {
 
 	void prepareProxyObjects(TypeSpec.Builder typeSpec, Collection<BluePrint> proxyObjects);
 
-	void generateTestMethod(TypeSpec.Builder typeSpec, String methodName);
+	void generateTestMethod(TypeSpec.Builder typeSpec, String methodName, boolean withProxyObjects);
 
 }
