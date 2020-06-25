@@ -8,7 +8,7 @@ import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
 public class ObjectValueTrackerTest {
-	private final ObjectValueTracker valueTracker = new ObjectValueTracker();
+	private final ObjectValueTracker valueTracker = ObjectValueTracker.getInstance();
 
 	@Test
 	public void testTrackArrays() {

@@ -2,6 +2,7 @@ package org.testgen.extension;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.testgen.core.logging.LogManager;
@@ -10,6 +11,7 @@ import org.testgen.core.properties.RuntimeProperties;
 
 public class WrappingInvocationHandler implements InvocationHandler {
 	private static final String OBJECT_VALUE_TRACKER = "de.nvg.valuetracker.ObjectValueTracker";
+	private static final String METHOD_GET_INSTANCE ="getInstance";
 	private static final String METHOD_TRACK = "track";
 
 	private static final String TYPE = "de.nvg.valuetracker.blueprint.Type";
@@ -50,13 +52,19 @@ public class WrappingInvocationHandler implements InvocationHandler {
 				Class<?> type = Class.forName(TYPE, true, loader);
 				this.track = valueTrackerClass.getMethod(METHOD_TRACK, Object.class, String.class, type);
 
-				this.valueTracker = valueTrackerClass.newInstance();
+				this.valueTracker = valueTrackerClass.getMethod(METHOD_GET_INSTANCE).invoke(null);
 
 				Field field = type.getDeclaredField(FIELD_PROXY);
 				this.type = field.get(null);
 			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | //
-					InstantiationException | IllegalAccessException | NoSuchFieldException e) {
+					  IllegalAccessException | NoSuchFieldException e) {
 				LOGGER.error("error while creating WrappingInvocationHandler", e);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

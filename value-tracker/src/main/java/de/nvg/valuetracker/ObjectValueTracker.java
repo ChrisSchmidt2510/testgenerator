@@ -46,7 +46,7 @@ import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
 import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 import de.nvg.valuetracker.storage.ValueStorage;
 
-public class ObjectValueTracker {
+public final class ObjectValueTracker {
 
 	private static final List<Class<?>> DIRECT_OUTPUT_CLASSES = Collections.unmodifiableList(Arrays.asList(
 			Integer.class, Byte.class, Short.class, Character.class, Float.class, Double.class, Long.class,
@@ -62,7 +62,16 @@ public class ObjectValueTracker {
 
 	private static final Logger LOGGER = LogManager.getLogger(ObjectValueTracker.class);
 
+	private static final ObjectValueTracker INSTANCE = new ObjectValueTracker();
+
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
+
+	private ObjectValueTracker() {
+	}
+
+	public static ObjectValueTracker getInstance() {
+		return INSTANCE;
+	}
 
 	public void track(Object value, String name, Type type) {
 		if (value != null && !Proxy.isProxyClass(value.getClass())) {

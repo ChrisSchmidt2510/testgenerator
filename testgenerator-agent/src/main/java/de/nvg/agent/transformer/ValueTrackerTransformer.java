@@ -26,7 +26,6 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
-import javassist.CtMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
@@ -35,6 +34,7 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
+import javassist.bytecode.FieldInfo;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.LocalVariableTypeAttribute;
 import javassist.bytecode.MethodInfo;
@@ -50,6 +50,8 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING = "enableFieldTracking";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING = "enableProxyTracking";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC = "()V";
+	private static final String OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE = "getInstance";
+	private static final String OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC = "()" + OBJECT_VALUE_TRACKER;
 
 	private static final String TYPE_CLASSNAME = "de/nvg/valuetracker/blueprint/Type";
 	private static final String TYPE = "Lde/nvg/valuetracker/blueprint/Type;";
@@ -92,23 +94,20 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private byte[] reTransformMethodForObservObjectData(CtClass classToLoad)
 			throws IOException, CannotCompileException, NotFoundException, BadBytecode {
 
-		classToLoad.addField(
-				CtField.make("de.nvg.valuetracker.ObjectValueTracker "
-						+ TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER + ";", classToLoad),
-				"new de.nvg.valuetracker.ObjectValueTracker();");
-
 		CtField methodSignature = CtField
 				.make("java.util.Map " + TestgeneratorConstants.FIELDNAME_METHOD_SIGNATURE + ";", classToLoad);
 		methodSignature.setModifiers(Modifier.PRIVATE | Modifier.FINAL);
 		classToLoad.addField(methodSignature, "new java.util.HashMap();");
 
-		CtMethod method = classToLoad.getMethod(properties.getMethod(), properties.getMethodDescriptor());
-
-		MethodInfo methodInfo = method.getMethodInfo();
+		MethodInfo methodInfo = classToLoad.getMethod(properties.getMethod(), properties.getMethodDescriptor())
+				.getMethodInfo();
 
 		codeAttribute = methodInfo.getCodeAttribute();
 		constantPool = codeAttribute.getConstPool();
 		iterator = codeAttribute.iterator();
+
+		classToLoad.getClassFile().addField(new FieldInfo(constantPool,
+				TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER, OBJECT_VALUE_TRACKER));
 
 		SignatureAdder signatureAdder = new SignatureAdder(constantPool);
 
@@ -140,6 +139,12 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
 		Bytecode valueTracking = new Bytecode(constantPool);
+
+		valueTracking.addAload(0);
+		valueTracking.addInvokestatic(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE,
+				OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC);
+		valueTracking.addPutfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
+				OBJECT_VALUE_TRACKER);
 
 		for (int i = lowestParameterIndex; i <= parameterCount; i++) {
 			String variableName = table.variableName(i);
