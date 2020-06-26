@@ -122,7 +122,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				for (CtField field : loadingClass.getDeclaredFields()) {
 
-					if (!Instructions.isConstant(field.getModifiers()) && !AccessFlag.isPublic(field.getModifiers())
+					if (!Instructions.isConstant(field.getModifiers()) //
+							&& !AccessFlag.isPublic(field.getModifiers()) && !isSynthetic(field.getModifiers())
 							&& !TestgeneratorConstants.isTestgeneratorField(field.getName())) {
 						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
 					}
@@ -166,6 +167,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					if (signature != null) {
 						signatureData = SignatureParser.parse(signature.getSignature());
 					}
+
 				} catch (SignatureParserException e) {
 					LOGGER.error(e);
 				}
@@ -174,7 +176,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						.withDataType(Descriptor.toClassName(field.getDescriptor())).withName(field.getName())
 						.isMutable(!Modifier.isFinal(field.getAccessFlags()))
 						.isStatic(Modifier.isStatic(field.getAccessFlags()))
-						.isPublic(Modifier.isPublic(field.getAccessFlags())).withSignature(signatureData).build();
+						.isPublic(Modifier.isPublic(field.getAccessFlags()))
+						.isSynthetic(isSynthetic(field.getAccessFlags())).withSignature(signatureData).build();
 
 				LOGGER.info("added Field: " + fieldData);
 
@@ -318,5 +321,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		}
 
 		method.rebuildStackMap(ClassPool.getDefault());
+	}
+
+	private static boolean isSynthetic(int modifier) {
+		return (modifier & AccessFlag.SYNTHETIC) != 0;
 	}
 }

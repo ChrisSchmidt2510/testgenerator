@@ -152,7 +152,7 @@ public class FieldTypeChanger {
 
 		for (Instruction instruction : putFieldInstructions) {
 
-			if (!classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
+			if (classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
 				Instruction aloadInstruction = filter.filterForAloadInstruction(instruction);

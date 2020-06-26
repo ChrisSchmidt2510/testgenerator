@@ -8,18 +8,20 @@ public final class FieldData {
 	private final boolean mutable;
 	private final boolean isStatic;
 	private final boolean isPublic;
+	private final boolean isSynthetic;
 	/** Is only used for genericTypes */
 	private final SignatureData signature;
 
 	private String comment;
 
 	private FieldData(String dataType, String name, boolean mutable, boolean isStatic, boolean isPublic,
-			SignatureData signature) {
+			boolean isSynthetic, SignatureData signature) {
 		this.dataType = dataType;
 		this.name = name;
 		this.mutable = mutable;
 		this.isStatic = isStatic;
 		this.isPublic = isPublic;
+		this.isSynthetic = isSynthetic;
 		this.signature = signature;
 	}
 
@@ -41,6 +43,10 @@ public final class FieldData {
 
 	public boolean isPublic() {
 		return isPublic;
+	}
+
+	public boolean isModifiable() {
+		return !isPublic && !isSynthetic;
 	}
 
 	public SignatureData getSignature() {
@@ -89,6 +95,7 @@ public final class FieldData {
 		private boolean mutable;
 		private boolean isStatic;
 		private boolean isPublic;
+		private boolean isSynthetic;
 
 		public Builder withName(String name) {
 			this.name = name;
@@ -120,8 +127,13 @@ public final class FieldData {
 			return this;
 		}
 
+		public Builder isSynthetic(boolean isSynthetic) {
+			this.isSynthetic = isSynthetic;
+			return this;
+		}
+
 		public FieldData build() {
-			return new FieldData(dataType, name, mutable, isStatic, isPublic, signature);
+			return new FieldData(dataType, name, mutable, isStatic, isPublic, isSynthetic, signature);
 		}
 	}
 
