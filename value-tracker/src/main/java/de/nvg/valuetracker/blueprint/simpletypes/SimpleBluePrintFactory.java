@@ -1,6 +1,5 @@
 package de.nvg.valuetracker.blueprint.simpletypes;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,6 +17,8 @@ public final class SimpleBluePrintFactory {
 	public static BluePrint of(String fieldName, Object value) {
 		if (value == null) {
 			return new NullBluePrint(fieldName);
+		} else if (value instanceof Class<?>) {
+			return new ClassBluePrint(fieldName, (Class<?>) value);
 		} else if (value instanceof Number) {
 			return new NumberBluePrint(fieldName, (Number) value);
 		} else if (value instanceof Boolean) {

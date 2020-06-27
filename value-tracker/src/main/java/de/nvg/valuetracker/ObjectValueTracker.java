@@ -9,11 +9,13 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -30,7 +33,6 @@ import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
 
-import de.nvg.proxy.AbstractProxy;
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;
 import de.nvg.proxy.impl.FloatProxy;
@@ -50,8 +52,9 @@ public final class ObjectValueTracker {
 
 	private static final List<Class<?>> DIRECT_OUTPUT_CLASSES = Collections.unmodifiableList(Arrays.asList(
 			Integer.class, Byte.class, Short.class, Character.class, Float.class, Double.class, Long.class,
-			Boolean.class, LocalDate.class, LocalTime.class, LocalDateTime.class, java.util.Date.class, Date.class,
-			Calendar.class, GregorianCalendar.class, BigDecimal.class, String.class));
+			Boolean.class, Integer.TYPE, Byte.TYPE, Short.TYPE, Character.TYPE, Float.TYPE, Double.TYPE, Long.TYPE,
+			Long.TYPE, Boolean.TYPE, LocalDate.class, LocalTime.class, LocalDateTime.class, java.util.Date.class,
+			Date.class, Calendar.class, GregorianCalendar.class, BigDecimal.class, String.class, Class.class));
 
 	private static final Map<Class<?>, Function<IntegerProxy, Object>> INTEGER_PROXY_METHODS = //
 			MapBuilder.<Class<?>, Function<IntegerProxy, Object>>hashMapBuilder()
@@ -65,6 +68,9 @@ public final class ObjectValueTracker {
 	private static final ObjectValueTracker INSTANCE = new ObjectValueTracker();
 
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
+
+	private final Deque<Object> currentlyBuildedBluePrints = new ArrayDeque<>();
+	private final Map<Object, List<Consumer<BluePrint>>> addValueAfterCreation = new HashMap<>();
 
 	private ObjectValueTracker() {
 	}
@@ -91,16 +97,32 @@ public final class ObjectValueTracker {
 		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
 		Object proxyValue = getProxyValue(value);
 
+		currentlyBuildedBluePrints.push(proxyValue);
+
+		BluePrint bluePrint = null;
+
 		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum()) {
-			return getBluePrintForReference(proxyValue, () -> SimpleBluePrintFactory.of(name, proxyValue));
+			bluePrint = getBluePrintForReference(proxyValue, () -> SimpleBluePrintFactory.of(name, proxyValue));
 		} else if (isCollection(proxyValue)) {
-			return getBluePrintForReference(proxyValue, () -> trackValuesFromCollections(proxyValue, name));
+			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesFromCollections(proxyValue, name));
 		} else if (proxyValue.getClass().isArray()) {
-			return getBluePrintForReference(proxyValue, () -> trackValuesArray(proxyValue, name));
+			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesArray(proxyValue, name));
 		} else {
-			return getBluePrintForReference(proxyValue, () -> trackValuesFromComplexTypes(proxyValue, name));
+			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesFromComplexTypes(proxyValue, name));
 		}
 
+		List<Consumer<BluePrint>> valueAfterCreation = addValueAfterCreation.get(proxyValue);
+
+		if (valueAfterCreation != null) {
+			for (Consumer<BluePrint> consumer : valueAfterCreation) {
+				consumer.accept(bluePrint);
+			}
+		}
+
+		addValueAfterCreation.remove(proxyValue);
+		currentlyBuildedBluePrints.pop();
+
+		return bluePrint;
 	}
 
 	private BluePrint trackValuesFromComplexTypes(Object value, String name) {
@@ -123,29 +145,23 @@ public final class ObjectValueTracker {
 					Object fieldValue = getProxyValue(field.get(value));
 
 					if (fieldValue != null && !TestgeneratorConstants.isTestgeneratorField(field.getName())
-							&& fieldValue != this) {
+							&& !Proxy.isProxyClass(fieldValue.getClass()) && fieldValue != this) {
 
 						LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
-						Class<?> fieldType = getType(field, value);
+						if (currentlyBuildedBluePrints.contains(fieldValue)) {
+							Consumer<BluePrint> consumer = bp -> complexBluePrint.addBluePrint(bp);
 
-						BluePrint elementBluePrint;
-						if (DIRECT_OUTPUT_CLASSES.contains(fieldType) || fieldType.isEnum()) {
-							elementBluePrint = getBluePrintForReference(value,
-									() -> SimpleBluePrintFactory.of(field.getName(), fieldValue));
+							if (addValueAfterCreation.containsKey(fieldValue)) {
+								addValueAfterCreation.get(fieldValue).add(consumer);
+							} else {
+								addValueAfterCreation.put(fieldValue, new ArrayList<>(Arrays.asList(consumer)));
+							}
 
-						} else if (isCollection(fieldValue)) {
-							elementBluePrint = getBluePrintForReference(fieldValue,
-									() -> trackValuesFromCollections(fieldValue, field.getName()));
-						} else if (fieldType.isArray()) {
-							elementBluePrint = getBluePrintForReference(fieldValue,
-									() -> trackValuesArray(fieldValue, field.getName()));
 						} else {
-							elementBluePrint = getBluePrintForReference(fieldValue,
-									() -> trackValues(fieldValue, field.getName()));
+							BluePrint elementBluePrint = trackValues(fieldValue, field.getName());
+							complexBluePrint.addBluePrint(elementBluePrint);
 						}
-
-						complexBluePrint.addBluePrint(elementBluePrint);
 
 					}
 				}
@@ -298,14 +314,6 @@ public final class ObjectValueTracker {
 		}
 
 		return value;
-	}
-
-	private static Class<?> getType(Field field, Object value) throws IllegalAccessException {
-		if (field.getType().equals(ReferenceProxy.class)) {
-			return ((AbstractProxy) field.get(value)).getDataType();
-		}
-
-		return field.getType();
 	}
 
 	private static boolean isCollection(Object value) {
