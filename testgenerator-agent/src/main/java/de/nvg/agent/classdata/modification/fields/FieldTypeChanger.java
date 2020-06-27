@@ -348,8 +348,8 @@ public class FieldTypeChanger {
 
 		for (Instruction instruction : putFieldInstructions) {
 
-			if (classData.getName().equals(instruction.getClassRef()) && !classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
+			if (classData.getName().equals(instruction.getClassRef()) && classData
+					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
 				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
@@ -394,8 +394,8 @@ public class FieldTypeChanger {
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
 		for (Instruction instruction : getFieldInstructions) {
 
-			if (classData.getName().equals(instruction.getClassRef()) && !classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isPublic()
+			if (classData.getName().equals(instruction.getClassRef()) && classData
+					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
 					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
 
 				String dataType = instruction.getType();
@@ -486,7 +486,7 @@ public class FieldTypeChanger {
 		List<FieldData> unitalizedFields = new ArrayList<>();
 
 		for (FieldData fieldData : classData.getFields()) {
-			if (!initalizedFields.contains(fieldData) && !fieldData.isPublic()
+			if (!initalizedFields.contains(fieldData) && fieldData.isModifiable()
 					&& !TestgeneratorConstants.isTestgeneratorField(fieldData.getName())) {
 				unitalizedFields.add(fieldData);
 			}
