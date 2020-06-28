@@ -49,6 +49,7 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.FieldInfo;
+import javassist.bytecode.InnerClassesAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
@@ -67,7 +68,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		if (properties.getBlPackage().stream().anyMatch(className::startsWith)
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
-				|| properties.getClassName().equals(className)) {
+				|| properties.getClassNames().contains(className)) {
 
 			ClassDataStorage.getInstance().removeSuperclassToLoad(Descriptor.toJavaName(className));
 
@@ -110,7 +111,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			LOGGER.info("create ClassHierachie for " + classFile.getName());
 			classData = createClassHierachie(loadingClass);
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser(loadingClass.getName(), classData.getFields());
+			checkIsInnerClass(classFile, classData);
+
+			MethodAnalyser methodAnalyser = new MethodAnalyser(classData);
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
 					loadingClass);
@@ -192,7 +195,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			MethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
 		for (MethodInfo method : methods) {
-			if (!MethodInfo.nameClinit.equals(method.getName())) {
+			if (!MethodInfo.nameClinit.equals(method.getName()) && !Modifier.isAbstract(method.getAccessFlags())) {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 				analyseMethod(method, instructions, classData, methodAnalyser);
@@ -325,5 +328,18 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 	private static boolean isSynthetic(int modifier) {
 		return (modifier & AccessFlag.SYNTHETIC) != 0;
+	}
+
+	private static void checkIsInnerClass(ClassFile classFile, ClassData classData) {
+		InnerClassesAttribute innerClasses = (InnerClassesAttribute) classFile.getAttribute(InnerClassesAttribute.tag);
+
+		if (innerClasses != null) {
+			int index = innerClasses.find(classFile.getName());
+
+			if (index != -1) {
+				classData.setOuterClass(innerClasses.outerClass(index));
+			}
+
+		}
 	}
 }

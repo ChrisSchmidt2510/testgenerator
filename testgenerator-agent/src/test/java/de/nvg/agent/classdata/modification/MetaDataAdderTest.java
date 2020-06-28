@@ -216,7 +216,7 @@ public class MetaDataAdderTest {
 		de.nvg.runtime.classdatamodel.ClassData classData = new de.nvg.runtime.classdatamodel.ClassData(
 				"de.nvg.agent.classdata.testclasses.Adresse",
 				() -> MethodHandles.getStaticFieldValue(BlObject.class, TestgeneratorConstants.FIELDNAME_CLASS_DATA),
-				constructor);
+				null, constructor);
 		compareClasses(classData, adresse);
 
 		SetterMethodData setterStrasse = new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false);

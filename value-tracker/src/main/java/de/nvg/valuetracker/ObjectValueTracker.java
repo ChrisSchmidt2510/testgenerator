@@ -63,6 +63,8 @@ public final class ObjectValueTracker {
 					.add(char.class, IntegerProxy::getUntrackedCharValue)
 					.add(short.class, IntegerProxy::getUntrackedShortValue).toUnmodifiableMap();
 
+	private static final String OUTER_CLASS_FIELD_NAME = "this$0";
+
 	private static final Logger LOGGER = LogManager.getLogger(ObjectValueTracker.class);
 
 	private static final ObjectValueTracker INSTANCE = new ObjectValueTracker();
@@ -159,7 +161,10 @@ public final class ObjectValueTracker {
 							}
 
 						} else {
-							BluePrint elementBluePrint = trackValues(fieldValue, field.getName());
+							String name = value.getClass().isMemberClass()
+									&& OUTER_CLASS_FIELD_NAME.equals(field.getName()) ? "outerClass" : field.getName();
+
+							BluePrint elementBluePrint = trackValues(fieldValue, name);
 							complexBluePrint.addBluePrint(elementBluePrint);
 						}
 

@@ -1,5 +1,7 @@
 package org.testgen.core.properties;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.testgen.core.properties.parser.ArgumentParser;
@@ -8,6 +10,7 @@ public final class AgentProperties {
 
 	private static AgentProperties instance;
 
+	private List<String> classNames;
 	private String className;
 	private String method;
 	private String methodDescriptor;
@@ -24,7 +27,9 @@ public final class AgentProperties {
 
 		AgentProperties agentProperties = new AgentProperties();
 
-		agentProperties.className = parser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME);
+		String className = parser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME);
+		agentProperties.classNames = isInnerClass(className);
+		agentProperties.className = className;
 		agentProperties.method = parser.getArgumentValue(DefinedArguments.ARG_METHOD_NAME);
 		agentProperties.methodDescriptor = parser.getArgumentValue(DefinedArguments.ARG_METHOD_DESC);
 		agentProperties.blPackage = parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE);
@@ -39,6 +44,10 @@ public final class AgentProperties {
 
 	public static AgentProperties getInstance() {
 		return instance;
+	}
+
+	public List<String> getClassNames() {
+		return classNames;
 	}
 
 	public String getClassName() {
@@ -63,6 +72,14 @@ public final class AgentProperties {
 
 	public boolean isTraceReadFieldAccess() {
 		return traceReadFieldAccess;
+	}
+
+	private static List<String> isInnerClass(String className) {
+		if (className.contains("$")) {
+			return Arrays.asList(className.substring(0, className.indexOf("$")), className);
+		}
+
+		return Collections.singletonList(className);
 	}
 
 }

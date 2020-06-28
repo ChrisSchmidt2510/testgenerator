@@ -37,7 +37,7 @@ public class MetaDataAdder {
 	private static final String CLASS_DATA_CLASSNAME = "de/nvg/runtime/classdatamodel/ClassData";
 	private static final String CLASS_DATA = "Lde/nvg/runtime/classdatamodel/ClassData;";
 	private static final String CLASS_DATA_CONSTRUCTOR = "(Ljava/lang/String;Lde/nvg/runtime/classdatamodel/ConstructorData;)V";
-	private static final String CLASS_DATA_CONSTRUCTOR_WITH_SUPERCLASS = "(Ljava/lang/String;Ljava/util/function/Supplier;Lde/nvg/runtime/classdatamodel/ConstructorData;)V";
+	private static final String CLASS_DATA_CONSTRUCTOR_ALL_PARAMETER = "(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Lde/nvg/runtime/classdatamodel/ConstructorData;)V";
 	private static final String CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR = "addFieldSetterPair";
 	private static final String CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR_DESC = "(Lde/nvg/runtime/classdatamodel/FieldData;Lde/nvg/runtime/classdatamodel/SetterMethodData;)V";
 	private static final String CLASS_DATA_METHOD_ADD_FIELD = "addField";
@@ -65,7 +65,7 @@ public class MetaDataAdder {
 
 	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lde/nvg/runtime/classdatamodel/ClassData;";
 
-	private static final String INDY_METHOD_NAME = "testgenerator$0";
+	private static final String INDY_METHOD_NAME = "testgenerator$";
 
 	private static final String SUPPLIER_METHOD_DESC = "()Ljava/util/function/Supplier;";
 	private static final String SUPPLIER_METHOD_NAME = "get";
@@ -77,11 +77,11 @@ public class MetaDataAdder {
 	private final ConstPool constantPool;
 	private final CtClass loadingClass;
 	private final ClassData classData;
+	private final SignatureAdder signatureAdder;
 
 	private final Map<String, Integer> localVariableIndex = new HashMap<>();
 	private int localVariableCounter;
-
-	private final SignatureAdder signatureAdder;
+	private int lambdaCounter = 0;
 
 	public MetaDataAdder(ConstPool constantPool, CtClass loadingClass, ClassData classData) {
 		this.constantPool = constantPool;
@@ -110,17 +110,32 @@ public class MetaDataAdder {
 		code.add(Opcode.DUP);
 		code.addLdc(classData.getName());
 
-		if (classData.getSuperClass() != null) {
+		if (classData.getSuperClass() != null || classData.isInnerClass()) {
 
-			int bootstrapMethodAttributeIndex = createLambdaForSuperclass(classFile);
+			if (classData.getSuperClass() != null) {
+				int bootstrapMethodAttributeIndex = createSupplierLambdaWithMethodHandle(classFile,
+						Descriptor.toJvmName(classData.getSuperClass().getName()));
 
-			code.addInvokedynamic(bootstrapMethodAttributeIndex, SUPPLIER_METHOD_NAME, SUPPLIER_METHOD_DESC);
+				code.addInvokedynamic(bootstrapMethodAttributeIndex, SUPPLIER_METHOD_NAME, SUPPLIER_METHOD_DESC);
+			} else {
+				code.add(Opcode.ACONST_NULL);
+			}
+
+			if (classData.isInnerClass()) {
+				int bootstrapMethodIndex = createSupplierLambdaWithMethodHandle(classFile,
+						Descriptor.toJvmName(classData.getOuterClass()));
+
+				code.addInvokedynamic(bootstrapMethodIndex, SUPPLIER_METHOD_NAME, SUPPLIER_METHOD_DESC);
+			} else {
+				code.add(Opcode.ACONST_NULL);
+			}
 		}
 
 		// load Local Variable ConstructorData
 		code.addAload(localVariableCounter - 1);
 		code.addInvokespecial(CLASS_DATA_CLASSNAME, MethodInfo.nameInit,
-				classData.getSuperClass() != null ? CLASS_DATA_CONSTRUCTOR_WITH_SUPERCLASS : CLASS_DATA_CONSTRUCTOR);
+				classData.getSuperClass() != null || classData.isInnerClass() ? CLASS_DATA_CONSTRUCTOR_ALL_PARAMETER
+						: CLASS_DATA_CONSTRUCTOR);
 		code.addPutstatic(loadingClass, TestgeneratorConstants.FIELDNAME_CLASS_DATA, CLASS_DATA);
 
 		for (Entry<String, Integer> field : localVariableIndex.entrySet()) {
@@ -245,19 +260,21 @@ public class MetaDataAdder {
 		}
 	}
 
-	private int createLambdaForSuperclass(ClassFile classFile) throws BadBytecode, DuplicateMemberException {
+	private int createSupplierLambdaWithMethodHandle(ClassFile classFile, String name)
+			throws BadBytecode, DuplicateMemberException {
 
 		SupplierBootstrapMethodCreator bootstrapMethodCreator = new SupplierBootstrapMethodCreator(classFile,
 				constantPool);
 
 		int bootstrapMethodAttributeIndex = bootstrapMethodCreator.create(InvocationType.INVOKE_STATIC,
-				classData.getName(), INDY_METHOD_NAME);
+				classData.getName(), INDY_METHOD_NAME + lambdaCounter);
 
-		MethodInfo lambdaBody = new MethodInfo(constantPool, INDY_METHOD_NAME, INDY_SUPPLIER_TYPED_RETURN_TYPE);
+		MethodInfo lambdaBody = new MethodInfo(constantPool, INDY_METHOD_NAME + lambdaCounter++,
+				INDY_SUPPLIER_TYPED_RETURN_TYPE);
 		lambdaBody.setAccessFlags(AccessFlag.STATIC | AccessFlag.PRIVATE | AccessFlag.SYNTHETIC);
 
 		Bytecode lambdaBodyCode = new Bytecode(constantPool);
-		lambdaBodyCode.addLdc(constantPool.addClassInfo(Descriptor.toJvmName(classData.getSuperClass().getName())));
+		lambdaBodyCode.addLdc(constantPool.addClassInfo(name));
 		lambdaBodyCode.addLdc(TestgeneratorConstants.FIELDNAME_CLASS_DATA);
 		lambdaBodyCode.addInvokestatic(METHODHANDLES_CLASSNAME, METHODHANDLES_METHOD_NAME, METHODHANDLES_RETURN_TYPE);
 		lambdaBodyCode.addCheckcast(CLASS_DATA_CLASSNAME);

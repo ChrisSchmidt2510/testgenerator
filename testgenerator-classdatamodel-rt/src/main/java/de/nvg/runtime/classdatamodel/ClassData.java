@@ -18,6 +18,7 @@ import org.testgen.core.MapBuilder;
 public class ClassData {
 	private final String name;
 	private final Supplier<ClassData> superClass;
+	private final Supplier<ClassData> outerClass;
 	private final ConstructorData constructor;
 	private final List<FieldData> fields = new ArrayList<>();
 	private final Map<FieldData, SetterMethodData> fieldSetterPairs = new HashMap<>();
@@ -30,16 +31,16 @@ public class ClassData {
 	private static final List<Class<?>> COLLECTIONS = Collections
 			.unmodifiableList(Arrays.asList(Collection.class, List.class, Queue.class, Set.class, Map.class));
 
-	public ClassData(String name, Supplier<ClassData> superClass, ConstructorData constructor) {
+	public ClassData(String name, Supplier<ClassData> superClass, Supplier<ClassData> outerClass,
+			ConstructorData constructor) {
 		this.name = name;
 		this.superClass = superClass;
+		this.outerClass = outerClass;
 		this.constructor = constructor;
 	}
 
 	public ClassData(String name, ConstructorData constructor) {
-		this.name = name;
-		this.superClass = null;
-		this.constructor = constructor;
+		this(name, null, null, constructor);
 	}
 
 	public void addField(FieldData field) {
@@ -56,6 +57,14 @@ public class ClassData {
 
 	public ClassData getSuperclass() {
 		return superClass != null ? superClass.get() : null;
+	}
+
+	public ClassData getOuterClass() {
+		return outerClass != null ? outerClass.get() : null;
+	}
+
+	public boolean isInnerClass() {
+		return outerClass != null;
 	}
 
 	public ConstructorData getConstructor() {

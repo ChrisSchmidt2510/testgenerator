@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 public class ClassData {
 
 	private final String name;
+	private String outerClassName;
 	private ClassData superClass;
 	private boolean isEnum;
 
@@ -31,6 +32,18 @@ public class ClassData {
 
 	public ClassData getSuperClass() {
 		return superClass;
+	}
+
+	public void setOuterClass(String outerClass) {
+		this.outerClassName = outerClass;
+	}
+
+	public String getOuterClass() {
+		return outerClassName;
+	}
+
+	public boolean isInnerClass() {
+		return outerClassName != null;
 	}
 
 	public void setSuperClass(ClassData superClass) {
