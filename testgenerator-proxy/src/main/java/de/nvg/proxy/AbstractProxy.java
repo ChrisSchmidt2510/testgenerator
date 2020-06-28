@@ -1,6 +1,5 @@
 package de.nvg.proxy;
 
-import java.lang.ref.WeakReference;
 import java.util.Set;
 
 import org.testgen.core.MethodHandles;
@@ -11,16 +10,16 @@ import de.nvg.runtime.classdatamodel.FieldData;
 
 public abstract class AbstractProxy {
 	private final FieldData field;
-	private WeakReference<? extends Object> parent;
+	private final Object parent;
 
 	public AbstractProxy(Object parent, String fieldName, Class<?> fieldDataType) {
 		this.field = new FieldData(fieldName, fieldDataType);
-		this.parent = new WeakReference<>(parent);
+		this.parent = parent;
 	}
 
 	protected void trackReadFieldCalls() {
 		if (RuntimeProperties.getInstance().isFieldTrackingActive()) {
-			Set<FieldData> calledFields = MethodHandles.getFieldValue(parent.get(),
+			Set<FieldData> calledFields = MethodHandles.getFieldValue(parent,
 					TestgeneratorConstants.FIELDNAME_CALLED_FIELDS);
 			calledFields.add(field);
 		}
