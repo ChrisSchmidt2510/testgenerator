@@ -12,6 +12,7 @@ import org.testgen.core.logging.Logger;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
+import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
@@ -27,12 +28,12 @@ public class MethodAnalyser {
 	private final CollectionSetterAnalyser collectionAddAnalyser;
 	private final ImmutableCollectionGetterAnalyser immutableCollectionGetter = new ImmutableCollectionGetterAnalyser();
 
-	private final List<FieldData> fields;
+	private final ClassData classData;
 
-	public MethodAnalyser(String className, List<FieldData> fields) {
-		collectionAddAnalyser = new CollectionSetterAnalyser(fields);
-		getterAnalyser = new NormalGetterAnalyser(className);
-		this.fields = fields;
+	public MethodAnalyser(ClassData classData) {
+		collectionAddAnalyser = new CollectionSetterAnalyser(classData.getFields());
+		getterAnalyser = new NormalGetterAnalyser(classData.getName());
+		this.classData = classData;
 	}
 
 	public MethodData analyse(String name, String descriptor, int modifier, List<Instruction> instructions,
@@ -55,7 +56,8 @@ public class MethodAnalyser {
 
 			FieldData foundedField = fieldWrapper.getValue();
 
-			FieldData field = AnalysisHelper.getField(fields, foundedField.getName(), foundedField.getDataType());
+			FieldData field = AnalysisHelper.getField(classData.getFields(), foundedField.getName(),
+					foundedField.getDataType());
 
 			methodData = new MethodData(name, descriptor,
 					field.isMutable() || (!field.isMutable() && JavaTypes.COLLECTION_LIST.contains(field.getDataType()))
@@ -67,11 +69,6 @@ public class MethodAnalyser {
 		LOGGER.info("Result of Analysis: " + methodData);
 
 		return methodData;
-	}
-
-	public boolean isDefaultConstructor(String descriptor) {
-		List<String> params = Instructions.getMethodParams(descriptor);
-		return params.isEmpty();
 	}
 
 	public Map<Integer, FieldData> analyseConstructor(String methodDescriptor, //
@@ -87,11 +84,18 @@ public class MethodAnalyser {
 
 				Wrapper<Integer> constructorParameterIndex = new Wrapper<>();
 
-				if (AnalysisHelper.isDescriptorEqual(allInstructions, allInstructions.indexOf(instruction), //
-						instruction.getType(), params, constructorParameterIndex)) {
+				String type = Descriptor.toClassName(instruction.getType());
+				// inner classes got an instance of the outerclass as an constructor argument,
+				// we ignore this because in the java code it doesnt exist
+				if ((classData.isInnerClass() && !classData.getOuterClass().equals(type)
+						&& AnalysisHelper.isDescriptorEqual(allInstructions, allInstructions.indexOf(instruction), //
+								instruction.getType(), params, constructorParameterIndex))
+						|| (!classData.isInnerClass() && AnalysisHelper.isDescriptorEqual(allInstructions,
+								allInstructions.indexOf(instruction), //
+								instruction.getType(), params, constructorParameterIndex))) {
 
-					FieldData field = new FieldData.Builder().withName(instruction.getName())
-							.withDataType(Descriptor.toClassName(instruction.getType())).build();
+					FieldData field = new FieldData.Builder().withName(instruction.getName()).withDataType(type)
+							.build();
 
 					initialzedFields.put(constructorParameterIndex.getValue(), field);
 				}
