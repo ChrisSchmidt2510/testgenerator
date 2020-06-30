@@ -49,9 +49,14 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC = "(Ljava/lang/Object;Ljava/lang/String;Lde/nvg/valuetracker/blueprint/Type;)V";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING = "enableFieldTracking";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING = "enableProxyTracking";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC = "()V";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE = "getInstance";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC = "()" + OBJECT_VALUE_TRACKER;
+
+	private static final String VALUE_STORAGE_CLASSNAME = "de/nvg/valuetracker/storage/ValueStorage";
+	private static final String VALUE_STORAGE_METHOD_GET_INSTANCE_DESC = "()Lde/nvg/valuetracker/storage/ValueStorage;";
+	private static final String VALUE_STORAGE_METHOD_PUSH_NEW_TESTDATA = "pushNewTestData";
+
+	private static final String METHOD_GET_INSTANCE = "getInstance";
+	private static final String METHOD_VOID_DESC = "()V";
 
 	private static final String TYPE_CLASSNAME = "de/nvg/valuetracker/blueprint/Type";
 	private static final String TYPE = "Lde/nvg/valuetracker/blueprint/Type;";
@@ -140,8 +145,13 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 		Bytecode valueTracking = new Bytecode(constantPool);
 
+		valueTracking.addInvokestatic(VALUE_STORAGE_CLASSNAME, METHOD_GET_INSTANCE,
+				VALUE_STORAGE_METHOD_GET_INSTANCE_DESC);
+		valueTracking.addInvokevirtual(VALUE_STORAGE_CLASSNAME, VALUE_STORAGE_METHOD_PUSH_NEW_TESTDATA,
+				METHOD_VOID_DESC);
+
 		valueTracking.addAload(0);
-		valueTracking.addInvokestatic(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE,
+		valueTracking.addInvokestatic(OBJECT_VALUE_TRACKER_CLASSNAME, METHOD_GET_INSTANCE,
 				OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC);
 		valueTracking.addPutfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
 				OBJECT_VALUE_TRACKER);
@@ -179,15 +189,14 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				OBJECT_VALUE_TRACKER);
 		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
 				OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING, //
-				OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC);
+				METHOD_VOID_DESC);
 
 		if (properties.isTraceReadFieldAccess()) {
 			valueTracking.addAload(0);
 			valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
 					OBJECT_VALUE_TRACKER);
 			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
-					OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING,
-					OBJECT_VALUE_TRACKER_METHOD_ENABLE_TRACKING_DESC);
+					OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING, METHOD_VOID_DESC);
 		}
 
 		iterator.insert(0, valueTracking.get());

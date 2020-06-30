@@ -36,6 +36,14 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 		return keyBluePrints;
 	}
 
+	public void resetBuildState() {
+		if (build) {
+			build = false;
+			keyBluePrints.forEach(BluePrint::resetBuildState);
+			valueBluePrints.forEach(BluePrint::resetBuildState);
+		}
+	}
+
 	public Set<Entry<BluePrint, BluePrint>> getBluePrints() {
 		Set<Entry<BluePrint, BluePrint>> set = new HashSet<>();
 

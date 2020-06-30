@@ -10,11 +10,9 @@ public final class RuntimeProperties {
 	private static final RuntimeProperties INSTANCE = new RuntimeProperties();
 	private ArgumentParser argParser;
 
-	private boolean fieldTracking;
+	private boolean fieldTracking = false;
 
-	private boolean proxyTracking;
-
-//	private boolean 
+	private boolean proxyTracking = false;
 
 	private RuntimeProperties() {
 	}

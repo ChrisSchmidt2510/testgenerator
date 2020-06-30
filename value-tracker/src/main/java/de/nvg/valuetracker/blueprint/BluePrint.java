@@ -16,6 +16,8 @@ public interface BluePrint {
 
 	void setBuild();
 
+	void resetBuildState();
+
 	default boolean isCollectionBluePrint() {
 		return this instanceof AbstractBasicCollectionBluePrint<?>;
 	}
@@ -25,8 +27,9 @@ public interface BluePrint {
 	}
 
 	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {
-		if (isContainerBluePrint())
+		if (isContainerBluePrint()) {
 			return (AbstractBasicCollectionBluePrint<?>) this;
+		}
 
 		return null;
 	}
@@ -36,8 +39,9 @@ public interface BluePrint {
 	}
 
 	default ArrayBluePrint castToArrayBluePrint() {
-		if (isArrayBluePrint())
+		if (isArrayBluePrint()) {
 			return (ArrayBluePrint) this;
+		}
 
 		return null;
 	}
@@ -47,8 +51,9 @@ public interface BluePrint {
 	}
 
 	default ComplexBluePrint castToComplexBluePrint() {
-		if (isComplexBluePrint())
+		if (isComplexBluePrint()) {
 			return (ComplexBluePrint) this;
+		}
 
 		return null;
 	}
@@ -58,8 +63,9 @@ public interface BluePrint {
 	}
 
 	default SimpleBluePrint<?> castToSimpleBluePrint() {
-		if (isSimpleBluePrint())
+		if (isSimpleBluePrint()) {
 			return (SimpleBluePrint<?>) this;
+		}
 
 		return null;
 	}

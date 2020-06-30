@@ -53,13 +53,20 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 		return elements;
 	}
 
+	public int size() {
+		return elements.length;
+	}
+
 	@Override
 	public boolean isComplexType() {
 		return true;
 	}
 
-	public int size() {
-		return elements.length;
+	public void resetBuildState() {
+		if (build) {
+			build = false;
+			Arrays.stream(elements).forEach(BluePrint::resetBuildState);
+		}
 	}
 
 	@Override
@@ -72,10 +79,12 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!(obj instanceof ArrayBluePrint))
+		}
+		if (!(obj instanceof ArrayBluePrint)) {
 			return false;
+		}
 		ArrayBluePrint other = (ArrayBluePrint) obj;
 		return Arrays.equals(elements, other.elements);
 	}

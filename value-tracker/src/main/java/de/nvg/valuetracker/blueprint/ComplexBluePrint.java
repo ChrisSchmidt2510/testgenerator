@@ -33,6 +33,13 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 		return Collections.unmodifiableList(bluePrints);
 	}
 
+	public void resetBuildState() {
+		if (build) {
+			build = false;
+			bluePrints.forEach(BluePrint::resetBuildState);
+		}
+	}
+
 	@Override
 	public String toString() {
 		return value.getClass().getName() + " " + name;

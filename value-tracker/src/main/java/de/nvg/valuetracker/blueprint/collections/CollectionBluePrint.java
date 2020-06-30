@@ -26,6 +26,13 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 		return elementBluePrints.stream().filter(BluePrint::isComplexType).collect(Collectors.toList());
 	}
 
+	public void resetBuildState() {
+		if (build) {
+			build = false;
+			elementBluePrints.forEach(BluePrint::resetBuildState);
+		}
+	}
+
 	public List<BluePrint> getBluePrints() {
 		return Collections.unmodifiableList(elementBluePrints);
 	}

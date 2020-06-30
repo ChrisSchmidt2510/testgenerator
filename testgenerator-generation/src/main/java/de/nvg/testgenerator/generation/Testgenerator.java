@@ -55,10 +55,9 @@ public final class Testgenerator {
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
 
 		ClassData classData = TestGenerationHelper.getClassData(testObject.getReference());
-		Set<FieldData> calledFields = Collections.emptySet();
-		if (trackingActivated) {
-			calledFields = TestGenerationHelper.getCalledFields(testObject.getReference());
-		}
+		Set<FieldData> calledFields = trackingActivated
+				? TestGenerationHelper.getCalledFields(testObject.getReference())
+				: Collections.emptySet();
 
 		testGenerator.prepareTestObject(classBuilder, testObject, classData, calledFields);
 
@@ -70,8 +69,9 @@ public final class Testgenerator {
 		Collection<BluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
 
 		boolean withProxyObjects = !proxyObjects.isEmpty();
-		if (withProxyObjects)
+		if (withProxyObjects) {
 			testGenerator.prepareProxyObjects(classBuilder, proxyObjects);
+		}
 
 		testGenerator.generateTestMethod(classBuilder, method, withProxyObjects);
 
@@ -81,12 +81,15 @@ public final class Testgenerator {
 
 		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build())
 				.skipJavaLangImports(true).build();
-		try {
-			file.writeTo(System.out);
-		} catch (IOException e) {
-			LOGGER.error(e);
-		}
+		LOGGER.debug("generated Test", stream -> {
+			try {
+				file.writeTo(stream);
+			} catch (IOException e) {
+				LOGGER.error(e);
+			}
+		});
 
+		ValueStorage.getInstance().popAndResetTestData();
 	}
 
 	private static String getClassNameWithoutPackage(String className) {
