@@ -64,4 +64,56 @@ public final class BytecodeUtils {
 		return dataType.startsWith("[");
 	}
 
+	public static void addLoad(Bytecode code, int index, String dataType) {
+		if (Primitives.isPrimitiveDataType(dataType)) {
+			switch (dataType) {
+			case Primitives.JVM_BOOLEAN:
+			case Primitives.JVM_BYTE:
+			case Primitives.JVM_CHAR:
+			case Primitives.JVM_SHORT:
+			case Primitives.JVM_INT:
+				code.addIload(index);
+				break;
+			case Primitives.JVM_FLOAT:
+				code.addFload(index);
+				break;
+			case Primitives.JVM_DOUBLE:
+				code.addDload(index);
+				break;
+			case Primitives.JVM_LONG:
+				code.addLload(index);
+				break;
+			}
+		} else
+			code.addAload(index);
+	}
+
+	public static void addBoxingForPrimitiveDataType(Bytecode code, String dataType) {
+		if (Primitives.JVM_BOOLEAN.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.BOOLEAN_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.BOOLEAN_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_BYTE.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.BYTE_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.BYTE_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_CHAR.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.CHAR_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.CHARACTER_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_SHORT.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.SHORT_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.SHORT_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_INT.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.INTEGER_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.INTEGER_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_FLOAT.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.FLOAT_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.FLOAT_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_DOUBLE.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.DOUBLE_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.DOUBLE_METHOD_VALUE_OF_DESC);
+		} else if (Primitives.JVM_LONG.equals(dataType)) {
+			code.addInvokestatic(JVMTypes.LONG_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
+					JVMTypes.LONG_METHOD_VALUE_OF_DESC);
+		}
+	}
+
 }

@@ -11,6 +11,7 @@ import java.security.ProtectionDomain;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
 import org.testgen.core.classdata.constants.JVMTypes;
+import org.testgen.core.classdata.constants.Primitives;
 import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.AgentProperties;
@@ -20,6 +21,7 @@ import de.nvg.agent.classdata.analysis.signature.SignatureParser;
 import de.nvg.agent.classdata.analysis.signature.SignatureParserException;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.SignatureData;
+import de.nvg.agent.classdata.modification.BytecodeUtils;
 import de.nvg.agent.classdata.modification.SignatureAdder;
 import de.nvg.agent.classdata.modification.TestGenerationAdder;
 import javassist.CannotCompileException;
@@ -158,6 +160,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 		for (int i = lowestParameterIndex; i <= parameterCount; i++) {
 			String variableName = table.variableName(i);
+			String descriptor = table.descriptor(i);
 
 			if (typeTable != null) {
 
@@ -168,7 +171,10 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 			valueTracking.addAload(0);
 			valueTracking.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_OBJECT_VALUE_TRACKER,
 					OBJECT_VALUE_TRACKER);
-			valueTracking.addAload(i);
+			BytecodeUtils.addLoad(valueTracking, i, descriptor);
+			if (Primitives.isPrimitiveDataType(descriptor))
+				BytecodeUtils.addBoxingForPrimitiveDataType(valueTracking, descriptor);
+
 			valueTracking.addLdc(variableName);
 			valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_METHODPARAMETER, TYPE);
 			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
@@ -221,7 +227,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				code.addAload(0);
 				code.addGetfield(classToLoad, TestgeneratorConstants.FIELDNAME_METHOD_SIGNATURE, JVMTypes.MAP);
 				code.addIconst(parameterIndex);
-				code.addInvokestatic(JVMTypes.INTEGER_CLASSNAME, JVMTypes.INTEGER_METHOD_VALUE_OF,
+				code.addInvokestatic(JVMTypes.INTEGER_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
 						JVMTypes.INTEGER_METHOD_VALUE_OF_DESC);
 				code.addAload(localVariableSignature);
 				code.addInvokeinterface(JVMTypes.MAP_CLASSNAME, JVMTypes.MAP_METHOD_PUT, JVMTypes.MAP_METHOD_PUT_DESC,
