@@ -65,8 +65,6 @@ public class TestGenerationAdder {
 		LOGGER.debug("Method before manipulation",
 				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
-//		Integer codeArrayModificator = 0;
-
 		for (int i = 0; i < returnInstructions.size(); i++) {
 			Instruction instruction = returnInstructions.get(i);
 
@@ -216,8 +214,6 @@ public class TestGenerationAdder {
 		exceptionHandler.addExceptionHandler(bci + codeArrayModificator.getModificator(bci), 0, null);
 
 		iterator.insertAt(bci + codeArrayModificator.getModificator(bci), exceptionHandling.get());
-
-		codeArrayModificator.addCodeArrayModificator(bci, exceptionHandling.getSize());
 
 		Bytecode gotoBytes = new Bytecode(constantPool);
 		gotoBytes.addOpcode(Opcode.GOTO);
