@@ -53,27 +53,31 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 		createComplexTypesOfObject(code, bluePrint, classData, calledFields);
 
+		List<Class<?>> types = new ArrayList<>();
+		Class<?> type = bluePrint.getReference().getClass();
+
+		StringBuilder creation = new StringBuilder();
+		if (isField) {
+			creation.append(bluePrint.getName());
+		} else {
+			creation.append("$T " + bluePrint.getName());
+			types.add(type);
+		}
+
+		if (classData.isInnerClass()) {
+			creation.append(" = " + getBluePrintForClassData(bluePrint, classData.getOuterClass()) + ".new "
+					+ classData.getInnerClassName());
+		} else {
+			creation.append(" = new $T");
+			types.add(type);
+		}
+
 		if (classData.hasDefaultConstructor()) {
+			creation.append("()");
 
-			if (isField) {
-				code.addStatement(bluePrint.getName() + " = new $T()", bluePrint.getReference().getClass());
-			} else {
-				Class<?> type = bluePrint.getReference().getClass();
-				code.addStatement("$T " + bluePrint.getName() + " = new $T()", type, type);
-			}
-
+			code.addStatement(creation.toString(), types.toArray());
 		} else if (classData.getConstructor().isNotEmpty()) {
-			StringBuilder statement = new StringBuilder();
-			List<Class<?>> types = new ArrayList<>();
-
-			statement.append((isField ? bluePrint.getName() : ("$T " + bluePrint.getName())) + " = new $T(");
-
-			Class<? extends Object> referenceClass = bluePrint.getReference().getClass();
-			types.add(referenceClass);
-
-			if (!isField) {
-				types.add(referenceClass);
-			}
+			creation.append("(");
 
 			ConstructorData constructor = classData.getConstructor();
 			Set<Entry<Integer, FieldData>> constructorFields = constructor.getConstructorFields().entrySet();
@@ -90,7 +94,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 				if (constructorFieldBp.isComplexBluePrint()) {
 					createComplexObject(code, constructorFieldBp);
 
-					statement.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+					creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
 							: (constructorFieldBp.getName() + ","));
 
 					types.add(constructorFieldBp.getReference().getClass());
@@ -98,7 +102,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 				} else if (constructorFieldBp.isSimpleBluePrint()) {
 					SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
 
-					statement.append(index == constructorFields.size() ? (simpleBluePrint.valueCreation() + ")")
+					creation.append(index == constructorFields.size() ? (simpleBluePrint.valueCreation() + ")")
 							: (simpleBluePrint.valueCreation() + ","));
 
 					types.addAll(simpleBluePrint.getReferenceClasses());
@@ -107,22 +111,21 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					containerGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
 							constructorField.getValue().getSignature(), false, false);
 
-					statement.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+					creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
 							: (constructorFieldBp.getName() + ","));
 				} else if (constructorFieldBp.isArrayBluePrint()) {
 
 					containerGeneration.createArray(code, constructorFieldBp.castToArrayBluePrint(), //
 							false, false);
 
-					statement.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+					creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
 							: (constructorFieldBp.getName() + ","));
 				}
 			}
 
-			code.addStatement(statement.toString(), types.toArray());
+			code.addStatement(creation.toString(), types.toArray());
 		} else {
-			code.addStatement(
-					"//no public constructor found for class: " + bluePrint.getReference().getClass().getName());
+			code.addStatement("//no public constructor found for class: " + bluePrint.getClassNameOfReference());
 
 			if (isField) {
 				code.addStatement(bluePrint.getName() + " = null");
@@ -247,7 +250,9 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			Optional<FieldData> calledField = calledFields.stream()
 					.filter(field -> field.getName().equals(bp.getName())).findAny();
 
-			if (calledField.isPresent() || !properties.wasFieldTrackingActivated()) {
+			if (calledField.isPresent() || !properties.wasFieldTrackingActivated() || //
+					(classData.isInnerClass()
+							&& classData.getOuterClass().getName().equals(bp.getClassNameOfReference()))) {
 				if (bp.isComplexBluePrint()) {
 					createComplexObject(code, bp);
 
@@ -294,6 +299,12 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 			createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
 		}
+	}
+
+	private String getBluePrintForClassData(ComplexBluePrint parent, ClassData outerClass) {
+		return parent.getChildBluePrints().stream()
+				.filter(bp -> outerClass.getName().equals(bp.getClassNameOfReference())).map(BluePrint::getName)
+				.findFirst().orElse(null);
 	}
 
 }

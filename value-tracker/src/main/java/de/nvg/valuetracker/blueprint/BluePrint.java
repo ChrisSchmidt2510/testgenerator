@@ -8,6 +8,8 @@ public interface BluePrint {
 
 	Object getReference();
 
+	String getClassNameOfReference();
+
 	String getName();
 
 	boolean isComplexType();

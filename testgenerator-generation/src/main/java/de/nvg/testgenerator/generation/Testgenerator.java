@@ -93,7 +93,7 @@ public final class Testgenerator {
 	}
 
 	private static String getClassNameWithoutPackage(String className) {
-		return className.substring(className.lastIndexOf('/') + 1);
+		return className.substring(className.lastIndexOf('/') + 1).replace("$", "");
 	}
 
 	private static String getPackageWithoutClassname(String className) {

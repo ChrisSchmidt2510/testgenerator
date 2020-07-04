@@ -55,6 +55,10 @@ public class ClassData {
 		return name;
 	}
 
+	public String getInnerClassName() {
+		return name.substring(name.indexOf("$") + 1);
+	}
+
 	public ClassData getSuperclass() {
 		return superClass != null ? superClass.get() : null;
 	}

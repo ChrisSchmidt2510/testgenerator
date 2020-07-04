@@ -16,6 +16,11 @@ public abstract class AbstractBasicBluePrint<E> implements BluePrint {
 	}
 
 	@Override
+	public String getClassNameOfReference() {
+		return value.getClass().getName();
+	}
+
+	@Override
 	public String getName() {
 		return name;
 	}
