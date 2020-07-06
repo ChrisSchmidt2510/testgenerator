@@ -195,6 +195,7 @@ public class FieldTypeChanger {
 							instructionBeforePutField.getCodeArrayIndex() + codeArrayModificator
 									.getModificator(instructionBeforePutField.getCodeArrayIndex()),
 							afterValueCreation.getSize() - 4, false);
+					BytecodeUtils.fillWithNOP(afterValueCreation, gap.length - afterValueCreation.getSize() - 4);
 
 					iterator.write(afterValueCreation.get(), instructionBeforePutField.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instructionBeforePutField.getCodeArrayIndex()));
@@ -210,6 +211,7 @@ public class FieldTypeChanger {
 							instruction.getCodeArrayIndex()
 									+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()),
 							afterValueCreation.getSize() - 3, false);
+					BytecodeUtils.fillWithNOP(afterValueCreation, gap.length - afterValueCreation.getSize() - 3);
 
 					iterator.write(afterValueCreation.get(), instruction.getCodeArrayIndex()
 							+ codeArrayModificator.getModificator(instruction.getCodeArrayIndex()));
@@ -422,11 +424,13 @@ public class FieldTypeChanger {
 				if (REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
 					bytecode.addCheckcast(BytecodeUtils.cnvDescriptorToJvmName(dataType));
 					Gap gap = iterator.insertGapAt(codeArrayIndex, 6, false);
+					BytecodeUtils.fillWithNOP(bytecode, gap.length - 6);
 					iterator.write(bytecode.get(), codeArrayIndex);
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), gap.length);
 
 				} else {
 					Gap gap = iterator.insertGapAt(codeArrayIndex, 3, false);
+					BytecodeUtils.fillWithNOP(bytecode, gap.length - 3);
 					iterator.write(bytecode.get(), codeArrayIndex);
 					codeArrayModificator.addCodeArrayModificator(instruction.getCodeArrayIndex(), gap.length);
 				}
