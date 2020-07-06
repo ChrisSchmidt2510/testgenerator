@@ -173,6 +173,13 @@ public final class Instructions {
 
 				instructions.add(ldcwInstruction);
 				break;
+			case Opcode.ANEWARRAY:
+				cpIndex = iterator.s16bitAt(index + 1);
+				Instruction newArrayInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
+						.withOpcode(opcode).withType(constantPool.getClassInfo(cpIndex)).build();
+
+				instructions.add(newArrayInstruction);
+				break;
 			default:
 				Instruction defaultInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
 						.withOpcode(opcode).build();

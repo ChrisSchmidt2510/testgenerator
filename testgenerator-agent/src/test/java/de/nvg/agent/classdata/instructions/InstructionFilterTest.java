@@ -9,6 +9,7 @@ import de.nvg.agent.classdata.TestHelper;
 import de.nvg.agent.classdata.testclasses.Adresse;
 import de.nvg.agent.classdata.testclasses.FragmentDate;
 import de.nvg.agent.classdata.testclasses.Person;
+import de.nvg.agent.classdata.testclasses.Switch;
 import de.nvg.agent.classdata.testclasses.Value;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
@@ -175,7 +176,36 @@ public class InstructionFilterTest extends TestHelper {
 
 		Assert.assertEquals(0, aloadInstruction.getCodeArrayIndex());
 		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+	}
 
+	@Test
+	public void testFilterWithArrayCreation() throws NotFoundException, BadBytecode {
+		init(Switch.class, MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		InstructionFilter filter = createInstructionFilter();
+
+		Instruction aloadInstruction = filter
+				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(1));
+
+		Assert.assertEquals(27, aloadInstruction.getCodeArrayIndex());
+		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+	}
+
+	@Test
+	public void testFilterWithArrayMultiMemberCreation() throws NotFoundException, BadBytecode {
+		init(Switch.class, MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		InstructionFilter filter = createInstructionFilter();
+
+		Instruction aloadInstruction = filter
+				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
+
+		Assert.assertEquals(4, aloadInstruction.getCodeArrayIndex());
+		Assert.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	private InstructionFilter createInstructionFilter() {

@@ -105,6 +105,24 @@ public class InstructionFilter {
 
 			String dataType = Instructions.getPrimitiveCastType(instruction);
 			operandStack.push(dataType);
+		} else if (Opcode.AASTORE == instruction.getOpcode()) {
+			// can't know which type gets inserted in the array, so the most common type is
+			// pushed
+			operandStack.push(JavaTypes.OBJECT);
+			// array-index
+			operandStack.push(Primitives.JAVA_INT);
+			// can't know which type the array has, so the most common type is pushed
+			operandStack.push(JavaTypes.OBJECT_ARRAY);
+		} else if (Opcode.AALOAD == instruction.getOpcode()) {
+			// array-index
+			operandStack.push(Primitives.JAVA_INT);
+			// can't know which type the array has, so the most common type is pushed
+			operandStack.push(JavaTypes.OBJECT_ARRAY);
+		} else if (Opcode.ANEWARRAY == instruction.getOpcode()) {
+			// remove the type of the array from the stack
+			operandStack.pop();
+			// length of the array
+			operandStack.push(Primitives.JAVA_INT);
 		}
 
 		Instruction beforeInstruction = Instructions.getBeforeInstruction(instructions, instruction);

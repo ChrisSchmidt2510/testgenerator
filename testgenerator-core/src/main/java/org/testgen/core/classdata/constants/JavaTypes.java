@@ -7,6 +7,8 @@ import java.util.List;
 public final class JavaTypes {
 	public static final String OBJECT = "java.lang.Object";
 
+	public static final String OBJECT_ARRAY = "java.lang.Object[]";
+
 	public static final String OBJECT_METHOD_EQUALS = "equals";
 	public static final String OBJECT_METHOD_HASHCODE = "hashCode";
 	public static final String OBJECT_METHOD_TO_STRING = "toString";
