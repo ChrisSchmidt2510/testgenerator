@@ -11,7 +11,7 @@ import org.testgen.core.properties.RuntimeProperties;
 
 public class WrappingInvocationHandler implements InvocationHandler {
 	private static final String OBJECT_VALUE_TRACKER = "de.nvg.valuetracker.ObjectValueTracker";
-	private static final String METHOD_GET_INSTANCE ="getInstance";
+	private static final String METHOD_GET_INSTANCE = "getInstance";
 	private static final String METHOD_TRACK = "track";
 
 	private static final String TYPE = "de.nvg.valuetracker.blueprint.Type";
@@ -33,11 +33,10 @@ public class WrappingInvocationHandler implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		init();
-
 		Object result = originalInvoker.invoke(proxy, method, args);
 
 		if (RuntimeProperties.getInstance().isProxyTrackingActive()) {
+			init();
 			track.invoke(valueTracker, result, method.getName(), type);
 		}
 		return result;
@@ -57,7 +56,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 				Field field = type.getDeclaredField(FIELD_PROXY);
 				this.type = field.get(null);
 			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | //
-					  IllegalAccessException | NoSuchFieldException e) {
+					IllegalAccessException | NoSuchFieldException e) {
 				LOGGER.error("error while creating WrappingInvocationHandler", e);
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block

@@ -141,7 +141,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			long end = System.currentTimeMillis();
 
-			LOGGER.error("Processing of manipulation for class " + classData + " :" + (end - start));
+			LOGGER.info("Processing of manipulation for class " + classData + " :" + (end - start));
 
 			addMetaDataToClassFile(loadingClass, constantPool, classData);
 

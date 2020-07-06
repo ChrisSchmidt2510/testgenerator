@@ -32,6 +32,7 @@ import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
 import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
+import de.nvg.valuetracker.storage.ValueStorage;
 
 public class DefaultContainerGeneration implements ContainerGeneration {
 
@@ -139,14 +140,13 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 		LOGGER.info("add Collection " + containerBP + " to Object " + objectName);
 
-		if (containerBP instanceof CollectionBluePrint)
+		if (containerBP instanceof CollectionBluePrint) {
 			addCollectionToObject(code, (CollectionBluePrint) containerBP, setter, objectName);
-
-		else if (containerBP instanceof MapBluePrint)
+		} else if (containerBP instanceof MapBluePrint) {
 			addMapToObject(code, (MapBluePrint) containerBP, setter, objectName);
-
-		else if (containerBP instanceof ArrayBluePrint)
+		} else if (containerBP instanceof ArrayBluePrint) {
 			addArrayToObject(code, (ArrayBluePrint) containerBP, setter, objectName);
+		}
 
 	}
 
@@ -162,14 +162,13 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 	@Override
 	public void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureData signature) {
 
-		if (containerBP instanceof CollectionBluePrint)
+		if (containerBP instanceof CollectionBluePrint) {
 			addFieldToClass(typeSpec, (CollectionBluePrint) containerBP, signature);
-
-		else if (containerBP instanceof MapBluePrint)
+		} else if (containerBP instanceof MapBluePrint) {
 			addFieldToClass(typeSpec, (MapBluePrint) containerBP, signature);
-
-		else if (containerBP instanceof ArrayBluePrint)
+		} else if (containerBP instanceof ArrayBluePrint) {
 			addFieldToClass(typeSpec, (ArrayBluePrint) containerBP);
+		}
 	}
 
 	private void addFieldToClass(TypeSpec.Builder typeSpec, CollectionBluePrint collection, SignatureData signature) {
@@ -376,13 +375,15 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 				calledFields = TestGenerationHelper.getCalledFields(bluePrint.getReference());
 			}
 
-			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(), false, classData, calledFields);
+			objectGeneration.createObject(code, bluePrint.castToComplexBluePrint(),
+					ValueStorage.getInstance().getMethodParameters().contains(bluePrint), classData, calledFields);
 
-		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild())
+		} else if (bluePrint.isCollectionBluePrint() && bluePrint.isNotBuild()) {
 			createCollection(code, bluePrint.castToCollectionBluePrint(), signature, //
-					false, false);
-		else if (bluePrint.isArrayBluePrint() && bluePrint.isNotBuild()) {
-			createArray(code, bluePrint.castToArrayBluePrint(), false, false);
+					false, ValueStorage.getInstance().getMethodParameters().contains(bluePrint));
+		} else if (bluePrint.isArrayBluePrint() && bluePrint.isNotBuild()) {
+			createArray(code, bluePrint.castToArrayBluePrint(), false,
+					ValueStorage.getInstance().getMethodParameters().contains(bluePrint));
 		}
 	}
 
@@ -392,10 +393,9 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			for (int i = 0; i < elements.length; i++) {
 				BluePrint bluePrint = elements[i];
 
-				if (bluePrint.isComplexType())
+				if (bluePrint.isComplexType()) {
 					code.addStatement(objectName + "." + setter.getName() + "()[" + i + "] = " + bluePrint.getName());
-
-				else if (bluePrint.isSimpleBluePrint()) {
+				} else if (bluePrint.isSimpleBluePrint()) {
 					SimpleBluePrint<?> simpleBp = bluePrint.castToSimpleBluePrint();
 
 					code.addStatement(

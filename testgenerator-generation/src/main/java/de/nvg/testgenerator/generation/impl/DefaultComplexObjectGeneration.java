@@ -47,100 +47,101 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 	public void createObject(Builder code, ComplexBluePrint bluePrint, boolean isField, ClassData classData,
 			Set<FieldData> calledFields) {
 
-		LOGGER.info("generating Complex-Object: " + bluePrint);
+		if (bluePrint.isNotBuild()) {
+			LOGGER.info("generating Complex-Object: " + bluePrint);
 
-		Set<BluePrint> usedBluePrints = new HashSet<>();
+			Set<BluePrint> usedBluePrints = new HashSet<>();
 
-		createComplexTypesOfObject(code, bluePrint, classData, calledFields);
+			createComplexTypesOfObject(code, bluePrint, classData, calledFields);
 
-		List<Class<?>> types = new ArrayList<>();
-		Class<?> type = bluePrint.getReference().getClass();
+			List<Class<?>> types = new ArrayList<>();
+			Class<?> type = bluePrint.getReference().getClass();
 
-		StringBuilder creation = new StringBuilder();
-		if (isField) {
-			creation.append(bluePrint.getName());
-		} else {
-			creation.append("$T " + bluePrint.getName());
-			types.add(type);
-		}
-
-		if (classData.isInnerClass()) {
-			creation.append(" = " + getBluePrintForClassData(bluePrint, classData.getOuterClass()) + ".new "
-					+ classData.getInnerClassName());
-		} else {
-			creation.append(" = new $T");
-			types.add(type);
-		}
-
-		if (classData.hasDefaultConstructor()) {
-			creation.append("()");
-
-			code.addStatement(creation.toString(), types.toArray());
-		} else if (classData.getConstructor().isNotEmpty()) {
-			creation.append("(");
-
-			ConstructorData constructor = classData.getConstructor();
-			Set<Entry<Integer, FieldData>> constructorFields = constructor.getConstructorFields().entrySet();
-			int index = 0;
-
-			for (Entry<Integer, FieldData> constructorField : constructorFields) {
-				index += 1;
-
-				calledFields.remove(constructorField.getValue());
-
-				BluePrint constructorFieldBp = bluePrint.getBluePrintForName(constructorField.getValue().getName());
-				usedBluePrints.add(constructorFieldBp);
-
-				if (constructorFieldBp.isComplexBluePrint()) {
-					createComplexObject(code, constructorFieldBp);
-
-					creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
-							: (constructorFieldBp.getName() + ","));
-
-					types.add(constructorFieldBp.getReference().getClass());
-
-				} else if (constructorFieldBp.isSimpleBluePrint()) {
-					SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
-
-					creation.append(index == constructorFields.size() ? (simpleBluePrint.valueCreation() + ")")
-							: (simpleBluePrint.valueCreation() + ","));
-
-					types.addAll(simpleBluePrint.getReferenceClasses());
-				} else if (constructorFieldBp.isCollectionBluePrint()) {
-
-					containerGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
-							constructorField.getValue().getSignature(), false, false);
-
-					creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
-							: (constructorFieldBp.getName() + ","));
-				} else if (constructorFieldBp.isArrayBluePrint()) {
-
-					containerGeneration.createArray(code, constructorFieldBp.castToArrayBluePrint(), //
-							false, false);
-
-					creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
-							: (constructorFieldBp.getName() + ","));
-				}
-			}
-
-			code.addStatement(creation.toString(), types.toArray());
-		} else {
-			code.addStatement("//no public constructor found for class: " + bluePrint.getClassNameOfReference());
-
+			StringBuilder creation = new StringBuilder();
 			if (isField) {
-				code.addStatement(bluePrint.getName() + " = null");
+				creation.append(bluePrint.getName());
 			} else {
-				code.addStatement("$T " + bluePrint.getName() + " = null", bluePrint.getReference().getClass());
+				creation.append("$T " + bluePrint.getName());
+				types.add(type);
 			}
 
+			if (classData.isInnerClass()) {
+				creation.append(" = " + getBluePrintForClassData(bluePrint, classData.getOuterClass()) + ".new "
+						+ classData.getInnerClassName());
+			} else {
+				creation.append(" = new $T");
+				types.add(type);
+			}
+
+			if (classData.hasDefaultConstructor()) {
+				creation.append("()");
+
+				code.addStatement(creation.toString(), types.toArray());
+			} else if (classData.getConstructor().isNotEmpty()) {
+				creation.append("(");
+
+				ConstructorData constructor = classData.getConstructor();
+				Set<Entry<Integer, FieldData>> constructorFields = constructor.getConstructorFields().entrySet();
+				int index = 0;
+
+				for (Entry<Integer, FieldData> constructorField : constructorFields) {
+					index += 1;
+
+					calledFields.remove(constructorField.getValue());
+
+					BluePrint constructorFieldBp = bluePrint.getBluePrintForName(constructorField.getValue().getName());
+					usedBluePrints.add(constructorFieldBp);
+
+					if (constructorFieldBp.isComplexBluePrint()) {
+						createComplexObject(code, constructorFieldBp);
+
+						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+								: (constructorFieldBp.getName() + ","));
+
+						types.add(constructorFieldBp.getReference().getClass());
+
+					} else if (constructorFieldBp.isSimpleBluePrint()) {
+						SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
+
+						creation.append(index == constructorFields.size() ? (simpleBluePrint.valueCreation() + ")")
+								: (simpleBluePrint.valueCreation() + ","));
+
+						types.addAll(simpleBluePrint.getReferenceClasses());
+					} else if (constructorFieldBp.isCollectionBluePrint()) {
+
+						containerGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
+								constructorField.getValue().getSignature(), false, false);
+
+						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+								: (constructorFieldBp.getName() + ","));
+					} else if (constructorFieldBp.isArrayBluePrint()) {
+
+						containerGeneration.createArray(code, constructorFieldBp.castToArrayBluePrint(), //
+								false, false);
+
+						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
+								: (constructorFieldBp.getName() + ","));
+					}
+				}
+
+				code.addStatement(creation.toString(), types.toArray());
+			} else {
+				code.addStatement("//no public constructor found for class: " + bluePrint.getClassNameOfReference());
+
+				if (isField) {
+					code.addStatement(bluePrint.getName() + " = null");
+				} else {
+					code.addStatement("$T " + bluePrint.getName() + " = null", bluePrint.getReference().getClass());
+				}
+
+			}
+
+			addFieldsToObject(code, bluePrint, classData, calledFields, bluePrint.getName(), usedBluePrints);
+
+			code.add("\n");
+
+			bluePrint.setBuild();
 		}
-
-		addFieldsToObject(code, bluePrint, classData, calledFields, bluePrint.getName(), usedBluePrints);
-
-		code.add("\n");
-
-		bluePrint.setBuild();
-
 	}
 
 	private void addFieldsToObject(CodeBlock.Builder code, ComplexBluePrint bluePrint, ClassData classData,
