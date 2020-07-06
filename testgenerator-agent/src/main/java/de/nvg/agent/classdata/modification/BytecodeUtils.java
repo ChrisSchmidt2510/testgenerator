@@ -6,6 +6,7 @@ import org.testgen.core.classdata.constants.Primitives;
 
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.ConstPool;
+import javassist.bytecode.Opcode;
 
 public final class BytecodeUtils {
 
@@ -113,6 +114,12 @@ public final class BytecodeUtils {
 		} else if (Primitives.JVM_LONG.equals(dataType)) {
 			code.addInvokestatic(JVMTypes.LONG_CLASSNAME, JVMTypes.WRAPPER_METHOD_VALUE_OF,
 					JVMTypes.LONG_METHOD_VALUE_OF_DESC);
+		}
+	}
+
+	public static void fillWithNOP(Bytecode code, int length) {
+		for (int i = 0; i < length; i++) {
+			code.add(Opcode.NOP);
 		}
 	}
 
