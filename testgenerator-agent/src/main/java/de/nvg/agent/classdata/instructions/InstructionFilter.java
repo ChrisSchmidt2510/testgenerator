@@ -105,7 +105,7 @@ public class InstructionFilter {
 
 			String dataType = Instructions.getPrimitiveCastType(instruction);
 			operandStack.push(dataType);
-		} else if (Opcode.AASTORE == instruction.getOpcode()) {
+		} else if (Instructions.isArrayStoreInstruction(instruction)) {
 			// can't know which type gets inserted in the array, so the most common type is
 			// pushed
 			operandStack.push(JavaTypes.OBJECT);
@@ -113,7 +113,7 @@ public class InstructionFilter {
 			operandStack.push(Primitives.JAVA_INT);
 			// can't know which type the array has, so the most common type is pushed
 			operandStack.push(JavaTypes.OBJECT_ARRAY);
-		} else if (Opcode.AALOAD == instruction.getOpcode()) {
+		} else if (Instructions.isArrayStoreInstruction(instruction)) {
 			// array-index
 			operandStack.push(Primitives.JAVA_INT);
 			// can't know which type the array has, so the most common type is pushed

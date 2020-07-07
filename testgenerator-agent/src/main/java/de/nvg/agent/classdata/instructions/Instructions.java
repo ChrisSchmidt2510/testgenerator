@@ -31,6 +31,13 @@ public final class Instructions {
 	private static final List<Integer> ALOAD_OPCODES = Collections
 			.unmodifiableList(Arrays.asList(Opcode.ALOAD, Opcode.ALOAD_0, Opcode.ALOAD_1, //
 					Opcode.ALOAD_2, Opcode.ALOAD_3));
+	private static final List<Integer> ARRAY_LOAD_OPCODES = Collections.unmodifiableList(Arrays.asList(//
+			Opcode.IALOAD, Opcode.LALOAD, Opcode.FALOAD, Opcode.DALOAD, Opcode.AALOAD, //
+			Opcode.BALOAD, Opcode.CALOAD, Opcode.SALOAD));
+
+	private static final List<Integer> ARRAY_STORE_OPCODES = Collections.unmodifiableList(Arrays.asList(//
+			Opcode.IASTORE, Opcode.LASTORE, Opcode.LASTORE, Opcode.FASTORE, Opcode.DASTORE, Opcode.AASTORE, //
+			Opcode.BASTORE, Opcode.CASTORE, Opcode.SASTORE));
 
 	private static final List<Integer> PRIMITIVE_LOAD_OPCODES = Collections.unmodifiableList(Arrays.asList(//
 			Opcode.ILOAD, Opcode.ILOAD_0, Opcode.ILOAD_1, Opcode.ILOAD_2, Opcode.ILOAD_3, Opcode.ICONST_0,
@@ -267,6 +274,14 @@ public final class Instructions {
 	public static boolean isPrimitiveCast(Instruction instruction) {
 		return PRIMITVE_CASTS.keySet().stream()//
 				.anyMatch(list -> list.contains(instruction.getOpcode()));
+	}
+
+	public static boolean isArrayStoreInstruction(Instruction instruction) {
+		return ARRAY_STORE_OPCODES.contains(instruction.getOpcode());
+	}
+
+	public static boolean isArrayLoadInstruction(Instruction instruction) {
+		return ARRAY_LOAD_OPCODES.contains(instruction.getOpcode());
 	}
 
 	public static String getPrimitiveCastType(Instruction instruction) {
