@@ -23,6 +23,15 @@ public class InstructionsTest {
 
 		List<String> paramsWithOnlyPrimitives = Instructions.getMethodParams("(IIDJ)V");
 		Assert.assertEquals(Arrays.asList("I", "I", "D", "J"), paramsWithOnlyPrimitives);
+
+		List<String> paramsWithPrimitiveArray = Instructions.getMethodParams("([ILjava/lang/String;Z)");
+		Assert.assertEquals(Arrays.asList("[I", "Ljava/lang/String;", "Z"), paramsWithPrimitiveArray);
+
+		List<String> paramsWithMultiDimArray = Instructions.getMethodParams("([[[JLjava/util/List;I)");
+		Assert.assertEquals(Arrays.asList("[[[J", "Ljava/util/List;", "I"), paramsWithMultiDimArray);
+
+		List<String> paramsWithReferenceArray = Instructions.getMethodParams("([[Ljava/lang/String;Ljava/util/List;)");
+		Assert.assertEquals(Arrays.asList("[[Ljava/lang/String;", "Ljava/util/List;"), paramsWithReferenceArray);
 	}
 
 	@Test

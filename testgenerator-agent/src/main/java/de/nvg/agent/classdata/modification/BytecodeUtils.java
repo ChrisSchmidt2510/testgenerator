@@ -50,7 +50,28 @@ public final class BytecodeUtils {
 				dimCounter--;
 			}
 
-			builder.append("L" + descriptor + ";");
+			if (Primitives.PRIMTIVE_JAVA_TYPES.contains(descriptor)) {
+				if (Primitives.JAVA_BOOLEAN.equals(descriptor))
+					builder.append(Primitives.JVM_BOOLEAN);
+				else if (Primitives.JAVA_BYTE.equals(descriptor))
+					builder.append(Primitives.JVM_BYTE);
+				else if (Primitives.JAVA_CHAR.equals(descriptor))
+					builder.append(Primitives.JVM_CHAR);
+				else if (Primitives.JAVA_SHORT.equals(descriptor))
+					builder.append(Primitives.JVM_SHORT);
+				else if (Primitives.JAVA_INT.equals(descriptor))
+					builder.append(Primitives.JVM_INT);
+				else if (Primitives.JAVA_FLOAT.equals(descriptor))
+					builder.append(Primitives.JVM_FLOAT);
+				else if (Primitives.JAVA_DOUBLE.equals(descriptor))
+					builder.append(Primitives.JVM_DOUBLE);
+				else if (Primitives.JAVA_LONG.equals(descriptor)) {
+					builder.append(Primitives.JVM_LONG);
+				}
+			} else {
+				builder.append("L" + descriptor + ";");
+			}
+
 			code.addLdc(constantPool.addClassInfo(builder.toString()));
 		} else {
 			code.addLdc(constantPool.addClassInfo(descriptor));

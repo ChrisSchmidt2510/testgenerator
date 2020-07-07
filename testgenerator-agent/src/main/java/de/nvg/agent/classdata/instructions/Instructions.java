@@ -299,19 +299,24 @@ public final class Instructions {
 		String methodParameters = descriptor.substring(descriptor.indexOf('(') + 1, descriptor.indexOf(')'));
 
 		while (methodParameters.length() > 0) {
-			if (Primitives.isPrimitiveDataType(Character.toString(methodParameters.charAt(0)))) {
-				parameters.add(Character.toString(methodParameters.charAt(0)));
-				methodParameters = methodParameters.substring(1);
+			String parameter = nextDescriptorParameter(methodParameters);
+			parameters.add(parameter);
 
-			} else {
-				int index = methodParameters.indexOf(';') + 1;
-
-				parameters.add(methodParameters.substring(0, index));
-				methodParameters = methodParameters.substring(index);
-			}
+			methodParameters = methodParameters.substring(methodParameters.indexOf(parameter) + parameter.length());
 		}
 
 		return parameters;
+	}
+
+	private static String nextDescriptorParameter(String descriptor) {
+		if ('[' == descriptor.charAt(0)) {
+			return "[" + nextDescriptorParameter(descriptor.substring(1));
+		} else if (Primitives.isPrimitiveDataType(Character.toString(descriptor.charAt(0)))) {
+			return Character.toString(descriptor.charAt(0));
+		} else {
+			int index = descriptor.indexOf(';') + 1;
+			return descriptor.substring(0, index);
+		}
 	}
 
 	public static String getReturnType(String methodDesc) {
