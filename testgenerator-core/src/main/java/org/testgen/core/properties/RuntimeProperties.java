@@ -12,6 +12,8 @@ public final class RuntimeProperties {
 
 	private boolean fieldTracking = false;
 
+	private boolean proxyFieldTracking = false;
+
 	private boolean proxyTracking = false;
 
 	private RuntimeProperties() {
@@ -27,6 +29,14 @@ public final class RuntimeProperties {
 
 	public void setFieldTracking(boolean fieldTracking) {
 		this.fieldTracking = fieldTracking;
+	}
+
+	public void setProxyFieldTracking(boolean proxyFieldTracking) {
+		this.proxyFieldTracking = proxyFieldTracking;
+	}
+
+	public boolean isProxyFieldTrackingActive() {
+		return proxyFieldTracking;
 	}
 
 	public boolean isProxyTrackingActive() {

@@ -21,10 +21,8 @@ public class WrappingInvocationHandler implements InvocationHandler {
 
 	private final InvocationHandler originalInvoker;
 
-	private Class<?> valueTrackerClass;
 	private Method track;
 	private Object valueTracker;
-
 	private Object type;
 
 	public WrappingInvocationHandler(InvocationHandler originalInvoker) {
@@ -37,17 +35,20 @@ public class WrappingInvocationHandler implements InvocationHandler {
 
 		if (RuntimeProperties.getInstance().isProxyTrackingActive()) {
 			init();
+
+			RuntimeProperties.getInstance().setProxyFieldTracking(true);
 			track.invoke(valueTracker, result, method.getName(), type);
+			RuntimeProperties.getInstance().setProxyFieldTracking(false);
 		}
 		return result;
 	}
 
 	private void init() {
-		if (valueTrackerClass == null) {
+		if (valueTracker == null) {
 			try {
 				ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-				this.valueTrackerClass = Class.forName(OBJECT_VALUE_TRACKER, true, loader);
+				Class<?> valueTrackerClass = Class.forName(OBJECT_VALUE_TRACKER, true, loader);
 				Class<?> type = Class.forName(TYPE, true, loader);
 				this.track = valueTrackerClass.getMethod(METHOD_TRACK, Object.class, String.class, type);
 
@@ -56,14 +57,9 @@ public class WrappingInvocationHandler implements InvocationHandler {
 				Field field = type.getDeclaredField(FIELD_PROXY);
 				this.type = field.get(null);
 			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | //
-					IllegalAccessException | NoSuchFieldException e) {
+					IllegalAccessException | NoSuchFieldException | IllegalArgumentException
+					| InvocationTargetException e) {
 				LOGGER.error("error while creating WrappingInvocationHandler", e);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	}
