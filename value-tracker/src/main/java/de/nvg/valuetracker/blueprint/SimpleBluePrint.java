@@ -2,6 +2,7 @@ package de.nvg.valuetracker.blueprint;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 	private final String createdValue;
@@ -31,13 +32,24 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 		return false;
 	}
 
+	@Override
 	public void resetBuildState() {
 		build = false;
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(createdValue);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		return value.equals(value);
+		if (this == obj)
+			return true;
+		if (!(obj instanceof SimpleBluePrint))
+			return false;
+		SimpleBluePrint<?> other = (SimpleBluePrint<?>) obj;
+		return Objects.equals(value, other.value);
 	}
 
 	@Override

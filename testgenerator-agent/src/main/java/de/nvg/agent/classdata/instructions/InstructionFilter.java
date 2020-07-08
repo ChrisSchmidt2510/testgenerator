@@ -86,7 +86,7 @@ public class InstructionFilter {
 				// can't know which type gets popped, so the most common type is pushed
 				operandStack.push(JavaTypes.OBJECT);
 			} else {
-				// all other one-item-comparisions like IFEQ popping an int
+				// all other one-item-comparisons like IFEQ popping an int
 				operandStack.push(Primitives.JAVA_INT);
 			}
 
@@ -96,7 +96,7 @@ public class InstructionFilter {
 				operandStack.push(JavaTypes.OBJECT);
 				operandStack.push(JavaTypes.OBJECT);
 			} else {
-				// all other two-item-comparisions like IF_ICMPEQ popping ints
+				// all other two-item-comparisons like IF_ICMPEQ popping ints
 				operandStack.push(Primitives.JAVA_INT);
 				operandStack.push(Primitives.JAVA_INT);
 			}
@@ -113,7 +113,7 @@ public class InstructionFilter {
 			operandStack.push(Primitives.JAVA_INT);
 			// can't know which type the array has, so the most common type is pushed
 			operandStack.push(JavaTypes.OBJECT_ARRAY);
-		} else if (Instructions.isArrayStoreInstruction(instruction)) {
+		} else if (Instructions.isArrayLoadInstruction(instruction)) {
 			// array-index
 			operandStack.push(Primitives.JAVA_INT);
 			// can't know which type the array has, so the most common type is pushed
