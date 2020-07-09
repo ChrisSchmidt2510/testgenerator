@@ -98,8 +98,6 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
 								: (constructorFieldBp.getName() + ","));
 
-						types.add(constructorFieldBp.getReference().getClass());
-
 					} else if (constructorFieldBp.isSimpleBluePrint()) {
 						SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
 

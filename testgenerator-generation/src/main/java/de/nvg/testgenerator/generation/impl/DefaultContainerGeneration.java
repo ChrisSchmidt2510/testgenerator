@@ -249,7 +249,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 		for (BluePrint bluePrint : collection.getBluePrints()) {
 			createComplexContainerElement(code, bluePrint, //
-					genericType.isSimpleSignature() ? null : genericType);
+					genericType != null && genericType.isSimpleSignature() ? null : genericType);
 		}
 
 		if (!onlyCreateCollectionElements) {
