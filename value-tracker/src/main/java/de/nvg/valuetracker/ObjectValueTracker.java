@@ -104,7 +104,7 @@ public final class ObjectValueTracker {
 		BluePrint bluePrint = null;
 
 		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum()) {
-			bluePrint = getBluePrintForReference(proxyValue, () -> SimpleBluePrintFactory.of(name, proxyValue));
+			bluePrint = SimpleBluePrintFactory.of(name, proxyValue);
 		} else if (isCollection(proxyValue)) {
 			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesFromCollections(proxyValue, name));
 		} else if (proxyValue.getClass().isArray()) {
