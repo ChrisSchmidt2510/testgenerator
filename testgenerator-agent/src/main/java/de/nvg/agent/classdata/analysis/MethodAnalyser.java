@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.testgen.core.Wrapper;
 import org.testgen.core.classdata.constants.JavaTypes;
@@ -18,6 +19,7 @@ import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.MethodType;
 import javassist.Modifier;
 import javassist.bytecode.Descriptor;
+import javassist.bytecode.Opcode;
 
 public class MethodAnalyser {
 
@@ -72,32 +74,47 @@ public class MethodAnalyser {
 	}
 
 	public Map<Integer, FieldData> analyseConstructor(String methodDescriptor, //
-			List<Instruction> putFieldInstructions, List<Instruction> allInstructions) {
+			List<Instruction> filteredInstructions, List<Instruction> allInstructions) {
 		Map<Integer, FieldData> initialzedFields = new HashMap<>();
 
 		LOGGER.info("Starting Analysing Constructor " + methodDescriptor);
 
-		if (putFieldInstructions != null) {
+		if (filteredInstructions != null) {
 			List<String> params = Instructions.getMethodParams(methodDescriptor);
 
-			for (Instruction instruction : putFieldInstructions) {
+			for (Instruction instruction : filteredInstructions) {
 
-				Wrapper<Integer> constructorParameterIndex = new Wrapper<>();
+				if (Opcode.PUTFIELD == instruction.getOpcode()) {
+					Wrapper<Integer> constructorParameterIndex = new Wrapper<>();
 
-				String type = Descriptor.toClassName(instruction.getType());
-				// inner classes got an instance of the outerclass as an constructor argument,
-				// we ignore this because in the java code it doesnt exist
-				if ((classData.isInnerClass() && !classData.getOuterClass().equals(type)
-						&& AnalysisHelper.isDescriptorEqual(allInstructions, allInstructions.indexOf(instruction), //
-								instruction.getType(), params, constructorParameterIndex))
-						|| (!classData.isInnerClass() && AnalysisHelper.isDescriptorEqual(allInstructions,
-								allInstructions.indexOf(instruction), //
-								instruction.getType(), params, constructorParameterIndex))) {
+					String type = Descriptor.toClassName(instruction.getType());
+					// inner classes got an instance of the outerclass as an constructor argument,
+					// we ignore this because in the java code it doesnt exist
+					if ((classData.isInnerClass() && !classData.getOuterClass().equals(type)
+							&& AnalysisHelper.isDescriptorEqual(allInstructions, allInstructions.indexOf(instruction), //
+									instruction.getType(), params, constructorParameterIndex))
+							|| (!classData.isInnerClass() && AnalysisHelper.isDescriptorEqual(allInstructions,
+									allInstructions.indexOf(instruction), //
+									instruction.getType(), params, constructorParameterIndex))) {
 
-					FieldData field = new FieldData.Builder().withName(instruction.getName()).withDataType(type)
-							.build();
+						FieldData field = new FieldData.Builder().withName(instruction.getName()).withDataType(type)
+								.build();
 
-					initialzedFields.put(constructorParameterIndex.getValue(), field);
+						initialzedFields.put(constructorParameterIndex.getValue(), field);
+					}
+					// invokespecial oder invokevirtual
+				} else {
+					Entry<MethodData, FieldData> method = classData.getMethod(instruction.getName(),
+							instruction.getType());
+
+					if (method != null) {
+
+						MethodType type = method.getKey().getMethodType();
+						if (MethodType.REFERENCE_VALUE_SETTER == type || MethodType.COLLECTION_SETTER == type) {
+							initialzedFields.put(AnalysisHelper.getArgumentIndex(instruction, allInstructions),
+									method.getValue());
+						}
+					}
 				}
 			}
 		}

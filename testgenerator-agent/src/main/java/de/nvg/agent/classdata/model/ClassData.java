@@ -86,6 +86,12 @@ public class ClassData {
 		methods.put(method, field);
 	}
 
+	public Entry<MethodData, FieldData> getMethod(String name, String descriptor) {
+		return methods.entrySet().stream().filter(
+				entry -> entry.getKey().getName().equals(name) && entry.getKey().getDescriptor().equals(descriptor))
+				.findAny().orElse(null);
+	}
+
 	public Map<MethodData, FieldData> getMethods() {
 		return Collections.unmodifiableMap(methods);
 	}

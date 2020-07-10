@@ -195,7 +195,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			MethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
 		for (MethodInfo method : methods) {
-			if (!MethodInfo.nameClinit.equals(method.getName()) && !Modifier.isAbstract(method.getAccessFlags())) {
+			if (!isMethodClInitOrConstructor(method) && !Modifier.isAbstract(method.getAccessFlags())) {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 				analyseMethod(method, instructions, classData, methodAnalyser);
@@ -205,6 +205,24 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				}
 			}
 		}
+
+		List<MethodInfo> constructors = methods.stream().filter(method -> MethodInfo.nameInit.equals(//
+				method.getName())).collect(Collectors.toList());
+
+		for (MethodInfo constructor : constructors) {
+
+			List<Instruction> instructions = Instructions.getAllInstructions(constructor);
+			analyseConstructor(constructor, instructions, classData, methodAnalyser);
+
+			if (properties.isTraceReadFieldAccess()) {
+				manipulateConstructor(constructor, instructions, fieldTypeChanger);
+			}
+		}
+
+	}
+
+	private boolean isMethodClInitOrConstructor(MethodInfo method) {
+		return MethodInfo.nameClinit.equals(method.getName()) || MethodInfo.nameInit.equals(method.getName());
 	}
 
 	private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
@@ -269,23 +287,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	private void analyseMethod(MethodInfo method, List<Instruction> instructions, ClassData classData,
 			MethodAnalyser methodAnalyser) {
 
-		if (MethodInfo.nameInit.equals(method.getName()) && !classData.hasDefaultConstructor()
-				&& AccessFlag.isPublic(method.getAccessFlags())) {
-
-			List<Instruction> filteredInstructions = instructions.stream()
-					.filter(inst -> Opcode.PUTFIELD == inst.getOpcode()).collect(Collectors.toList());
-
-			Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser
-					.analyseConstructor(method.getDescriptor(), filteredInstructions, instructions);
-
-			if (constructorInitalizedFields.isEmpty()) {
-				classData.setDefaultConstructor(true);
-			} else {
-				ConstructorData constructor = new ConstructorData(constructorInitalizedFields);
-				classData.setConstructor(constructor);
-			}
-
-		} else if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
+		if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
 				&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) == 0
 				&& !AccessFlag.isPrivate(method.getAccessFlags())) {
 
@@ -301,27 +303,51 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		}
 	}
 
+	private void analyseConstructor(MethodInfo method, List<Instruction> instructions, //
+			ClassData classData, MethodAnalyser methodAnalyser) {
+
+		if ((!classData.hasDefaultConstructor()) && AccessFlag.isPublic(method.getAccessFlags())) {
+			List<Instruction> filteredInstructions = instructions
+					.stream().filter(inst -> Opcode.PUTFIELD == inst.getOpcode()
+							|| Opcode.INVOKEVIRTUAL == inst.getOpcode() || Opcode.INVOKESPECIAL == inst.getOpcode())
+					.collect(Collectors.toList());
+
+			Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser
+					.analyseConstructor(method.getDescriptor(), filteredInstructions, instructions);
+
+			if (constructorInitalizedFields.isEmpty()) {
+				classData.setDefaultConstructor(true);
+			} else if (classData.getConstructor() == null) {
+				ConstructorData constructor = new ConstructorData(constructorInitalizedFields);
+				classData.setConstructor(constructor);
+			}
+
+		}
+	}
+
 	private void manipulateMethod(MethodInfo method, List<Instruction> instructions, FieldTypeChanger fieldTypeChanger)
 			throws BadBytecode {
 
 		LOGGER.info("Starte Transformation fuer die Methode " + method.getName() + method.getDescriptor());
 
-		if (MethodInfo.nameInit.equals(method.getName())) {
-			List<Instruction> filteredInstructions = instructions.stream()
-					.filter(inst -> Opcode.PUTFIELD == inst.getOpcode()).collect(Collectors.toList());
+		Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(instructions,
+				Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
 
-			List<Instruction> putFieldInstructions = filteredInstructions == null ? Collections.emptyList()
-					: filteredInstructions;
+		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
+				method.getCodeAttribute());
 
-			fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, method.getCodeAttribute());
+		method.rebuildStackMap(ClassPool.getDefault());
+	}
 
-		} else {
-			Map<Integer, List<Instruction>> filteredInstructions = Instructions.getFilteredInstructions(instructions,
-					Arrays.asList(Opcode.PUTFIELD, Opcode.GETFIELD));
+	public void manipulateConstructor(MethodInfo method, List<Instruction> instructions,
+			FieldTypeChanger fieldTypeChanger) throws BadBytecode {
+		List<Instruction> filteredInstructions = instructions.stream()
+				.filter(inst -> Opcode.PUTFIELD == inst.getOpcode()).collect(Collectors.toList());
 
-			fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, //
-					method.getCodeAttribute());
-		}
+		List<Instruction> putFieldInstructions = filteredInstructions == null ? Collections.emptyList()
+				: filteredInstructions;
+
+		fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, method.getCodeAttribute());
 
 		method.rebuildStackMap(ClassPool.getDefault());
 	}
