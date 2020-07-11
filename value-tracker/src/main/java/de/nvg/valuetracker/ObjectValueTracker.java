@@ -206,26 +206,21 @@ public final class ObjectValueTracker {
 	}
 
 	private void trackValuesCollection(Collection<?> collection, String name, CollectionBluePrint bluePrint) {
-		int counter = 1;
-
 		for (Object value : collection) {
 
-			BluePrint elementBluePrint = trackValues(value, name + counter++);
+			BluePrint elementBluePrint = trackValues(value, name + "Element");
 			bluePrint.addBluePrint(elementBluePrint);
 		}
 	}
 
 	private MapBluePrint trackValuesMap(Map<?, ?> map, String name) {
-
-		int counter = 1;
-
 		MapBluePrint mapBluePrint = new MapBluePrint(name, map);
 
 		if (!map.isEmpty()) {
 
 			for (Entry<?, ?> entry : map.entrySet()) {
-				BluePrint keyBluePrint = trackValues(entry.getKey(), name + counter + "Key");
-				BluePrint valueBluePrint = trackValues(entry.getValue(), name + counter++ + "Value");
+				BluePrint keyBluePrint = trackValues(entry.getKey(), name + "Key");
+				BluePrint valueBluePrint = trackValues(entry.getValue(), name + "Value");
 
 				mapBluePrint.addKeyValuePair(keyBluePrint, valueBluePrint);
 			}
@@ -236,17 +231,16 @@ public final class ObjectValueTracker {
 
 	private ArrayBluePrint trackValuesArray(Object array, String name) {
 		int length = Array.getLength(array);
-		int counter = 1;
 
 		ArrayBluePrint arrayBluePrint = new ArrayBluePrint(name, array, length);
 
 		for (int i = 0; i < length; i++) {
 			Object element = Array.get(array, i);
 			if (element != null) {
-				BluePrint bluePrint = trackValues(element, name + counter++);
+				BluePrint bluePrint = trackValues(element, name + "Element");
 				arrayBluePrint.add(i, bluePrint);
 			} else {
-				arrayBluePrint.add(i, SimpleBluePrintFactory.of(name + counter++, null));
+				arrayBluePrint.add(i, SimpleBluePrintFactory.of(name + "Element", null));
 			}
 		}
 
