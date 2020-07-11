@@ -24,6 +24,7 @@ import de.nvg.runtime.classdatamodel.SetterType;
 import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.ContainerGeneration;
+import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
@@ -38,9 +39,16 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 	private ContainerGeneration containerGeneration;
 
+	private NamingService namingService;
+
 	@Override
 	public void setContainerGeneration(ContainerGeneration containerGeneration) {
 		this.containerGeneration = containerGeneration;
+	}
+
+	@Override
+	public void setNamingService(NamingService namingService) {
+		this.namingService = namingService;
 	}
 
 	@Override
@@ -59,9 +67,9 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 			StringBuilder creation = new StringBuilder();
 			if (isField) {
-				creation.append(bluePrint.getName());
+				creation.append(namingService.getName(bluePrint));
 			} else {
-				creation.append("$T " + bluePrint.getName());
+				creation.append("$T " + namingService.getName(bluePrint));
 				types.add(type);
 			}
 
@@ -90,13 +98,15 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					calledFields.remove(constructorField.getValue());
 
 					BluePrint constructorFieldBp = bluePrint.getBluePrintForName(constructorField.getValue().getName());
+					String argumentName = namingService.getName(constructorFieldBp);
+
 					usedBluePrints.add(constructorFieldBp);
 
 					if (constructorFieldBp.isComplexBluePrint()) {
 						createComplexObject(code, constructorFieldBp);
 
-						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
-								: (constructorFieldBp.getName() + ","));
+						creation.append(
+								index == constructorFields.size() ? (argumentName + ")") : (argumentName + ","));
 
 					} else if (constructorFieldBp.isSimpleBluePrint()) {
 						SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
@@ -110,15 +120,15 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 						containerGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
 								constructorField.getValue().getSignature(), false, false);
 
-						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
-								: (constructorFieldBp.getName() + ","));
+						creation.append(
+								index == constructorFields.size() ? (argumentName + ")") : (argumentName + ","));
 					} else if (constructorFieldBp.isArrayBluePrint()) {
 
 						containerGeneration.createArray(code, constructorFieldBp.castToArrayBluePrint(), //
 								false, false);
 
-						creation.append(index == constructorFields.size() ? (constructorFieldBp.getName() + ")")
-								: (constructorFieldBp.getName() + ","));
+						creation.append(
+								index == constructorFields.size() ? (argumentName + ")") : (argumentName + ","));
 					}
 				}
 
@@ -126,15 +136,16 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			} else {
 				code.addStatement("//no public constructor found for class: " + bluePrint.getClassNameOfReference());
 
-				if (isField) {
-					code.addStatement(bluePrint.getName() + " = null");
-				} else {
-					code.addStatement("$T " + bluePrint.getName() + " = null", bluePrint.getReference().getClass());
-				}
+				if (isField)
+					code.addStatement(namingService.getName(bluePrint) + " = null");
+				else
+					code.addStatement("$T " + namingService.getName(bluePrint) + " = null",
+							bluePrint.getReference().getClass());
 
 			}
 
-			addFieldsToObject(code, bluePrint, classData, calledFields, bluePrint.getName(), usedBluePrints);
+			addFieldsToObject(code, bluePrint, classData, calledFields, namingService.getName(bluePrint),
+					usedBluePrints);
 
 			code.add("\n");
 
@@ -189,7 +200,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 	private void addPublicFieldToObject(CodeBlock.Builder code, BluePrint bluePrint, FieldData field,
 			String objectName) {
 		if (bluePrint.isComplexBluePrint()) {
-			code.addStatement(objectName + "." + field.getName() + "=" + bluePrint.getName());
+			code.addStatement(objectName + "." + field.getName() + "=" + namingService.getName(bluePrint));
 
 		} else if (bluePrint.isSimpleBluePrint()) {
 			SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
@@ -206,14 +217,14 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			String objectName) {
 		if (setter == null) {
 			StringBuilder statement = new StringBuilder();
-			statement.append("//no setter found for Field: " + bluePrint.getName() + " Value: ");
+			statement.append("//no setter found for Field: " + namingService.getName(bluePrint) + " Value: ");
 
 			List<Class<?>> referenceClasses = getFieldValue(bluePrint, statement);
 
 			code.addStatement(statement.toString(), referenceClasses.toArray());
 		} else {
 			if (bluePrint.isComplexBluePrint()) {
-				code.addStatement(objectName + "." + setter.getName() + "(" + bluePrint.getName() + ")");
+				code.addStatement(objectName + "." + setter.getName() + "(" + namingService.getName(bluePrint) + ")");
 
 			} else if (bluePrint.isSimpleBluePrint()) {
 				SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
@@ -228,7 +239,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 	private List<Class<?>> getFieldValue(BluePrint bluePrint, StringBuilder statement) {
 		if (bluePrint.isComplexType()) {
-			statement.append(bluePrint.getName());
+			statement.append(namingService.getName(bluePrint));
 
 			return Arrays.asList(bluePrint.getReference().getClass());
 		} else if (bluePrint.isSimpleBluePrint()) {

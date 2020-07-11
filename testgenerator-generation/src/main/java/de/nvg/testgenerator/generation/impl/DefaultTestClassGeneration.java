@@ -26,6 +26,7 @@ import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.ContainerGeneration;
 import de.nvg.testgenerator.generation.TestClassGeneration;
+import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
@@ -53,12 +54,17 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	private ContainerGeneration containerGeneration;
 	private ComplexObjectGeneration objectGeneration;
 
+	private final NamingService namingService = new NamingService();
+
 	{
 		containerGeneration = new DefaultContainerGeneration();
 		objectGeneration = new DefaultComplexObjectGeneration();
 
 		containerGeneration.setComplexObjectGeneration(objectGeneration);
+		containerGeneration.setNamingService(namingService);
+
 		objectGeneration.setContainerGeneration(containerGeneration);
+		objectGeneration.setNamingService(namingService);
 	}
 
 	@Override
@@ -66,7 +72,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 			Set<FieldData> calledFields) {
 		LOGGER.info("Starting generation of testobject: " + testObject);
 
-		typeSpec.addField(testObject.getReference().getClass(), testObject.getName(), Modifier.PRIVATE);
+		typeSpec.addField(testObject.getReference().getClass(), namingService.getName(testObject), Modifier.PRIVATE);
 		testObjectName = testObject.getName();
 
 		CodeBlock.Builder code = CodeBlock.builder();
@@ -89,9 +95,11 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 
 			methodParameterNames.add(methodParameter.getName());
 
+			String parameterName = namingService.getName(methodParameter);
+
 			if (methodParameter.isComplexBluePrint()) {
-				typeSpec.addField(methodParameter.getReference().getClass(), methodParameter.getName(),
-						Modifier.PRIVATE);
+				typeSpec.addField(methodParameter.getReference().getClass(), //
+						parameterName, Modifier.PRIVATE);
 
 				ClassData classData = TestGenerationHelper.getClassData(methodParameter.getReference());
 
@@ -104,8 +112,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 			} else if (methodParameter.isSimpleBluePrint()) {
 				SimpleBluePrint<?> bluePrint = methodParameter.castToSimpleBluePrint();
 
-				typeSpec.addField(methodParameter.getReference().getClass(), methodParameter.getName(),
-						Modifier.PRIVATE);
+				typeSpec.addField(methodParameter.getReference().getClass(), parameterName, Modifier.PRIVATE);
 
 				code.addStatement(methodParameter.getName() + " = " + bluePrint.valueCreation(),
 						bluePrint.getReferenceClasses().toArray());
@@ -155,7 +162,8 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				types.add(bluePrint.getReference().getClass());
 				types.addAll(bluePrint.getReferenceClasses());
 
-				code.addStatement("$T " + bluePrint.getName() + " = " + bluePrint.valueCreation(), types.toArray());
+				code.addStatement("$T " + namingService.getName(bluePrint) + " = " + bluePrint.valueCreation(),
+						types.toArray());
 			} else if (proxyObject.isCollectionBluePrint()) {
 				containerGeneration.createCollection(code, proxyObject.castToCollectionBluePrint(), //
 						null, false, false);

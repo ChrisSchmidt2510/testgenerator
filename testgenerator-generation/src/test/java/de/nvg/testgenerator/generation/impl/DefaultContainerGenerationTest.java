@@ -14,6 +14,7 @@ import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.TypeName;
 
 import de.nvg.runtime.classdatamodel.SignatureData;
+import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
@@ -22,10 +23,13 @@ public class DefaultContainerGenerationTest {
 
 	@Before
 	public void init() {
+		NamingService namingService = new NamingService();
 		DefaultComplexObjectGeneration complexObjectGenerator = new DefaultComplexObjectGeneration();
 		complexObjectGenerator.setContainerGeneration(containerGenerator);
+		complexObjectGenerator.setNamingService(namingService);
 
 		containerGenerator.setComplexObjectGeneration(complexObjectGenerator);
+		containerGenerator.setNamingService(namingService);
 	}
 
 	@Test

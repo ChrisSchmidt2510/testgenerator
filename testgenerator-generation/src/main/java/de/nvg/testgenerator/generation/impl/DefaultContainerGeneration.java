@@ -26,6 +26,7 @@ import de.nvg.runtime.classdatamodel.SetterType;
 import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.ContainerGeneration;
+import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
@@ -42,11 +43,18 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 	private ComplexObjectGeneration objectGeneration;
 
+	private NamingService namingService;
+
 	private RuntimeProperties properties = RuntimeProperties.getInstance();
 
 	@Override
 	public void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration) {
 		this.objectGeneration = objectGeneration;
+	}
+
+	@Override
+	public void setNamingService(NamingService namingService) {
+		this.namingService = namingService;
 	}
 
 	@Override
@@ -79,14 +87,17 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			}
 
 			if (!onlyCreateElements) {
+
+				String arrayName = namingService.getName(array);
+
 				if (isField) {
-					StringBuilder arrayCreation = new StringBuilder(array.getName() + " =");
+					StringBuilder arrayCreation = new StringBuilder(arrayName + " =");
 					createArrayConstructor(array, arrayCreation, true);
 					code.addStatement(arrayCreation.toString(), array.getBaseType());
 
 				} else {
 
-					StringBuilder arrayCreation = new StringBuilder("$T " + array.getName() + " =");
+					StringBuilder arrayCreation = new StringBuilder("$T " + arrayName + " =");
 					createArrayConstructor(array, arrayCreation, false);
 
 					List<Class<?>> types = new ArrayList<>();
@@ -101,7 +112,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 						BluePrint bluePrint = elements[i];
 
 						if (bluePrint.isComplexType()) {
-							arrayElements[i] = bluePrint.getName();
+							arrayElements[i] = namingService.getName(bluePrint);
 						} else if (bluePrint.isSimpleBluePrint()) {
 							SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
 							arrayElements[i] = simpleBluePrint.valueCreation();
@@ -155,7 +166,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 		LOGGER.info("add Collection " + containerBP + " to Object " + objectName);
 
-		code.addStatement(objectName + "." + field.getName() + "=" + containerBP.getName());
+		code.addStatement(objectName + "." + field.getName() + "=" + namingService.getName(containerBP));
 
 	}
 
@@ -180,7 +191,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
 		}
 
-		typeSpec.addField(collectionType, collection.getName(), Modifier.PRIVATE);
+		typeSpec.addField(collectionType, namingService.getName(collection), Modifier.PRIVATE);
 	}
 
 	private void addFieldToClass(TypeSpec.Builder typeSpec, MapBluePrint map, SignatureData signature) {
@@ -192,11 +203,11 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			mapType = ParameterizedTypeName.get(map.getInterfaceClass(), Object.class, Object.class);
 		}
 
-		typeSpec.addField(mapType, map.getName(), Modifier.PRIVATE);
+		typeSpec.addField(mapType, namingService.getName(map), Modifier.PRIVATE);
 	}
 
 	private void addFieldToClass(TypeSpec.Builder typeSpec, ArrayBluePrint array) {
-		typeSpec.addField(array.getType(), array.getName(), Modifier.PRIVATE);
+		typeSpec.addField(array.getType(), namingService.getName(array), Modifier.PRIVATE);
 	}
 
 	private void addCollectionToObject(Builder code, CollectionBluePrint collection, SetterMethodData setter,
@@ -205,7 +216,8 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			for (BluePrint bluePrint : collection.getBluePrints()) {
 
 				if (bluePrint.isComplexType()) {
-					code.addStatement(objectName + "." + setter.getName() + "(" + bluePrint.getName() + ")");
+					code.addStatement(
+							objectName + "." + setter.getName() + "(" + namingService.getName(bluePrint) + ")");
 				} else if (bluePrint.isSimpleBluePrint()) {
 					SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
 
@@ -215,9 +227,10 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			}
 
 		} else if (SetterType.VALUE_SETTER == setter.getType()) {
-			code.addStatement(objectName + "." + setter.getName() + "(" + collection.getName() + ")");
+			code.addStatement(objectName + "." + setter.getName() + "(" + namingService.getName(collection) + ")");
 		} else if (SetterType.VALUE_GETTER == setter.getType()) {
-			code.addStatement(objectName + "." + setter.getName() + "().addAll(" + collection.getName() + ")");
+			code.addStatement(
+					objectName + "." + setter.getName() + "().addAll(" + namingService.getName(collection) + ")");
 		}
 	}
 
@@ -235,15 +248,15 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 			}
 		} else if (SetterType.VALUE_SETTER == setter.getType()) {
-			code.addStatement(objectName + "." + setter.getName() + "(" + map.getName() + ")");
+			code.addStatement(objectName + "." + setter.getName() + "(" + namingService.getName(map) + ")");
 		} else if (SetterType.VALUE_GETTER == setter.getType()) {
-			code.addStatement(objectName + "." + setter.getName() + "().putAll(" + map.getName() + ")");
+			code.addStatement(objectName + "." + setter.getName() + "().putAll(" + namingService.getName(map) + ")");
 		}
 	}
 
 	private void createCollection(Builder code, CollectionBluePrint collection, SignatureData signature,
 			boolean onlyCreateCollectionElements, boolean isField) {
-		LOGGER.info("generating Collection for BluePrint: " + collection.getName());
+		LOGGER.info("generating Collection for BluePrint: " + namingService.getName(collection));
 
 		SignatureData genericType = signature != null ? signature.getSubTypes().get(0) : null;
 
@@ -252,9 +265,11 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 					genericType != null && genericType.isSimpleSignature() ? null : genericType);
 		}
 
+		String collectionName = namingService.getName(collection);
+
 		if (!onlyCreateCollectionElements) {
 			if (isField) {
-				code.addStatement(collection.getName() + GENERIC_CONSTRUCTOR, collection.getImplementationClass());
+				code.addStatement(collectionName + GENERIC_CONSTRUCTOR, collection.getImplementationClass());
 			} else {
 
 				TypeName collectionType;
@@ -264,17 +279,17 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 					collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
 				}
 
-				code.addStatement("$T " + collection.getName() + GENERIC_CONSTRUCTOR, collectionType,
+				code.addStatement("$T " + collectionName + GENERIC_CONSTRUCTOR, collectionType,
 						collection.getImplementationClass());
 			}
 
 			for (BluePrint bluePrint : collection.getBluePrints()) {
 				if (bluePrint.isComplexType()) {
-					code.addStatement(collection.getName() + ".add(" + bluePrint.getName() + ")");
+					code.addStatement(collectionName + ".add(" + namingService.getName(bluePrint) + ")");
 				} else if (bluePrint.isSimpleBluePrint()) {
 					SimpleBluePrint<?> simpleBluePrint = bluePrint.castToSimpleBluePrint();
 
-					code.addStatement(collection.getName() + ".add(" + simpleBluePrint.valueCreation() + ")",
+					code.addStatement(collectionName + ".add(" + simpleBluePrint.valueCreation() + ")",
 							simpleBluePrint.getReferenceClasses());
 				}
 			}
@@ -300,8 +315,10 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 		if (!onlyCreateCollectionElements) {
 
+			String mapName = namingService.getName(map);
+
 			if (isField) {
-				code.addStatement(map.getName() + GENERIC_CONSTRUCTOR, map.getImplementationClass());
+				code.addStatement(mapName + GENERIC_CONSTRUCTOR, map.getImplementationClass());
 			} else {
 				TypeName mapType;
 
@@ -311,12 +328,12 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 					mapType = ParameterizedTypeName.get(Map.class, Object.class, Object.class);
 				}
 
-				code.addStatement("$T " + map.getName() + GENERIC_CONSTRUCTOR, mapType, map.getImplementationClass());
+				code.addStatement("$T " + mapName + GENERIC_CONSTRUCTOR, mapType, map.getImplementationClass());
 			}
 
 			for (Entry<BluePrint, BluePrint> entry : map.getBluePrints()) {
 				StringBuilder statement = new StringBuilder();
-				statement.append(map.getName() + ".put(");
+				statement.append(mapName + ".put(");
 
 				List<Class<?>> keyTypes = addElement(statement, entry.getKey(), ",");
 				List<Class<?>> valueTypes = addElement(statement, entry.getValue(), ")");
@@ -350,7 +367,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 	private List<Class<?>> addElement(StringBuilder statement, BluePrint bluePrint, String end) {
 		if (bluePrint.isComplexType()) {
-			statement.append(bluePrint.getName() + end);
+			statement.append(namingService.getName(bluePrint) + end);
 
 			return Collections.emptyList();
 		}
@@ -394,7 +411,8 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 				BluePrint bluePrint = elements[i];
 
 				if (bluePrint.isComplexType()) {
-					code.addStatement(objectName + "." + setter.getName() + "()[" + i + "] = " + bluePrint.getName());
+					code.addStatement(objectName + "." + setter.getName() + "()[" + i + "] = "
+							+ namingService.getName(bluePrint));
 				} else if (bluePrint.isSimpleBluePrint()) {
 					SimpleBluePrint<?> simpleBp = bluePrint.castToSimpleBluePrint();
 
@@ -405,7 +423,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			}
 
 		} else if (SetterType.VALUE_SETTER == setter.getType()) {
-			code.addStatement(objectName + "." + setter.getName() + "(" + array.getName() + ")");
+			code.addStatement(objectName + "." + setter.getName() + "(" + namingService.getName(array) + ")");
 		}
 	}
 
