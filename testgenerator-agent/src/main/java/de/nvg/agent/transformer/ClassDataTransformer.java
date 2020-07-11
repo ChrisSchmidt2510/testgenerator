@@ -339,7 +339,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		method.rebuildStackMap(ClassPool.getDefault());
 	}
 
-	public void manipulateConstructor(MethodInfo method, List<Instruction> instructions,
+	private void manipulateConstructor(MethodInfo method, List<Instruction> instructions,
 			FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 		List<Instruction> filteredInstructions = instructions.stream()
 				.filter(inst -> Opcode.PUTFIELD == inst.getOpcode()).collect(Collectors.toList());

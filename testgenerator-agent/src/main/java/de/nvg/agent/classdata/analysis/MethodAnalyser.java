@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.testgen.core.Wrapper;
 import org.testgen.core.classdata.constants.JavaTypes;
@@ -111,8 +112,12 @@ public class MethodAnalyser {
 
 						MethodType type = method.getKey().getMethodType();
 						if (MethodType.REFERENCE_VALUE_SETTER == type || MethodType.COLLECTION_SETTER == type) {
-							initialzedFields.put(AnalysisHelper.getArgumentIndex(instruction, allInstructions),
-									method.getValue());
+
+							Optional<Integer> argumentIndex = AnalysisHelper.getArgumentIndex(instruction,
+									allInstructions);
+							if (argumentIndex.isPresent()) {
+								initialzedFields.put(argumentIndex.get(), method.getValue());
+							}
 						}
 					}
 				}
