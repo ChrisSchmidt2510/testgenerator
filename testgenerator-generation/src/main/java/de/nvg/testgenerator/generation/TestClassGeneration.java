@@ -4,11 +4,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.testgen.runtime.classdata.model.ClassData;
+import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.classdata.model.SignatureData;
+
 import com.squareup.javapoet.TypeSpec;
 
-import de.nvg.runtime.classdatamodel.ClassData;
-import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.valuetracker.blueprint.BluePrint;
 
 public interface TestClassGeneration {

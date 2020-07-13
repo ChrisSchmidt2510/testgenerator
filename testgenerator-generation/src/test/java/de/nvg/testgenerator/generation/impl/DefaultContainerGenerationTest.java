@@ -8,12 +8,12 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.testgen.runtime.classdata.model.SignatureData;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.TypeName;
 
-import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;

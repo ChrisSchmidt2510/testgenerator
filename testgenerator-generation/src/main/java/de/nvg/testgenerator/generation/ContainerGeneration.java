@@ -1,11 +1,13 @@
 package de.nvg.testgenerator.generation;
 
 import com.squareup.javapoet.CodeBlock.Builder;
+
+import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.classdata.model.SetterMethodData;
+import org.testgen.runtime.classdata.model.SignatureData;
+
 import com.squareup.javapoet.TypeSpec;
 
-import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.runtime.classdatamodel.SetterMethodData;
-import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;

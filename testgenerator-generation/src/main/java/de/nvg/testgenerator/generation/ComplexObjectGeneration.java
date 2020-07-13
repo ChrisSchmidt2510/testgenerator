@@ -2,10 +2,11 @@ package de.nvg.testgenerator.generation;
 
 import java.util.Set;
 
+import org.testgen.runtime.classdata.model.ClassData;
+import org.testgen.runtime.classdata.model.FieldData;
+
 import com.squareup.javapoet.CodeBlock.Builder;
 
-import de.nvg.runtime.classdatamodel.ClassData;
-import de.nvg.runtime.classdatamodel.FieldData;
 import de.nvg.testgenerator.generation.naming.NamingService;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 

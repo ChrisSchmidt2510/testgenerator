@@ -13,14 +13,14 @@ import javax.lang.model.element.Modifier;
 import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.runtime.classdata.model.ClassData;
+import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.classdata.model.SignatureData;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 
-import de.nvg.runtime.classdatamodel.ClassData;
-import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.impl.DefaultTestClassGeneration;
 import de.nvg.testgenerator.generation.impl.TestGenerationHelper;
 import de.nvg.valuetracker.blueprint.BluePrint;
