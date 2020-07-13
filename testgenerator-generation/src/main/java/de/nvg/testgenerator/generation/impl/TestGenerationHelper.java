@@ -5,10 +5,10 @@ import java.util.Set;
 
 import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
-
-import de.nvg.runtime.classdatamodel.ClassData;
-import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.runtime.classdatamodel.SignatureData;
+import org.testgen.runtime.classdata.ClassDataFactory;
+import org.testgen.runtime.classdata.model.ClassData;
+import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.classdata.model.SignatureData;
 
 public final class TestGenerationHelper {
 
@@ -16,7 +16,7 @@ public final class TestGenerationHelper {
 	}
 
 	public static ClassData getClassData(Object reference) {
-		return MethodHandles.getStaticFieldValue(reference.getClass(), TestgeneratorConstants.FIELDNAME_CLASS_DATA);
+		return ClassDataFactory.getInstance().getClassData(reference.getClass());
 	}
 
 	public static Set<FieldData> getCalledFields(Object reference) {

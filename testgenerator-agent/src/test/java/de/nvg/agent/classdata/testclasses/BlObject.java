@@ -1,34 +1,13 @@
 package de.nvg.agent.classdata.testclasses;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
-
-import de.nvg.runtime.classdatamodel.ClassData;
-import de.nvg.runtime.classdatamodel.ConstructorData;
-import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.runtime.classdatamodel.SetterMethodData;
-import de.nvg.runtime.classdatamodel.SignatureData;
 
 public abstract class BlObject {
 	private LocalDate erdat;
 	private String ersb;
 	private LocalDate aedat;
 	private String aesb;
-
-	private static ClassData testgenerator$classData;
-
-	static {
-		testgenerator$classData = new ClassData("de.nvg.BlObject", new ConstructorData(true));
-		testgenerator$classData.addFieldSetterPair(new FieldData(false, "erdat", LocalDate.class),
-				new SetterMethodData("setErdat", "(Ljava/time/LocalDate;)V", false));
-
-		FieldData ersb = new FieldData(false, "ersb", String.class);
-		SignatureData signature = new SignatureData(List.class);
-		signature.addSubType(new SignatureData(LocalDate.class));
-		testgenerator$classData.addFieldSetterPair(ersb,
-				new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
-	}
 
 	@Override
 	public int hashCode() {
