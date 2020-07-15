@@ -1,7 +1,5 @@
 package de.nvg.agent.classdata.modification;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -125,12 +123,6 @@ public class ClassDataGenerator {
 
 		// load the class into the jvm
 		pool.toClass(generatedClass, null, loader, null);
-
-		try (FileOutputStream fos = new FileOutputStream(
-				new File("D:\\" + className.substring(className.lastIndexOf('.') + 1) + ".class"))) {
-			fos.write(generatedClass.toBytecode());
-		}
-
 	}
 
 	private void generateFactoryRegistration(CtClass loadingClass) throws BadBytecode, DuplicateMemberException {

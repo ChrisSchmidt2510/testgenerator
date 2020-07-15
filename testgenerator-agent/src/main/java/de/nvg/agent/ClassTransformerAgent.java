@@ -9,6 +9,7 @@ import org.testgen.core.properties.AgentProperties;
 import de.nvg.agent.transformer.ClassDataTransformer;
 import de.nvg.agent.transformer.ValueTrackerTransformer;
 import javassist.ClassPool;
+import javassist.CtClass;
 import javassist.NotFoundException;
 
 public final class ClassTransformerAgent {
@@ -23,6 +24,8 @@ public final class ClassTransformerAgent {
 		AgentProperties.initProperties(agentArgs);
 
 		registerAdditionalClassPaths();
+
+		dumpModifiedClassFiles();
 
 		ValueTrackerTransformer valueTrackerTransformer = new ValueTrackerTransformer();
 
@@ -41,6 +44,13 @@ public final class ClassTransformerAgent {
 				LOGGER.error("cant add BL-Jar " + blJar + "to Javassist-ClassPath", e);
 			}
 		}
+	}
+
+	private static void dumpModifiedClassFiles() {
+		String directory = AgentProperties.getInstance().getPrintClassFileDirectory();
+
+		if (directory != null)
+			CtClass.debugDump = directory;
 	}
 
 }

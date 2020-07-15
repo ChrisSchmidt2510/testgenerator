@@ -1,8 +1,6 @@
 package de.nvg.agent.transformer;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -85,14 +83,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					classDataGenerator.generate(loadingClass);
 				}
 
-				byte[] bytecode = loadingClass.toBytecode();
-
-				try (FileOutputStream fos = new FileOutputStream(
-						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
-					fos.write(bytecode);
-				}
-
-				return bytecode;
+				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
 				LOGGER.error(e);

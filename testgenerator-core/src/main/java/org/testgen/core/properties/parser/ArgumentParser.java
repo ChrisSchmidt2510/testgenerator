@@ -40,7 +40,9 @@ public class ArgumentParser {
 
 			if (startIndexArgument >= 0) {
 				return args.substring(startIndexArgument + completeArg.length(),
-						args.indexOf(GENERALL_ARG_SEPARATUR, startIndexArgument + 1));
+						args.indexOf(GENERALL_ARG_SEPARATUR, startIndexArgument + 1) != -1
+								? args.indexOf(GENERALL_ARG_SEPARATUR, startIndexArgument + 1)
+								: args.length());
 
 			} else if (arg.isRequired()) {
 				throw new ParserException("required Argument " + argument + " is missing");

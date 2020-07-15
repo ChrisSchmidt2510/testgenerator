@@ -16,6 +16,8 @@ public final class AgentProperties {
 	private String methodDescriptor;
 	private List<String> blPackage;
 	private List<String> blPackageJarDestination;
+
+	private String printClassFileDirectory;
 	private boolean traceReadFieldAccess;
 
 	private AgentProperties() {
@@ -34,6 +36,7 @@ public final class AgentProperties {
 		agentProperties.methodDescriptor = parser.getArgumentValue(DefinedArguments.ARG_METHOD_DESC);
 		agentProperties.blPackage = parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE);
 		agentProperties.blPackageJarDestination = parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST);
+		agentProperties.printClassFileDirectory = parser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR);
 		agentProperties.traceReadFieldAccess = parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS);
 
 		if (instance == null) {
@@ -68,6 +71,14 @@ public final class AgentProperties {
 
 	public List<String> getBlPackageJarDest() {
 		return blPackageJarDestination;
+	}
+
+	public boolean printClassFiles() {
+		return printClassFileDirectory != null;
+	}
+
+	public String getPrintClassFileDirectory() {
+		return printClassFileDirectory;
 	}
 
 	public boolean isTraceReadFieldAccess() {
