@@ -10,6 +10,7 @@ import org.testgen.core.MapBuilder;
 public final class JVMTypes {
 
 	public static final String OBJECT = "Ljava/lang/Object;";
+	public static final String OBJECT_CLASSNAME = "java/lang/Object";
 
 	public static final String COLLECTION = "Ljava/util/Collection;";
 	public static final String LIST = "Ljava/util/List;";

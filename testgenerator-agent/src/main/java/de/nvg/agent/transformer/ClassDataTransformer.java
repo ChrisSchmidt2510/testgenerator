@@ -1,8 +1,6 @@
 package de.nvg.agent.transformer;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -33,7 +31,7 @@ import de.nvg.agent.classdata.model.ConstructorData;
 import de.nvg.agent.classdata.model.FieldData;
 import de.nvg.agent.classdata.model.MethodData;
 import de.nvg.agent.classdata.model.SignatureData;
-import de.nvg.agent.classdata.modification.MetaDataAdder;
+import de.nvg.agent.classdata.modification.ClassDataGenerator;
 import de.nvg.agent.classdata.modification.fields.FieldTypeChanger;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -44,10 +42,8 @@ import javassist.NotFoundException;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.ClassFile;
-import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
-import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.FieldInfo;
 import javassist.bytecode.InnerClassesAttribute;
 import javassist.bytecode.MethodInfo;
@@ -74,28 +70,34 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			final ClassPool pool = ClassPool.getDefault();
 
-			try {
-				CtClass loadingClass = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
+			CtClass loadingClass = null;
 
-				byte[] bytecode = collectAndAlterMetaData(loadingClass);
+			try (ByteArrayInputStream stream = new ByteArrayInputStream(classfileBuffer)) {
+				loadingClass = pool.makeClass(stream);
 
-				try (FileOutputStream fos = new FileOutputStream(
-						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
-					fos.write(bytecode);
+				ClassData classData = collectClassData(loadingClass);
+				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
+
+				if (!classData.isEnum()) {
+					ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData, loader);
+					classDataGenerator.generate(loadingClass);
 				}
 
-				return bytecode;
+				return loadingClass.toBytecode();
 
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				LOGGER.error(e);
 				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+			} finally {
+				if (loadingClass != null)
+					loadingClass.detach();
 			}
 		}
 
 		return classfileBuffer;
 	}
 
-	private byte[] collectAndAlterMetaData(CtClass loadingClass)
+	private ClassData collectClassData(CtClass loadingClass)
 			throws NotFoundException, CannotCompileException, BadBytecode, IOException {
 		ClassData classData;
 
@@ -142,18 +144,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			long end = System.currentTimeMillis();
 
 			LOGGER.info("Processing of manipulation for class " + classData + " :" + (end - start));
-
-			addMetaDataToClassFile(loadingClass, constantPool, classData);
-
 		}
 
-		ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
-
-		byte[] bytecode = loadingClass.toBytecode();
-
-		loadingClass.detach();
-
-		return bytecode;
+		return classData;
 	}
 
 	private List<FieldData> analyseFields(ClassFile loadedClass) {
@@ -223,38 +216,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 	private boolean isMethodClInitOrConstructor(MethodInfo method) {
 		return MethodInfo.nameClinit.equals(method.getName()) || MethodInfo.nameInit.equals(method.getName());
-	}
-
-	private void addMetaDataToClassFile(CtClass loadingClass, ConstPool constantPool, ClassData classData)
-			throws BadBytecode, CannotCompileException {
-
-		ClassFile classFile = loadingClass.getClassFile();
-
-		MethodInfo clinit = null;
-		List<Instruction> instructions = null;
-
-		clinit = classFile.getMethod(MethodInfo.nameClinit);
-
-		if (clinit != null) {
-			instructions = Instructions.getAllInstructions(clinit);
-		} else {
-			LOGGER.info("Erstelle " + MethodInfo.nameClinit + " fuer Klasse " + loadingClass.getName());
-
-			clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
-
-			CodeAttribute codeAttribute = new CodeAttribute(constantPool, 0, 0, new byte[0],
-					new ExceptionTable(constantPool));
-
-			clinit.setCodeAttribute(codeAttribute);
-			clinit.setAccessFlags(Modifier.STATIC);
-
-			classFile.addMethod(clinit);
-
-			instructions = new ArrayList<>();
-		}
-
-		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, loadingClass, classData);
-		metaDataAdder.add(clinit.getCodeAttribute(), instructions);
 	}
 
 	private ClassData createClassHierachie(CtClass loadingClass) throws NotFoundException {

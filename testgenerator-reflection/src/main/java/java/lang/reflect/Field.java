@@ -8,8 +8,8 @@ import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.extension.ClassExtension;
 import org.testgen.extension.Modified;
+import org.testgen.runtime.classdata.model.ClassData;
 
-import de.nvg.runtime.classdatamodel.ClassData;
 import sun.reflect.CallerSensitive;
 import sun.reflect.FieldAccessor;
 import sun.reflect.Reflection;

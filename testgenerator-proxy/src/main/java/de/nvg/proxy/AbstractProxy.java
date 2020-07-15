@@ -5,8 +5,7 @@ import java.util.Set;
 import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.properties.RuntimeProperties;
-
-import de.nvg.runtime.classdatamodel.FieldData;
+import org.testgen.runtime.classdata.model.FieldData;
 
 public abstract class AbstractProxy {
 	private final FieldData field;

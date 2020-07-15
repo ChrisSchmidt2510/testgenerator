@@ -12,6 +12,11 @@ import javax.lang.model.element.Modifier;
 import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.runtime.classdata.model.ClassData;
+import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.classdata.model.SetterMethodData;
+import org.testgen.runtime.classdata.model.SetterType;
+import org.testgen.runtime.classdata.model.SignatureData;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock.Builder;
@@ -19,11 +24,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import de.nvg.runtime.classdatamodel.ClassData;
-import de.nvg.runtime.classdatamodel.FieldData;
-import de.nvg.runtime.classdatamodel.SetterMethodData;
-import de.nvg.runtime.classdatamodel.SetterType;
-import de.nvg.runtime.classdatamodel.SignatureData;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.ContainerGeneration;
 import de.nvg.testgenerator.generation.naming.NamingService;

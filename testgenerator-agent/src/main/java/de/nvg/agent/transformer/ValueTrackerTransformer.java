@@ -1,8 +1,6 @@
 package de.nvg.agent.transformer;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -77,21 +75,19 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 		if (properties.getClassName().equals(className)) {
 			final ClassPool pool = ClassPool.getDefault();
-			try {
-				CtClass classToLoad = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
 
-				byte[] bytecode = reTransformMethodForObservObjectData(classToLoad);
+			CtClass loadingClass = null;
+			try (ByteArrayInputStream stream = new ByteArrayInputStream(classfileBuffer)) {
+				loadingClass = pool.makeClass(stream);
 
-				try (FileOutputStream fos = new FileOutputStream(
-						new File("D:\\" + className.substring(className.lastIndexOf('/')) + ".class"))) {
-					fos.write(bytecode);
-				}
+				return reTransformMethodForObservObjectData(loadingClass);
 
-				return bytecode;
-
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				LOGGER.error(e);
 				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+			} finally {
+				if (loadingClass != null)
+					loadingClass.detach();
 			}
 
 		}

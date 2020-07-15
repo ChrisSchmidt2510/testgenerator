@@ -1,4 +1,4 @@
-package de.nvg.runtime.classdatamodel;
+package org.testgen.runtime.classdata.model;
 
 import java.util.Objects;
 

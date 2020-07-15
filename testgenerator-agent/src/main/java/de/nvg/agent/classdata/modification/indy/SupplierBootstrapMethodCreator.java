@@ -5,10 +5,12 @@ import javassist.bytecode.ConstPool;
 
 public class SupplierBootstrapMethodCreator extends AbstractBootstrapMethodCreator {
 	private static final String INDY_SUPPLIER_GENERIC_RETURN_TYPE = "()Ljava/lang/Object;";
-	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lde/nvg/runtime/classdatamodel/ClassData;";
 
-	public SupplierBootstrapMethodCreator(ClassFile classFile, ConstPool constantPool) {
+	private final String typedReturntype;
+
+	public SupplierBootstrapMethodCreator(ClassFile classFile, ConstPool constantPool, String typedReturntype) {
 		super(classFile, constantPool);
+		this.typedReturntype = typedReturntype;
 	}
 
 	@Override
@@ -18,7 +20,7 @@ public class SupplierBootstrapMethodCreator extends AbstractBootstrapMethodCreat
 
 	@Override
 	protected String getTypedMethodType() {
-		return INDY_SUPPLIER_TYPED_RETURN_TYPE;
+		return typedReturntype;
 	}
 
 }

@@ -3,16 +3,16 @@ package de.nvg.agent.classdata.modification;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.testgen.core.MethodHandles;
-import org.testgen.core.TestgeneratorConstants;
+import org.testgen.runtime.classdata.ClassDataFactory;
+import org.testgen.runtime.classdata.model.SetterMethodData;
+import org.testgen.runtime.classdata.model.SetterType;
 
+import de.nvg.agent.classdata.TestHelper;
 import de.nvg.agent.classdata.model.ClassData;
 import de.nvg.agent.classdata.model.ConstructorData;
 import de.nvg.agent.classdata.model.FieldData;
@@ -21,86 +21,72 @@ import de.nvg.agent.classdata.model.MethodType;
 import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.agent.classdata.testclasses.Adresse;
 import de.nvg.agent.classdata.testclasses.BlObject;
+import de.nvg.agent.classdata.testclasses.Person;
 import de.nvg.agent.classdata.testclasses.Person.Geschlecht;
-import de.nvg.runtime.classdatamodel.SetterMethodData;
-import de.nvg.runtime.classdatamodel.SetterType;
 import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.ConstPool;
-import javassist.bytecode.DuplicateMemberException;
-import javassist.bytecode.ExceptionTable;
-import javassist.bytecode.MethodInfo;
 
-public class MetaDataAdderTest {
-
-	private CtClass testClass;
-	private ClassPool classPool = ClassPool.getDefault();
-	private ConstPool constantPool;
-	private CodeAttribute codeAttribute;
-
-	private void initTest(String className) throws NotFoundException, DuplicateMemberException {
-
-		testClass = classPool.get(className);
-
-		ClassFile classFile = testClass.getClassFile();
-		constantPool = classFile.getConstPool();
-
-		MethodInfo method = new MethodInfo(constantPool, MethodInfo.nameClinit, "()V");
-
-		codeAttribute = new CodeAttribute(constantPool, 0, 0, new byte[0], new ExceptionTable(constantPool));
-
-		method.setCodeAttribute(codeAttribute);
-		method.setAccessFlags(Modifier.STATIC);
-
-		classFile.addMethod(method);
-	}
-
-	@After
-	public void shutdown() {
-		testClass.detach();
-
-		testClass = null;
-	}
+public class ClassDataGeneratorTest extends TestHelper {
 
 	@Test
 	public void testAddWithConstructorAndSuperClass()
 			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException, NotFoundException {
-		initTest("de.nvg.agent.classdata.testclasses.Adresse");
+		init(Adresse.class);
 
 		ClassData classData = prepareAdresseClassData();
 
-		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, testClass, classData);
-		metaDataAdder.add(codeAttribute, new ArrayList<>());
+		ClassLoader loader = this.getClass().getClassLoader();
 
-		Class<?> adresseClazz = classPool.toClass(testClass);
+		ClassDataGenerator generator = new ClassDataGenerator(classData, loader);
+		try {
+			generator.generate(ctClass);
 
-		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				TestgeneratorConstants.FIELDNAME_CLASS_DATA);
+			// normally this step is done by Adresse but Adresse dont get modified for this
+			// test
+			Class<?> loadClass = loader
+					.loadClass("de.nvg.agent.classdata.testclasses.Adresse$$Testgenerator$ClassData");
 
-		compareClassDataAdresse(runtimeClassData);
+			ClassDataFactory.getInstance().register(Adresse.class, loadClass);
+
+			// normally this step is done than BlObject gets loaded into the jvm
+			ClassDataFactory.getInstance().register(BlObject.class,
+					de.nvg.agent.classdata.testclasses.BlObject$$Testgenerator$ClassData.class);
+
+			org.testgen.runtime.classdata.model.ClassData runtimeClassData = ClassDataFactory.getInstance()
+					.getClassData(Adresse.class);
+
+			compareClassDataAdresse(runtimeClassData);
+		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
+			Assert.fail();
+		}
 	}
 
 	@Test
 	public void testAddWithDefaultConstructor() throws NotFoundException, CannotCompileException, BadBytecode {
-		initTest("de.nvg.agent.classdata.testclasses.Person");
+		init(Person.class);
 
 		ClassData classData = preparePersonClassData();
 
-		MetaDataAdder metaDataAdder = new MetaDataAdder(constantPool, testClass, classData);
-		metaDataAdder.add(codeAttribute, new ArrayList<>());
+		ClassLoader loader = this.getClass().getClassLoader();
 
-		Class<?> adresseClazz = classPool.toClass(testClass);
+		ClassDataGenerator generator = new ClassDataGenerator(classData, loader);
+		try {
+			generator.generate(ctClass);
 
-		de.nvg.runtime.classdatamodel.ClassData runtimeClassData = MethodHandles.getStaticFieldValue(adresseClazz,
-				TestgeneratorConstants.FIELDNAME_CLASS_DATA);
+			// normally this step is done by Person but Person dont get modified for this
+			// test
+			Class<?> loadClass = loader.loadClass("de.nvg.agent.classdata.testclasses.Person$$Testgenerator$ClassData");
 
-		compareClassDataPerson(runtimeClassData);
+			ClassDataFactory.getInstance().register(Person.class, loadClass);
+
+			org.testgen.runtime.classdata.model.ClassData runtimeClassData = ClassDataFactory.getInstance()
+					.getClassData(Person.class);
+
+			compareClassDataPerson(runtimeClassData);
+		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
+			Assert.fail();
+		}
 	}
 
 	private ClassData prepareAdresseClassData() {
@@ -187,25 +173,25 @@ public class MetaDataAdderTest {
 		return classData;
 	}
 
-	private void compareClassDataAdresse(de.nvg.runtime.classdatamodel.ClassData adresse) {
+	private void compareClassDataAdresse(org.testgen.runtime.classdata.model.ClassData adresse) {
 
-		de.nvg.runtime.classdatamodel.FieldData fieldStrasse = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"strasse", String.class);
+		org.testgen.runtime.classdata.model.FieldData fieldStrasse = new org.testgen.runtime.classdata.model.FieldData(
+				false, "strasse", String.class);
 		compareFields(fieldStrasse, adresse.getFieldInHierarchie(fieldStrasse));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldHausnummer = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"hausnummer", short.class);
+		org.testgen.runtime.classdata.model.FieldData fieldHausnummer = new org.testgen.runtime.classdata.model.FieldData(
+				false, "hausnummer", short.class);
 		compareFields(fieldHausnummer, adresse.getFieldInHierarchie(fieldHausnummer));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldOrt = new de.nvg.runtime.classdatamodel.FieldData(false, "ort",
-				String.class);
+		org.testgen.runtime.classdata.model.FieldData fieldOrt = new org.testgen.runtime.classdata.model.FieldData(
+				false, "ort", String.class);
 		compareFields(fieldOrt, adresse.getFieldInHierarchie(fieldOrt));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldPlz = new de.nvg.runtime.classdatamodel.FieldData(false, "plz",
-				int.class);
+		org.testgen.runtime.classdata.model.FieldData fieldPlz = new org.testgen.runtime.classdata.model.FieldData(
+				false, "plz", int.class);
 		compareFields(fieldPlz, adresse.getFieldInHierarchie(fieldPlz));
 
-		de.nvg.runtime.classdatamodel.ConstructorData constructor = new de.nvg.runtime.classdatamodel.ConstructorData(
+		org.testgen.runtime.classdata.model.ConstructorData constructor = new org.testgen.runtime.classdata.model.ConstructorData(
 				false);
 		constructor.addElement(0, fieldStrasse);
 		constructor.addElement(1, fieldHausnummer);
@@ -213,10 +199,9 @@ public class MetaDataAdderTest {
 		constructor.addElement(3, fieldPlz);
 		compareConstructors(constructor, adresse.getConstructor());
 
-		de.nvg.runtime.classdatamodel.ClassData classData = new de.nvg.runtime.classdatamodel.ClassData(
+		org.testgen.runtime.classdata.model.ClassData classData = new org.testgen.runtime.classdata.model.ClassData(
 				"de.nvg.agent.classdata.testclasses.Adresse",
-				() -> MethodHandles.getStaticFieldValue(BlObject.class, TestgeneratorConstants.FIELDNAME_CLASS_DATA),
-				null, constructor);
+				() -> ClassDataFactory.getInstance().getClassData(BlObject.class), null, constructor);
 		compareClasses(classData, adresse);
 
 		SetterMethodData setterStrasse = new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false);
@@ -233,38 +218,38 @@ public class MetaDataAdderTest {
 
 	}
 
-	private void compareClassDataPerson(de.nvg.runtime.classdatamodel.ClassData person) {
+	private void compareClassDataPerson(org.testgen.runtime.classdata.model.ClassData person) {
 
-		de.nvg.runtime.classdatamodel.FieldData fieldName = new de.nvg.runtime.classdatamodel.FieldData(false, "name",
-				String.class);
+		org.testgen.runtime.classdata.model.FieldData fieldName = new org.testgen.runtime.classdata.model.FieldData(
+				false, "name", String.class);
 		compareFields(fieldName, person.getFieldInHierarchie(fieldName));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldVorname = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"firstName", String.class);
+		org.testgen.runtime.classdata.model.FieldData fieldVorname = new org.testgen.runtime.classdata.model.FieldData(
+				false, "firstName", String.class);
 		compareFields(fieldVorname, person.getFieldInHierarchie(fieldVorname));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldDateOfBirth = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"dateOfBirth", LocalDate.class);
+		org.testgen.runtime.classdata.model.FieldData fieldDateOfBirth = new org.testgen.runtime.classdata.model.FieldData(
+				false, "dateOfBirth", LocalDate.class);
 		compareFields(fieldDateOfBirth, person.getFieldInHierarchie(fieldDateOfBirth));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldGeschlecht = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"geschlecht", Geschlecht.class);
+		org.testgen.runtime.classdata.model.FieldData fieldGeschlecht = new org.testgen.runtime.classdata.model.FieldData(
+				false, "geschlecht", Geschlecht.class);
 		compareFields(fieldGeschlecht, person.getFieldInHierarchie(fieldGeschlecht));
 
-		de.nvg.runtime.classdatamodel.SignatureData adressenSignature = new de.nvg.runtime.classdatamodel.SignatureData(
+		org.testgen.runtime.classdata.model.SignatureData adressenSignature = new org.testgen.runtime.classdata.model.SignatureData(
 				List.class);
-		adressenSignature.addSubType(new de.nvg.runtime.classdatamodel.SignatureData(Adresse.class));
+		adressenSignature.addSubType(new org.testgen.runtime.classdata.model.SignatureData(Adresse.class));
 
-		de.nvg.runtime.classdatamodel.FieldData fieldAdressen = new de.nvg.runtime.classdatamodel.FieldData(false,
-				"adressen", List.class);
+		org.testgen.runtime.classdata.model.FieldData fieldAdressen = new org.testgen.runtime.classdata.model.FieldData(
+				false, "adressen", List.class);
 		fieldAdressen.setSignature(adressenSignature);
 		compareFields(fieldAdressen, person.getFieldInHierarchie(fieldAdressen));
 
-		de.nvg.runtime.classdatamodel.ConstructorData constructor = new de.nvg.runtime.classdatamodel.ConstructorData(
+		org.testgen.runtime.classdata.model.ConstructorData constructor = new org.testgen.runtime.classdata.model.ConstructorData(
 				true);
 		compareConstructors(constructor, person.getConstructor());
 
-		de.nvg.runtime.classdatamodel.ClassData classData = new de.nvg.runtime.classdatamodel.ClassData(
+		org.testgen.runtime.classdata.model.ClassData classData = new org.testgen.runtime.classdata.model.ClassData(
 				"de.nvg.agent.classdata.testclasses.Person", constructor);
 		compareClasses(classData, person);
 
@@ -287,26 +272,26 @@ public class MetaDataAdderTest {
 
 	}
 
-	private void compareClasses(de.nvg.runtime.classdatamodel.ClassData expected,
-			de.nvg.runtime.classdatamodel.ClassData actual) {
+	private void compareClasses(org.testgen.runtime.classdata.model.ClassData expected,
+			org.testgen.runtime.classdata.model.ClassData actual) {
 		Assert.assertEquals(expected.getName(), actual.getName());
 		Assert.assertEquals(expected.getSuperclass(), actual.getSuperclass());
 	}
 
-	private void compareConstructors(de.nvg.runtime.classdatamodel.ConstructorData expected,
-			de.nvg.runtime.classdatamodel.ConstructorData actual) {
+	private void compareConstructors(org.testgen.runtime.classdata.model.ConstructorData expected,
+			org.testgen.runtime.classdata.model.ConstructorData actual) {
 		Assert.assertEquals(expected.hasDefaultConstructor(), actual.hasDefaultConstructor());
 		Assert.assertEquals(expected.getConstructorFields(), actual.getConstructorFields());
 	}
 
-	private void compareFields(de.nvg.runtime.classdatamodel.FieldData expected,
-			de.nvg.runtime.classdatamodel.FieldData actual) {
+	private void compareFields(org.testgen.runtime.classdata.model.FieldData expected,
+			org.testgen.runtime.classdata.model.FieldData actual) {
 		Assert.assertEquals(expected, actual);
 		Assert.assertEquals(expected.getSignature(), actual.getSignature());
 	}
 
-	private void compareSetterMethods(de.nvg.runtime.classdatamodel.SetterMethodData expected,
-			de.nvg.runtime.classdatamodel.SetterMethodData actual) {
+	private void compareSetterMethods(org.testgen.runtime.classdata.model.SetterMethodData expected,
+			org.testgen.runtime.classdata.model.SetterMethodData actual) {
 		Assert.assertEquals(expected.getName(), actual.getName());
 		Assert.assertEquals(expected.getDescriptor(), actual.getDescriptor());
 		Assert.assertEquals(expected.getType(), actual.getType());
