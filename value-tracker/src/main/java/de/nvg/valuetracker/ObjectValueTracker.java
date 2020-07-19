@@ -42,6 +42,7 @@ import de.nvg.proxy.impl.ReferenceProxy;
 import de.nvg.valuetracker.blueprint.ArrayBluePrint;
 import de.nvg.valuetracker.blueprint.BluePrint;
 import de.nvg.valuetracker.blueprint.ComplexBluePrint;
+import de.nvg.valuetracker.blueprint.ProxyBluePrint;
 import de.nvg.valuetracker.blueprint.Type;
 import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
 import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
@@ -87,6 +88,15 @@ public final class ObjectValueTracker {
 		}
 	}
 
+	public void trackProxyValues(Object value, String name, Class<?> interfaceClass, String proxyName) {
+		if (value != null) {
+			ProxyBluePrint proxy = (ProxyBluePrint) getBluePrintForReference(interfaceClass, //
+					() -> new ProxyBluePrint(proxyName, interfaceClass));
+
+			ValueStorage.getInstance().addProxyBluePrint(proxy, trackValues(value, name));
+		}
+	}
+
 	public void enableFieldTracking() {
 		RuntimeProperties.getInstance().setFieldTracking(true);
 	}
@@ -103,15 +113,16 @@ public final class ObjectValueTracker {
 
 		BluePrint bluePrint = null;
 
-		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum()) {
+		if (DIRECT_OUTPUT_CLASSES.contains(proxyValue.getClass()) || proxyValue.getClass().isEnum())
 			bluePrint = SimpleBluePrintFactory.of(name, proxyValue);
-		} else if (isCollection(proxyValue)) {
+		else if (isCollection(proxyValue))
 			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesFromCollections(proxyValue, name));
-		} else if (proxyValue.getClass().isArray()) {
+		else if (proxyValue.getClass().isArray())
 			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesArray(proxyValue, name));
-		} else {
+		else if (Proxy.isProxyClass(proxyValue.getClass()))
+			bluePrint = getBluePrintForReference(proxyValue, () -> new ProxyBluePrint(name, proxyValue.getClass()));
+		else
 			bluePrint = getBluePrintForReference(proxyValue, () -> trackValuesFromComplexTypes(proxyValue, name));
-		}
 
 		List<Consumer<BluePrint>> valueAfterCreation = addValueAfterCreation.get(proxyValue);
 

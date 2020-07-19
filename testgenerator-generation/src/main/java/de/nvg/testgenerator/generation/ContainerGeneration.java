@@ -1,11 +1,10 @@
 package de.nvg.testgenerator.generation;
 
-import com.squareup.javapoet.CodeBlock.Builder;
-
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
-import org.testgen.runtime.classdata.model.SignatureData;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
+import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.TypeSpec;
 
 import de.nvg.testgenerator.generation.naming.NamingService;
@@ -20,7 +19,7 @@ public interface ContainerGeneration {
 	void setNamingService(NamingService namingService);
 
 	void createCollection(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
-			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField);
+			SignatureType signature, boolean onlyCreateCollectionElements, boolean isField);
 
 	void createArray(Builder code, ArrayBluePrint arrayBluePrint, boolean onlyCreateElements, //
 			boolean isField);
@@ -30,6 +29,6 @@ public interface ContainerGeneration {
 
 	void addContainerToObject(Builder code, BluePrint containerBP, FieldData field, String objectName);
 
-	void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureData signature);
+	void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureType signature);
 
 }

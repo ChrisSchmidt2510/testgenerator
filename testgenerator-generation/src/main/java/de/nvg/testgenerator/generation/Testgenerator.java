@@ -3,8 +3,8 @@ package de.nvg.testgenerator.generation;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +15,7 @@ import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
-import org.testgen.runtime.classdata.model.SignatureData;
+import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
@@ -24,6 +24,7 @@ import com.squareup.javapoet.TypeSpec.Builder;
 import de.nvg.testgenerator.generation.impl.DefaultTestClassGeneration;
 import de.nvg.testgenerator.generation.impl.TestGenerationHelper;
 import de.nvg.valuetracker.blueprint.BluePrint;
+import de.nvg.valuetracker.blueprint.ProxyBluePrint;
 import de.nvg.valuetracker.storage.ValueStorage;
 
 public final class Testgenerator {
@@ -41,7 +42,7 @@ public final class Testgenerator {
 	 * 
 	 * @Param Name der Methode fuer die ein Testfall erstellt wird
 	 */
-	public static void generate(String className, String method) {
+	public static void generate(Class<?> testClass, String method, List<DescriptorType> methodParameterTypes) {
 		LOGGER.info("Starting test-generation");
 		RuntimeProperties.getInstance().setFieldTracking(false);
 		RuntimeProperties.getInstance().setProxyTracking(false);
@@ -49,8 +50,7 @@ public final class Testgenerator {
 
 		TestClassGeneration testGenerator = new DefaultTestClassGeneration();
 
-		Builder classBuilder = TypeSpec.classBuilder(getClassNameWithoutPackage(className) + TEST)
-				.addModifiers(Modifier.PUBLIC);
+		Builder classBuilder = TypeSpec.classBuilder(testClass.getSimpleName() + TEST).addModifiers(Modifier.PUBLIC);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
 
@@ -61,12 +61,10 @@ public final class Testgenerator {
 
 		testGenerator.prepareTestObject(classBuilder, testObject, classData, calledFields);
 
-		Map<Integer, SignatureData> methodSignature = TestGenerationHelper
-				.getMethodSignature(testObject.getReference());
 		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters(),
-				methodSignature);
+				methodParameterTypes);
 
-		Collection<BluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
+		Map<ProxyBluePrint, List<BluePrint>> proxyObjects = ValueStorage.getInstance().getProxyObjects();
 
 		boolean withProxyObjects = !proxyObjects.isEmpty();
 		if (withProxyObjects) {
@@ -79,7 +77,7 @@ public final class Testgenerator {
 				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
 						+ " with Testgenerator-" + Testgenerator.class.getPackage().getImplementationVersion());
 
-		JavaFile file = JavaFile.builder(getPackageWithoutClassname(className), classBuilder.build())
+		JavaFile file = JavaFile.builder(testClass.getPackage().getName(), classBuilder.build())
 				.skipJavaLangImports(true).build();
 		LOGGER.debug("generated Test", stream -> {
 			try {
@@ -90,14 +88,6 @@ public final class Testgenerator {
 		});
 
 		ValueStorage.getInstance().popAndResetTestData();
-	}
-
-	private static String getClassNameWithoutPackage(String className) {
-		return className.substring(className.lastIndexOf('/') + 1).replace("$", "");
-	}
-
-	private static String getPackageWithoutClassname(String className) {
-		return className.substring(0, className.lastIndexOf('/')).replace('/', '.');
 	}
 
 }

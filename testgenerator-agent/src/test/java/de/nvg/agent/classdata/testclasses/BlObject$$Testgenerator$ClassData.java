@@ -7,7 +7,7 @@ import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.ConstructorData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
-import org.testgen.runtime.classdata.model.SignatureData;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 public class BlObject$$Testgenerator$ClassData {
 
@@ -19,8 +19,8 @@ public class BlObject$$Testgenerator$ClassData {
 				new SetterMethodData("setErdat", "(Ljava/time/LocalDate;)V", false));
 
 		FieldData ersb = new FieldData(false, "ersb", String.class);
-		SignatureData signature = new SignatureData(List.class);
-		signature.addSubType(new SignatureData(LocalDate.class));
+		SignatureType signature = new SignatureType(List.class);
+		signature.addSubType(new SignatureType(LocalDate.class));
 		testgenerator$classData.addFieldSetterPair(ersb,
 				new SetterMethodData("setErsb", "(Ljava/lang/String)V;", false));
 	}

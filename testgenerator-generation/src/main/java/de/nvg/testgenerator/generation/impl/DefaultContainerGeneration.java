@@ -16,7 +16,7 @@ import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
-import org.testgen.runtime.classdata.model.SignatureData;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock.Builder;
@@ -59,7 +59,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 	@Override
 	public void createCollection(Builder code, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
-			SignatureData signature, boolean onlyCreateCollectionElements, boolean isField) {
+			SignatureType signature, boolean onlyCreateCollectionElements, boolean isField) {
 
 		LOGGER.info("starting generation of Collection:" + basicCollectionBP);
 
@@ -171,7 +171,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 	}
 
 	@Override
-	public void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureData signature) {
+	public void addFieldToClass(TypeSpec.Builder typeSpec, BluePrint containerBP, SignatureType signature) {
 
 		if (containerBP instanceof CollectionBluePrint) {
 			addFieldToClass(typeSpec, (CollectionBluePrint) containerBP, signature);
@@ -182,7 +182,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		}
 	}
 
-	private void addFieldToClass(TypeSpec.Builder typeSpec, CollectionBluePrint collection, SignatureData signature) {
+	private void addFieldToClass(TypeSpec.Builder typeSpec, CollectionBluePrint collection, SignatureType signature) {
 		TypeName collectionType;
 
 		if (signature != null) {
@@ -194,7 +194,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		typeSpec.addField(collectionType, namingService.getName(collection), Modifier.PRIVATE);
 	}
 
-	private void addFieldToClass(TypeSpec.Builder typeSpec, MapBluePrint map, SignatureData signature) {
+	private void addFieldToClass(TypeSpec.Builder typeSpec, MapBluePrint map, SignatureType signature) {
 		TypeName mapType;
 
 		if (signature != null) {
@@ -254,11 +254,11 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		}
 	}
 
-	private void createCollection(Builder code, CollectionBluePrint collection, SignatureData signature,
+	private void createCollection(Builder code, CollectionBluePrint collection, SignatureType signature,
 			boolean onlyCreateCollectionElements, boolean isField) {
 		LOGGER.info("generating Collection for BluePrint: " + namingService.getName(collection));
 
-		SignatureData genericType = signature != null ? signature.getSubTypes().get(0) : null;
+		SignatureType genericType = signature != null ? signature.getSubTypes().get(0) : null;
 
 		for (BluePrint bluePrint : collection.getBluePrints()) {
 			createComplexContainerElement(code, bluePrint, //
@@ -299,7 +299,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		}
 	}
 
-	private void createMap(Builder code, MapBluePrint map, SignatureData signature,
+	private void createMap(Builder code, MapBluePrint map, SignatureType signature,
 			boolean onlyCreateCollectionElements, boolean isField) {
 
 		for (Entry<BluePrint, BluePrint> pair : map.getBluePrints()) {
@@ -347,7 +347,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		}
 	}
 
-	TypeName getParameterizedTypeName(SignatureData signature) {
+	TypeName getParameterizedTypeName(SignatureType signature) {
 
 		if (signature.isSimpleSignature()) {
 			return TypeName.get(signature.getType());
@@ -356,7 +356,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			TypeName[] subTypes = new TypeName[signature.getSubTypes().size()];
 
 			for (int i = 0; i < signature.getSubTypes().size(); i++) {
-				SignatureData subSignature = signature.getSubTypes().get(i);
+				SignatureType subSignature = signature.getSubTypes().get(i);
 
 				subTypes[i] = getParameterizedTypeName(subSignature);
 			}
@@ -383,7 +383,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		throw new IllegalArgumentException(bluePrint + "is not a valid BluePrinttype");
 	}
 
-	private void createComplexContainerElement(Builder code, BluePrint bluePrint, SignatureData signature) {
+	private void createComplexContainerElement(Builder code, BluePrint bluePrint, SignatureType signature) {
 		if (bluePrint.isComplexBluePrint() && bluePrint.isNotBuild()) {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
 

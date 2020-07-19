@@ -236,9 +236,9 @@ public class ClassDataGeneratorTest extends TestHelper {
 				false, "geschlecht", Geschlecht.class);
 		compareFields(fieldGeschlecht, person.getFieldInHierarchie(fieldGeschlecht));
 
-		org.testgen.runtime.classdata.model.SignatureData adressenSignature = new org.testgen.runtime.classdata.model.SignatureData(
+		org.testgen.runtime.classdata.model.descriptor.SignatureType adressenSignature = new org.testgen.runtime.classdata.model.descriptor.SignatureType(
 				List.class);
-		adressenSignature.addSubType(new org.testgen.runtime.classdata.model.SignatureData(Adresse.class));
+		adressenSignature.addSubType(new org.testgen.runtime.classdata.model.descriptor.SignatureType(Adresse.class));
 
 		org.testgen.runtime.classdata.model.FieldData fieldAdressen = new org.testgen.runtime.classdata.model.FieldData(
 				false, "adressen", List.class);

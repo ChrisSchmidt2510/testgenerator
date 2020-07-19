@@ -64,7 +64,7 @@ public class ClassDataGenerator {
 	private static final String FIELD_DATA_CLASSNAME = "org/testgen/runtime/classdata/model/FieldData";
 	private static final String FIELD_DATA_CONSTRUCTOR = "(ZLjava/lang/String;Ljava/lang/Class;)V";
 	private static final String FIELD_DATA_METHOD_SET_SIGNATURE = "setSignature";
-	private static final String FIELD_DATA_METHOD_SET_SIGNATURE_DESC = "(Lorg/testgen/runtime/classdata/model/SignatureData;)V";
+	private static final String FIELD_DATA_METHOD_SET_SIGNATURE_DESC = "(Lorg/testgen/runtime/classdata/model/descriptor/SignatureType;)V";
 
 	private static final String SETTER_TYPE_CLASSNAME = "org/testgen/runtime/classdata/model/SetterType";
 	private static final String SETTER_TYPE = "Lorg/testgen/runtime/classdata/model/SetterType;";

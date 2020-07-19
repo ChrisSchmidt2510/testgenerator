@@ -17,7 +17,7 @@ import org.testgen.runtime.classdata.model.ConstructorData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
-import org.testgen.runtime.classdata.model.SignatureData;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
@@ -270,7 +270,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 					AbstractBasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
 
 					SetterMethodData setter = null;
-					SignatureData signature = null;
+					SignatureType signature = null;
 					if (properties.wasFieldTrackingActivated()) {
 						FieldData field = classData.getFieldInHierarchie(calledField.get());
 						signature = field.getSignature();

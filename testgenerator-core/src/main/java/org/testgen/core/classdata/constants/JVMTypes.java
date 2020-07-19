@@ -14,6 +14,9 @@ public final class JVMTypes {
 
 	public static final String COLLECTION = "Ljava/util/Collection;";
 	public static final String LIST = "Ljava/util/List;";
+
+	public static final String LIST_CLASSNAME = "java/util/List";
+	public static final String ARRAYLIST_CLASSNAME = "java/util/ArrayList";
 	public static final String SET = "Ljava/util/Set;";
 	public static final String QUEUE = "Ljava/util/Queue;";
 	public static final String MAP = "Ljava/util/Map;";
@@ -44,6 +47,7 @@ public final class JVMTypes {
 	public static final String LONG_METHOD_VALUE_OF_DESC = "(J)Ljava/lang/Long;";
 
 	public static final String COLLECTION_METHOD_ADD = "add";
+	public static final String COLLECTION_METHOD_ADD_DESC = "(Ljava/lang/Object;)Z";
 	public static final String QUEUE_METHOD_OFFER = "offer";
 	public static final String MAP_METHOD_PUT = "put";
 	public static final String MAP_METHOD_PUT_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;";

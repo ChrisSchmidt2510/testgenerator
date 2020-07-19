@@ -12,10 +12,10 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
 public class SignatureAdder {
-	private static final String SIGNATURE_DATA_CLASSNAME = "org/testgen/runtime/classdata/model/SignatureData";
+	private static final String SIGNATURE_DATA_CLASSNAME = "org/testgen/runtime/classdata/model/descriptor/SignatureType";
 	private static final String SIGNATURE_DATA_CONSTRUCTOR = "(Ljava/lang/Class;)V";
 	private static final String SIGNATURE_DATA_METHOD_ADD_SUBTYPE = "addSubType";
-	private static final String SIGNATURE_DATA_METHOD_ADD_SUBTYPE_DESC = "(Lorg/testgen/runtime/classdata/model/SignatureData;)V";
+	private static final String SIGNATURE_DATA_METHOD_ADD_SUBTYPE_DESC = "(Lorg/testgen/runtime/classdata/model/descriptor/SignatureType;)V";
 
 	private final ConstPool constantPool;
 

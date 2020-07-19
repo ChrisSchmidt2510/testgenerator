@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.core.classdata.constants.JVMTypes;
 import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.AgentProperties;
@@ -15,11 +17,13 @@ import de.nvg.agent.classdata.modification.helper.CodeArrayModificator;
 import de.nvg.agent.classdata.modification.helper.ExceptionHandler;
 import de.nvg.agent.classdata.modification.helper.ExceptionHandler.ExceptionHandlerModel;
 import javassist.ClassPool;
+import javassist.CtClass;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
+import javassist.bytecode.Descriptor;
 import javassist.bytecode.ExceptionTable;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
@@ -29,7 +33,7 @@ import javassist.bytecode.stackmap.MapMaker;
 public class TestGenerationAdder {
 	private static final String TEST_GENERATOR_CLASSNAME = "de/nvg/testgenerator/generation/Testgenerator";
 	private static final String TEST_GENERATOR_METHOD_GENERATE = "generate";
-	private static final String TEST_GENERATOR_METHOD_GENERATE_DESC = "(Ljava/lang/String;Ljava/lang/String;)V";
+	private static final String TEST_GENERATOR_METHOD_GENERATE_DESC = "(Ljava/lang/Class;Ljava/lang/String;Ljava/util/List;)V";
 
 	private static final List<Integer> RETURN_OPCODES = Collections.unmodifiableList(Arrays.asList(//
 			Opcode.ARETURN, Opcode.IRETURN, Opcode.DRETURN, Opcode.FRETURN, Opcode.LRETURN, Opcode.RETURN));
@@ -42,6 +46,8 @@ public class TestGenerationAdder {
 
 	private final CodeArrayModificator codeArrayModificator = new CodeArrayModificator();
 
+	private final CtClass modifiedClass;
+
 	private final CodeAttribute codeAttribute;
 	private final CodeIterator iterator;
 	private final ConstPool constantPool;
@@ -49,7 +55,8 @@ public class TestGenerationAdder {
 	private Bytecode testgenerationWithLocalVariable;
 	private Bytecode testgeneration;
 
-	public TestGenerationAdder(CodeAttribute codeAttribute) {
+	public TestGenerationAdder(CtClass modifiedClass, CodeAttribute codeAttribute) {
+		this.modifiedClass = modifiedClass;
 		this.codeAttribute = codeAttribute;
 		this.iterator = codeAttribute.iterator();
 		this.constantPool = codeAttribute.getConstPool();
@@ -170,8 +177,9 @@ public class TestGenerationAdder {
 
 		Bytecode exceptionHandling = new Bytecode(constantPool);
 		exceptionHandling.addAstore(maxLocals);
-		exceptionHandling.addLdc(properties.getClassName());
+		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addLdc(properties.getMethod());
+		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
 		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 
@@ -194,8 +202,9 @@ public class TestGenerationAdder {
 
 		Bytecode exceptionHandling = new Bytecode(constantPool);
 		exceptionHandling.addAstore(maxLocals);
-		exceptionHandling.addLdc(properties.getClassName());
+		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addLdc(properties.getMethod());
+		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
 		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 
@@ -204,8 +213,9 @@ public class TestGenerationAdder {
 
 		int codeSizeExceptionHandler = exceptionHandling.getSize();
 
-		exceptionHandling.addLdc(properties.getClassName());
+		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addLdc(properties.getMethod());
+		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
 		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 
@@ -236,15 +246,19 @@ public class TestGenerationAdder {
 
 		testgenerationWithLocalVariable = new Bytecode(constantPool);
 		testgenerationWithLocalVariable.addAstore(maxLocals + 1);
-		testgenerationWithLocalVariable.addLdc(properties.getClassName());
+		BytecodeUtils.addClassInfoToBytecode(testgenerationWithLocalVariable, constantPool,
+				Descriptor.toJvmName(modifiedClass));
 		testgenerationWithLocalVariable.addLdc(properties.getMethod());
+		testgenerationWithLocalVariable.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
+				JVMTypes.LIST);
 		testgenerationWithLocalVariable.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 		testgenerationWithLocalVariable.addAload(maxLocals + 1);
 
 		testgeneration = new Bytecode(constantPool);
-		testgeneration.addLdc(properties.getClassName());
+		BytecodeUtils.addClassInfoToBytecode(testgeneration, constantPool, Descriptor.toJvmName(modifiedClass));
 		testgeneration.addLdc(properties.getMethod());
+		testgeneration.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
 		testgeneration.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 	}

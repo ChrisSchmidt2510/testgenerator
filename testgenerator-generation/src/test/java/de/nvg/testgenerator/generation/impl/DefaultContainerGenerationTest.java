@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.classdata.model.SignatureData;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
@@ -34,8 +34,8 @@ public class DefaultContainerGenerationTest {
 
 	@Test
 	public void testGetParameterizedTypeName() {
-		SignatureData list = new SignatureData(List.class);
-		list.addSubType(new SignatureData(String.class));
+		SignatureType list = new SignatureType(List.class);
+		list.addSubType(new SignatureType(String.class));
 
 		TypeName genericType = containerGenerator.getParameterizedTypeName(list);
 
@@ -47,10 +47,10 @@ public class DefaultContainerGenerationTest {
 
 	@Test
 	public void testGetParameterizedTypeNameWithNestedSignature() {
-		SignatureData nestedList = new SignatureData(List.class);
-		nestedList.addSubType(new SignatureData(Integer.class));
+		SignatureType nestedList = new SignatureType(List.class);
+		nestedList.addSubType(new SignatureType(Integer.class));
 
-		SignatureData list = new SignatureData(List.class);
+		SignatureType list = new SignatureType(List.class);
 		list.addSubType(nestedList);
 
 		TypeName genericType = containerGenerator.getParameterizedTypeName(list);
@@ -62,9 +62,9 @@ public class DefaultContainerGenerationTest {
 
 	@Test
 	public void testGetParameterizdTypeNameWithMultipleSignatures() {
-		SignatureData map = new SignatureData(Map.class);
-		map.addSubType(new SignatureData(Integer.class));
-		map.addSubType(new SignatureData(LocalDate.class));
+		SignatureType map = new SignatureType(Map.class);
+		map.addSubType(new SignatureType(Integer.class));
+		map.addSubType(new SignatureType(LocalDate.class));
 
 		TypeName genericType = containerGenerator.getParameterizedTypeName(map);
 
@@ -76,11 +76,11 @@ public class DefaultContainerGenerationTest {
 
 	@Test
 	public void testGetParameterizedTypeNameWithMultipleSignaturesAndNestedSignatures() {
-		SignatureData nestedList = new SignatureData(List.class);
-		nestedList.addSubType(new SignatureData(LocalDate.class));
+		SignatureType nestedList = new SignatureType(List.class);
+		nestedList.addSubType(new SignatureType(LocalDate.class));
 
-		SignatureData map = new SignatureData(Map.class);
-		map.addSubType(new SignatureData(Integer.class));
+		SignatureType map = new SignatureType(Map.class);
+		map.addSubType(new SignatureType(Integer.class));
 		map.addSubType(nestedList);
 
 		TypeName genericType = containerGenerator.getParameterizedTypeName(map);

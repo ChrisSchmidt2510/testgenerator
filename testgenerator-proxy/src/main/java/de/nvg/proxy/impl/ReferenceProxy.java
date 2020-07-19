@@ -1,5 +1,6 @@
 package de.nvg.proxy.impl;
 
+import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 import de.nvg.proxy.AbstractProxy;
@@ -17,7 +18,9 @@ public class ReferenceProxy<E> extends AbstractProxy {
 	}
 
 	public E getValue() {
-		trackReadFieldCalls();
+		if (value != null && !Proxy.isProxyClass(value.getClass()))
+			trackReadFieldCalls();
+
 		return value;
 	}
 

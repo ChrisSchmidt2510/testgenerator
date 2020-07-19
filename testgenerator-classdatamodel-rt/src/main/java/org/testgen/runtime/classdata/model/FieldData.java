@@ -2,11 +2,13 @@ package org.testgen.runtime.classdata.model;
 
 import java.util.Objects;
 
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+
 public class FieldData {
 	private final boolean isPublic;
 	private final String name;
 	private final Class<?> descriptor;
-	private SignatureData signature;
+	private SignatureType signature;
 
 	public FieldData(String name, Class<?> descriptor) {
 		this(false, name, descriptor);
@@ -18,11 +20,11 @@ public class FieldData {
 		this.descriptor = descriptor;
 	}
 
-	public void setSignature(SignatureData signature) {
+	public void setSignature(SignatureType signature) {
 		this.signature = signature;
 	}
 
-	public SignatureData getSignature() {
+	public SignatureType getSignature() {
 		return signature;
 	}
 
