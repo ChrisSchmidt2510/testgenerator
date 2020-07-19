@@ -3,13 +3,13 @@ package de.nvg.testgenerator.generation;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.lang.model.element.Modifier;
-
+import org.testgen.core.ReflectionUtil;
 import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
@@ -18,7 +18,6 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
 
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 
 import de.nvg.testgenerator.generation.impl.DefaultTestClassGeneration;
@@ -28,7 +27,6 @@ import de.nvg.valuetracker.blueprint.ProxyBluePrint;
 import de.nvg.valuetracker.storage.ValueStorage;
 
 public final class Testgenerator {
-	private static final String TEST = "Test";
 
 	private static final Logger LOGGER = LogManager.getLogger(Testgenerator.class);
 
@@ -50,7 +48,25 @@ public final class Testgenerator {
 
 		TestClassGeneration testGenerator = new DefaultTestClassGeneration();
 
-		Builder classBuilder = TypeSpec.classBuilder(testClass.getSimpleName() + TEST).addModifiers(Modifier.PUBLIC);
+		String costumTestgeneratorClass = RuntimeProperties.getInstance().costumTestgeneratorClass();
+
+		if (costumTestgeneratorClass != null) {
+			Class<?> costumTestgenerator = ReflectionUtil.forName(costumTestgeneratorClass);
+			if (!Arrays.stream(costumTestgenerator.getInterfaces())
+					.anyMatch(i -> TestClassGeneration.class.isAssignableFrom(i))) {
+				throw new IllegalArgumentException(
+						costumTestgenerator + "is a invalid implementation for " + TestClassGeneration.class);
+			}
+
+			if (ReflectionUtil.getConstructor(costumTestgenerator) == null) {
+				throw new IllegalArgumentException(
+						costumTestgeneratorClass + "is a invalid implementation. Defaultconstructor is needed");
+			}
+
+			testGenerator = (TestClassGeneration) ReflectionUtil.newInstance(costumTestgenerator);
+		}
+
+		Builder classBuilder = testGenerator.createTestClass(testClass);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
 

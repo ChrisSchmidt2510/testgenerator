@@ -55,6 +55,14 @@ public final class RuntimeProperties {
 		return argParser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS);
 	}
 
+	public String costumTestgeneratorClass() {
+		if (argParser == null) {
+			initAgentProperties();
+		}
+
+		return argParser.getArgumentValue(DefinedArguments.ARG_COSTUM_TESTGENERATOR_CLASS);
+	}
+
 	private void initAgentProperties() {
 		RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
 		String javaAgent = runtime.getInputArguments().stream().filter(args -> args.startsWith(JAVA_AGENT)).findAny()

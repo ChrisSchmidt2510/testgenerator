@@ -16,6 +16,8 @@ import de.nvg.valuetracker.blueprint.ProxyBluePrint;
 
 public interface TestClassGeneration {
 
+	TypeSpec.Builder createTestClass(Class<?> testClass);
+
 	void prepareTestObject(TypeSpec.Builder typeSpec, BluePrint testObject, ClassData classData,
 			Set<FieldData> calledFields);
 

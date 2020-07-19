@@ -24,6 +24,7 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
@@ -37,9 +38,10 @@ import de.nvg.valuetracker.blueprint.ProxyBluePrint;
 import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class DefaultTestClassGeneration implements TestClassGeneration {
+	private static final String TEST = "Test";
+
 	private static final String METHOD_INIT_TESTOBJECT = "initTestobject";
 	private static final String METHOD_INIT_METHOD_PARAMETER = "initMethodParameter";
-
 	private static final String METHOD_INIT_PROXY_OBJECTS = "initProxyObjects";
 	private static final String METHOD_INIT = "init";
 
@@ -69,6 +71,10 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 
 		objectGeneration.setContainerGeneration(containerGeneration);
 		objectGeneration.setNamingService(namingService);
+	}
+
+	public Builder createTestClass(Class<?> testClass) {
+		return TypeSpec.classBuilder(testClass.getSimpleName() + TEST).addModifiers(Modifier.PUBLIC);
 	}
 
 	@Override
@@ -108,8 +114,9 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				ClassData classData = TestGenerationHelper.getClassData(methodParameter.getReference());
 
 				Set<FieldData> calledFields = Collections.emptySet();
-				if (properties.wasFieldTrackingActivated())
+				if (properties.wasFieldTrackingActivated()) {
 					calledFields = TestGenerationHelper.getCalledFields(methodParameter.getReference());
+				}
 
 				objectGeneration.createObject(code, methodParameter.castToComplexBluePrint(), true, classData,
 						calledFields);
@@ -170,8 +177,9 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 					ClassData classData = TestGenerationHelper.getClassData(proxyObject.getReference());
 
 					Set<FieldData> calledFields = Collections.emptySet();
-					if (properties.wasFieldTrackingActivated())
+					if (properties.wasFieldTrackingActivated()) {
 						calledFields = TestGenerationHelper.getCalledFields(proxyObject.getReference());
+					}
 
 					objectGeneration.createObject(code, proxyObject.castToComplexBluePrint(), false, classData,
 							calledFields);
@@ -202,8 +210,9 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 		com.squareup.javapoet.CodeBlock.Builder codeInit = CodeBlock.builder()//
 				.addStatement(METHOD_INIT_TESTOBJECT + "()")//
 				.addStatement(METHOD_INIT_METHOD_PARAMETER + "()");
-		if (withProxyObjects)
+		if (withProxyObjects) {
 			codeInit.addStatement(METHOD_INIT_PROXY_OBJECTS + "()");
+		}
 
 		typeSpec.addMethod(MethodSpec.methodBuilder(METHOD_INIT).addModifiers(Modifier.PUBLIC)
 				.addAnnotation(AnnotationSpec.builder(ClassName.bestGuess(JUNIT_ANNOTATION_BEFORE)).build())
