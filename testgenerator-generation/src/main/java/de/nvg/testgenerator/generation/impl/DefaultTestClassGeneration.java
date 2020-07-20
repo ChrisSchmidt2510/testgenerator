@@ -1,6 +1,8 @@
 package de.nvg.testgenerator.generation.impl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -73,6 +75,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 		objectGeneration.setNamingService(namingService);
 	}
 
+	@Override
 	public Builder createTestClass(Class<?> testClass) {
 		return TypeSpec.classBuilder(testClass.getSimpleName() + TEST).addModifiers(Modifier.PUBLIC);
 	}
@@ -165,7 +168,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 		for (Entry<ProxyBluePrint, List<BluePrint>> proxy : proxyObjects.entrySet()) {
 			ProxyBluePrint proxyBp = proxy.getKey();
 
-			code.addStatement("// add initalization for proxy $T", proxyBp.getInterfaceClass());
+			code.addStatement("//TODO add initalization for proxy $T", proxyBp.getInterfaceClass());
 			code.addStatement("$T " + namingService.getName(proxyBp) + " = null", proxyBp.getInterfaceClass());
 			proxyBp.setBuild();
 
@@ -193,8 +196,14 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 					code.addStatement("$T " + namingService.getName(bluePrint) + " = " + bluePrint.valueCreation(),
 							types.toArray());
 				} else if (proxyObject.isCollectionBluePrint()) {
+					Method proxyMethod = Arrays.stream(proxyBp.getInterfaceClass().getMethods())
+							.filter(method -> proxyObject.getName().equals(method.getName())).findAny().get();
+
+					SignatureType signature = TestGenerationHelper
+							.mapGenericTypeToSignature(proxyMethod.getGenericReturnType());
+
 					containerGeneration.createCollection(code, proxyObject.castToCollectionBluePrint(), //
-							null, false, false);
+							signature, false, false);
 				} else if (proxyObject.isArrayBluePrint()) {
 					containerGeneration.createArray(code, proxyObject.castToArrayBluePrint(), false, false);
 				}

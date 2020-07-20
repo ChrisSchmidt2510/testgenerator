@@ -134,7 +134,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 				code.addStatement(creation.toString(), types.toArray());
 			} else {
-				code.addStatement("//no public constructor found for class: " + bluePrint.getClassNameOfReference());
+				code.addStatement("//TODO add initalization for class: " + bluePrint.getClassNameOfReference());
 
 				if (isField)
 					code.addStatement(namingService.getName(bluePrint) + " = null");
@@ -217,7 +217,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			String objectName) {
 		if (setter == null) {
 			StringBuilder statement = new StringBuilder();
-			statement.append("//no setter found for Field: " + namingService.getName(bluePrint) + " Value: ");
+			statement.append("//TODO no setter found for Field: " + namingService.getName(bluePrint) + " Value: ");
 
 			List<Class<?>> referenceClasses = getFieldValue(bluePrint, statement);
 
