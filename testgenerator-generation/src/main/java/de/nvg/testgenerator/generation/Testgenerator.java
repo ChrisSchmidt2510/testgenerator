@@ -46,25 +46,7 @@ public final class Testgenerator {
 		RuntimeProperties.getInstance().setProxyTracking(false);
 		boolean trackingActivated = RuntimeProperties.getInstance().wasFieldTrackingActivated();
 
-		TestClassGeneration testGenerator = new DefaultTestClassGeneration();
-
-		String costumTestgeneratorClass = RuntimeProperties.getInstance().costumTestgeneratorClass();
-
-		if (costumTestgeneratorClass != null) {
-			Class<?> costumTestgenerator = ReflectionUtil.forName(costumTestgeneratorClass);
-			if (!Arrays.stream(costumTestgenerator.getInterfaces())
-					.anyMatch(i -> TestClassGeneration.class.isAssignableFrom(i))) {
-				throw new IllegalArgumentException(
-						costumTestgenerator + "is a invalid implementation for " + TestClassGeneration.class);
-			}
-
-			if (ReflectionUtil.getConstructor(costumTestgenerator) == null) {
-				throw new IllegalArgumentException(
-						costumTestgeneratorClass + "is a invalid implementation. Defaultconstructor is needed");
-			}
-
-			testGenerator = (TestClassGeneration) ReflectionUtil.newInstance(costumTestgenerator);
-		}
+		TestClassGeneration testGenerator = getTestClassGenerationImplementation();
 
 		Builder classBuilder = testGenerator.createTestClass(testClass);
 
@@ -104,6 +86,28 @@ public final class Testgenerator {
 		});
 
 		ValueStorage.getInstance().popAndResetTestData();
+	}
+
+	private static TestClassGeneration getTestClassGenerationImplementation() {
+		String costumTestgeneratorClass = RuntimeProperties.getInstance().costumTestgeneratorClass();
+
+		if (costumTestgeneratorClass != null) {
+			Class<?> costumTestgenerator = ReflectionUtil.forName(costumTestgeneratorClass);
+			if (!Arrays.stream(costumTestgenerator.getInterfaces())
+					.anyMatch(i -> TestClassGeneration.class.isAssignableFrom(i))) {
+				throw new IllegalArgumentException(
+						costumTestgenerator + "is a invalid implementation for " + TestClassGeneration.class);
+			}
+
+			if (ReflectionUtil.getConstructor(costumTestgenerator) == null) {
+				throw new IllegalArgumentException(
+						costumTestgeneratorClass + "is a invalid implementation. Defaultconstructor is needed");
+			}
+
+			return (TestClassGeneration) ReflectionUtil.newInstance(costumTestgenerator);
+		}
+
+		return new DefaultTestClassGeneration();
 	}
 
 }

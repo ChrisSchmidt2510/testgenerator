@@ -1,9 +1,9 @@
 package org.testgen.extension;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.testgen.core.ReflectionUtil;
 import org.testgen.core.logging.LogManager;
 import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
@@ -44,16 +44,14 @@ public class WrappingInvocationHandler implements InvocationHandler {
 	private void init() {
 		if (valueTracker == null) {
 			try {
-				ClassLoader loader = Thread.currentThread().getContextClassLoader();
+				Class<?> valueTrackerClass = ReflectionUtil.forName(OBJECT_VALUE_TRACKER);
+				this.track = ReflectionUtil.getMethod(valueTrackerClass, METHOD_TRACK_PROXY_VALUES, Object.class,
+						String.class, Class.class, String.class);
 
-				Class<?> valueTrackerClass = Class.forName(OBJECT_VALUE_TRACKER, true, loader);
-				this.track = valueTrackerClass.getMethod(METHOD_TRACK_PROXY_VALUES, Object.class, String.class,
-						Class.class, String.class);
+				this.valueTracker = ReflectionUtil
+						.invoke(ReflectionUtil.getMethod(valueTrackerClass, METHOD_GET_INSTANCE), null);
 
-				this.valueTracker = valueTrackerClass.getMethod(METHOD_GET_INSTANCE).invoke(null);
-
-			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | //
-					IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			} catch (Exception e) {
 				LOGGER.error("error while creating WrappingInvocationHandler", e);
 			}
 		}
