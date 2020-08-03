@@ -1,6 +1,6 @@
 package de.nvg.testgenerator.generation.impl;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.time.LocalDate;
@@ -11,6 +11,9 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.TypeName;
 
 public class TestGenerationHelperTest {
 
@@ -71,6 +74,65 @@ public class TestGenerationHelperTest {
 		} catch (NoSuchMethodException | SecurityException e) {
 			fail();
 		}
+	}
+
+	@Test
+	public void testGetParameterizedTypeName() {
+		SignatureType list = new SignatureType(List.class);
+		list.addSubType(new SignatureType(String.class));
+
+		TypeName genericType = TestGenerationHelper.getParameterizedTypeName(list);
+
+		CodeBlock code = CodeBlock.of("$T list = null", genericType);
+		Assert.assertEquals("java.util.List<java.lang.String> list = null", //
+				code.toString());
+		System.out.println(code);
+	}
+
+	@Test
+	public void testGetParameterizedTypeNameWithNestedSignature() {
+		SignatureType nestedList = new SignatureType(List.class);
+		nestedList.addSubType(new SignatureType(Integer.class));
+
+		SignatureType list = new SignatureType(List.class);
+		list.addSubType(nestedList);
+
+		TypeName genericType = TestGenerationHelper.getParameterizedTypeName(list);
+
+		CodeBlock code = CodeBlock.of("$T list = null", genericType);
+		Assert.assertEquals("java.util.List<java.util.List<java.lang.Integer>> list = null", //
+				code.toString());
+	}
+
+	@Test
+	public void testGetParameterizdTypeNameWithMultipleSignatures() {
+		SignatureType map = new SignatureType(Map.class);
+		map.addSubType(new SignatureType(Integer.class));
+		map.addSubType(new SignatureType(LocalDate.class));
+
+		TypeName genericType = TestGenerationHelper.getParameterizedTypeName(map);
+
+		CodeBlock code = CodeBlock.of("$T map = null", genericType);
+
+		Assert.assertEquals("java.util.Map<java.lang.Integer, java.time.LocalDate> map = null", //
+				code.toString());
+	}
+
+	@Test
+	public void testGetParameterizedTypeNameWithMultipleSignaturesAndNestedSignatures() {
+		SignatureType nestedList = new SignatureType(List.class);
+		nestedList.addSubType(new SignatureType(LocalDate.class));
+
+		SignatureType map = new SignatureType(Map.class);
+		map.addSubType(new SignatureType(Integer.class));
+		map.addSubType(nestedList);
+
+		TypeName genericType = TestGenerationHelper.getParameterizedTypeName(map);
+
+		CodeBlock code = CodeBlock.of("$T map = null", genericType);
+
+		Assert.assertEquals("java.util.Map<java.lang.Integer, java.util.List<java.time.LocalDate>> map = null", //
+				code.toString());
 	}
 
 }

@@ -18,7 +18,6 @@ import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -186,7 +185,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		TypeName collectionType;
 
 		if (signature != null) {
-			collectionType = getParameterizedTypeName(signature);
+			collectionType = TestGenerationHelper.getParameterizedTypeName(signature);
 		} else {
 			collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
 		}
@@ -198,7 +197,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 		TypeName mapType;
 
 		if (signature != null) {
-			mapType = getParameterizedTypeName(signature);
+			mapType = TestGenerationHelper.getParameterizedTypeName(signature);
 		} else {
 			mapType = ParameterizedTypeName.get(map.getInterfaceClass(), Object.class, Object.class);
 		}
@@ -274,7 +273,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 				TypeName collectionType;
 				if (signature != null) {
-					collectionType = getParameterizedTypeName(signature);
+					collectionType = TestGenerationHelper.getParameterizedTypeName(signature);
 				} else {
 					collectionType = ParameterizedTypeName.get(collection.getInterfaceClass(), Object.class);
 				}
@@ -323,7 +322,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 				TypeName mapType;
 
 				if (signature != null) {
-					mapType = getParameterizedTypeName(signature);
+					mapType = TestGenerationHelper.getParameterizedTypeName(signature);
 				} else {
 					mapType = ParameterizedTypeName.get(Map.class, Object.class, Object.class);
 				}
@@ -344,24 +343,6 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 
 			code.add("\n");
 			map.setBuild();
-		}
-	}
-
-	TypeName getParameterizedTypeName(SignatureType signature) {
-
-		if (signature.isSimpleSignature()) {
-			return TypeName.get(signature.getType());
-
-		} else {
-			TypeName[] subTypes = new TypeName[signature.getSubTypes().size()];
-
-			for (int i = 0; i < signature.getSubTypes().size(); i++) {
-				SignatureType subSignature = signature.getSubTypes().get(i);
-
-				subTypes[i] = getParameterizedTypeName(subSignature);
-			}
-
-			return ParameterizedTypeName.get(ClassName.get(signature.getType()), subTypes);
 		}
 	}
 

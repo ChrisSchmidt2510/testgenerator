@@ -11,6 +11,10 @@ import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+
 public final class TestGenerationHelper {
 
 	private TestGenerationHelper() {
@@ -34,10 +38,11 @@ public final class TestGenerationHelper {
 				for (Type innerType : genericType.getActualTypeArguments()) {
 					SignatureType subType = mapGenericTypeToSignature(innerType);
 
-					if (subType != null)
+					if (subType != null) {
 						mainType.addSubType(subType);
-					else
+					} else {
 						return null;
+					}
 				}
 			}
 
@@ -45,6 +50,24 @@ public final class TestGenerationHelper {
 
 		} else {
 			return mapTypeToSignature(type);
+		}
+	}
+
+	public static TypeName getParameterizedTypeName(SignatureType signature) {
+
+		if (signature.isSimpleSignature()) {
+			return TypeName.get(signature.getType());
+
+		} else {
+			TypeName[] subTypes = new TypeName[signature.getSubTypes().size()];
+
+			for (int i = 0; i < signature.getSubTypes().size(); i++) {
+				SignatureType subSignature = signature.getSubTypes().get(i);
+
+				subTypes[i] = getParameterizedTypeName(subSignature);
+			}
+
+			return ParameterizedTypeName.get(ClassName.get(signature.getType()), subTypes);
 		}
 	}
 
