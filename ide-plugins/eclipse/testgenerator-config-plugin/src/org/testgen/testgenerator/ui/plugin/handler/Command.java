@@ -9,7 +9,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.testgen.testgenerator.ui.plugin.action.SelectedMethodAction;
 import org.testgen.testgenerator.ui.plugin.action.SelectedMethodActionDelegate;
-import org.testgen.testgenerator.ui.plugin.jdt.JDTUtil;
+import org.testgen.testgenerator.ui.plugin.helper.JDTUtil;
 
 @SuppressWarnings("restriction")
 public class Command extends AbstractHandler {

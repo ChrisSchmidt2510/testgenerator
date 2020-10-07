@@ -1,4 +1,4 @@
-package org.testgen.testgenerator.ui.plugin.jdt;
+package org.testgen.testgenerator.ui.plugin.helper;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;

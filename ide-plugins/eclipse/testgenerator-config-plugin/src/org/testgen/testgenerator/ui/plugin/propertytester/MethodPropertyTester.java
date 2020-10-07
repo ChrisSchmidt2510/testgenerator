@@ -2,7 +2,7 @@ package org.testgen.testgenerator.ui.plugin.propertytester;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-import org.testgen.testgenerator.ui.plugin.jdt.JDTUtil;
+import org.testgen.testgenerator.ui.plugin.helper.JDTUtil;
 
 @SuppressWarnings("restriction")
 public class MethodPropertyTester extends PropertyTester {

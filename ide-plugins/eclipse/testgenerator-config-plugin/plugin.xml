@@ -48,7 +48,7 @@
             id="org.testgen.testgenerator.ui.plugin.MethodPropertyTester"
             namespace="org.testgen.testgenerator.ui.plugin.MethodPropertyTester"
             properties="hasResourceSelection"
-            type="java.lang.Object">
+            type="org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor">
       </propertyTester>
    </extension>
 </plugin>
