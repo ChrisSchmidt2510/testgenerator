@@ -17,6 +17,10 @@ import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.internal.ui.dialogs.OpenTypeSelectionDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
@@ -24,7 +28,6 @@ import org.testgen.testgenerator.ui.plugin.helper.Descriptor;
 
 @SuppressWarnings("restriction")
 public class TestgeneratorConfigurationController {
-
 	private static final String ARG_CLASS_NAME = "ClassName";
 	private static final String ARG_METHOD_NAME = "MethodName";
 	private static final String ARG_METHOD_DESC = "MethodDescriptor";
@@ -99,7 +102,7 @@ public class TestgeneratorConfigurationController {
 
 			if (correctType) {
 				model.setCostumTestgeneratorClassName(costumTestgeneratorType.getFullyQualifiedName());
-				model.setArgumentList(generateArgumentList());
+				model.setArgumentList(generateArgumentList(true));
 				dialog.updateComponents();
 
 			} else {
@@ -107,6 +110,8 @@ public class TestgeneratorConfigurationController {
 						"selected class has to implement " + TEST_CLASS_GENERATION);
 			}
 		} catch (JavaModelException e) {
+			MessageDialog.openError(activeShell, "error while selecting CostumTestgeneratorClass",
+					"Message: " + e.getMessage());
 		}
 	}
 
@@ -128,6 +133,25 @@ public class TestgeneratorConfigurationController {
 		return null;
 	}
 
+	public void openDirectoryDialog() {
+		DirectoryDialog dirDialog = new DirectoryDialog(activeShell);
+		dirDialog.setText("Select PrintClass Directory:");
+		String directory = dirDialog.open();
+
+		model.setPrintClassDirectory(directory);
+
+		dialog.updateModel();
+	}
+
+	public void copyToClipboard() {
+		Clipboard clipboard = new Clipboard(activeShell.getDisplay());
+
+		;
+		clipboard.setContents(new Object[] { generateArgumentList(false) },
+				new Transfer[] { TextTransfer.getInstance() });
+
+	}
+
 	private void updateModel(IMethod[] methods, IMethod selectedMethod) {
 		this.methods.clear();
 		for (IMethod method : methods) {
@@ -140,15 +164,20 @@ public class TestgeneratorConfigurationController {
 		model.setSelectedMethodIndex(
 				selectedMethod != null ? methodStrings.indexOf(createMethodString(selectedMethod)) : 0);
 		model.setClassName(selectedSourceType.getFullyQualifiedName());
-		model.setArgumentList(generateArgumentList());
+		model.setArgumentList(generateArgumentList(true));
 
 	}
 
-	public String generateArgumentList() {
+	public String generateArgumentList(boolean withLineBreak) {
 		StringBuilder argument = new StringBuilder();
+
+		String lineSeparator = System.lineSeparator();
 		try {
-			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL + model.getClassName().replace(".", "/")
-					+ System.lineSeparator());
+			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL + model.getClassName().replace(".", "/"));
+
+			if (withLineBreak) {
+				argument.append(lineSeparator);
+			}
 
 			String selectedMethodStr = model.getMethods().get(model.getSelectedMethodIndex());
 
@@ -158,8 +187,11 @@ public class TestgeneratorConfigurationController {
 
 			IMethod method = selectedMethod.getKey();
 
-			argument.append(GENERALL_ARG_SEPARATUR + ARG_METHOD_NAME + EQUAL + method.getElementName()
-					+ System.lineSeparator());
+			argument.append(GENERALL_ARG_SEPARATUR + ARG_METHOD_NAME + EQUAL + method.getElementName());
+
+			if (withLineBreak) {
+				argument.append(lineSeparator);
+			}
 
 			Descriptor descriptor = Descriptor.getInstance(selectedSourceType.getJavaProject());
 
@@ -172,10 +204,16 @@ public class TestgeneratorConfigurationController {
 
 			argument.append(")");
 			argument.append(descriptor.getJvmFullQualifiedName(method.getReturnType(), method.getDeclaringType()));
-			argument.append(System.lineSeparator());
+
+			if (withLineBreak) {
+				argument.append(lineSeparator);
+			}
+
 			if (model.isTraceReadFieldAccess()) {
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_TRACE_READ_FIELD_ACCESS);
-				argument.append(System.lineSeparator());
+				if (withLineBreak) {
+					argument.append(lineSeparator);
+				}
 			}
 
 			if (!model.getBlPackages().isEmpty()) {
@@ -183,25 +221,33 @@ public class TestgeneratorConfigurationController {
 						.collect(Collectors.toList());
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL
 						+ String.join(LIST_ARG_SEPARATUR, modifiedBlPackages));
-				argument.append(System.lineSeparator());
+				if (withLineBreak) {
+					argument.append(lineSeparator);
+				}
 			}
 
 			if (!model.getBlPackageJarDest().isEmpty()) {
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKGE_JAR_DEST + EQUAL
 						+ String.join(LIST_ARG_SEPARATUR, model.getBlPackageJarDest()));
-				argument.append(System.lineSeparator());
+				if (withLineBreak) {
+					argument.append(lineSeparator);
+				}
 			}
 
 			if (model.getCostumTestgeneratorClassName() != null) {
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_COSTUM_TESTGENERATOR_CLASS + EQUAL
 						+ model.getCostumTestgeneratorClassName());
-				argument.append(System.lineSeparator());
+				if (withLineBreak) {
+					argument.append(lineSeparator);
+				}
 			}
 
 			if (model.getPrintClassDirectory() != null) {
 				argument.append(
 						GENERALL_ARG_SEPARATUR + ARG_PRINT_CLASSFILES_DIR + EQUAL + model.getPrintClassDirectory());
-				argument.append(System.lineSeparator());
+				if (withLineBreak) {
+					argument.append(lineSeparator);
+				}
 			}
 
 		} catch (JavaModelException e) {

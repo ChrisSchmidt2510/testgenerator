@@ -145,6 +145,7 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 		btnCopy = new Button(parent, SWT.NONE);
 		btnCopy.setBounds(562, 519, 60, 30);
 		btnCopy.setText("Copy");
+		btnCopy.addListener(SWT.Selection, e -> controller.copyToClipboard());
 
 		txtBlPackageDest = new Text(parent, SWT.BORDER);
 		txtBlPackageDest.setBounds(220, 267, 321, 26);
@@ -187,10 +188,12 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 
 		txtPrintClassFileDir = new Text(parent, SWT.BORDER);
 		txtPrintClassFileDir.setBounds(220, 415, 321, 26);
+		txtPrintClassFileDir.setEditable(false);
 
 		btnBrowseDir = new Button(parent, SWT.NONE);
 		btnBrowseDir.setBounds(562, 411, 60, 30);
 		btnBrowseDir.setText("Browse");
+		btnBrowseDir.addListener(SWT.Selection, e -> controller.openDirectoryDialog());
 
 		lblCostumTestgeneratorClass = new Label(parent, SWT.NONE);
 		lblCostumTestgeneratorClass.setBounds(15, 462, 178, 20);
@@ -247,6 +250,10 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 			txtCostumTestgenerator.setText(model.getCostumTestgeneratorClassName());
 		}
 
+		if (model.getPrintClassDirectory() != null) {
+			txtPrintClassFileDir.setText(model.getPrintClassDirectory());
+		}
+
 		txtArgumentList.setText(model.getArgumentList());
 	}
 
@@ -271,7 +278,7 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 			txtBlPackageDest.setText("");
 		}
 
-		model.setArgumentList(controller.generateArgumentList());
+		model.setArgumentList(controller.generateArgumentList(true));
 
 		updateComponents();
 	}
