@@ -3,7 +3,14 @@ package org.testgen.testgenerator.ui.plugin.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.debug.core.ILaunchConfiguration;
+
 public class Model {
+
+	public static final String AGENT_TYPE_TESTGENERATOR = "Testgenerator";
+	public static final String AGENT_TYPE_TESTGENERATOR_FULL = "TestgeneratorFull";
+
+	private String agentType;
 
 	private String className;
 
@@ -11,15 +18,19 @@ public class Model {
 	private int selectedMethodIndex;
 
 	private List<String> blPackages = new ArrayList<>();
+
+	private ILaunchConfiguration launchConfiguration;
+
+	// optional Parameters
 	private List<String> blPackageJarDest = new ArrayList<>();
 
 	private boolean traceReadFieldAccess;
 
+	private boolean useTestgeneratorBootstrap;
+
 	private String printClassDirectory;
 
 	private String costumTestgeneratorClassName;
-
-	private String argumentList;
 
 	public String getClassName() {
 		return className;
@@ -85,12 +96,28 @@ public class Model {
 		this.costumTestgeneratorClassName = costumTestgeneratorClassName;
 	}
 
-	public String getArgumentList() {
-		return argumentList;
+	public boolean useTestgeneratorBootstrap() {
+		return useTestgeneratorBootstrap;
 	}
 
-	public void setArgumentList(String arguments) {
-		this.argumentList = arguments;
+	public void setUsetestgeneratorBootstrap(boolean usetestgeneratorBootrap) {
+		this.useTestgeneratorBootstrap = usetestgeneratorBootrap;
+	}
+
+	public ILaunchConfiguration getLaunchConfiguration() {
+		return launchConfiguration;
+	}
+
+	public String getAgentType() {
+		return agentType;
+	}
+
+	public void setAgentType(String agentType) {
+		this.agentType = agentType;
+	}
+
+	public void setLaunchConfiguration(ILaunchConfiguration launchConfiguration) {
+		this.launchConfiguration = launchConfiguration;
 	}
 
 }

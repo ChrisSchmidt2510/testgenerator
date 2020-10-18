@@ -2,11 +2,19 @@ package org.testgen.testgenerator.ui.plugin.dialogs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.internal.core.IConfigurationElementConstants;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -15,19 +23,30 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.internal.ui.JavaUIMessages;
 import org.eclipse.jdt.internal.ui.dialogs.OpenTypeSelectionDialog;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.wst.server.core.IServer;
+import org.eclipse.wst.server.core.ServerCore;
+import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
 import org.testgen.testgenerator.ui.plugin.helper.Descriptor;
+import org.testgen.testgenerator.ui.plugin.helper.Utils;
+import org.testgen.testgenerator.ui.plugin.preference.TestgeneratorPreferencePage;
 
 @SuppressWarnings("restriction")
 public class TestgeneratorConfigurationController {
+
+	private static final String JAVAAGENT = "javaagent:";
+
+	private static final String BOOT_CLASSPATH = "-Xbootclasspath/p:";
 	private static final String ARG_CLASS_NAME = "ClassName";
 	private static final String ARG_METHOD_NAME = "MethodName";
 	private static final String ARG_METHOD_DESC = "MethodDescriptor";
@@ -43,6 +62,8 @@ public class TestgeneratorConfigurationController {
 
 	private static final String TEST_CLASS_GENERATION = "de.nvg.testgenerator.generation.TestClassGeneration";
 
+	private static final String LOCAL_JAVA_LAUNCH_CONFIG = "org.eclipse.jdt.launching.localJavaApplication";
+
 	private final Shell activeShell;
 
 	private final Model model = new Model();
@@ -50,10 +71,17 @@ public class TestgeneratorConfigurationController {
 	private TestgeneratorConfigurationDialog dialog;
 
 	private IType selectedSourceType;
+	private IType customTestgeneratorType;
 	private Map<IMethod, String> methods = new HashMap<>();
+
+	private Set<ILaunchConfiguration> launchConfigs = new HashSet<>();
 
 	public TestgeneratorConfigurationController(Shell activeShell) {
 		this.activeShell = activeShell;
+	}
+
+	public Shell getActiveShell() {
+		return activeShell;
 	}
 
 	public void createDialog(IMethod selectedMethod) {
@@ -101,8 +129,8 @@ public class TestgeneratorConfigurationController {
 			}
 
 			if (correctType) {
-				model.setCostumTestgeneratorClassName(costumTestgeneratorType.getFullyQualifiedName());
-				model.setArgumentList(generateArgumentList(true));
+				this.customTestgeneratorType = costumTestgeneratorType;
+				model.setCostumTestgeneratorClassName(costumTestgeneratorType.getTypeQualifiedName());
 				dialog.updateComponents();
 
 			} else {
@@ -140,16 +168,109 @@ public class TestgeneratorConfigurationController {
 
 		model.setPrintClassDirectory(directory);
 
-		dialog.updateModel();
+		dialog.updateComponents();
 	}
 
-	public void copyToClipboard() {
-		Clipboard clipboard = new Clipboard(activeShell.getDisplay());
+	public void selectLaunchConfiguration() {
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		try {
+			ILaunchConfiguration[] launchConfigs = launchManager.getLaunchConfigurations();
 
-		;
-		clipboard.setContents(new Object[] { generateArgumentList(false) },
-				new Transfer[] { TextTransfer.getInstance() });
+			for (ILaunchConfiguration launchConfig : launchConfigs) {
+				if (LOCAL_JAVA_LAUNCH_CONFIG
+						.equals(launchConfig.getType().getAttribute(IConfigurationElementConstants.ID))) {
+					this.launchConfigs.add(launchConfig);
+				}
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		IServer[] servers = ServerCore.getServers();
+
+		for (IServer server : servers) {
+			try {
+				ILaunchConfiguration serverLaunchConfig = server.getLaunchConfiguration(false, null);
+
+				if (serverLaunchConfig != null) {
+					this.launchConfigs.add(serverLaunchConfig);
+				}
+
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		ListDialog listDialog = new ListDialog(activeShell);
+		listDialog.setTitle("Select Launch Configuration");
+		listDialog.setInput(launchConfigs);
+		listDialog.setContentProvider(ArrayContentProvider.getInstance());
+		listDialog.setLabelProvider(ColumnLabelProvider.createTextProvider(o -> o.toString()));
+
+		if (IDialogConstants.OK_ID == listDialog.open()) {
+			Object[] result = listDialog.getResult();
+
+			if (result.length > 0) {
+				ILaunchConfiguration launchConfig = (ILaunchConfiguration) result[0];
+
+				model.setLaunchConfiguration(launchConfig);
+				dialog.updateComponents();
+			}
+		}
+
+	}
+
+	public boolean addToLaunchConfiguraton() {
+		try {
+			String agentArgument = generateAgentArgumentList();
+			String bootstrapArgument = generateTestgeneratorBootstrap();
+
+			ILaunchConfiguration launchConfig = model.getLaunchConfiguration();
+
+			String arguments = launchConfig.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
+					(String) null);
+
+			ILaunchConfigurationWorkingCopy copy = launchConfig.getWorkingCopy();
+
+			if (arguments == null) {
+				addNewArgumentsToLaunchConfigCopy(agentArgument, bootstrapArgument, copy);
+
+			} else {
+				if (arguments.contains(JAVAAGENT)) {
+					String actualAgent = arguments.substring(arguments.indexOf(JAVAAGENT));
+
+					System.out.println(actualAgent);
+				} else if (arguments.contains(BOOT_CLASSPATH)) {
+
+				} else {
+					addNewArgumentsToLaunchConfigCopy(agentArgument, bootstrapArgument, copy);
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			MessageDialog.openError(activeShell, "error while adding Testgeneratur arguments to Launch Config",
+					e.getMessage());
+			return false;
+		} catch (CoreException e) {
+			MessageDialog.openError(activeShell, "error while adding Testgeneratur arguments to Launch Config",
+					"can`t open the VM-Arguments from Launch Configuration");
+			TestgeneratorActivator.log(e);
+			return false;
+		}
+
+		return true;
+	}
+
+	private void addNewArgumentsToLaunchConfigCopy(String agentArgument, String bootstrapArgument,
+			ILaunchConfigurationWorkingCopy copy) throws CoreException {
+		String argument = agentArgument;
+
+		if (model.useTestgeneratorBootstrap()) {
+			argument = argument + " " + bootstrapArgument;
+		}
+		copy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, argument);
+		copy.doSave();
 	}
 
 	private void updateModel(IMethod[] methods, IMethod selectedMethod) {
@@ -163,21 +284,35 @@ public class TestgeneratorConfigurationController {
 
 		model.setSelectedMethodIndex(
 				selectedMethod != null ? methodStrings.indexOf(createMethodString(selectedMethod)) : 0);
-		model.setClassName(selectedSourceType.getFullyQualifiedName());
-		model.setArgumentList(generateArgumentList(true));
+		model.setClassName(selectedSourceType.getTypeQualifiedName());
 
 	}
 
-	public String generateArgumentList(boolean withLineBreak) {
+	private String generateAgentArgumentList() {
 		StringBuilder argument = new StringBuilder();
 
-		String lineSeparator = System.lineSeparator();
 		try {
-			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL + model.getClassName().replace(".", "/"));
+			argument.append(GENERALL_ARG_SEPARATUR + JAVAAGENT);
 
-			if (withLineBreak) {
-				argument.append(lineSeparator);
+			IPreferenceStore store = TestgeneratorActivator.getDefault().getPreferenceStore();
+
+			String agentJar = null;
+
+			if (Model.AGENT_TYPE_TESTGENERATOR.equals(model.getAgentType())) {
+				agentJar = store.getString(TestgeneratorPreferencePage.STORE_ARG_TESTGENERATOR_JAR);
+			} else if (Model.AGENT_TYPE_TESTGENERATOR_FULL.equals(model.getAgentType())) {
+				agentJar = store.getString(TestgeneratorPreferencePage.STORE_ARG_TESTGENERATOR_FULL_JAR);
 			}
+
+			if (Utils.checkStringFilled(agentJar)) {
+				argument.append(agentJar + EQUAL);
+			} else {
+				throw new IllegalArgumentException(
+						"no JAR found for " + model.getAgentType() + ". Pls add the jar at the Preferences");
+			}
+
+			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL
+					+ selectedSourceType.getFullyQualifiedName().replace(".", "/"));
 
 			String selectedMethodStr = model.getMethods().get(model.getSelectedMethodIndex());
 
@@ -188,10 +323,6 @@ public class TestgeneratorConfigurationController {
 			IMethod method = selectedMethod.getKey();
 
 			argument.append(GENERALL_ARG_SEPARATUR + ARG_METHOD_NAME + EQUAL + method.getElementName());
-
-			if (withLineBreak) {
-				argument.append(lineSeparator);
-			}
 
 			Descriptor descriptor = Descriptor.getInstance(selectedSourceType.getJavaProject());
 
@@ -205,15 +336,8 @@ public class TestgeneratorConfigurationController {
 			argument.append(")");
 			argument.append(descriptor.getJvmFullQualifiedName(method.getReturnType(), method.getDeclaringType()));
 
-			if (withLineBreak) {
-				argument.append(lineSeparator);
-			}
-
 			if (model.isTraceReadFieldAccess()) {
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_TRACE_READ_FIELD_ACCESS);
-				if (withLineBreak) {
-					argument.append(lineSeparator);
-				}
 			}
 
 			if (!model.getBlPackages().isEmpty()) {
@@ -221,33 +345,21 @@ public class TestgeneratorConfigurationController {
 						.collect(Collectors.toList());
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL
 						+ String.join(LIST_ARG_SEPARATUR, modifiedBlPackages));
-				if (withLineBreak) {
-					argument.append(lineSeparator);
-				}
 			}
 
 			if (!model.getBlPackageJarDest().isEmpty()) {
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKGE_JAR_DEST + EQUAL
 						+ String.join(LIST_ARG_SEPARATUR, model.getBlPackageJarDest()));
-				if (withLineBreak) {
-					argument.append(lineSeparator);
-				}
 			}
 
 			if (model.getCostumTestgeneratorClassName() != null) {
-				argument.append(GENERALL_ARG_SEPARATUR + ARG_COSTUM_TESTGENERATOR_CLASS + EQUAL
-						+ model.getCostumTestgeneratorClassName());
-				if (withLineBreak) {
-					argument.append(lineSeparator);
-				}
+				argument.append(
+						GENERALL_ARG_SEPARATUR + ARG_COSTUM_TESTGENERATOR_CLASS + EQUAL + customTestgeneratorType);
 			}
 
 			if (model.getPrintClassDirectory() != null) {
 				argument.append(
 						GENERALL_ARG_SEPARATUR + ARG_PRINT_CLASSFILES_DIR + EQUAL + model.getPrintClassDirectory());
-				if (withLineBreak) {
-					argument.append(lineSeparator);
-				}
 			}
 
 		} catch (JavaModelException e) {
@@ -255,6 +367,22 @@ public class TestgeneratorConfigurationController {
 		}
 
 		return argument.toString();
+	}
+
+	private String generateTestgeneratorBootstrap() {
+		if (model.useTestgeneratorBootstrap()) {
+			IPreferenceStore store = TestgeneratorActivator.getDefault().getPreferenceStore();
+			String bootstrapJar = store.getString(TestgeneratorPreferencePage.STORE_ARG_TESTGENERATOR_BOOTSTRAP_JAR);
+
+			if (Utils.checkStringFilled(bootstrapJar)) {
+				return BOOT_CLASSPATH + bootstrapJar;
+			} else {
+				throw new IllegalArgumentException(
+						"No testgenerator-bootstrap.jar found. Pls add the jar at the Preferences");
+			}
+		}
+
+		return null;
 	}
 
 	private String createMethodString(IMethod method) {
