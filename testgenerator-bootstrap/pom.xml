@@ -8,7 +8,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>testgenerator-reflection</artifactId>
+	<artifactId>testgenerator-bootstrap</artifactId>
 	
 	<dependencies>
 		<dependency>
@@ -22,7 +22,7 @@
 			<scope>compile</scope>
 		</dependency>
 		
-		<dependency>
+		 <dependency>
 			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-core</artifactId>
 			<scope>compile</scope>
