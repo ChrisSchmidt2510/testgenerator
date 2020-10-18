@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.classdata.constants.JVMTypes;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.AgentProperties;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
@@ -179,7 +179,8 @@ public class TestGenerationAdder {
 		exceptionHandling.addAstore(maxLocals);
 		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addLdc(properties.getMethod());
-		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
+		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
+				JVMTypes.LIST);
 		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 
@@ -204,7 +205,8 @@ public class TestGenerationAdder {
 		exceptionHandling.addAstore(maxLocals);
 		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addLdc(properties.getMethod());
-		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
+		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
+				JVMTypes.LIST);
 		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 
@@ -215,7 +217,8 @@ public class TestGenerationAdder {
 
 		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addLdc(properties.getMethod());
-		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
+		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
+				JVMTypes.LIST);
 		exceptionHandling.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 
@@ -249,8 +252,8 @@ public class TestGenerationAdder {
 		BytecodeUtils.addClassInfoToBytecode(testgenerationWithLocalVariable, constantPool,
 				Descriptor.toJvmName(modifiedClass));
 		testgenerationWithLocalVariable.addLdc(properties.getMethod());
-		testgenerationWithLocalVariable.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
-				JVMTypes.LIST);
+		testgenerationWithLocalVariable.addGetstatic(modifiedClass,
+				TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
 		testgenerationWithLocalVariable.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 		testgenerationWithLocalVariable.addAload(maxLocals + 1);
@@ -258,7 +261,8 @@ public class TestGenerationAdder {
 		testgeneration = new Bytecode(constantPool);
 		BytecodeUtils.addClassInfoToBytecode(testgeneration, constantPool, Descriptor.toJvmName(modifiedClass));
 		testgeneration.addLdc(properties.getMethod());
-		testgeneration.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
+		testgeneration.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
+				JVMTypes.LIST);
 		testgeneration.addInvokestatic(TEST_GENERATOR_CLASSNAME, TEST_GENERATOR_METHOD_GENERATE,
 				TEST_GENERATOR_METHOD_GENERATE_DESC);
 	}

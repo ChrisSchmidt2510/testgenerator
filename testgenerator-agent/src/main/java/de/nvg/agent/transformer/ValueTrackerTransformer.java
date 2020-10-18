@@ -10,9 +10,9 @@ import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
 import org.testgen.core.classdata.constants.JVMTypes;
 import org.testgen.core.classdata.constants.Primitives;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.AgentProperties;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.signature.SignatureParser;

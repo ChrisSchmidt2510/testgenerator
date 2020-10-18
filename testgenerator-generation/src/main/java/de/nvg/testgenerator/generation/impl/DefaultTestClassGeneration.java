@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.BasicType;

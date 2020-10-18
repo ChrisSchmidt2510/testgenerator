@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 
 public final class ClassDataFactory {
@@ -14,8 +12,6 @@ public final class ClassDataFactory {
 	private final Map<Class<?>, ClassData> classDataMap = new HashMap<>();
 
 	private static final ClassDataFactory INSTANCE = new ClassDataFactory();
-
-	private static final Logger LOGGER = LogManager.getLogger(org.testgen.runtime.classdata.ClassDataFactory.class);
 
 	private ClassDataFactory() {
 	}
@@ -43,7 +39,8 @@ public final class ClassDataFactory {
 
 				return classData;
 			} catch (InstantiationException | IllegalAccessException e) {
-				LOGGER.error("cant create ClassData for Class " + provider, e);
+				throw new IllegalArgumentException("cant create ClassData for Class" + provider, e);
+
 			}
 		}
 

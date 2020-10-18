@@ -2,9 +2,9 @@ package de.nvg.agent;
 
 import java.lang.instrument.Instrumentation;
 
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.AgentProperties;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 
 import de.nvg.agent.transformer.ClassDataTransformer;
 import de.nvg.agent.transformer.ValueTrackerTransformer;

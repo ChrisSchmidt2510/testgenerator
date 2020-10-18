@@ -1,6 +1,6 @@
-package org.testgen.core.logging.config;
+package org.testgen.logging.config;
 
-import org.testgen.core.logging.config.appender.Appender;
+import org.testgen.logging.appender.Appender;
 
 public class Configuration {
 	private final String packageName;

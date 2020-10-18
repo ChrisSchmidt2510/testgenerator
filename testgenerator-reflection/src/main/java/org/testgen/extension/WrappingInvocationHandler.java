@@ -4,8 +4,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.testgen.core.ReflectionUtil;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
 
 public class WrappingInvocationHandler implements InvocationHandler {
@@ -14,8 +12,6 @@ public class WrappingInvocationHandler implements InvocationHandler {
 	private static final String METHOD_TRACK_PROXY_VALUES = "trackProxyValues";
 
 	private static final String PROXY_NAME = "proxy";
-
-	private static final Logger LOGGER = LogManager.getLogger(WrappingInvocationHandler.class);
 
 	private final InvocationHandler originalInvoker;
 
@@ -52,7 +48,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 						.invoke(ReflectionUtil.getMethod(valueTrackerClass, METHOD_GET_INSTANCE), null);
 
 			} catch (Exception e) {
-				LOGGER.error("error while creating WrappingInvocationHandler", e);
+				throw new RuntimeException("error while creating WrappingInvocationHandler", e);
 			}
 		}
 	}

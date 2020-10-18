@@ -22,6 +22,11 @@
 		</dependency>
 		<dependency>
 			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-logging</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-proxy</artifactId>
 			<scope>provided</scope>
 		</dependency>

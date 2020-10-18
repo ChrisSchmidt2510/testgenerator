@@ -31,6 +31,12 @@
 			<artifactId>testgenerator-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-logging</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>com.squareup</groupId>

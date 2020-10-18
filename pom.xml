@@ -21,10 +21,11 @@
 		<module>testgenerator-agent-full</module>
 		<module>testgenerator-classdatamodel-rt</module>
 		<module>testgenerator-core</module>
+		<module>testgenerator-logging</module>
 		<module>testgenerator-generation</module>
 		<module>testgenerator-proxy</module>
 		<module>testgenerator-rt</module>
-		<module>testgenerator-reflection</module>
+		<module>testgenerator-bootstrap</module>
 		<module>value-tracker</module>
 	</modules>
 
@@ -107,13 +108,19 @@
 			
 			<dependency>
 				<groupId>de.nvg</groupId>
-				<artifactId>testgenerator-reflection</artifactId>
+				<artifactId>testgenerator-bootstrap</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>de.nvg</groupId>
 				<artifactId>value-tracker</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>de.nvg</groupId>
+				<artifactId>testgenerator-logging</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>

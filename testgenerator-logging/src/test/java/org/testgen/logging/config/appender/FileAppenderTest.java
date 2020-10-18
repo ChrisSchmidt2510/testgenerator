@@ -1,10 +1,11 @@
-package org.testgen.core.logging.config.appender;
+package org.testgen.logging.config.appender;
 
 import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.testgen.logging.appender.FileAppender;
 
 public class FileAppenderTest {
 

@@ -18,27 +18,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.nvg</groupId>
-			<artifactId>testgenerator-core</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.nvg</groupId>
-			<artifactId>testgenerator-proxy</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.nvg</groupId>
-			<artifactId>testgenerator-generation</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.nvg</groupId>
-			<artifactId>testgenerator-classdatamodel-rt</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.nvg</groupId>
-			<artifactId>value-tracker</artifactId>
+			<artifactId>testgenerator-rt</artifactId>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>

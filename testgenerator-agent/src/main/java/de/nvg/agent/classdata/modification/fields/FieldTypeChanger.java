@@ -11,8 +11,8 @@ import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.classdata.constants.JVMTypes;
 import org.testgen.core.classdata.constants.JavaTypes;
 import org.testgen.core.classdata.constants.Primitives;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.InstructionFilter;

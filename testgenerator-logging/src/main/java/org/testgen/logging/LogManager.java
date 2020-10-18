@@ -1,7 +1,7 @@
-package org.testgen.core.logging;
+package org.testgen.logging;
 
-import org.testgen.core.logging.config.Configuration;
-import org.testgen.core.logging.config.LoggerRepository;
+import org.testgen.logging.config.Configuration;
+import org.testgen.logging.config.LoggerRepository;
 
 public final class LogManager {
 

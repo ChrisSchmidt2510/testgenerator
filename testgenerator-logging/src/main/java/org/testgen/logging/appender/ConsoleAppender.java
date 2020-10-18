@@ -1,4 +1,4 @@
-package org.testgen.core.logging.config.appender;
+package org.testgen.logging.appender;
 
 import java.io.IOException;
 import java.io.PrintStream;

@@ -1,4 +1,4 @@
-package org.testgen.core.logging;
+package org.testgen.logging;
 
 import java.io.PrintStream;
 import java.time.LocalDateTime;
@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.testgen.core.logging.config.Configuration;
-import org.testgen.core.logging.config.Level;
+import org.testgen.logging.config.Configuration;
+import org.testgen.logging.config.Level;
 
 public class Logger {
 	private final Configuration config;

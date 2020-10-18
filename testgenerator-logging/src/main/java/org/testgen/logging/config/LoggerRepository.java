@@ -1,16 +1,17 @@
-package org.testgen.core.logging.config;
+package org.testgen.logging.config;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleImmutableEntry;
+
+import org.testgen.logging.appender.Appender;
+import org.testgen.logging.appender.ConsoleAppender;
+import org.testgen.logging.appender.FileAppender;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-
-import org.testgen.core.logging.config.appender.Appender;
-import org.testgen.core.logging.config.appender.ConsoleAppender;
-import org.testgen.core.logging.config.appender.FileAppender;
 
 public final class LoggerRepository {
 

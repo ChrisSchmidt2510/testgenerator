@@ -29,9 +29,9 @@ import java.util.function.Supplier;
 
 import org.testgen.core.MapBuilder;
 import org.testgen.core.TestgeneratorConstants;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 
 import de.nvg.proxy.impl.BooleanProxy;
 import de.nvg.proxy.impl.DoubleProxy;

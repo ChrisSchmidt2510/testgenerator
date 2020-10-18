@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 
 import org.testgen.core.classdata.constants.JavaTypes;
 import org.testgen.core.classdata.constants.Primitives;
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;

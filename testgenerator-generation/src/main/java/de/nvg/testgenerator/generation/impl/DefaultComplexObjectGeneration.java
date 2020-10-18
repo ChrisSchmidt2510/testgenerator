@@ -9,9 +9,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.testgen.core.logging.LogManager;
-import org.testgen.core.logging.Logger;
 import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.ConstructorData;
 import org.testgen.runtime.classdata.model.FieldData;
