@@ -29,7 +29,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
@@ -61,8 +63,6 @@ public class TestgeneratorConfigurationController {
 	private static final String EQUAL = "=";
 
 	private static final String TEST_CLASS_GENERATION = "de.nvg.testgenerator.generation.TestClassGeneration";
-
-	private static final String LOCAL_JAVA_LAUNCH_CONFIG = "org.eclipse.jdt.launching.localJavaApplication";
 
 	private final Shell activeShell;
 
@@ -172,42 +172,49 @@ public class TestgeneratorConfigurationController {
 	}
 
 	public void selectLaunchConfiguration() {
-		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		try {
-			ILaunchConfiguration[] launchConfigs = launchManager.getLaunchConfigurations();
 
-			for (ILaunchConfiguration launchConfig : launchConfigs) {
-				if (LOCAL_JAVA_LAUNCH_CONFIG
-						.equals(launchConfig.getType().getAttribute(IConfigurationElementConstants.ID))) {
-					this.launchConfigs.add(launchConfig);
-				}
-			}
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		IServer[] servers = ServerCore.getServers();
-
-		for (IServer server : servers) {
+		BusyIndicator.showWhile(Display.getCurrent(), () -> {
+			ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 			try {
-				ILaunchConfiguration serverLaunchConfig = server.getLaunchConfiguration(false, null);
+				ILaunchConfiguration[] launchConfigs = launchManager.getLaunchConfigurations();
 
-				if (serverLaunchConfig != null) {
-					this.launchConfigs.add(serverLaunchConfig);
+				for (ILaunchConfiguration launchConfig : launchConfigs) {
+					if (IJavaLaunchConfigurationConstants.ID_JAVA_APPLICATION
+							.equals(launchConfig.getType().getAttribute(IConfigurationElementConstants.ID))) {
+						this.launchConfigs.add(launchConfig);
+					}
 				}
-
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+
+			IServer[] servers = ServerCore.getServers();
+
+			for (IServer server : servers) {
+				try {
+					ILaunchConfiguration serverLaunchConfig = server.getLaunchConfiguration(false, null);
+
+					if (serverLaunchConfig != null) {
+						this.launchConfigs.add(serverLaunchConfig);
+					}
+
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		ListDialog listDialog = new ListDialog(activeShell);
 		listDialog.setTitle("Select Launch Configuration");
 		listDialog.setInput(launchConfigs);
 		listDialog.setContentProvider(ArrayContentProvider.getInstance());
-		listDialog.setLabelProvider(ColumnLabelProvider.createTextProvider(o -> o.toString()));
+		listDialog.setLabelProvider(new ColumnLabelProvider() {
+			public String getText(Object element) {
+				return element.toString();
+			}
+		});
 
 		if (IDialogConstants.OK_ID == listDialog.open()) {
 			Object[] result = listDialog.getResult();

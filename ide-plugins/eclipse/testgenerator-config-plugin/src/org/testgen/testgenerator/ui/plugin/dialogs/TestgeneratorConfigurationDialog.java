@@ -27,6 +27,9 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 	private Label lblCostumTestgeneratorClass;
 	private Label lblTraceReadFieldAccess;
 	private Label lblBlpackageDestination;
+	private Label lblUseTestgeneratorbootstrap;
+	private Label lblLaunchConfiguration;
+	private Label lblSpacer;
 
 	private Combo methods;
 
@@ -38,6 +41,7 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 	private Text txtBlPackageDest;
 	private Text txtCostumTestgenerator;
 	private Text txtPrintClassFileDir;
+	private Text txtLaunchConfiguration;
 
 	private Button btnBrowse;
 	private Button btnAdd;
@@ -46,17 +50,13 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 	private Button btnAddPackageDest;
 	private Button btnRemovePackageDest;
 	private Button btnBrowseCostumTestgenerator;
+	private Button btnSelect;
 
 	private Button checkBoxReadFieldAccess;
+	private Button checkBoxUseTestgeneratorBootstrap;
 
 	private final TestgeneratorConfigurationController controller;
 	private final Model model;
-	private Label lblUseTestgeneratorbootstrap;
-	private Button checkBoxUseTestgeneratorBootstrap;
-	private Label lblLaunchConfiguration;
-	private Text txtLaunchConfiguration;
-	private Button btnSelect;
-	private Label lblNewLabel;
 
 	protected TestgeneratorConfigurationDialog(Shell parentShell, //
 			TestgeneratorConfigurationController controller, Model model) {
@@ -70,9 +70,6 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 		Composite container = (Composite) super.createDialogArea(parent);
 
 		initDialog(container);
-
-		lblNewLabel = new Label(container, SWT.NONE);
-		lblNewLabel.setBounds(637, 156, 70, 20);
 
 		return container;
 	}
@@ -247,7 +244,6 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 		lblUseTestgeneratorbootstrap.setText("use Testgenerator-Bootstrap");
 
 		checkBoxUseTestgeneratorBootstrap = new Button(optionalParams, SWT.CHECK);
-		checkBoxUseTestgeneratorBootstrap.setGrayed(true);
 		checkBoxUseTestgeneratorBootstrap.setBounds(204, 147, 90, 30);
 		checkBoxUseTestgeneratorBootstrap.addListener(SWT.Selection, e -> updateModel());
 
@@ -286,6 +282,9 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 		btnSelect.setBounds(557, 280, 65, 30);
 		btnSelect.setText("Select");
 		btnSelect.addListener(SWT.Selection, e -> controller.selectLaunchConfiguration());
+
+		lblSpacer = new Label(parent, SWT.NONE);
+		lblSpacer.setBounds(637, 156, 70, 20);
 	}
 
 	private void removeEntryBlPackage() {
