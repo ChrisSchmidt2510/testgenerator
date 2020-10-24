@@ -2,9 +2,9 @@ package de.nvg.proxy;
 
 import java.util.Set;
 
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
-import org.testgen.core.properties.RuntimeProperties;
 import org.testgen.runtime.classdata.model.FieldData;
 
 public abstract class AbstractProxy {
@@ -17,8 +17,7 @@ public abstract class AbstractProxy {
 	}
 
 	protected void trackReadFieldCalls() {
-		if (RuntimeProperties.getInstance().isFieldTrackingActive()
-				&& !RuntimeProperties.getInstance().isProxyFieldTrackingActive()) {
+		if (TestgeneratorConfig.isFieldTrackingActivated() && !TestgeneratorConfig.isProxyFieldTrackingActivated()) {
 			Set<FieldData> calledFields = MethodHandles.getFieldValue(parent,
 					TestgeneratorConstants.FIELDNAME_CALLED_FIELDS);
 			calledFields.add(field);

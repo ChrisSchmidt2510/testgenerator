@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 
-import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
@@ -43,8 +43,6 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 	private ComplexObjectGeneration objectGeneration;
 
 	private NamingService namingService;
-
-	private RuntimeProperties properties = RuntimeProperties.getInstance();
 
 	@Override
 	public void setComplexObjectGeneration(ComplexObjectGeneration objectGeneration) {
@@ -369,7 +367,7 @@ public class DefaultContainerGeneration implements ContainerGeneration {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
 
 			Set<FieldData> calledFields = Collections.emptySet();
-			if (properties.wasFieldTrackingActivated()) {
+			if (TestgeneratorConfig.traceReadFieldAccess()) {
 				calledFields = TestGenerationHelper.getCalledFields(bluePrint.getReference());
 			}
 

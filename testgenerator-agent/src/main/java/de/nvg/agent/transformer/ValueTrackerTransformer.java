@@ -6,17 +6,17 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.JVMTypes;
-import org.testgen.core.classdata.constants.Primitives;
-import org.testgen.core.properties.AgentProperties;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
 import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.signature.SignatureParser;
 import de.nvg.agent.classdata.analysis.signature.SignatureParserException;
+import de.nvg.agent.classdata.constants.JVMTypes;
+import de.nvg.agent.classdata.constants.Primitives;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.SignatureData;
 import de.nvg.agent.classdata.modification.BytecodeUtils;
@@ -69,8 +69,6 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String TYPE_FIELDNAME_TESTOBJECT = "TESTOBJECT";
 	private static final String TYPE_FIELDNAME_METHODPARAMETER = "METHOD_PARAMETER";
 
-	private final AgentProperties properties = AgentProperties.getInstance();
-
 	private CodeAttribute codeAttribute;
 	private CodeIterator iterator;
 	private ConstPool constantPool;
@@ -81,7 +79,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (properties.getClassName().equals(className)) {
+		if (TestgeneratorConfig.getClassName().equals(className)) {
 			final ClassPool pool = ClassPool.getDefault();
 
 			CtClass loadingClass = null;
@@ -108,7 +106,8 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private void reTransformMethodForObservObjectData(CtClass classToLoad)
 			throws IOException, CannotCompileException, NotFoundException, BadBytecode {
 
-		MethodInfo methodInfo = classToLoad.getMethod(properties.getMethod(), properties.getMethodDescriptor())
+		MethodInfo methodInfo = classToLoad
+				.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
 				.getMethodInfo();
 
 		codeAttribute = methodInfo.getCodeAttribute();
@@ -195,7 +194,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING, //
 				METHOD_VOID_DESC);
 
-		if (properties.isTraceReadFieldAccess()) {
+		if (TestgeneratorConfig.traceReadFieldAccess()) {
 			valueTracking.addAload(valueTrackerLocalIndex);
 			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
 					OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING, METHOD_VOID_DESC);

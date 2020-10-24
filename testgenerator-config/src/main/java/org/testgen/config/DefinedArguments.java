@@ -1,7 +1,7 @@
-package org.testgen.core.properties;
+package org.testgen.config;
 
-import org.testgen.core.properties.parser.Arguments;
-import org.testgen.core.properties.parser.Parameter;
+import org.testgen.config.parser.Arguments;
+import org.testgen.config.parser.Parameter;
 
 public final class DefinedArguments {
 	public static final String ARG_CLASS_NAME = "ClassName";

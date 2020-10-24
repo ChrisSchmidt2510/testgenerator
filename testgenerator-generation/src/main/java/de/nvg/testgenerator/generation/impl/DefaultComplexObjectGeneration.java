@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
@@ -34,8 +34,6 @@ import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultComplexObjectGeneration.class);
-
-	private RuntimeProperties properties = RuntimeProperties.getInstance();
 
 	private ContainerGeneration containerGeneration;
 
@@ -156,7 +154,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 	private void addFieldsToObject(CodeBlock.Builder code, ComplexBluePrint bluePrint, ClassData classData,
 			Set<FieldData> calledFields, String objectName, Set<BluePrint> usedBluePrints) {
 
-		if (properties.wasFieldTrackingActivated()) {
+		if (TestgeneratorConfig.traceReadFieldAccess()) {
 
 			for (FieldData field : calledFields) {
 				LOGGER.info("add Field " + field + " to Object " + objectName);
@@ -260,7 +258,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			Optional<FieldData> calledField = calledFields.stream()
 					.filter(field -> field.getName().equals(bp.getName())).findAny();
 
-			if (calledField.isPresent() || !properties.wasFieldTrackingActivated() || //
+			if (calledField.isPresent() || !TestgeneratorConfig.traceReadFieldAccess() || //
 					(classData.isInnerClass()
 							&& classData.getOuterClass().getName().equals(bp.getClassNameOfReference()))) {
 				if (bp.isComplexBluePrint()) {
@@ -271,7 +269,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 					SetterMethodData setter = null;
 					SignatureType signature = null;
-					if (properties.wasFieldTrackingActivated()) {
+					if (TestgeneratorConfig.traceReadFieldAccess()) {
 						FieldData field = classData.getFieldInHierarchie(calledField.get());
 						signature = field.getSignature();
 						setter = classData.getSetterInHierarchie(field);
@@ -303,7 +301,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			ClassData classData = TestGenerationHelper.getClassData(bluePrint.getReference());
 
 			Set<FieldData> calledFields = Collections.emptySet();
-			if (properties.wasFieldTrackingActivated()) {
+			if (TestgeneratorConfig.traceReadFieldAccess()) {
 				calledFields = TestGenerationHelper.getCalledFields(bluePrint.getReference());
 			}
 

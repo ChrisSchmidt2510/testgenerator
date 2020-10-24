@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.testgen.core.MapBuilder;
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.Primitives;
 
+import de.nvg.agent.classdata.constants.Primitives;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import javassist.bytecode.Descriptor;

@@ -2,7 +2,7 @@ package de.nvg.agent;
 
 import java.lang.instrument.Instrumentation;
 
-import org.testgen.core.properties.AgentProperties;
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
@@ -21,7 +21,7 @@ public final class ClassTransformerAgent {
 
 	public static void premain(String agentArgs, Instrumentation instrumentation) {
 
-		AgentProperties.initProperties(agentArgs);
+		TestgeneratorConfig.initConfiguration(agentArgs);
 
 		registerAdditionalClassPaths();
 
@@ -37,7 +37,7 @@ public final class ClassTransformerAgent {
 
 	private static void registerAdditionalClassPaths() {
 
-		for (String blJar : AgentProperties.getInstance().getBlPackageJarDest()) {
+		for (String blJar : TestgeneratorConfig.getBlPackageJarDest()) {
 			try {
 				ClassPool.getDefault().appendClassPath(blJar + "\\*");
 			} catch (NotFoundException e) {
@@ -47,7 +47,7 @@ public final class ClassTransformerAgent {
 	}
 
 	private static void dumpModifiedClassFiles() {
-		String directory = AgentProperties.getInstance().getPrintClassFileDirectory();
+		String directory = TestgeneratorConfig.getPrintClassFileDirectory();
 
 		if (directory != null)
 			CtClass.debugDump = directory;

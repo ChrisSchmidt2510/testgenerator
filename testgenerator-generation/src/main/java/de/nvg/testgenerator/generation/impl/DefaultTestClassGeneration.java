@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
-import org.testgen.core.properties.RuntimeProperties;
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
@@ -53,8 +53,6 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	private static final String METHOD_TEST_START = "test";
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultTestClassGeneration.class);
-
-	private final RuntimeProperties properties = RuntimeProperties.getInstance();
 
 	private String testObjectName;
 	private List<String> methodParameterNames = new ArrayList<>();
@@ -117,7 +115,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				ClassData classData = TestGenerationHelper.getClassData(methodParameter.getReference());
 
 				Set<FieldData> calledFields = Collections.emptySet();
-				if (properties.wasFieldTrackingActivated()) {
+				if (TestgeneratorConfig.isFieldTrackingActivated()) {
 					calledFields = TestGenerationHelper.getCalledFields(methodParameter.getReference());
 				}
 
@@ -180,7 +178,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 					ClassData classData = TestGenerationHelper.getClassData(proxyObject.getReference());
 
 					Set<FieldData> calledFields = Collections.emptySet();
-					if (properties.wasFieldTrackingActivated()) {
+					if (TestgeneratorConfig.traceReadFieldAccess()) {
 						calledFields = TestGenerationHelper.getCalledFields(proxyObject.getReference());
 					}
 

@@ -27,9 +27,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.MapBuilder;
 import org.testgen.core.TestgeneratorConstants;
-import org.testgen.core.properties.RuntimeProperties;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
@@ -98,11 +98,11 @@ public final class ObjectValueTracker {
 	}
 
 	public void enableFieldTracking() {
-		RuntimeProperties.getInstance().setFieldTracking(true);
+		TestgeneratorConfig.setFieldTracking(true);
 	}
 
 	public void enableProxyTracking() {
-		RuntimeProperties.getInstance().setProxyTracking(true);
+		TestgeneratorConfig.setProxyTracking(true);
 	}
 
 	BluePrint trackValues(Object value, String name) {

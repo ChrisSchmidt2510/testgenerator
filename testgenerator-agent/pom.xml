@@ -30,6 +30,12 @@
 		
 		<dependency>
 			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-config</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>de.nvg</groupId>
 			<artifactId>testgenerator-logging</artifactId>
 			<scope>compile</scope>
 		</dependency>

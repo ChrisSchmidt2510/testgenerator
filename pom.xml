@@ -21,6 +21,7 @@
 		<module>testgenerator-agent-full</module>
 		<module>testgenerator-classdatamodel-rt</module>
 		<module>testgenerator-core</module>
+		<module>testgenerator-config</module>
 		<module>testgenerator-logging</module>
 		<module>testgenerator-generation</module>
 		<module>testgenerator-proxy</module>
@@ -79,6 +80,12 @@
 			<dependency>
 				<groupId>de.nvg</groupId>
 				<artifactId>testgenerator-core</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>de.nvg</groupId>
+				<artifactId>testgenerator-config</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 

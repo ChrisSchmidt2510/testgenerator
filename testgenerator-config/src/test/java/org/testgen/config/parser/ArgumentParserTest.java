@@ -1,10 +1,10 @@
-package org.testgen.core.properties.parser;
+package org.testgen.config.parser;
 
 import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.testgen.core.properties.DefinedArguments;
+import org.testgen.config.DefinedArguments;
 
 public class ArgumentParserTest {
 

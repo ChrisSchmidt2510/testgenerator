@@ -3,9 +3,9 @@ package de.nvg.agent.classdata.analysis;
 import java.util.List;
 
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.JVMTypes;
-import org.testgen.core.classdata.constants.JavaTypes;
 
+import de.nvg.agent.classdata.constants.JVMTypes;
+import de.nvg.agent.classdata.constants.JavaTypes;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.model.FieldData;
 import javassist.bytecode.Descriptor;

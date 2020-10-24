@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.ReflectionUtil;
-import org.testgen.core.properties.RuntimeProperties;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
@@ -42,9 +42,9 @@ public final class Testgenerator {
 	 */
 	public static void generate(Class<?> testClass, String method, List<DescriptorType> methodParameterTypes) {
 		LOGGER.info("Starting test-generation");
-		RuntimeProperties.getInstance().setFieldTracking(false);
-		RuntimeProperties.getInstance().setProxyTracking(false);
-		boolean trackingActivated = RuntimeProperties.getInstance().wasFieldTrackingActivated();
+		TestgeneratorConfig.setFieldTracking(false);
+		TestgeneratorConfig.setProxyTracking(false);
+		boolean trackingActivated = TestgeneratorConfig.traceReadFieldAccess();
 
 		TestClassGeneration testGenerator = getTestClassGenerationImplementation();
 
@@ -89,7 +89,7 @@ public final class Testgenerator {
 	}
 
 	private static TestClassGeneration getTestClassGenerationImplementation() {
-		String costumTestgeneratorClass = RuntimeProperties.getInstance().costumTestgeneratorClass();
+		String costumTestgeneratorClass = TestgeneratorConfig.getCustomTestgeneratorClass();
 
 		if (costumTestgeneratorClass != null) {
 			Class<?> costumTestgenerator = ReflectionUtil.forName(costumTestgeneratorClass);

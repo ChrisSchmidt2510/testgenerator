@@ -8,10 +8,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.JavaTypes;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
+import de.nvg.agent.classdata.constants.JavaTypes;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;

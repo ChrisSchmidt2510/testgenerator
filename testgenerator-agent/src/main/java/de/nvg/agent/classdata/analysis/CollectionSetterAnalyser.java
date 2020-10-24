@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.JVMTypes;
 
+import de.nvg.agent.classdata.constants.JVMTypes;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.FieldData;

@@ -9,9 +9,9 @@ import java.util.Optional;
 
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.JVMTypes;
-import org.testgen.core.classdata.constants.JavaTypes;
 
+import de.nvg.agent.classdata.constants.JVMTypes;
+import de.nvg.agent.classdata.constants.JavaTypes;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;

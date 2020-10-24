@@ -12,10 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
-import org.testgen.core.classdata.constants.JavaTypes;
-import org.testgen.core.properties.AgentProperties;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
@@ -23,6 +22,7 @@ import de.nvg.agent.AgentException;
 import de.nvg.agent.classdata.analysis.MethodAnalyser;
 import de.nvg.agent.classdata.analysis.signature.SignatureParser;
 import de.nvg.agent.classdata.analysis.signature.SignatureParserException;
+import de.nvg.agent.classdata.constants.JavaTypes;
 import de.nvg.agent.classdata.instructions.Instruction;
 import de.nvg.agent.classdata.instructions.Instructions;
 import de.nvg.agent.classdata.model.ClassData;
@@ -56,15 +56,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 	private static final String PROXIFIED = "de/nvg/proxy/Proxified";
 
-	private final AgentProperties properties = AgentProperties.getInstance();
-
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (properties.getBlPackage().stream().anyMatch(className::startsWith)
+		if (TestgeneratorConfig.getBlPackages().stream().anyMatch(className::startsWith)
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
-				|| properties.getClassNames().contains(className)) {
+				|| TestgeneratorConfig.getClassNames().contains(className)) {
 
 			ClassDataStorage.getInstance().removeSuperclassToLoad(Descriptor.toJavaName(className));
 
@@ -121,7 +119,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					loadingClass);
 
 			// only add the calledFields Set if the Flag is set
-			if (properties.isTraceReadFieldAccess()) {
+			if (TestgeneratorConfig.traceReadFieldAccess()) {
 
 				classFile.addInterface(PROXIFIED);
 
@@ -193,7 +191,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 				analyseMethod(method, instructions, classData, methodAnalyser);
 
-				if (properties.isTraceReadFieldAccess()) {
+				if (TestgeneratorConfig.traceReadFieldAccess()) {
 					manipulateMethod(method, instructions, fieldTypeChanger);
 				}
 			}
@@ -207,7 +205,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 			List<Instruction> instructions = Instructions.getAllInstructions(constructor);
 			analyseConstructor(constructor, instructions, classData, methodAnalyser);
 
-			if (properties.isTraceReadFieldAccess()) {
+			if (TestgeneratorConfig.traceReadFieldAccess()) {
 				manipulateConstructor(constructor, instructions, fieldTypeChanger);
 			}
 		}

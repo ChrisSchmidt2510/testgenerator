@@ -1,4 +1,4 @@
-package org.testgen.core.properties.parser;
+package org.testgen.config.parser;
 
 public enum Parameter {
 	NO_PARAMETER, SINGLE_PARAMETER, MULTIPLE_PARAMETER;

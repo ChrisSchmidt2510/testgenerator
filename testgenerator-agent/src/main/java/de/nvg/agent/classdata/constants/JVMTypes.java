@@ -1,4 +1,4 @@
-package org.testgen.core.classdata.constants;
+package de.nvg.agent.classdata.constants;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package org.testgen.core.properties.parser;
+package org.testgen.config.parser;
 
 import java.util.Collections;
 import java.util.HashSet;

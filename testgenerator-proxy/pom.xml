@@ -25,6 +25,11 @@
 			<artifactId>testgenerator-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>de.nvg</groupId>
+			<artifactId>testgenerator-config</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
