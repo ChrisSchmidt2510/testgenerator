@@ -324,8 +324,6 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 
 		checkBoxReadFieldAccess.setSelection(model.isTraceReadFieldAccess());
 
-//		boot
-
 		if (model.getCostumTestgeneratorClassName() != null) {
 			txtCostumTestgenerator.setText(model.getCostumTestgeneratorClassName());
 		}

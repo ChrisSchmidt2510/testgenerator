@@ -4,6 +4,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
 
 @SuppressWarnings("restriction")
 public final class Descriptor {
@@ -55,8 +56,7 @@ public final class Descriptor {
 			String returnType = "L" + project.findType(typeName).getFullyQualifiedName().replace(".", "/") + ";";
 			return arrayDimensions != null ? arrayDimensions + returnType : returnType;
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			TestgeneratorActivator.log(e);
 		}
 
 		return null;

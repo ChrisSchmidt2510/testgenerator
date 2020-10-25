@@ -113,7 +113,6 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 							(String) null);
 
 				} catch (CoreException e) {
-					e.printStackTrace();
 					TestgeneratorActivator.log(e);
 					return null;
 				}

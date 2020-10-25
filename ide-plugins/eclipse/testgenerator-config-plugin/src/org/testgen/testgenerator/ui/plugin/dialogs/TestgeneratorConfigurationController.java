@@ -88,6 +88,7 @@ public class TestgeneratorConfigurationController {
 		try {
 			updateModel(selectedSourceType.getMethods(), selectedMethod);
 		} catch (JavaModelException e) {
+			TestgeneratorActivator.log(e);
 		}
 
 		dialog = new TestgeneratorConfigurationDialog(activeShell, //
@@ -106,6 +107,7 @@ public class TestgeneratorConfigurationController {
 		try {
 			updateModel(testClassType.getMethods(), null);
 		} catch (JavaModelException e) {
+			TestgeneratorActivator.log(e);
 		}
 
 		dialog.updateComponents();
@@ -136,6 +138,7 @@ public class TestgeneratorConfigurationController {
 						"selected class has to implement " + TEST_CLASS_GENERATION);
 			}
 		} catch (JavaModelException e) {
+			TestgeneratorActivator.log(e);
 			MessageDialog.openError(activeShell, "error while selecting CostumTestgeneratorClass",
 					"Message: " + e.getMessage());
 		}
@@ -366,7 +369,7 @@ public class TestgeneratorConfigurationController {
 			}
 
 		} catch (JavaModelException e) {
-			e.printStackTrace();
+			TestgeneratorActivator.log(e);
 		}
 
 		return argument.toString();

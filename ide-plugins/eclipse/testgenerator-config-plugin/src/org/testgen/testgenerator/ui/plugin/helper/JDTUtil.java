@@ -8,6 +8,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
+import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
 
 @SuppressWarnings("restriction")
 public final class JDTUtil {
@@ -28,6 +29,7 @@ public final class JDTUtil {
 							? (IMethod) elements[0]
 							: null;
 		} catch (JavaModelException e) {
+			TestgeneratorActivator.log(e);
 			return null;
 		}
 
