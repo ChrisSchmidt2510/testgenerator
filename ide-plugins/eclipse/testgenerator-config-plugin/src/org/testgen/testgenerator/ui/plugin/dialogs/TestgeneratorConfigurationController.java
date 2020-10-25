@@ -27,14 +27,11 @@ import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerCore;
@@ -74,7 +71,8 @@ public class TestgeneratorConfigurationController {
 	private IType customTestgeneratorType;
 	private Map<IMethod, String> methods = new HashMap<>();
 
-	private Set<ILaunchConfiguration> launchConfigs = new HashSet<>();
+	private Set<ILaunchConfiguration> javaLaunchConfigs = new HashSet<>();
+	private Set<ILaunchConfiguration> serverLaunchConfigs = new HashSet<>();
 
 	public TestgeneratorConfigurationController(Shell activeShell) {
 		this.activeShell = activeShell;
@@ -181,12 +179,11 @@ public class TestgeneratorConfigurationController {
 				for (ILaunchConfiguration launchConfig : launchConfigs) {
 					if (IJavaLaunchConfigurationConstants.ID_JAVA_APPLICATION
 							.equals(launchConfig.getType().getAttribute(IConfigurationElementConstants.ID))) {
-						this.launchConfigs.add(launchConfig);
+						this.javaLaunchConfigs.add(launchConfig);
 					}
 				}
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				TestgeneratorActivator.log(e);
 			}
 
 			IServer[] servers = ServerCore.getServers();
@@ -196,30 +193,23 @@ public class TestgeneratorConfigurationController {
 					ILaunchConfiguration serverLaunchConfig = server.getLaunchConfiguration(false, null);
 
 					if (serverLaunchConfig != null) {
-						this.launchConfigs.add(serverLaunchConfig);
+						this.serverLaunchConfigs.add(serverLaunchConfig);
 					}
 
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					TestgeneratorActivator.log(e);
 				}
 			}
 		});
 
-		ListDialog listDialog = new ListDialog(activeShell);
-		listDialog.setTitle("Select Launch Configuration");
-		listDialog.setInput(launchConfigs);
-		listDialog.setContentProvider(ArrayContentProvider.getInstance());
-		listDialog.setLabelProvider(new ColumnLabelProvider() {
-			public String getText(Object element) {
-				return element.toString();
-			}
-		});
+		LaunchConfigurationDialog listDialog = new LaunchConfigurationDialog(activeShell);
+		listDialog.setInputApplications(javaLaunchConfigs);
+		listDialog.setInputServers(serverLaunchConfigs);
 
 		if (IDialogConstants.OK_ID == listDialog.open()) {
 			Object[] result = listDialog.getResult();
 
-			if (result.length > 0) {
+			if (result != null && result.length > 0) {
 				ILaunchConfiguration launchConfig = (ILaunchConfiguration) result[0];
 
 				model.setLaunchConfiguration(launchConfig);
@@ -242,7 +232,7 @@ public class TestgeneratorConfigurationController {
 			ILaunchConfigurationWorkingCopy copy = launchConfig.getWorkingCopy();
 
 			if (arguments == null) {
-				addNewArgumentsToLaunchConfigCopy(agentArgument, bootstrapArgument, copy);
+				addNewArgumentsToLaunchConfigCopy(null, agentArgument, bootstrapArgument, copy);
 
 			} else {
 				if (arguments.contains(JAVAAGENT)) {
@@ -252,7 +242,7 @@ public class TestgeneratorConfigurationController {
 				} else if (arguments.contains(BOOT_CLASSPATH)) {
 
 				} else {
-					addNewArgumentsToLaunchConfigCopy(agentArgument, bootstrapArgument, copy);
+					addNewArgumentsToLaunchConfigCopy(arguments, agentArgument, bootstrapArgument, copy);
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -269,14 +259,20 @@ public class TestgeneratorConfigurationController {
 		return true;
 	}
 
-	private void addNewArgumentsToLaunchConfigCopy(String agentArgument, String bootstrapArgument,
+	private void addNewArgumentsToLaunchConfigCopy(String oldArgument, String agentArgument, String bootstrapArgument,
 			ILaunchConfigurationWorkingCopy copy) throws CoreException {
-		String argument = agentArgument;
+		StringBuilder builder = new StringBuilder();
+
+		if (oldArgument != null) {
+			builder.append(oldArgument);
+		}
+
+		builder.append(agentArgument);
 
 		if (model.useTestgeneratorBootstrap()) {
-			argument = argument + " " + bootstrapArgument;
+			builder.append(bootstrapArgument);
 		}
-		copy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, argument);
+		copy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, builder.toString());
 		copy.doSave();
 	}
 
