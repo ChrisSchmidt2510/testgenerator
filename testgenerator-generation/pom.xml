@@ -17,7 +17,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.nvg</groupId>
-			<artifactId>value-tracker</artifactId>
+			<artifactId>testgenerator-value-tracker</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

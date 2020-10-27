@@ -27,7 +27,7 @@
 		<module>testgenerator-proxy</module>
 		<module>testgenerator-rt</module>
 		<module>testgenerator-bootstrap</module>
-		<module>value-tracker</module>
+		<module>testgenerator-value-tracker</module>
 	</modules>
 
 	<dependencyManagement>
@@ -121,7 +121,7 @@
 
 			<dependency>
 				<groupId>de.nvg</groupId>
-				<artifactId>value-tracker</artifactId>
+				<artifactId>testgenerator-value-tracker</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			
