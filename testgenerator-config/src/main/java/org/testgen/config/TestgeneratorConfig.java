@@ -133,6 +133,31 @@ public final class TestgeneratorConfig {
 		System.setProperty(PARAM_RUNTIME_PROXY_TRACKING, Boolean.toString(proxyTracking));
 	}
 
+	/**
+	 * Returns all Properties from the Testgenerator-Framework Just for debugging
+	 * purposes
+	 */
+	public static String getPropertyString() {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(PARAM_CLASS_NAME + "=" + getClassName() + System.lineSeparator());
+		builder.append(PARAM_CLASS_NAMES + "=" + getClassNames() + System.lineSeparator());
+		builder.append(PARAM_METHOD_NAME + "=" + getMethodName() + System.lineSeparator());
+		builder.append(PARAM_METHOD_DESC + "=" + getMethodDescriptor() + System.lineSeparator());
+		builder.append(PARAM_BL_PACKAGE + "=" + System.getProperty(PARAM_BL_PACKAGE) + System.lineSeparator());
+		builder.append(PARAM_BL_PACKAGE_JAR_DEST + "=" + System.getProperty(PARAM_BL_PACKAGE_JAR_DEST)
+				+ System.lineSeparator());
+		builder.append(PARAM_PRINT_CLASS_FILE_DIR + "=" + getPrintClassFileDirectory() + System.lineSeparator());
+		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomTestgeneratorClass() + System.lineSeparator());
+		builder.append(PARAM_TRACE_READ_FIELD_ACCESS + "=" + traceReadFieldAccess() + System.lineSeparator());
+		builder.append(PARAM_RUNTIME_FIELD_TRACKING + "=" + isFieldTrackingActivated() + System.lineSeparator());
+		builder.append(PARAM_RUNTIME_PROXY_TRACKING + "=" + isProxyTrackingActivated() + System.lineSeparator());
+		builder.append(
+				PARAM_RUNTIME_PROXY_FIELD_TRACKING + "=" + isProxyFieldTrackingActivated() + System.lineSeparator());
+
+		return builder.toString();
+	}
+
 	private static List<String> isInnerClass(String className) {
 		if (className.contains("$")) {
 			return Arrays.asList(className.substring(0, className.indexOf("$")), className);
