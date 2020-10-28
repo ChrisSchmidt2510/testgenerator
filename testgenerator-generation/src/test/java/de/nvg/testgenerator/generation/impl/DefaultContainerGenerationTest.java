@@ -5,13 +5,13 @@ import java.time.Month;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 
 import de.nvg.testgenerator.generation.naming.NamingService;
-import de.nvg.valuetracker.blueprint.ArrayBluePrint;
-import de.nvg.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
 public class DefaultContainerGenerationTest {
 	private DefaultContainerGeneration containerGenerator = new DefaultContainerGeneration();

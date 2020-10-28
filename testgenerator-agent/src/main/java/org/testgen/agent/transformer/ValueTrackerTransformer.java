@@ -45,16 +45,16 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ValueTrackerTransformer.class);
 
-	private static final String OBJECT_VALUE_TRACKER_CLASSNAME = "de/nvg/valuetracker/ObjectValueTracker";
-	private static final String OBJECT_VALUE_TRACKER = "Lde/nvg/valuetracker/ObjectValueTracker;";
+	private static final String OBJECT_VALUE_TRACKER_CLASSNAME = "org/testgen/runtime/valuetracker/ObjectValueTracker";
+	private static final String OBJECT_VALUE_TRACKER = "Lorg/testgen/runtime/valuetracker/ObjectValueTracker;";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK = "track";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC = "(Ljava/lang/Object;Ljava/lang/String;Lde/nvg/valuetracker/blueprint/Type;)V";
+	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC = "(Ljava/lang/Object;Ljava/lang/String;Lorg/testgen/runtime/valuetracker/blueprint/Type;)V";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING = "enableFieldTracking";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING = "enableProxyTracking";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC = "()" + OBJECT_VALUE_TRACKER;
 
-	private static final String VALUE_STORAGE_CLASSNAME = "de/nvg/valuetracker/storage/ValueStorage";
-	private static final String VALUE_STORAGE_METHOD_GET_INSTANCE_DESC = "()Lde/nvg/valuetracker/storage/ValueStorage;";
+	private static final String VALUE_STORAGE_CLASSNAME = "org/testgen/runtime/valuetracker/storage/ValueStorage";
+	private static final String VALUE_STORAGE_METHOD_GET_INSTANCE_DESC = "()Lorg/testgen/runtime/valuetracker/storage/ValueStorage;";
 	private static final String VALUE_STORAGE_METHOD_PUSH_NEW_TESTDATA = "pushNewTestData";
 
 	private static final String BASIC_TYPE_CLASSNAME = "org/testgen/runtime/classdata/model/descriptor/BasicType";
@@ -64,8 +64,8 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String METHOD_GET_INSTANCE = "getInstance";
 	private static final String METHOD_VOID_DESC = "()V";
 
-	private static final String TYPE_CLASSNAME = "de/nvg/valuetracker/blueprint/Type";
-	private static final String TYPE = "Lde/nvg/valuetracker/blueprint/Type;";
+	private static final String TYPE_CLASSNAME = "org/testgen/runtime/valuetracker/blueprint/Type";
+	private static final String TYPE = "Lorg/testgen/runtime/valuetracker/blueprint/Type;";
 	private static final String TYPE_FIELDNAME_TESTOBJECT = "TESTOBJECT";
 	private static final String TYPE_FIELDNAME_METHODPARAMETER = "METHOD_PARAMETER";
 

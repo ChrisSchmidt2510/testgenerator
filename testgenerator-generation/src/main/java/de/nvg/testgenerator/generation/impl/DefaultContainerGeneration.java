@@ -17,6 +17,13 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint;
+import org.testgen.runtime.valuetracker.storage.ValueStorage;
 
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -26,13 +33,6 @@ import com.squareup.javapoet.TypeSpec;
 import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.ContainerGeneration;
 import de.nvg.testgenerator.generation.naming.NamingService;
-import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
-import de.nvg.valuetracker.blueprint.ArrayBluePrint;
-import de.nvg.valuetracker.blueprint.BluePrint;
-import de.nvg.valuetracker.blueprint.SimpleBluePrint;
-import de.nvg.valuetracker.blueprint.collections.CollectionBluePrint;
-import de.nvg.valuetracker.blueprint.collections.MapBluePrint;
-import de.nvg.valuetracker.storage.ValueStorage;
 
 public class DefaultContainerGeneration implements ContainerGeneration {
 

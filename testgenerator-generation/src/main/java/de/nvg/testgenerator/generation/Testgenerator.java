@@ -16,15 +16,15 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
+import org.testgen.runtime.valuetracker.storage.ValueStorage;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec.Builder;
 
 import de.nvg.testgenerator.generation.impl.DefaultTestClassGeneration;
 import de.nvg.testgenerator.generation.impl.TestGenerationHelper;
-import de.nvg.valuetracker.blueprint.BluePrint;
-import de.nvg.valuetracker.blueprint.ProxyBluePrint;
-import de.nvg.valuetracker.storage.ValueStorage;
 
 public final class Testgenerator {
 

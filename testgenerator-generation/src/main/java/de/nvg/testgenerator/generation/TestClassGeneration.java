@@ -8,11 +8,10 @@ import java.util.Set;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 
 import com.squareup.javapoet.TypeSpec;
-
-import de.nvg.valuetracker.blueprint.BluePrint;
-import de.nvg.valuetracker.blueprint.ProxyBluePrint;
 
 public interface TestClassGeneration {
 

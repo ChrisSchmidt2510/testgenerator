@@ -4,11 +4,11 @@ import java.util.Set;
 
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 
 import com.squareup.javapoet.CodeBlock.Builder;
 
 import de.nvg.testgenerator.generation.naming.NamingService;
-import de.nvg.valuetracker.blueprint.ComplexBluePrint;
 
 public interface ComplexObjectGeneration {
 	/* init */

@@ -21,6 +21,11 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.BasicType;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -33,11 +38,6 @@ import de.nvg.testgenerator.generation.ComplexObjectGeneration;
 import de.nvg.testgenerator.generation.ContainerGeneration;
 import de.nvg.testgenerator.generation.TestClassGeneration;
 import de.nvg.testgenerator.generation.naming.NamingService;
-import de.nvg.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
-import de.nvg.valuetracker.blueprint.ArrayBluePrint;
-import de.nvg.valuetracker.blueprint.BluePrint;
-import de.nvg.valuetracker.blueprint.ProxyBluePrint;
-import de.nvg.valuetracker.blueprint.SimpleBluePrint;
 
 public class DefaultTestClassGeneration implements TestClassGeneration {
 	private static final String TEST = "Test";

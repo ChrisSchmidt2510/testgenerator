@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import de.nvg.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
 public class NamingService {
 	private List<Name> names = new ArrayList<>();
