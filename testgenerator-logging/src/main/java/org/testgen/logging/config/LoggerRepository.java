@@ -3,15 +3,14 @@ package org.testgen.logging.config;
 import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleImmutableEntry;
-
-import org.testgen.logging.appender.Appender;
-import org.testgen.logging.appender.ConsoleAppender;
-import org.testgen.logging.appender.FileAppender;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+
+import org.testgen.logging.appender.Appender;
+import org.testgen.logging.appender.ConsoleAppender;
+import org.testgen.logging.appender.FileAppender;
 
 public final class LoggerRepository {
 
@@ -36,16 +35,17 @@ public final class LoggerRepository {
 		Appender valueTrackerAppender = new FileAppender("ValueTracker", maxLogSize, defaultLoggerDirectory,
 				consoleAppender);
 
-		Configuration agentConfiguration = new Configuration("de.nvg.agent", Level.ERROR, agentAppender);
-		Configuration manipulationConfig = new Configuration("de.nvg.agent.classdata.modification", Level.ERROR,
+		Configuration agentConfiguration = new Configuration("org.testgen.agent", Level.ERROR, agentAppender);
+		Configuration manipulationConfig = new Configuration("org.testgen.agent.classdata.modification", Level.ERROR,
 				agentAppender);
-		Configuration analysisConfig = new Configuration("de.nvg.agent.classdata.analysis", Level.INFO, agentAppender);
-		Configuration transformerConfig = new Configuration("de.nvg.agent.transformer", Level.INFO, agentAppender);
+		Configuration analysisConfig = new Configuration("org.testgen.agent.classdata.analysis", Level.INFO,
+				agentAppender);
+		Configuration transformerConfig = new Configuration("org.testgen.agent.transformer", Level.INFO, agentAppender);
 		Configuration instructionFilterConfiguration = new Configuration("de.nvg.agent.classdata.instructions",
 				Level.INFO, agentAppender);
-		Configuration testgeneratorConfiguration = new Configuration("de.nvg.testgenerator", Level.DEBUG,
+		Configuration testgeneratorConfiguration = new Configuration("org.testgen.runtime.generation", Level.DEBUG,
 				testgeneratorAppender);
-		Configuration valueTrackerConfiguration = new Configuration("de.nvg.valuetracker", Level.INFO,
+		Configuration valueTrackerConfiguration = new Configuration("org.testgen.runtime.valuetracker", Level.INFO,
 				valueTrackerAppender);
 
 		repository.add(agentConfiguration);
