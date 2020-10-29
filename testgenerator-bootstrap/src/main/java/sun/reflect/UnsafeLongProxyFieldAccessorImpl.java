@@ -2,7 +2,7 @@ package sun.reflect;
 
 import java.lang.reflect.Field;
 
-import de.nvg.proxy.impl.LongProxy;
+import org.testgen.runtime.proxy.impl.LongProxy;
 
 @SuppressWarnings("restriction")
 public class UnsafeLongProxyFieldAccessorImpl extends UnsafeBaseAccessorImpl {

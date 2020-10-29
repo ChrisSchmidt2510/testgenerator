@@ -2,7 +2,7 @@ package sun.reflect;
 
 import java.lang.reflect.Field;
 
-import de.nvg.proxy.impl.BooleanProxy;
+import org.testgen.runtime.proxy.impl.BooleanProxy;
 
 @SuppressWarnings("restriction")
 public class UnsafeBooleanProxyFieldAccessorImpl extends UnsafeBaseAccessorImpl {

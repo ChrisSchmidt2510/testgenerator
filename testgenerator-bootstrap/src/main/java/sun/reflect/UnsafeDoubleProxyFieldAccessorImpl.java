@@ -2,7 +2,7 @@ package sun.reflect;
 
 import java.lang.reflect.Field;
 
-import de.nvg.proxy.impl.DoubleProxy;
+import org.testgen.runtime.proxy.impl.DoubleProxy;
 
 @SuppressWarnings("restriction")
 public class UnsafeDoubleProxyFieldAccessorImpl extends UnsafeBaseAccessorImpl {

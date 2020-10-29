@@ -1,6 +1,6 @@
-package de.nvg.proxy.impl;
+package org.testgen.runtime.proxy.impl;
 
-import de.nvg.proxy.AbstractProxy;
+import org.testgen.runtime.proxy.AbstractProxy;
 
 public class BooleanProxy extends AbstractProxy {
 	private boolean value;

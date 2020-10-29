@@ -1,7 +1,7 @@
 package org.testgen.extension;
 
-import de.nvg.proxy.AbstractProxy;
-import de.nvg.proxy.Proxified;
+import org.testgen.runtime.proxy.AbstractProxy;
+import org.testgen.runtime.proxy.Proxified;
 
 public final class ClassExtension {
 

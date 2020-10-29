@@ -1,9 +1,9 @@
-package de.nvg.proxy.impl;
+package org.testgen.runtime.proxy.impl;
 
 import java.lang.reflect.Proxy;
 import java.util.Objects;
 
-import de.nvg.proxy.AbstractProxy;
+import org.testgen.runtime.proxy.AbstractProxy;
 
 public class ReferenceProxy<E> extends AbstractProxy {
 	private E value;

@@ -2,7 +2,7 @@ package sun.reflect;
 
 import java.lang.reflect.Field;
 
-import de.nvg.proxy.impl.FloatProxy;
+import org.testgen.runtime.proxy.impl.FloatProxy;
 
 @SuppressWarnings("restriction")
 public class UnsafeFloatProxyFieldAccessorImpl extends UnsafeBaseAccessorImpl {

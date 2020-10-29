@@ -40,30 +40,30 @@ import javassist.bytecode.SignatureAttribute;
 public class FieldTypeChanger {
 	private static final Logger LOGGER = LogManager.getLogger(FieldTypeChanger.class);
 
-	private static final String REFERENCE_PROXY_CLASSNAME = "de/nvg/proxy/impl/ReferenceProxy";
-	private static final String REFERENCE_PROXY = "Lde/nvg/proxy/impl/ReferenceProxy;";
+	private static final String REFERENCE_PROXY_CLASSNAME = "org/testgen/runtime/proxy/impl/ReferenceProxy";
+	private static final String REFERENCE_PROXY = "Lorg/testgen/runtime/proxy/impl/ReferenceProxy;";
 	private static final String REFERENCE_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
 	private static final String REFERENCE_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
 
-	private static final String BOOLEAN_PROXY_CLASSNAME = "de/nvg/proxy/impl/BooleanProxy";
-	private static final String BOOLEAN_PROXY = "Lde/nvg/proxy/impl/BooleanProxy;";
+	private static final String BOOLEAN_PROXY_CLASSNAME = "org/testgen/runtime/proxy/impl/BooleanProxy";
+	private static final String BOOLEAN_PROXY = "Lorg/testgen/runtime/proxy/impl/BooleanProxy;";
 	private static final String BOOLEAN_PROXY_CONSTRUCTOR = "(ZLjava/lang/Object;Ljava/lang/String;)V";
 
-	private static final String DOUBLE_PROXY_CLASSNAME = "de/nvg/proxy/impl/DoubleProxy";
-	private static final String DOUBLE_PROXY = "Lde/nvg/proxy/impl/DoubleProxy;";
+	private static final String DOUBLE_PROXY_CLASSNAME = "org/testgen/runtime/proxy/impl/DoubleProxy";
+	private static final String DOUBLE_PROXY = "Lorg/testgen/runtime/proxy/impl/DoubleProxy;";
 	private static final String DOUBLE_PROXY_CONSTRUCTOR = "(DLjava/lang/Object;Ljava/lang/String;)V";
 
-	private static final String FLOAT_PROXY_CLASSNAME = "de/nvg/proxy/impl/FloatProxy";
-	private static final String FLOAT_PROXY = "Lde/nvg/proxy/impl/FloatProxy;";
+	private static final String FLOAT_PROXY_CLASSNAME = "org/testgen/runtime/proxy/impl/FloatProxy";
+	private static final String FLOAT_PROXY = "Lorg/testgen/runtime/proxy/impl/FloatProxy;";
 	private static final String FLOAT_PROXY_CONSTRUCTOR = "(FLjava/lang/Object;Ljava/lang/String;)V";
 
-	private static final String INTEGER_PROXY_CLASSNAME = "de/nvg/proxy/impl/IntegerProxy";
-	private static final String INTEGER_PROXY = "Lde/nvg/proxy/impl/IntegerProxy;";
+	private static final String INTEGER_PROXY_CLASSNAME = "org/testgen/runtime/proxy/impl/IntegerProxy";
+	private static final String INTEGER_PROXY = "Lorg/testgen/runtime/proxy/impl/IntegerProxy;";
 	private static final String INTEGER_PROXY_CONSTRUCTOR = "(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
 	private static final String INTEGER_PROXY_DEFAULT_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V";
 
-	private static final String LONG_PROXY_CLASSNAME = "de/nvg/proxy/impl/LongProxy";
-	private static final String LONG_PROXY = "Lde/nvg/proxy/impl/LongProxy;";
+	private static final String LONG_PROXY_CLASSNAME = "org/testgen/runtime/proxy/impl/LongProxy";
+	private static final String LONG_PROXY = "Lorg/testgen/runtime/proxy/impl/LongProxy;";
 	private static final String LONG_PROXY_CONSTRUCTOR = "(LLjava/lang/Object;Ljava/lang/String;)V";
 
 	private static final String DEFAULT_PROXY_CONSTRUCTOR = "(Ljava/lang/Object;Ljava/lang/String;)V";

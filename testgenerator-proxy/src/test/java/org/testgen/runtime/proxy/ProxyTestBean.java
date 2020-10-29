@@ -1,9 +1,9 @@
-package de.nvg.proxy;
+package org.testgen.runtime.proxy;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-import de.nvg.proxy.impl.ReferenceProxy;
+import org.testgen.runtime.proxy.impl.ReferenceProxy;
 
 public class ProxyTestBean {
 	private ReferenceProxy<LocalDate> date = new ReferenceProxy<>(LocalDate.now(), this, "date", LocalDate.class);

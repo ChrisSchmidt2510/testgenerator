@@ -1,4 +1,4 @@
-package de.nvg.proxy;
+package org.testgen.runtime.proxy;
 
 import java.util.Set;
 

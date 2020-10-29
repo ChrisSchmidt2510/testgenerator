@@ -32,6 +32,12 @@ import org.testgen.core.MapBuilder;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
+import org.testgen.runtime.proxy.impl.BooleanProxy;
+import org.testgen.runtime.proxy.impl.DoubleProxy;
+import org.testgen.runtime.proxy.impl.FloatProxy;
+import org.testgen.runtime.proxy.impl.IntegerProxy;
+import org.testgen.runtime.proxy.impl.LongProxy;
+import org.testgen.runtime.proxy.impl.ReferenceProxy;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
@@ -41,13 +47,6 @@ import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrin
 import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 import org.testgen.runtime.valuetracker.storage.ValueStorage;
-
-import de.nvg.proxy.impl.BooleanProxy;
-import de.nvg.proxy.impl.DoubleProxy;
-import de.nvg.proxy.impl.FloatProxy;
-import de.nvg.proxy.impl.IntegerProxy;
-import de.nvg.proxy.impl.LongProxy;
-import de.nvg.proxy.impl.ReferenceProxy;
 
 public final class ObjectValueTracker {
 

@@ -56,13 +56,13 @@ import java.util.Arrays;
 
 import org.testgen.extension.ClassExtension;
 import org.testgen.extension.Modified;
+import org.testgen.runtime.proxy.impl.BooleanProxy;
+import org.testgen.runtime.proxy.impl.DoubleProxy;
+import org.testgen.runtime.proxy.impl.FloatProxy;
+import org.testgen.runtime.proxy.impl.IntegerProxy;
+import org.testgen.runtime.proxy.impl.LongProxy;
+import org.testgen.runtime.proxy.impl.ReferenceProxy;
 
-import de.nvg.proxy.impl.BooleanProxy;
-import de.nvg.proxy.impl.DoubleProxy;
-import de.nvg.proxy.impl.FloatProxy;
-import de.nvg.proxy.impl.IntegerProxy;
-import de.nvg.proxy.impl.LongProxy;
-import de.nvg.proxy.impl.ReferenceProxy;
 import sun.invoke.util.ValueConversions;
 import sun.invoke.util.VerifyAccess;
 import sun.invoke.util.VerifyType;

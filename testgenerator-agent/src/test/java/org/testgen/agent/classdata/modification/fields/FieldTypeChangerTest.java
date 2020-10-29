@@ -28,6 +28,11 @@ import javassist.bytecode.SignatureAttribute;
 
 public class FieldTypeChangerTest extends TestHelper {
 
+	private static final String REFERENCE_PROXY = "Lorg/testgen/runtime/proxy/impl/ReferenceProxy;";
+	private static final String REFERENCE_PROXY_CLASSNAME = "org.testgen.runtime.proxy.impl.ReferenceProxy";
+	private static final String INTEGER_PROXY = "Lorg/testgen/runtime/proxy/impl/IntegerProxy;";
+	private static final String INTEGER_PROXY_CLASSNAME = "org.testgen.runtime.proxy.impl.IntegerProxy";
+
 	@Test
 	public void testOverrideFieldAccessWithSimpleGetter() throws NotFoundException, BadBytecode {
 		init(Value.class, "getValueID", Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
@@ -46,9 +51,9 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(1)//
 				.withOpcode(Opcode.GETFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Value")
-				.withType("Lde/nvg/proxy/impl/ReferenceProxy;").withName("valueID").build());
+				.withType(REFERENCE_PROXY).withName("valueID").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(4)//
-				.withOpcode(Opcode.INVOKEVIRTUAL).withClassRef("de.nvg.proxy.impl.ReferenceProxy")//
+				.withOpcode(Opcode.INVOKEVIRTUAL).withClassRef(REFERENCE_PROXY_CLASSNAME)//
 				.withName("getValue").withType("()Ljava/lang/Object;").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(7)//
 				.withOpcode(Opcode.CHECKCAST).withClassRef("java.lang.Integer").build());
@@ -77,11 +82,11 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(1)//
 				.withOpcode(Opcode.GETFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Value")
-				.withType("Lde/nvg/proxy/impl/ReferenceProxy;").withName("calendar").build());
+				.withType(REFERENCE_PROXY).withName("calendar").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(4)//
 				.withOpcode(Opcode.ALOAD_1).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(5)//
-				.withOpcode(Opcode.INVOKEVIRTUAL).withClassRef("de.nvg.proxy.impl.ReferenceProxy")//
+				.withOpcode(Opcode.INVOKEVIRTUAL).withClassRef(REFERENCE_PROXY_CLASSNAME)//
 				.withName("setValue").withType("(Ljava/lang/Object;)V").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(8)//
 				.withOpcode(Opcode.RETURN).build());
@@ -113,11 +118,11 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(5)//
 				.withOpcode(Opcode.GETFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Value")
-				.withType("Lde/nvg/proxy/impl/ReferenceProxy;").withName("valueID").build());
+				.withType(REFERENCE_PROXY).withName("valueID").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(8)//
 				.withOpcode(Opcode.ALOAD_1).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(9)//
-				.withOpcode(Opcode.INVOKEVIRTUAL).withClassRef("de.nvg.proxy.impl.ReferenceProxy")//
+				.withOpcode(Opcode.INVOKEVIRTUAL).withClassRef(REFERENCE_PROXY_CLASSNAME)//
 				.withName("setValue").withType("(Ljava/lang/Object;)V").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(12)//
 				.withOpcode(Opcode.RETURN).build());
@@ -180,7 +185,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(4)//
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(5)//
-				.withOpcode(Opcode.NEW).withClassRef("de.nvg.proxy.impl.IntegerProxy").build());
+				.withOpcode(Opcode.NEW).withClassRef(INTEGER_PROXY_CLASSNAME).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(8)//
 				.withOpcode(Opcode.DUP).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(9)//
@@ -191,16 +196,16 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withOpcode(Opcode.GETSTATIC).withClassRef("java.lang.Short")//
 				.withName("TYPE").withType("Ljava/lang/Class;").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(15)//
-				.withOpcode(Opcode.INVOKESPECIAL).withClassRef("de.nvg.proxy.impl.IntegerProxy")//
+				.withOpcode(Opcode.INVOKESPECIAL).withClassRef(INTEGER_PROXY_CLASSNAME)//
 				.withName(MethodInfo.nameInit)//
 				.withType("(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(18)//
 				.withOpcode(Opcode.PUTFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Adresse")//
-				.withName("hausnummer").withType("Lde/nvg/proxy/impl/IntegerProxy;").build());
+				.withName("hausnummer").withType(INTEGER_PROXY).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(21)//
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(22)//
-				.withOpcode(Opcode.NEW).withClassRef("de.nvg.proxy.impl.ReferenceProxy").build());
+				.withOpcode(Opcode.NEW).withClassRef(REFERENCE_PROXY_CLASSNAME).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(25)//
 				.withOpcode(Opcode.DUP).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(26)//
@@ -210,16 +215,16 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(29)//
 				.withOpcode(Opcode.LDC).withConstantValue("java.lang.String").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(31)//
-				.withOpcode(Opcode.INVOKESPECIAL).withClassRef("de.nvg.proxy.impl.ReferenceProxy")//
+				.withOpcode(Opcode.INVOKESPECIAL).withClassRef(REFERENCE_PROXY_CLASSNAME)//
 				.withName(MethodInfo.nameInit)//
 				.withType("(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(34)//
 				.withOpcode(Opcode.PUTFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Adresse")//
-				.withName("strasse").withType("Lde/nvg/proxy/impl/ReferenceProxy;").build());
+				.withName("strasse").withType(REFERENCE_PROXY).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(37)//
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(38)//
-				.withOpcode(Opcode.NEW).withClassRef("de.nvg.proxy.impl.ReferenceProxy").build());
+				.withOpcode(Opcode.NEW).withClassRef(REFERENCE_PROXY_CLASSNAME).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(41)//
 				.withOpcode(Opcode.DUP).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(42)//
@@ -231,16 +236,16 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(46)//
 				.withOpcode(Opcode.LDC).withConstantValue("java.lang.String").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(48)//
-				.withOpcode(Opcode.INVOKESPECIAL).withClassRef("de.nvg.proxy.impl.ReferenceProxy")//
+				.withOpcode(Opcode.INVOKESPECIAL).withClassRef(REFERENCE_PROXY_CLASSNAME)//
 				.withName(MethodInfo.nameInit)//
 				.withType("(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(51)//
 				.withOpcode(Opcode.PUTFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Adresse")//
-				.withName("ort").withType("Lde/nvg/proxy/impl/ReferenceProxy;").build());
+				.withName("ort").withType(REFERENCE_PROXY).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(54)//
 				.withOpcode(Opcode.ALOAD_0).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(55)//
-				.withOpcode(Opcode.NEW).withClassRef("de.nvg.proxy.impl.IntegerProxy").build());
+				.withOpcode(Opcode.NEW).withClassRef(INTEGER_PROXY_CLASSNAME).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(58)//
 				.withOpcode(Opcode.DUP).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(59)//
@@ -253,15 +258,15 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withOpcode(Opcode.GETSTATIC).withClassRef("java.lang.Integer")//
 				.withName("TYPE").withType("Ljava/lang/Class;").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(66)//
-				.withOpcode(Opcode.INVOKESPECIAL).withClassRef("de.nvg.proxy.impl.IntegerProxy")//
+				.withOpcode(Opcode.INVOKESPECIAL).withClassRef(INTEGER_PROXY_CLASSNAME)//
 				.withName(MethodInfo.nameInit)//
 				.withType("(ILjava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(69)//
 				.withOpcode(Opcode.PUTFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Adresse")//
-				.withName("plz").withType("Lde/nvg/proxy/impl/IntegerProxy;").build());
+				.withName("plz").withType(INTEGER_PROXY).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(72)//
 				.withOpcode(Opcode.RETURN).build());
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assert.assertEquals(Instructions.getAllInstructions(methodInfo), modifiedInstructionSet);
 	}
 
 	/*
@@ -302,46 +307,48 @@ public class FieldTypeChangerTest extends TestHelper {
 				FieldInfo fieldInfo = classFile.getFields().stream().filter(field -> field.getName().equals("name"))
 						.findAny().orElse(null);
 
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy;", fieldInfo.getDescriptor());
+				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy<Ljava/lang/String;>;", signature.getSignature());
+				Assert.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/lang/String;>;",
+						signature.getSignature());
 			} else if (ctField.getName().equals("firstName")) {
 				FieldInfo fieldInfo = classFile.getFields().stream()
 						.filter(field -> field.getName().equals("firstName")).findAny().orElse(null);
 
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy;", fieldInfo.getDescriptor());
+				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy<Ljava/lang/String;>;", signature.getSignature());
+				Assert.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/lang/String;>;",
+						signature.getSignature());
 			} else if (ctField.getName().equals("dateOfBirth")) {
 				FieldInfo fieldInfo = classFile.getFields().stream()
 						.filter(field -> field.getName().equals("dateOfBirth")).findAny().orElse(null);
 
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy;", fieldInfo.getDescriptor());
+				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy<Ljava/time/LocalDate;>;",
+				Assert.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/time/LocalDate;>;",
 						signature.getSignature());
 			} else if (ctField.getName().equals("geschlecht")) {
 				FieldInfo fieldInfo = classFile.getFields().stream()
 						.filter(field -> field.getName().equals("geschlecht")).findAny().orElse(null);
 
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy;", fieldInfo.getDescriptor());
+				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
 				Assert.assertEquals(
-						"Lde/nvg/proxy/impl/ReferenceProxy<Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;>;",
+						"Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;>;",
 						signature.getSignature());
 			} else if (ctField.getName().equals("adressen")) {
 				FieldInfo fieldInfo = classFile.getFields().stream().filter(field -> field.getName().equals("adressen"))
 						.findAny().orElse(null);
 
-				Assert.assertEquals("Lde/nvg/proxy/impl/ReferenceProxy;", fieldInfo.getDescriptor());
+				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
 				Assert.assertEquals(
-						"Lde/nvg/proxy/impl/ReferenceProxy<Ljava/util/List<Lorg/testgen/agent/classdata/testclasses/Adresse;>;>;",
+						"Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/util/List<Lorg/testgen/agent/classdata/testclasses/Adresse;>;>;",
 						signature.getSignature());
 			}
 		}

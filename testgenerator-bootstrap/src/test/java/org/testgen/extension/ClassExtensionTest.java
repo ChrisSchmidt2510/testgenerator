@@ -2,9 +2,8 @@ package org.testgen.extension;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import de.nvg.proxy.Proxified;
-import de.nvg.proxy.impl.ReferenceProxy;
+import org.testgen.runtime.proxy.Proxified;
+import org.testgen.runtime.proxy.impl.ReferenceProxy;
 
 public class ClassExtensionTest {
 

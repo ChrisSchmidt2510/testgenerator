@@ -4,13 +4,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.testgen.extension.Modified;
-
-import de.nvg.proxy.impl.BooleanProxy;
-import de.nvg.proxy.impl.DoubleProxy;
-import de.nvg.proxy.impl.FloatProxy;
-import de.nvg.proxy.impl.IntegerProxy;
-import de.nvg.proxy.impl.LongProxy;
-import de.nvg.proxy.impl.ReferenceProxy;
+import org.testgen.runtime.proxy.impl.BooleanProxy;
+import org.testgen.runtime.proxy.impl.DoubleProxy;
+import org.testgen.runtime.proxy.impl.FloatProxy;
+import org.testgen.runtime.proxy.impl.IntegerProxy;
+import org.testgen.runtime.proxy.impl.LongProxy;
+import org.testgen.runtime.proxy.impl.ReferenceProxy;
 
 public final class UnsafeFieldAccessorFactory {
 

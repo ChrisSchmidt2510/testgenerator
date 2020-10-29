@@ -2,7 +2,7 @@ package sun.reflect;
 
 import java.lang.reflect.Field;
 
-import de.nvg.proxy.impl.IntegerProxy;
+import org.testgen.runtime.proxy.impl.IntegerProxy;
 
 @SuppressWarnings("restriction")
 public class UnsafeIntegerProxyFieldAccessorImpl extends UnsafeBaseAccessorImpl {
