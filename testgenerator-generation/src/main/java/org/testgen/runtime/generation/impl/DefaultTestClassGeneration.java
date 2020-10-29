@@ -1,4 +1,4 @@
-package de.nvg.testgenerator.generation.impl;
+package org.testgen.runtime.generation.impl;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -21,6 +21,10 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.BasicType;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.generation.ComplexObjectGeneration;
+import org.testgen.runtime.generation.ContainerGeneration;
+import org.testgen.runtime.generation.TestClassGeneration;
+import org.testgen.runtime.generation.naming.NamingService;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -33,11 +37,6 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
-
-import de.nvg.testgenerator.generation.ComplexObjectGeneration;
-import de.nvg.testgenerator.generation.ContainerGeneration;
-import de.nvg.testgenerator.generation.TestClassGeneration;
-import de.nvg.testgenerator.generation.naming.NamingService;
 
 public class DefaultTestClassGeneration implements TestClassGeneration {
 	private static final String TEST = "Test";

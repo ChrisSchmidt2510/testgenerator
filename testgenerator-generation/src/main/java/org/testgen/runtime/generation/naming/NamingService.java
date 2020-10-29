@@ -1,4 +1,4 @@
-package de.nvg.testgenerator.generation.naming;
+package org.testgen.runtime.generation.naming;
 
 import java.util.ArrayList;
 import java.util.List;

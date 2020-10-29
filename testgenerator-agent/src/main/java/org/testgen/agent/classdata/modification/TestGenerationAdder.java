@@ -31,7 +31,7 @@ import javassist.bytecode.StackMapTable;
 import javassist.bytecode.stackmap.MapMaker;
 
 public class TestGenerationAdder {
-	private static final String TEST_GENERATOR_CLASSNAME = "de/nvg/testgenerator/generation/Testgenerator";
+	private static final String TEST_GENERATOR_CLASSNAME = "org/testgen/runtime/generation/Testgenerator";
 	private static final String TEST_GENERATOR_METHOD_GENERATE = "generate";
 	private static final String TEST_GENERATOR_METHOD_GENERATE_DESC = "(Ljava/lang/Class;Ljava/lang/String;Ljava/util/List;)V";
 

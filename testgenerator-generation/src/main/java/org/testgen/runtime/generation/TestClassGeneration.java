@@ -1,4 +1,4 @@
-package de.nvg.testgenerator.generation;
+package org.testgen.runtime.generation;
 
 import java.util.Collection;
 import java.util.List;

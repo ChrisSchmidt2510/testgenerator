@@ -1,16 +1,15 @@
-package de.nvg.testgenerator.generation;
+package org.testgen.runtime.generation;
 
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.generation.naming.NamingService;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.TypeSpec;
-
-import de.nvg.testgenerator.generation.naming.NamingService;
 
 public interface ContainerGeneration {
 
