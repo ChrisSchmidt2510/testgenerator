@@ -5,7 +5,7 @@
 	<artifactId>testgenerator-compiler-plugin</artifactId>
 
 	<parent>
-		<groupId>de.nvg</groupId>
+		<groupId>org.testgen</groupId>
 		<artifactId>testgenerator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -16,7 +16,7 @@
 			<artifactId>tools</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-core</artifactId>
 		</dependency>
 		<!-- Test-Dependencies -->
@@ -25,12 +25,12 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-classdatamodel-rt</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-proxy</artifactId>
 			<scope>test</scope>
 		</dependency>

@@ -5,7 +5,7 @@
 	<artifactId>log-analyser</artifactId>
 
 	<parent>
-		<groupId>de.nvg</groupId>
+		<groupId>org.testgen</groupId>
 		<artifactId>testgenerator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>

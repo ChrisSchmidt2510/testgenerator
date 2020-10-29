@@ -5,50 +5,50 @@
 	<artifactId>testgenerator-rt</artifactId>
 
 	<parent>
-		<groupId>de.nvg</groupId>
+		<groupId>org.testgen</groupId>
 		<artifactId>testgenerator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-classdatamodel-rt</artifactId>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-logging</artifactId>
-			<scope>comile</scope>
+			<scope>compile</scope>
 		</dependency>
 		
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-config</artifactId>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-generation</artifactId>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-proxy</artifactId>
 			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-value-tracker</artifactId>
 			<scope>compile</scope>
 		</dependency>

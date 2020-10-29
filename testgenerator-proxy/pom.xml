@@ -5,7 +5,7 @@
 	<artifactId>testgenerator-proxy</artifactId>
 
 	<parent>
-		<groupId>de.nvg</groupId>
+		<groupId>org.testgen</groupId>
 		<artifactId>testgenerator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -16,17 +16,17 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-classdatamodel-rt</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>de.nvg</groupId>
+			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-config</artifactId>
 			<scope>provided</scope>
 		</dependency>

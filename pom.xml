@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.nvg</groupId>
+	<groupId>org.testgen</groupId>
 	<artifactId>testgenerator-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -60,73 +60,73 @@
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-agent</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-compiler-plugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-classdatamodel-rt</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-core</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-config</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-agent-full</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-proxy</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-generation</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-rt</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-bootstrap</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-value-tracker</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 			
 			<dependency>
-				<groupId>de.nvg</groupId>
+				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-logging</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
