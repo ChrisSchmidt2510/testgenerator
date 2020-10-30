@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="warn">
+	<Appenders>
+		<RollingFile name="Agent"
+			fileName="${sys:user.home}/testgenerator/Agent.log"
+			filePattern="${sys:user.home}//testgenerator/Agent.%i.log"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss} %p %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="5000 KB" />
+			</Policies>
+		</RollingFile>
+		<RollingFile name="Generation"
+			fileName="${sys:user.home}/testgenerator/Generation.log"
+			filePattern="${sys:user.home}//testgenerator/Generation.%i.log"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss} %p %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="5000 KB" />
+			</Policies>
+		</RollingFile>
+		<RollingFile name="ValueTracker"
+			fileName="${sys:user.home}/testgenerator/ValueTracker.log"
+			filePattern="${sys:user.home}//testgenerator/ValueTracker.%i.log"
+			ignoreExceptions="false">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss} %p %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="5000 KB" />
+			</Policies>
+		</RollingFile>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss} %p %m%n" />
+		</Console>
+	</Appenders>
+
+	<Loggers>
+		<Logger name="org.testgen.agent" additivity="false"
+			level="ERROR">
+			<AppenderRef ref="Agent"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.modification" additivity="false"
+			level="ERROR">
+			<AppenderRef ref="Agent"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.analysis" additivity="false"
+			level="INFO">
+			<AppenderRef ref="Agent"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Logger name="org.testgen.agent.transformer" additivity="false"
+			level="INFO">
+			<AppenderRef ref="Agent"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.instructions" additivity="false"
+			level="INFO">
+			<AppenderRef ref="Agent"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Logger name="org.testgen.runtime.generation" additivity="false"
+			level="DEBUG">
+			<AppenderRef ref="Generation"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Logger name="org.testgen.runtime.valuetracker" additivity="false"
+			level="DEBUG">
+			<AppenderRef ref="ValueTracker"/>
+			<AppenderRef ref="STDOUT"/>
+		</Logger>
+		<Root level="INFO">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="STDOUT" />
+		</Root>
+	</Loggers>
+
+</Configuration>

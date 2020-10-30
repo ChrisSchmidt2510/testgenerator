@@ -1,19 +1,12 @@
 package org.testgen.logging;
 
-import java.io.PrintStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.testgen.logging.config.Configuration;
-import org.testgen.logging.config.Level;
-
 public class Logger {
-	private final Configuration config;
+	private final org.apache.logging.log4j.Logger logger;
 
-	Logger(Configuration config) {
-		this.config = config;
+	Logger(org.apache.logging.log4j.Logger logger) {
+		this.logger = logger;
 	}
 
 	public void error(String message) {
@@ -33,10 +26,6 @@ public class Logger {
 		log(Level.ERROR, message);
 	}
 
-	public void error(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.ERROR, message, messagePrinter);
-	}
-
 	public void debug(String message) {
 		log(Level.DEBUG, message);
 	}
@@ -45,8 +34,8 @@ public class Logger {
 		log(Level.DEBUG, message);
 	}
 
-	public void debug(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.DEBUG, message, messagePrinter);
+	public void debug(String message, Supplier<String> expensiveMessage) {
+		log(Level.DEBUG, message, expensiveMessage);
 	}
 
 	public void debug(Throwable exception) {
@@ -61,10 +50,6 @@ public class Logger {
 		log(Level.INFO, message);
 	}
 
-	public void info(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.INFO, message, messagePrinter);
-	}
-
 	public void info(Throwable exception) {
 		log(Level.INFO, exception);
 	}
@@ -75,10 +60,6 @@ public class Logger {
 
 	public void warning(Supplier<String> message) {
 		log(Level.WARNING, message);
-	}
-
-	public void warning(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.WARNING, message, messagePrinter);
 	}
 
 	public void warning(Exception exception) {
@@ -93,8 +74,8 @@ public class Logger {
 		log(Level.TRACE, message);
 	}
 
-	public void trace(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.TRACE, message, messagePrinter);
+	public void trace(String message, Supplier<String> expensiveMessage) {
+		log(Level.TRACE, message, expensiveMessage);
 	}
 
 	public void trace(Throwable exception) {
@@ -102,42 +83,64 @@ public class Logger {
 	}
 
 	public void log(Level level, String message) {
-		if (isLevelActive(level)) {
-			printMessage(level, message);
+		if (Level.INFO == level) {
+			logger.info(message);
+		} else if (Level.DEBUG == level) {
+			logger.debug(message);
+		} else if (Level.TRACE == level) {
+			logger.trace(message);
+		} else if (Level.WARNING == level) {
+			logger.warn(message);
+		} else if (Level.ERROR == level) {
+			logger.error(message);
 		}
 	}
 
 	public void log(Level level, Throwable exception) {
-		if (isLevelActive(level)) {
-			config.getAppender().write(exception);
+		if (Level.INFO == level) {
+			logger.info(exception);
+		} else if (Level.DEBUG == level) {
+			logger.debug(exception);
+		} else if (Level.TRACE == level) {
+			logger.trace(exception);
+		} else if (Level.WARNING == level) {
+			logger.warn(exception);
+		} else if (Level.ERROR == level) {
+			logger.error(exception);
 		}
 	}
 
-	public void log(Level level, String message, Consumer<PrintStream> messagePrinter) {
-		if (isLevelActive(level)) {
-			printMessage(level, message);
-			config.getAppender().write(messagePrinter);
+	public void log(Level level, Supplier<?> message) {
+		if (Level.INFO == level) {
+			logger.info(message);
+		} else if (Level.DEBUG == level) {
+			logger.debug(message);
+		} else if (Level.TRACE == level) {
+			logger.trace(message);
+		} else if (Level.WARNING == level) {
+			logger.warn(message);
+		} else if (Level.ERROR == level) {
+			logger.error(message);
 		}
 	}
 
-	public void log(Level level, Supplier<String> message) {
-		if (isLevelActive(level)) {
-			printMessage(level, message.get());
+	public void log(Level level, String message, Supplier<String> expensiveMessage) {
+		if (Level.INFO == level && logger.isInfoEnabled()) {
+			logger.info(message);
+			logger.info(expensiveMessage.get());
+		} else if (Level.DEBUG == level && logger.isDebugEnabled()) {
+			logger.debug(message);
+			logger.debug(expensiveMessage.get());
+		} else if (Level.TRACE == level && logger.isTraceEnabled()) {
+			logger.trace(message);
+			logger.trace(expensiveMessage.get());
+		} else if (Level.WARNING == level && logger.isWarnEnabled()) {
+			logger.warn(message);
+			logger.warn(expensiveMessage.get());
+		} else if (Level.ERROR == level && logger.isErrorEnabled()) {
+			logger.error(message);
+			logger.error(expensiveMessage.get());
 		}
-	}
-
-	public boolean isLevelActive(Level level) {
-		return this.config.getLevel().ordinal() >= level.ordinal();
-	}
-
-	private void printMessage(Level messageLevel, String message) {
-		config.getAppender().write((startLogMessage(messageLevel) + message + "\n"));
-	}
-
-	private String startLogMessage(Level messageLevel) {
-		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + //
-				" [" + config.getPackageName() + "] [" + Thread.currentThread().getName() + "] "//
-				+ messageLevel + " ";
 	}
 
 }

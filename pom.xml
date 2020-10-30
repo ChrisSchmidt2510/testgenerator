@@ -53,6 +53,17 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>2.13.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>2.13.3</version>
+			</dependency>
+
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.13.1</version>
@@ -82,7 +93,7 @@
 				<artifactId>testgenerator-core</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-config</artifactId>
@@ -112,7 +123,7 @@
 				<artifactId>testgenerator-rt</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-bootstrap</artifactId>
@@ -124,7 +135,7 @@
 				<artifactId>testgenerator-value-tracker</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-logging</artifactId>

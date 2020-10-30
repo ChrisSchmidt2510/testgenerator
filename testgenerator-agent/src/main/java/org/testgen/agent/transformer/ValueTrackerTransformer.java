@@ -142,8 +142,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		LocalVariableTypeAttribute typeTable = (LocalVariableTypeAttribute) codeAttribute
 				.getAttribute(LocalVariableTypeAttribute.tag);
 
-		LOGGER.debug("Method before manipulation",
-				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("Method before manipulation", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		int maxLocals = codeAttribute.getMaxLocals();
 		int valueTrackerLocalIndex = maxLocals++;

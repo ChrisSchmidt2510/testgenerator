@@ -54,7 +54,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ClassDataTransformer.class);
 
-	private static final String PROXIFIED = "de/nvg/proxy/Proxified";
+	private static final String PROXIFIED = "org/testgen/runtime/proxy/Proxified";
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,

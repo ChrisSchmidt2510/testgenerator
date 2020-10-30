@@ -127,7 +127,7 @@ public class FieldTypeChanger {
 			CodeAttribute codeAttribute) throws BadBytecode {
 		CodeIterator iterator = codeAttribute.iterator();
 
-		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("before manipulation: ", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		if (putFieldInstructions.isEmpty()) {
 			// a Constructor has always a return-instruction
@@ -225,7 +225,7 @@ public class FieldTypeChanger {
 				initalizedFields.add(field);
 
 				LOGGER.trace("Added Field(\"" + field.getName() + "\", \"" + field.getDataType() + "\") Manipulation: ",
-						stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+						() -> Instructions.printCodeArray(iterator, constantPool));
 			}
 		}
 
@@ -243,7 +243,7 @@ public class FieldTypeChanger {
 
 		initalizeUnitalizedFields(initalizedFields, superConstructorCall.getCodeArrayIndex() + 3, iterator);
 
-		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("after manipulation: ", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		codeAttribute.computeMaxStack();
 
@@ -321,8 +321,7 @@ public class FieldTypeChanger {
 
 		List<Instruction> putFieldInstructions = filteredInstructions.get(Opcode.PUTFIELD);
 
-		LOGGER.debug("Method before manipulation: ",
-				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("Method before manipulation: ", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		if (putFieldInstructions != null) {
 
@@ -336,8 +335,7 @@ public class FieldTypeChanger {
 					iterator, codeArrayModificator);
 		}
 
-		LOGGER.debug("Method after manipulation: ",
-				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("Method after manipulation: ", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		codeAttribute.computeMaxStack();
 	}
