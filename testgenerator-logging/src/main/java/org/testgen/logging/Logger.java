@@ -1,6 +1,7 @@
 package org.testgen.logging;
 
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 public class Logger {
 	private final org.apache.logging.log4j.Logger logger;
@@ -83,64 +84,62 @@ public class Logger {
 	}
 
 	public void log(Level level, String message) {
-		if (Level.INFO == level) {
-			logger.info(message);
-		} else if (Level.DEBUG == level) {
-			logger.debug(message);
-		} else if (Level.TRACE == level) {
-			logger.trace(message);
-		} else if (Level.WARNING == level) {
-			logger.warn(message);
-		} else if (Level.ERROR == level) {
-			logger.error(message);
-		}
+//		if (Level.INFO == level) {
+//			logger.info(message);
+//		} else if (Level.DEBUG == level) {
+//			logger.debug(message);
+//		} else if (Level.TRACE == level) {
+//			logger.trace(message);
+//		} else if (Level.WARNING == level) {
+//			logger.warn(message);
+//		} else if (Level.ERROR == level) {
+//			logger.error(message);
+//		}
 	}
 
 	public void log(Level level, Throwable exception) {
-		if (Level.INFO == level) {
-			logger.info(exception);
-		} else if (Level.DEBUG == level) {
-			logger.debug(exception);
-		} else if (Level.TRACE == level) {
-			logger.trace(exception);
-		} else if (Level.WARNING == level) {
-			logger.warn(exception);
-		} else if (Level.ERROR == level) {
-			logger.error(exception);
-		}
+//		if (Level.INFO == level) {
+//			logger.info(exception);
+//		} else if (Level.DEBUG == level) {
+//			logger.debug(exception);
+//		} else if (Level.TRACE == level) {
+//			logger.trace(exception);
+//		} else if (Level.WARNING == level) {
+//			logger.warn(exception);
+//		} else if (Level.ERROR == level) {
+//			logger.error(exception);
+//		}
 	}
 
 	public void log(Level level, Supplier<?> message) {
-		if (Level.INFO == level) {
-			logger.info(message);
-		} else if (Level.DEBUG == level) {
-			logger.debug(message);
-		} else if (Level.TRACE == level) {
-			logger.trace(message);
-		} else if (Level.WARNING == level) {
-			logger.warn(message);
-		} else if (Level.ERROR == level) {
-			logger.error(message);
-		}
+//		if (Level.INFO == level) {
+//			logger.info(message);
+//		} else if (Level.DEBUG == level) {
+//			logger.debug(message);
+//		} else if (Level.TRACE == level) {
+//			logger.trace(message);
+//		} else if (Level.WARNING == level) {
+//			logger.warn(message);
+//		} else if (Level.ERROR == level) {
+//			logger.error(message);
+//		}
 	}
 
 	public void log(Level level, String message, Supplier<String> expensiveMessage) {
-		if (Level.INFO == level && logger.isInfoEnabled()) {
-			logger.info(message);
-			logger.info(expensiveMessage.get());
-		} else if (Level.DEBUG == level && logger.isDebugEnabled()) {
-			logger.debug(message);
-			logger.debug(expensiveMessage.get());
-		} else if (Level.TRACE == level && logger.isTraceEnabled()) {
-			logger.trace(message);
-			logger.trace(expensiveMessage.get());
-		} else if (Level.WARNING == level && logger.isWarnEnabled()) {
-			logger.warn(message);
-			logger.warn(expensiveMessage.get());
-		} else if (Level.ERROR == level && logger.isErrorEnabled()) {
-			logger.error(message);
-			logger.error(expensiveMessage.get());
-		}
+//		if (Level.INFO == level && logger.isInfoEnabled()) {
+//			logger.info(message);
+//			logger.info(expensiveMessage.get());
+//		} else if (Level.DEBUG == level && logger.isDebugEnabled()) {
+//			logger.debug(message);
+//			logger.debug(expensiveMessage.get());
+//		} else if (Level.TRACE == level && logger.isTraceEnabled()) {
+//			logger.trace(message);
+//			logger.trace(expensiveMessage.get());
+//		} else if (Level.WARNING == level && logger.isWarnEnabled()) {
+//			logger.warn(message);
+//			logger.warn(expensiveMessage.get());
+//		} else if (Level.ERROR == level && logger.isErrorEnabled()) {
+//			logger.error(message);
+//			logger.error(expensiveMessage.get());
+//		}
 	}
-
-}
