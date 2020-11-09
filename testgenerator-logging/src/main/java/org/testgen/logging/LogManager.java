@@ -1,7 +1,6 @@
 package org.testgen.logging;
 
-import javax.security.auth.login.Configuration;
-
+import org.testgen.logging.config.Configuration;
 import org.testgen.logging.config.LoggerRepository;
 
 public final class LogManager {
@@ -13,5 +12,11 @@ public final class LogManager {
 		Configuration configuration = LoggerRepository.getInstance().getConfiguration(clazz);
 
 		return new Logger(configuration);
+	}
+
+	public static Logger getRoot() {
+		Configuration root = LoggerRepository.getInstance().getRoot();
+
+		return new Logger(root);
 	}
 }

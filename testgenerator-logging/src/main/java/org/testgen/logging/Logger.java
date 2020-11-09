@@ -1,13 +1,16 @@
 package org.testgen.logging;
 
 import java.util.function.Supplier;
-import java.util.logging.Level;
+import java.util.logging.LogRecord;
+
+import org.testgen.logging.config.Configuration;
+import org.testgen.logging.config.Level;
 
 public class Logger {
-	private final org.apache.logging.log4j.Logger logger;
+	private final Configuration config;
 
-	Logger(org.apache.logging.log4j.Logger logger) {
-		this.logger = logger;
+	Logger(Configuration config) {
+		this.config = config;
 	}
 
 	public void error(String message) {
@@ -83,63 +86,46 @@ public class Logger {
 		log(Level.TRACE, exception);
 	}
 
+	private boolean isLoggable(Level level) {
+		return this.config.getLevel().ordinal() >= level.ordinal();
+	}
+
 	public void log(Level level, String message) {
-//		if (Level.INFO == level) {
-//			logger.info(message);
-//		} else if (Level.DEBUG == level) {
-//			logger.debug(message);
-//		} else if (Level.TRACE == level) {
-//			logger.trace(message);
-//		} else if (Level.WARNING == level) {
-//			logger.warn(message);
-//		} else if (Level.ERROR == level) {
-//			logger.error(message);
-//		}
+		if (isLoggable(level)) {
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, message);
+			record.setParameters(new Object[] { config });
+
+			config.getHandlers().forEach(handler -> handler.publish(record));
+		}
 	}
 
 	public void log(Level level, Throwable exception) {
-//		if (Level.INFO == level) {
-//			logger.info(exception);
-//		} else if (Level.DEBUG == level) {
-//			logger.debug(exception);
-//		} else if (Level.TRACE == level) {
-//			logger.trace(exception);
-//		} else if (Level.WARNING == level) {
-//			logger.warn(exception);
-//		} else if (Level.ERROR == level) {
-//			logger.error(exception);
-//		}
+		if (isLoggable(level)) {
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, null);
+			record.setThrown(exception);
+			record.setParameters(new Object[] { config });
+
+			config.getHandlers().forEach(handler -> handler.publish(record));
+		}
 	}
 
-	public void log(Level level, Supplier<?> message) {
-//		if (Level.INFO == level) {
-//			logger.info(message);
-//		} else if (Level.DEBUG == level) {
-//			logger.debug(message);
-//		} else if (Level.TRACE == level) {
-//			logger.trace(message);
-//		} else if (Level.WARNING == level) {
-//			logger.warn(message);
-//		} else if (Level.ERROR == level) {
-//			logger.error(message);
-//		}
+	public void log(Level level, Supplier<String> message) {
+		if (isLoggable(level)) {
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, message.get());
+			record.setParameters(new Object[] { config });
+
+			config.getHandlers().forEach(handler -> handler.publish(record));
+		}
 	}
 
 	public void log(Level level, String message, Supplier<String> expensiveMessage) {
-//		if (Level.INFO == level && logger.isInfoEnabled()) {
-//			logger.info(message);
-//			logger.info(expensiveMessage.get());
-//		} else if (Level.DEBUG == level && logger.isDebugEnabled()) {
-//			logger.debug(message);
-//			logger.debug(expensiveMessage.get());
-//		} else if (Level.TRACE == level && logger.isTraceEnabled()) {
-//			logger.trace(message);
-//			logger.trace(expensiveMessage.get());
-//		} else if (Level.WARNING == level && logger.isWarnEnabled()) {
-//			logger.warn(message);
-//			logger.warn(expensiveMessage.get());
-//		} else if (Level.ERROR == level && logger.isErrorEnabled()) {
-//			logger.error(message);
-//			logger.error(expensiveMessage.get());
-//		}
+		if (isLoggable(level)) {
+			String completeMessage = message + System.lineSeparator() + expensiveMessage.get();
+
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, completeMessage);
+			record.setParameters(new Object[] { config });
+
+			config.getHandlers().forEach(handler -> handler.publish(record));
+		}
 	}
+}

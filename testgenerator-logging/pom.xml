@@ -15,11 +15,43 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.testgen</groupId>
+			<artifactId>testgenerator-config</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
 
 	<build>
+		<plugins>
+			<!--  <plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.14.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<generateDirectory>${basedir}/src/main/java</generateDirectory>
+					<generatePackage>org.testgen.logging.config.xml</generatePackage>
+					<schemas>
+						<schema>
+							<fileset>
+								<directory>${basedir}/src/main/resources/META-INF/</directory>
+								<include>testgenerator-logging.xsd</include>
+							</fileset>
+						</schema>
+					</schemas>
+				</configuration>
+			</plugin>-->
+		</plugins>
 	</build>
 </project>

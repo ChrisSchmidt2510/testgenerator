@@ -25,6 +25,7 @@ public final class TestgeneratorConfig {
 
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
 	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
+	private static final String PARAM_CUSTOM_LOGGER_CONFIG = "TestgeneratorCustomLoggerConfiguration";
 
 	// Runtime-Properties
 	private static final String PARAM_RUNTIME_FIELD_TRACKING = "TestgeneratorRuntimeFieldTracking";
@@ -51,9 +52,11 @@ public final class TestgeneratorConfig {
 		System.setProperty(PARAM_PRINT_CLASS_FILE_DIR,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR)));
 		System.setProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS,
-				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_COSTUM_TESTGENERATOR_CLASS)));
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_LOGGER_CONFIG)));
 		System.setProperty(PARAM_TRACE_READ_FIELD_ACCESS,
 				Boolean.toString(parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS)));
+		System.setProperty(PARAM_CUSTOM_LOGGER_CONFIG,
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_TESTGENERATOR_CLASS)));
 
 		String booleanFalse = Boolean.toString(false);
 		System.setProperty(PARAM_RUNTIME_FIELD_TRACKING, booleanFalse);
@@ -107,6 +110,12 @@ public final class TestgeneratorConfig {
 
 	public static boolean traceReadFieldAccess() {
 		return Boolean.getBoolean(PARAM_TRACE_READ_FIELD_ACCESS);
+	}
+
+	public static String getCustomLoggerConfig() {
+		String property = System.getProperty(PARAM_CUSTOM_LOGGER_CONFIG);
+
+		return checkStringFilled(property) ? property : null;
 	}
 
 	public static boolean isFieldTrackingActivated() {
