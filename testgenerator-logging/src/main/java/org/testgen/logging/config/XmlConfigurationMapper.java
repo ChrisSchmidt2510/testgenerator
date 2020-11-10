@@ -1,8 +1,11 @@
 package org.testgen.logging.config;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,18 +42,27 @@ public class XmlConfigurationMapper {
 	private static final String MEMORY_SIZE_GB = "GB";
 
 	public List<Configuration> parseXMLConfiguration(Consumer<Configuration> rootLoggerAdder) {
+		InputStream xmlResource = null;
+
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
 		String loggerConfig = TestgeneratorConfig.getCustomLoggerConfig();
 
-		if (loggerConfig == null) {
-			loggerConfig = DEFAULT_LOGGING_XML;
+		if (loggerConfig != null) {
+			try {
+				byte[] bytesOfFile = Files.readAllBytes(Paths.get(loggerConfig));
+
+				xmlResource = new ByteArrayInputStream(bytesOfFile);
+			} catch (IOException e) {
+				throw new IllegalArgumentException(String.format("cant read logger config: %s", loggerConfig), e);
+			}
+		} else {
+			xmlResource = classLoader.getResourceAsStream(DEFAULT_LOGGING_XML);
 		}
 
 		try {
 			JAXBContext context = JAXBContext.newInstance(org.testgen.logging.config.xml.Configuration.class);
 
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-			InputStream xmlResource = classLoader.getResourceAsStream(loggerConfig);
 			URL xsdUrl = classLoader.getResource(SCHEMA_PATH);
 
 			SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

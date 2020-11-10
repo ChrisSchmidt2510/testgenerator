@@ -52,11 +52,11 @@ public final class TestgeneratorConfig {
 		System.setProperty(PARAM_PRINT_CLASS_FILE_DIR,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR)));
 		System.setProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS,
-				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_LOGGER_CONFIG)));
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_TESTGENERATOR_CLASS)));
 		System.setProperty(PARAM_TRACE_READ_FIELD_ACCESS,
 				Boolean.toString(parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS)));
 		System.setProperty(PARAM_CUSTOM_LOGGER_CONFIG,
-				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_TESTGENERATOR_CLASS)));
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_LOGGER_CONFIG)));
 
 		String booleanFalse = Boolean.toString(false);
 		System.setProperty(PARAM_RUNTIME_FIELD_TRACKING, booleanFalse);

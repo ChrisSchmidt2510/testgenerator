@@ -17,53 +17,12 @@ public final class LoggerRepository {
 
 	private Configuration root;
 
-	{
-//		String defaultLoggerDirectory = System.getProperty("user.home") + File.separator + "testgenerator"
-//				+ File.separator;
-//
-//		int maxLogSize = 5_000_000;
-//
-//		// Default-Config
-//		Appender consoleAppender = new ConsoleAppender();
-//
-//		Appender agentAppender = new FileAppender("Agent", maxLogSize, defaultLoggerDirectory, consoleAppender);
-//		Appender testgeneratorAppender = new FileAppender("Testgeneration", maxLogSize, defaultLoggerDirectory,
-//				consoleAppender);
-//		Appender valueTrackerAppender = new FileAppender("ValueTracker", maxLogSize, defaultLoggerDirectory,
-//				consoleAppender);
-
-//		Configuration agentConfiguration = new Configuration("org.testgen.agent", Level.ERROR, agentAppender);
-//		Configuration manipulationConfig = new Configuration("org.testgen.agent.classdata.modification", Level.ERROR,
-//				agentAppender);
-//		Configuration analysisConfig = new Configuration("org.testgen.agent.classdata.analysis", Level.INFO,
-//				agentAppender);
-//		Configuration transformerConfig = new Configuration("org.testgen.agent.transformer", Level.INFO, agentAppender);
-//		Configuration instructionFilterConfiguration = new Configuration("de.nvg.agent.classdata.instructions",
-//				Level.INFO, agentAppender);
-//		Configuration testgeneratorConfiguration = new Configuration("org.testgen.runtime.generation", Level.DEBUG,
-//				testgeneratorAppender);
-//		Configuration valueTrackerConfiguration = new Configuration("org.testgen.runtime.valuetracker", Level.INFO,
-//				valueTrackerAppender);
-
-//		repository.add(agentConfiguration);
-//		repository.add(manipulationConfig);
-//		repository.add(analysisConfig);
-//		repository.add(transformerConfig);
-//		repository.add(instructionFilterConfiguration);
-//		repository.add(testgeneratorConfiguration);
-//		repository.add(valueTrackerConfiguration);
-
-//		Runtime.getRuntime().addShutdownHook(new Thread(() -> repository.forEach((Configuration config) -> {
-//			try {
-//				config.getAppender().close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		})));
-	}
-
 	private LoggerRepository() {
 		loadConfiguration();
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> repository.//
+				forEach(config -> config.getHandlers()//
+						.forEach(hdl -> hdl.close()))));
 	}
 
 	public static LoggerRepository getInstance() {
