@@ -18,7 +18,25 @@
 		</dependency>
 		<dependency>
 			<groupId>org.testgen</groupId>
-			<artifactId>testgenerator-rt</artifactId>
+			<artifactId>testgenerator-classdatamodel-rt</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testgen</groupId>
+			<artifactId>testgenerator-generation</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testgen</groupId>
+			<artifactId>testgenerator-proxy</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testgen</groupId>
+			<artifactId>testgenerator-value-tracker</artifactId>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
