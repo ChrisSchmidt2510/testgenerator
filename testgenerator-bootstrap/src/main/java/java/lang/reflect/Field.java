@@ -4,10 +4,10 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Objects;
 
-import org.testgen.core.MethodHandles;
-import org.testgen.core.TestgeneratorConstants;
 import org.testgen.extension.ClassExtension;
 import org.testgen.extension.Modified;
+import org.testgen.runtime.classdata.ClassDataHolder;
+import org.testgen.runtime.classdata.access.ClassDataAccess;
 import org.testgen.runtime.classdata.model.ClassData;
 
 import sun.reflect.CallerSensitive;
@@ -212,10 +212,9 @@ public final class Field extends AccessibleObject implements Member {
 	}
 
 	private void getModifiedType() {
-		ClassData classData = MethodHandles.getStaticFieldValue(clazz, //
-				TestgeneratorConstants.FIELDNAME_CLASS_DATA);
+		if (ClassDataHolder.class.isAssignableFrom(clazz) && ClassExtension.isProxifiedClass(clazz)) {
+			ClassData classData = ClassDataAccess.getClassData(clazz);
 
-		if (ClassExtension.isProxifiedClass(clazz)) {
 			boolean isPublic = Modifier.isPublic(modifiers);
 			boolean isFinal = Modifier.isFinal(modifiers);
 			boolean isStatic = Modifier.isStatic(modifiers);

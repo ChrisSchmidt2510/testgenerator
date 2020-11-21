@@ -30,4 +30,9 @@ public class LongProxy extends AbstractProxy {
 	public void setValue(long value) {
 		this.value = value;
 	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(value);
+	}
 }
