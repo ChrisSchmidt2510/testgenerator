@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.internal.ui.DefaultLabelProvider;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -11,14 +12,19 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.ide.IDE.SharedImages;
+import org.eclipse.wst.server.ui.ServerUICore;
 import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
 
+@SuppressWarnings("restriction")
 public class LaunchConfigurationDialog extends SelectionDialog {
 	private TableViewer tblViewerApplication;
 	private TableViewer tblViewerServer;
@@ -27,9 +33,21 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 	private Collection<ILaunchConfiguration> inputServers;
 
 	private ColumnLabelProvider launchConfigName = new ColumnLabelProvider() {
+
+		DefaultLabelProvider provider = new DefaultLabelProvider();
+
 		@Override
 		public String getText(Object element) {
-			return ((ILaunchConfiguration) element).getName();
+			ILaunchConfiguration launch = ((ILaunchConfiguration) element);
+
+			return provider.getText(launch);
+		}
+
+		@Override
+		public Image getImage(Object element) {
+			ILaunchConfiguration launch = ((ILaunchConfiguration) element);
+
+			return provider.getImage(launch);
 		}
 	};
 
@@ -117,6 +135,15 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 					return null;
 				}
 			}
+
+//			@Override
+//			public Image getImage(Object element) {
+//				return JavaPluginImages.DESC_WIZBAN_JAVA_LAUNCH.createImage();
+//			}
+			@Override
+			public Image getImage(Object element) {
+				return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT);
+			}
 		});
 
 		tblViewerApplication.setInput(inputApplications);
@@ -130,11 +157,10 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 		tblViewerServer.addSelectionChangedListener(e -> tblViewerApplication.getTable().setEnabled(false));
 		tblViewerServer.addDoubleClickListener(e -> okPressed());
 		tblViewerServer.setContentProvider(ArrayContentProvider.getInstance());
+		tblViewerServer.setLabelProvider(ServerUICore.getLabelProvider());
 		tblViewerServer.setInput(inputServers);
 
 		TableViewerColumn tblServerColumn = new TableViewerColumn(tblViewerServer, SWT.NONE);
-		tblServerColumn.setLabelProvider(launchConfigName);
-
 		TableColumn tableColumn = tblServerColumn.getColumn();
 		tableColumn.setWidth(435);
 	}

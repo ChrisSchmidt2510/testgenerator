@@ -1,6 +1,7 @@
-package org.testgen.testgenerator.ui.plugin.dialogs;
+package org.testgen.testgenerator.ui.plugin.dialogs.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -15,20 +16,15 @@ public class Model {
 	private String className;
 
 	private List<String> methods = new ArrayList<>();
-	private int selectedMethodIndex;
+	private String selectedMethod;
 
-	private List<String> blPackages = new ArrayList<>();
+	private List<BlProject> projects = new ArrayList<>();
 
 	private ILaunchConfiguration launchConfiguration;
-
-	// optional Parameters
-	private List<String> blPackageJarDest = new ArrayList<>();
 
 	private boolean traceReadFieldAccess;
 
 	private boolean useTestgeneratorBootstrap;
-
-	private String printClassDirectory;
 
 	private String costumTestgeneratorClassName;
 
@@ -40,36 +36,29 @@ public class Model {
 		this.className = className;
 	}
 
-	public void setMethods(List<String> methods) {
-		this.methods = methods;
+	public void setMethods(Collection<String> methods) {
+		this.methods.clear();
+		this.methods.addAll(methods);
 	}
 
 	public List<String> getMethods() {
 		return methods;
 	}
 
-	public void setSelectedMethodIndex(int index) {
-		this.selectedMethodIndex = index;
+	public void setSelectedMethod(String index) {
+		this.selectedMethod = index;
 	}
 
-	public int getSelectedMethodIndex() {
-		return selectedMethodIndex;
+	public String getSelectedMethod() {
+		return selectedMethod;
 	}
 
-	public void setBlPackages(List<String> blPackages) {
-		this.blPackages = blPackages;
+	public void addProject(BlProject project) {
+		this.projects.add(project);
 	}
 
-	public List<String> getBlPackages() {
-		return blPackages;
-	}
-
-	public List<String> getBlPackageJarDest() {
-		return blPackageJarDest;
-	}
-
-	public void setBlPackageJarDest(List<String> blPackageJarDest) {
-		this.blPackageJarDest = blPackageJarDest;
+	public List<BlProject> getProjects() {
+		return projects;
 	}
 
 	public boolean isTraceReadFieldAccess() {
@@ -78,14 +67,6 @@ public class Model {
 
 	public void setTraceReadFieldAccess(boolean traceReadFieldAccess) {
 		this.traceReadFieldAccess = traceReadFieldAccess;
-	}
-
-	public String getPrintClassDirectory() {
-		return printClassDirectory;
-	}
-
-	public void setPrintClassDirectory(String printClassDirectory) {
-		this.printClassDirectory = printClassDirectory;
 	}
 
 	public String getCostumTestgeneratorClassName() {

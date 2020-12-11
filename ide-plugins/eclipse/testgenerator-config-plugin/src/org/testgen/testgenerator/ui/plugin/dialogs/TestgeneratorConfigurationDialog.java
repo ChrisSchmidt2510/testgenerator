@@ -1,54 +1,59 @@
 package org.testgen.testgenerator.ui.plugin.dialogs;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.ui.JavaPluginImages;
+import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.testgen.testgenerator.ui.plugin.dialogs.model.BlProject;
+import org.testgen.testgenerator.ui.plugin.dialogs.model.Model;
 import org.testgen.testgenerator.ui.plugin.helper.Utils;
 
+@SuppressWarnings("restriction")
 public class TestgeneratorConfigurationDialog extends Dialog {
 	private Label lblTestclass;
 	private Label lblMethods;
-	private Label lblBlPackage;
-	private Label lblPrintClassFileDir;
 	private Label lblCostumTestgeneratorClass;
 	private Label lblTraceReadFieldAccess;
-	private Label lblBlpackageDestination;
 	private Label lblUseTestgeneratorbootstrap;
 	private Label lblLaunchConfiguration;
 	private Label lblSpacer;
 
 	private Combo methods;
 
-	private List blPackage;
-	private List blPackageDest;
-
 	private Text txtClassName;
-	private Text txtBlPackage;
-	private Text txtBlPackageDest;
 	private Text txtCostumTestgenerator;
-	private Text txtPrintClassFileDir;
 	private Text txtLaunchConfiguration;
 
 	private Button btnBrowse;
-	private Button btnAdd;
-	private Button btnRemove;
-	private Button btnBrowseDir;
-	private Button btnAddPackageDest;
-	private Button btnRemovePackageDest;
+
+	private Button btnAddProject;
+	private Button btnRemoveProject;
 	private Button btnBrowseCostumTestgenerator;
 	private Button btnSelect;
 
@@ -57,6 +62,8 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 
 	private final TestgeneratorConfigurationController controller;
 	private final Model model;
+	private Group grpBlprojects;
+	private TableViewer tblViewerProjects;
 
 	protected TestgeneratorConfigurationDialog(Shell parentShell, //
 			TestgeneratorConfigurationController controller, Model model) {
@@ -82,7 +89,7 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, "Copy", true);
+		createButton(parent, IDialogConstants.OK_ID, "Add", true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 
@@ -106,7 +113,7 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 			neededParameters.add("Class");
 		}
 
-		if (model.getSelectedMethodIndex() < 0) {
+		if (!Utils.checkStringFilled(model.getSelectedMethod())) {
 			neededParameters.add("Method");
 		}
 
@@ -145,34 +152,7 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 
 		methods = new Combo(parent, SWT.NONE);
 		methods.setBounds(215, 131, 321, 28);
-
-		lblBlPackage = new Label(parent, SWT.NONE);
-		lblBlPackage.setBounds(10, 187, 85, 20);
-		lblBlPackage.setText("BL-Package");
-
-		txtBlPackage = new Text(parent, SWT.BORDER);
-		txtBlPackage.setBounds(215, 181, 321, 26);
-
-		blPackage = new List(parent, SWT.SINGLE | SWT.BORDER);
-		blPackage.setBounds(215, 213, 321, 60);
-		blPackage.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				btnRemove.setEnabled(true);
-			}
-		});
-
-		btnAdd = new Button(parent, SWT.NONE);
-		btnAdd.setBounds(557, 182, 65, 30);
-		btnAdd.setText("Add");
-		btnAdd.addListener(SWT.Selection, e -> updateModel());
-
-		btnRemove = new Button(parent, SWT.NONE);
-		btnRemove.setBounds(628, 182, 65, 30);
-		btnRemove.setText("Remove");
-		btnRemove.setEnabled(false);
-		btnRemove.addListener(SWT.Selection, e -> removeEntryBlPackage());
+		methods.addListener(SWT.Selection, e -> model.setSelectedMethod(methods.getText()));
 
 		Group grpAgenttype = new Group(parent, SWT.NONE);
 		grpAgenttype.setBounds(215, 0, 321, 72);
@@ -190,96 +170,135 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 		radioTestgeneratorFull.setText("Testgenerator-Full");
 		radioTestgeneratorFull.addListener(SWT.Selection, e -> model.setAgentType(Model.AGENT_TYPE_TESTGENERATOR_FULL));
 
-		lblLaunchConfiguration = new Label(parent, SWT.NONE);
-		lblLaunchConfiguration.setBounds(10, 285, 155, 20);
-		lblLaunchConfiguration.setText("Launch Configuration");
+		grpBlprojects = new Group(parent, SWT.NONE);
+		grpBlprojects.setText("BL-Projects");
+		grpBlprojects.setBounds(10, 178, 687, 132);
 
-		Group optionalParams = new Group(parent, SWT.NONE);
-		optionalParams.setBounds(10, 315, 687, 280);
-		optionalParams.setText("optional parameter");
+		tblViewerProjects = new TableViewer(grpBlprojects, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL | SWT.FULL_SELECTION);
+		tblViewerProjects.setContentProvider(ArrayContentProvider.getInstance());
+		tblViewerProjects.addDoubleClickListener(e -> updateProject());
 
-		txtBlPackageDest = new Text(optionalParams, SWT.BORDER);
-		txtBlPackageDest.setLocation(204, 17);
-		txtBlPackageDest.setSize(322, 26);
+		Table tblProjects = tblViewerProjects.getTable();
+		tblProjects.setBounds(10, 24, 517, 98);
+		tblProjects.setHeaderVisible(true);
+		tblProjects.addSelectionListener(new SelectionAdapter() {
 
-		lblBlpackageDestination = new Label(optionalParams, SWT.NONE);
-		lblBlpackageDestination.setBounds(10, 19, 156, 20);
-		lblBlpackageDestination.setText("BL-Package Destination");
-
-		btnAddPackageDest = new Button(optionalParams, SWT.NONE);
-		btnAddPackageDest.setLocation(546, 14);
-		btnAddPackageDest.setSize(65, 30);
-		btnAddPackageDest.setText("Add");
-		btnAddPackageDest.addListener(SWT.Selection, e -> updateModel());
-
-		btnRemovePackageDest = new Button(optionalParams, SWT.NONE);
-		btnRemovePackageDest.setLocation(617, 14);
-		btnRemovePackageDest.setSize(65, 30);
-		btnRemovePackageDest.setText("Remove");
-		btnRemovePackageDest.setEnabled(false);
-		btnRemovePackageDest.addListener(SWT.Selection, e -> removeEntryBlPackageJarDest());
-
-		blPackageDest = new List(optionalParams, SWT.BORDER);
-		blPackageDest.setLocation(204, 49);
-		blPackageDest.setSize(321, 60);
-		blPackageDest.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				btnRemovePackageDest.setEnabled(true);
+				btnRemoveProject.setEnabled(true);
+			}
+
+		});
+
+		TableViewerColumn tblColProject = new TableViewerColumn(tblViewerProjects, SWT.NONE);
+		tblColProject.setLabelProvider(new ColumnLabelProvider() {
+
+			@Override
+			public String getText(Object element) {
+				BlProject project = (BlProject) element;
+
+				return project.getProject().getName();
+			}
+
+			@Override
+			public Image getImage(Object element) {
+				BlProject project = (BlProject) element;
+
+				IJavaProject javaProject = JavaCore.create(project.getProject());
+
+				return new JavaElementImageProvider()
+						.getJavaImageDescriptor(javaProject,
+								JavaElementImageProvider.OVERLAY_ICONS | JavaElementImageProvider.SMALL_ICONS)
+						.createImage();
 			}
 		});
 
+		TableColumn colProject = tblColProject.getColumn();
+		colProject.setWidth(200);
+		colProject.setText("Project");
+
+		TableViewerColumn tblColPackages = new TableViewerColumn(tblViewerProjects, SWT.NONE);
+		tblColPackages.setLabelProvider(new ColumnLabelProvider() {
+
+			@Override
+			public String getText(Object element) {
+				BlProject project = (BlProject) element;
+
+				List<String> packageNames = project.getSelectedPackages().stream()//
+						.map(pkg -> pkg.getElementName()).collect(Collectors.toList());
+
+				return String.join(",", packageNames);
+			}
+
+			@Override
+			public Image getImage(Object element) {
+				return JavaPluginImages.DESC_OBJS_PACKAGE.createImage();
+			}
+		});
+
+		TableColumn colPackages = tblColPackages.getColumn();
+		colPackages.setWidth(310);
+		colPackages.setText("Selected Packages");
+
+		tblViewerProjects.setInput(model.getProjects());
+
+		btnAddProject = new Button(grpBlprojects, SWT.NONE);
+		btnAddProject.setLocation(546, 24);
+		btnAddProject.setSize(65, 30);
+		btnAddProject.setText("Add");
+		btnAddProject.addListener(SWT.Selection, e -> controller.addProject());
+
+		btnRemoveProject = new Button(grpBlprojects, SWT.NONE);
+		btnRemoveProject.setBounds(617, 24, 65, 30);
+		btnRemoveProject.setText("Remove");
+		btnRemoveProject.setEnabled(false);
+		btnRemoveProject.addListener(SWT.Selection, e -> removeProject());
+
+		lblLaunchConfiguration = new Label(parent, SWT.NONE);
+		lblLaunchConfiguration.setBounds(10, 332, 155, 20);
+		lblLaunchConfiguration.setText("Launch Configuration");
+
+		Group optionalParams = new Group(parent, SWT.NONE);
+		optionalParams.setBounds(10, 358, 687, 132);
+		optionalParams.setText("optional parameter");
+
 		lblTraceReadFieldAccess = new Label(optionalParams, SWT.NONE);
-		lblTraceReadFieldAccess.setLocation(10, 115);
+		lblTraceReadFieldAccess.setLocation(10, 27);
 		lblTraceReadFieldAccess.setSize(156, 20);
 		lblTraceReadFieldAccess.setText("Trace Read Fieldaccess");
 
 		checkBoxReadFieldAccess = new Button(optionalParams, SWT.CHECK);
-		checkBoxReadFieldAccess.setLocation(204, 115);
-		checkBoxReadFieldAccess.setSize(111, 20);
+		checkBoxReadFieldAccess.setLocation(204, 27);
+		checkBoxReadFieldAccess.setSize(16, 20);
 		checkBoxReadFieldAccess.addListener(SWT.Selection, e -> updateModel());
 
 		lblUseTestgeneratorbootstrap = new Label(optionalParams, SWT.NONE);
-		lblUseTestgeneratorbootstrap.setBounds(10, 152, 194, 20);
+		lblUseTestgeneratorbootstrap.setBounds(10, 64, 194, 20);
 		lblUseTestgeneratorbootstrap.setText("use Testgenerator-Bootstrap");
 
 		checkBoxUseTestgeneratorBootstrap = new Button(optionalParams, SWT.CHECK);
-		checkBoxUseTestgeneratorBootstrap.setBounds(204, 147, 90, 30);
+		checkBoxUseTestgeneratorBootstrap.setBounds(204, 59, 16, 30);
 		checkBoxUseTestgeneratorBootstrap.addListener(SWT.Selection, e -> updateModel());
 
-		lblPrintClassFileDir = new Label(optionalParams, SWT.NONE);
-		lblPrintClassFileDir.setLocation(10, 191);
-		lblPrintClassFileDir.setSize(156, 20);
-		lblPrintClassFileDir.setText("Print Classfiles Dir.");
-
-		txtPrintClassFileDir = new Text(optionalParams, SWT.BORDER);
-		txtPrintClassFileDir.setBounds(204, 187, 321, 26);
-		txtPrintClassFileDir.setEditable(false);
-
 		txtCostumTestgenerator = new Text(optionalParams, SWT.BORDER);
-		txtCostumTestgenerator.setBounds(204, 227, 321, 26);
+		txtCostumTestgenerator.setBounds(204, 93, 321, 26);
 		txtCostumTestgenerator.setEditable(false);
 
 		lblCostumTestgeneratorClass = new Label(optionalParams, SWT.NONE);
-		lblCostumTestgeneratorClass.setBounds(10, 229, 178, 20);
+		lblCostumTestgeneratorClass.setBounds(10, 95, 178, 20);
 		lblCostumTestgeneratorClass.setText("Costum TestgeneratorClass");
 
 		btnBrowseCostumTestgenerator = new Button(optionalParams, SWT.NONE);
-		btnBrowseCostumTestgenerator.setBounds(546, 224, 65, 30);
+		btnBrowseCostumTestgenerator.setBounds(546, 90, 65, 30);
 		btnBrowseCostumTestgenerator.setText("Browse");
 		btnBrowseCostumTestgenerator.addListener(SWT.Selection, e -> controller.updateCustomTestgeneratorClass());
 
-		btnBrowseDir = new Button(optionalParams, SWT.NONE);
-		btnBrowseDir.setBounds(546, 186, 65, 30);
-		btnBrowseDir.setText("Browse");
-		btnBrowseDir.addListener(SWT.Selection, e -> controller.openDirectoryDialog());
-
 		txtLaunchConfiguration = new Text(parent, SWT.BORDER);
-		txtLaunchConfiguration.setBounds(215, 283, 321, 26);
+		txtLaunchConfiguration.setBounds(215, 330, 321, 26);
 		txtLaunchConfiguration.setEditable(false);
 
 		btnSelect = new Button(parent, SWT.NONE);
-		btnSelect.setBounds(557, 280, 65, 30);
+		btnSelect.setBounds(557, 327, 65, 30);
 		btnSelect.setText("Select");
 		btnSelect.addListener(SWT.Selection, e -> controller.selectLaunchConfiguration());
 
@@ -287,40 +306,12 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 		lblSpacer.setBounds(637, 156, 70, 20);
 	}
 
-	private void removeEntryBlPackage() {
-		int selectionIndex = blPackage.getSelectionIndex();
-		String selectedBlPackage = blPackage.getItem(selectionIndex);
-
-		model.getBlPackages().remove(selectedBlPackage);
-		blPackage.remove(selectionIndex);
-		btnRemove.setEnabled(false);
-
-		updateModel();
-	}
-
-	private void removeEntryBlPackageJarDest() {
-		int selectionIndex = blPackageDest.getSelectionIndex();
-		String selectedBlPackageJar = blPackageDest.getItem(selectionIndex);
-
-		model.getBlPackageJarDest().remove(selectedBlPackageJar);
-		blPackageDest.remove(selectionIndex);
-		btnRemovePackageDest.setEnabled(false);
-
-		updateModel();
-	}
-
 	public void updateComponents() {
 		txtClassName.setText(model.getClassName());
 
 		methods.removeAll();
-		model.getMethods().forEach(method -> methods.add(method));
-		methods.select(model.getSelectedMethodIndex());
-
-		blPackage.removeAll();
-		model.getBlPackages().forEach(pack -> blPackage.add(pack));
-
-		blPackageDest.removeAll();
-		model.getBlPackageJarDest().forEach(dest -> blPackageDest.add(dest));
+		model.getMethods().forEach(methods::add);
+		methods.select(model.getMethods().indexOf(model.getSelectedMethod()));
 
 		checkBoxReadFieldAccess.setSelection(model.isTraceReadFieldAccess());
 
@@ -328,38 +319,33 @@ public class TestgeneratorConfigurationDialog extends Dialog {
 			txtCostumTestgenerator.setText(model.getCostumTestgeneratorClassName());
 		}
 
-		if (model.getPrintClassDirectory() != null) {
-			txtPrintClassFileDir.setText(model.getPrintClassDirectory());
-		}
-
 		if (model.getLaunchConfiguration() != null) {
 			txtLaunchConfiguration.setText(model.getLaunchConfiguration().getName());
 		}
+
+		tblViewerProjects.refresh();
 
 	}
 
 	private void updateModel() {
 		model.setTraceReadFieldAccess(checkBoxReadFieldAccess.getSelection());
 		model.setUsetestgeneratorBootstrap(checkBoxUseTestgeneratorBootstrap.getSelection());
+		model.setSelectedMethod(methods.getText());
+	}
 
-		String blPackage = txtBlPackage.getText();
-		if (Utils.checkStringFilled(blPackage)) {
-			if (!model.getBlPackages().contains(blPackage)) {
-				model.getBlPackages().add(blPackage);
-			}
+	private void removeProject() {
+		IStructuredSelection selection = tblViewerProjects.getStructuredSelection();
+		model.getProjects().remove(selection.getFirstElement());
 
-			txtBlPackage.setText("");
-		}
+		btnRemoveProject.setEnabled(false);
 
-		String blPackageJarDest = txtBlPackageDest.getText();
-		if (Utils.checkStringFilled(blPackageJarDest)) {
-			if (!model.getBlPackageJarDest().contains(blPackageJarDest)) {
-				model.getBlPackageJarDest().add(blPackageJarDest);
-			}
+		tblViewerProjects.refresh();
+	}
 
-			txtBlPackageDest.setText("");
-		}
+	private void updateProject() {
+		IStructuredSelection selection = tblViewerProjects.getStructuredSelection();
+		BlProject selectedProject = (BlProject) selection.getFirstElement();
 
-		updateComponents();
+		controller.updateProject(selectedProject);
 	}
 }
