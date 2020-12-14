@@ -1,5 +1,6 @@
 package org.testgen.testgenerator.ui.plugin.dialogs;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class TestgeneratorConfigurationController {
 	private Map<String, IMethod> methods = new HashMap<>();
 
 	private Set<ILaunchConfiguration> javaLaunchConfigs = new HashSet<>();
-	private Set<ILaunchConfiguration> serverLaunchConfigs = new HashSet<>();
+	private Set<IServer> servers = new HashSet<>();
 
 	public TestgeneratorConfigurationController(Shell activeShell) {
 		this.activeShell = activeShell;
@@ -181,25 +182,13 @@ public class TestgeneratorConfigurationController {
 				TestgeneratorActivator.log(e);
 			}
 
-			IServer[] servers = ServerCore.getServers();
+			this.servers.addAll(Arrays.asList(ServerCore.getServers()));
 
-			for (IServer server : servers) {
-				try {
-					ILaunchConfiguration serverLaunchConfig = server.getLaunchConfiguration(false, null);
-
-					if (serverLaunchConfig != null) {
-						this.serverLaunchConfigs.add(serverLaunchConfig);
-					}
-
-				} catch (CoreException e) {
-					TestgeneratorActivator.log(e);
-				}
-			}
 		});
 
 		LaunchConfigurationDialog listDialog = new LaunchConfigurationDialog(activeShell);
 		listDialog.setInputApplications(javaLaunchConfigs);
-		listDialog.setInputServers(serverLaunchConfigs);
+		listDialog.setInputServers(servers);
 
 		if (IDialogConstants.OK_ID == listDialog.open()) {
 			Object[] result = listDialog.getResult();

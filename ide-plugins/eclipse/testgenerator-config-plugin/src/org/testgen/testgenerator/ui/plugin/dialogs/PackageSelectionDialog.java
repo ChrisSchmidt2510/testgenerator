@@ -54,8 +54,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.ide.IDE.SharedImages;
 import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
 import org.testgen.testgenerator.ui.plugin.dialogs.model.BlProject;
 import org.testgen.testgenerator.ui.plugin.dialogs.model.Dependency;
@@ -176,7 +178,10 @@ public class PackageSelectionDialog extends SelectionDialog {
 
 				@Override
 				public Image getImage(Object element) {
-					return JavaPluginImages.DESC_OBJS_EXTJAR.createImage();
+
+					return ((Dependency) element).isProject()
+							? PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT)
+							: JavaPluginImages.DESC_OBJS_EXTJAR.createImage();
 				};
 			});
 			TableColumn tblColName = colName.getColumn();
@@ -330,34 +335,10 @@ public class PackageSelectionDialog extends SelectionDialog {
 	}
 
 	private void updatePackageViewerForMavenProject(IProject project) throws CoreException {
-		IJavaProject javaProject = JavaCore.create(project);
+		IPackageFragmentRoot packageFragment = getFragmentRootForMavenProject(project);
 
 		IMavenProjectRegistry projectRegistry = MavenPlugin.getMavenProjectRegistry();
 		IMavenProjectFacade mavenProject = projectRegistry.getProject(project);
-
-		IPath[] compileSourceLocations = mavenProject.getCompileSourceLocations();
-
-		IPackageFragmentRoot packageFragment = null;
-
-		if (compileSourceLocations.length == 1) {
-			packageFragment = javaProject.getPackageFragmentRoot(project.getFolder(compileSourceLocations[0]));
-
-		} else {
-			List<IPackageFragmentRoot> fragments = new ArrayList<>();
-
-			for (IPath compileSourceLocation : compileSourceLocations) {
-				IPackageFragmentRoot fragment = javaProject
-						.getPackageFragmentRoot(project.getFolder(compileSourceLocation));
-				fragments.add(fragment);
-			}
-
-			packageFragment = selectSourceFragmentRoot(fragments);
-
-			if (packageFragment == null)
-				MessageDialog.openError(getShell(), "Error Selecting source-root",
-						"pls select a source-root for this project");
-
-		}
 
 		selectedProject.setFragmentRoot(packageFragment);
 		selectedProject.setOutputLocation(project.getFolder(mavenProject.getOutputLocation()).getLocation());
@@ -372,10 +353,30 @@ public class PackageSelectionDialog extends SelectionDialog {
 
 		selectedProject.getSelectedPackages().clear();
 
-		for (IClasspathEntry cp : dependencies) {
-			Dependency dependency = new Dependency();
+		getDependenciesOfProject(project, dependencies);
 
-			IPackageFragmentRoot dependencyPackageRoot = javaProject.findPackageFragmentRoot(cp.getPath());
+		dependencyViewer.setInput(selectedProject.getDependencies());
+	}
+
+	private void getDependenciesOfProject(IProject project, IClasspathEntry[] dependencies) throws CoreException {
+		IJavaProject javaProject = JavaCore.create(project);
+
+		for (IClasspathEntry cp : dependencies) {
+
+			boolean isDependencyProject = IClasspathEntry.CPE_PROJECT == cp.getEntryKind();
+
+			Dependency dependency = new Dependency(isDependencyProject);
+
+			IPackageFragmentRoot dependencyPackageRoot = null;
+
+			if (isDependencyProject) {
+				IProject childProject = (IProject) ResourcesPlugin.getWorkspace().getRoot().findMember(cp.getPath());
+				dependencyPackageRoot = getFragmentRootForMavenProject(childProject);
+
+			} else {
+				dependencyPackageRoot = javaProject.findPackageFragmentRoot(cp.getPath());
+			}
+
 			if (!dependencyPackageRoot.isOpen())
 				dependencyPackageRoot.open(new NullProgressMonitor());
 
@@ -411,8 +412,39 @@ public class PackageSelectionDialog extends SelectionDialog {
 
 			selectedProject.addDependency(dependency);
 		}
+	}
 
-		dependencyViewer.setInput(selectedProject.getDependencies());
+	private IPackageFragmentRoot getFragmentRootForMavenProject(IProject project) {
+		IJavaProject javaProject = JavaCore.create(project);
+
+		IMavenProjectRegistry projectRegistry = MavenPlugin.getMavenProjectRegistry();
+		IMavenProjectFacade mavenProject = projectRegistry.getProject(project);
+
+		IPath[] compileSourceLocations = mavenProject.getCompileSourceLocations();
+
+		IPackageFragmentRoot packageFragment = null;
+
+		if (compileSourceLocations.length == 1) {
+			packageFragment = javaProject.getPackageFragmentRoot(project.getFolder(compileSourceLocations[0]));
+
+		} else {
+			List<IPackageFragmentRoot> fragments = new ArrayList<>();
+
+			for (IPath compileSourceLocation : compileSourceLocations) {
+				IPackageFragmentRoot fragment = javaProject
+						.getPackageFragmentRoot(project.getFolder(compileSourceLocation));
+				fragments.add(fragment);
+			}
+
+			packageFragment = selectSourceFragmentRoot(fragments);
+
+			if (packageFragment == null)
+				MessageDialog.openError(getShell(), "Error Selecting source-root",
+						"pls select a source-root for this project");
+
+		}
+
+		return packageFragment;
 	}
 
 	private IPackageFragmentRoot selectSourceFragmentRoot(List<IPackageFragmentRoot> fragmentRoots) {

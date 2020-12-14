@@ -8,9 +8,15 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 public class Dependency {
 
+	private final boolean project;
+
 	private String name;
 	private IPackageFragmentRoot packageFragmentRoot;
 	private List<IPackageFragment> selectedPackages = new ArrayList<>();
+
+	public Dependency(boolean project) {
+		this.project = project;
+	}
 
 	public String getName() {
 		return name;
@@ -34,6 +40,10 @@ public class Dependency {
 
 	public void addSelectedPackage(IPackageFragment packageFragment) {
 		this.selectedPackages.add(packageFragment);
+	}
+
+	public boolean isProject() {
+		return project;
 	}
 
 }

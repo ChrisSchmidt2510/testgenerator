@@ -1,5 +1,6 @@
 package org.testgen.testgenerator.ui.plugin.dialogs;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
@@ -21,6 +22,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.ide.IDE.SharedImages;
+import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.ui.ServerUICore;
 import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
 
@@ -30,7 +32,7 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 	private TableViewer tblViewerServer;
 
 	private Collection<ILaunchConfiguration> inputApplications;
-	private Collection<ILaunchConfiguration> inputServers;
+	private Collection<IServer> inputServers;
 
 	private ColumnLabelProvider launchConfigName = new ColumnLabelProvider() {
 
@@ -59,7 +61,7 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 		this.inputApplications = javaApplications;
 	}
 
-	public void setInputServers(Collection<ILaunchConfiguration> servers) {
+	public void setInputServers(Collection<IServer> servers) {
 		this.inputServers = servers;
 	}
 
@@ -87,7 +89,13 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 
 		IStructuredSelection selectionServer = tblViewerServer.getStructuredSelection();
 		if (!selectionServer.isEmpty()) {
-			setResult(selectionServer.toList());
+			IServer server = (IServer) selectionServer.getFirstElement();
+
+			try {
+				setResult(Arrays.asList(server.getLaunchConfiguration(false, null)));
+			} catch (CoreException e) {
+				TestgeneratorActivator.log(e);
+			}
 		}
 
 		super.okPressed();
@@ -136,10 +144,6 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 				}
 			}
 
-//			@Override
-//			public Image getImage(Object element) {
-//				return JavaPluginImages.DESC_WIZBAN_JAVA_LAUNCH.createImage();
-//			}
 			@Override
 			public Image getImage(Object element) {
 				return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT);
