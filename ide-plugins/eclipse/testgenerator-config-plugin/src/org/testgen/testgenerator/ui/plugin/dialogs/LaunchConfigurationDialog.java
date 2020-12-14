@@ -163,9 +163,5 @@ public class LaunchConfigurationDialog extends SelectionDialog {
 		tblViewerServer.setContentProvider(ArrayContentProvider.getInstance());
 		tblViewerServer.setLabelProvider(ServerUICore.getLabelProvider());
 		tblViewerServer.setInput(inputServers);
-
-		TableViewerColumn tblServerColumn = new TableViewerColumn(tblViewerServer, SWT.NONE);
-		TableColumn tableColumn = tblServerColumn.getColumn();
-		tableColumn.setWidth(435);
 	}
 }
