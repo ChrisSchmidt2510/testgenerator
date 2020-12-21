@@ -372,8 +372,7 @@ public class TestgeneratorConfigurationController {
 						jarDest.add(blProject.getOutputLocation().toPortableString());
 
 						for (Dependency dependency : blProject.getDependencies()) {
-							jarDest.add(dependency.getPackageFragmentRoot().getPath().removeLastSegments(1)
-									.toPortableString());
+							jarDest.add(dependency.getPackageFragmentPath());
 
 							for (IPackageFragment pkg : dependency.getSelectedPackages()) {
 								packages.add(pkg.getElementName());
