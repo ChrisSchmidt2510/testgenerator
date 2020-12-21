@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.testgen.core.MethodHandles;
 import org.testgen.core.TestgeneratorConstants;
-import org.testgen.runtime.classdata.ClassDataFactory;
+import org.testgen.runtime.classdata.access.ClassDataAccess;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
@@ -21,7 +21,7 @@ public final class TestGenerationHelper {
 	}
 
 	public static ClassData getClassData(Object reference) {
-		return ClassDataFactory.getInstance().getClassData(reference.getClass());
+		return ClassDataAccess.getClassData(reference.getClass());
 	}
 
 	public static Set<FieldData> getCalledFields(Object reference) {

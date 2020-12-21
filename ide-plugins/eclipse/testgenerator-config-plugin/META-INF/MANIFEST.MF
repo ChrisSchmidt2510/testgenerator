@@ -18,7 +18,12 @@ Require-Bundle: org.eclipse.core.resources,
  org.eclipse.jdt.ui;bundle-version="3.18.0",
  org.eclipse.jdt.core;bundle-version="3.18.0",
  org.eclipse.debug.core;bundle-version="3.13.300",
- org.eclipse.wst.server.core;bundle-version="1.10.100"
+ org.eclipse.wst.server.core;bundle-version="1.10.100",
+ org.eclipse.m2e.core;bundle-version="1.12.0",
+ org.eclipse.m2e.jdt;bundle-version="1.12.0",
+ org.eclipse.m2e.maven.runtime;bundle-version="1.12.0",
+ org.eclipse.wst.server.ui;bundle-version="1.5.600",
+ org.eclipse.debug.ui;bundle-version="3.14.100"
 Plugin-Class: de.nuernberger.boss.uml2code.plugin.UIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: bin/

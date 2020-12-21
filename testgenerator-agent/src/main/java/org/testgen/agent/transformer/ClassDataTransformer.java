@@ -77,7 +77,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
 				if (!classData.isEnum()) {
-					ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData, loader);
+					ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
 					classDataGenerator.generate(loadingClass);
 				}
 

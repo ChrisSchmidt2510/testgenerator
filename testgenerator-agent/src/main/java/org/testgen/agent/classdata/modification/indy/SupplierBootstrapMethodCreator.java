@@ -3,7 +3,7 @@ package org.testgen.agent.classdata.modification.indy;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 
-public class SupplierBootstrapMethodCreator extends AbstractBootstrapMethodCreator {
+public class SupplierBootstrapMethodCreator extends AbstractLambdaBootstrapMethodCreator {
 	private static final String INDY_SUPPLIER_GENERIC_RETURN_TYPE = "()Ljava/lang/Object;";
 
 	private final String typedReturntype;

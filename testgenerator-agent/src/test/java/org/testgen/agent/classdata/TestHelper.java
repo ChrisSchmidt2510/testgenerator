@@ -25,11 +25,11 @@ public class TestHelper {
 	protected Map<Integer, List<Instruction>> filteredInstructions;
 	protected CodeAttribute codeAttribute;
 
-	public void init(Class<?> clazz, String methodName, String methodDiscriptor, List<Integer> opcodes)
+	public void init(String className, String methodName, String methodDiscriptor, List<Integer> opcodes)
 			throws NotFoundException, BadBytecode {
 		ClassPool classPool = ClassPool.getDefault();
 
-		ctClass = classPool.get(clazz.getName());
+		ctClass = classPool.get(className);
 
 		classFile = ctClass.getClassFile();
 
@@ -58,15 +58,24 @@ public class TestHelper {
 	}
 
 	public void init(Class<?> clazz, String methodName, List<Integer> opcodes) throws NotFoundException, BadBytecode {
-		init(clazz, methodName, null, opcodes);
+		init(clazz.getName(), methodName, null, opcodes);
 	}
 
 	public void init(Class<?> clazz, String methodName) throws NotFoundException, BadBytecode {
-		init(clazz, methodName, null, null);
+		init(clazz.getName(), methodName, null, null);
 	}
 
 	public void init(Class<?> clazz) throws NotFoundException, BadBytecode {
-		init(clazz, null, null, null);
+		init(clazz.getName(), null, null, null);
+	}
+
+	public void init(Class<?> clazz, String methodName, String methodDescriptor, List<Integer> opcodes)
+			throws NotFoundException, BadBytecode {
+		init(clazz.getName(), methodName, methodDescriptor, opcodes);
+	}
+
+	public void init(String className) throws NotFoundException, BadBytecode {
+		init(className, null, null, null);
 	}
 
 }

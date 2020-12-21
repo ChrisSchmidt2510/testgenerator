@@ -17,13 +17,13 @@ import org.testgen.agent.classdata.model.MethodType;
 import org.testgen.agent.classdata.model.SignatureData;
 import org.testgen.agent.classdata.testclasses.Adresse;
 import org.testgen.agent.classdata.testclasses.BlObject;
-import org.testgen.agent.classdata.testclasses.Person;
 import org.testgen.agent.classdata.testclasses.Person.Geschlecht;
-import org.testgen.runtime.classdata.ClassDataFactory;
+import org.testgen.runtime.classdata.access.ClassDataAccess;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 
 import javassist.CannotCompileException;
+import javassist.ClassPool;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
 
@@ -32,29 +32,17 @@ public class ClassDataGeneratorTest extends TestHelper {
 	@Test
 	public void testAddWithConstructorAndSuperClass()
 			throws CannotCompileException, BadBytecode, FileNotFoundException, IOException, NotFoundException {
-		init(Adresse.class);
+		init("org.testgen.agent.classdata.testclasses.Adresse");
 
 		ClassData classData = prepareAdresseClassData();
 
-		ClassLoader loader = this.getClass().getClassLoader();
-
-		ClassDataGenerator generator = new ClassDataGenerator(classData, loader);
+		ClassDataGenerator generator = new ClassDataGenerator(classData);
 		try {
 			generator.generate(ctClass);
 
-			// normally this step is done by Adresse but Adresse dont get modified for this
-			// test
-			Class<?> loadClass = loader
-					.loadClass("org.testgen.agent.classdata.testclasses.Adresse$$Testgenerator$ClassData");
+			Class<?> testClass = ClassPool.getDefault().toClass(ctClass);
 
-			ClassDataFactory.getInstance().register(Adresse.class, loadClass);
-
-			// normally this step is done than BlObject gets loaded into the jvm
-			ClassDataFactory.getInstance().register(BlObject.class,
-					org.testgen.agent.classdata.testclasses.BlObject$$Testgenerator$ClassData.class);
-
-			org.testgen.runtime.classdata.model.ClassData runtimeClassData = ClassDataFactory.getInstance()
-					.getClassData(Adresse.class);
+			org.testgen.runtime.classdata.model.ClassData runtimeClassData = ClassDataAccess.getClassData(testClass);
 
 			compareClassDataAdresse(runtimeClassData);
 		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
@@ -64,25 +52,17 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 	@Test
 	public void testAddWithDefaultConstructor() throws NotFoundException, CannotCompileException, BadBytecode {
-		init(Person.class);
+		init("org.testgen.agent.classdata.testclasses.Person");
 
 		ClassData classData = preparePersonClassData();
 
-		ClassLoader loader = this.getClass().getClassLoader();
-
-		ClassDataGenerator generator = new ClassDataGenerator(classData, loader);
+		ClassDataGenerator generator = new ClassDataGenerator(classData);
 		try {
 			generator.generate(ctClass);
 
-			// normally this step is done by Person but Person dont get modified for this
-			// test
-			Class<?> loadClass = loader
-					.loadClass("org.testgen.agent.classdata.testclasses.Person$$Testgenerator$ClassData");
+			Class<?> testClass = ClassPool.getDefault().toClass(ctClass);
 
-			ClassDataFactory.getInstance().register(Person.class, loadClass);
-
-			org.testgen.runtime.classdata.model.ClassData runtimeClassData = ClassDataFactory.getInstance()
-					.getClassData(Person.class);
+			org.testgen.runtime.classdata.model.ClassData runtimeClassData = ClassDataAccess.getClassData(testClass);
 
 			compareClassDataPerson(runtimeClassData);
 		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
@@ -201,8 +181,8 @@ public class ClassDataGeneratorTest extends TestHelper {
 		compareConstructors(constructor, adresse.getConstructor());
 
 		org.testgen.runtime.classdata.model.ClassData classData = new org.testgen.runtime.classdata.model.ClassData(
-				"org.testgen.agent.classdata.testclasses.Adresse",
-				() -> ClassDataFactory.getInstance().getClassData(BlObject.class), null, constructor);
+				"org.testgen.agent.classdata.testclasses.Adresse", //
+				() -> ClassDataAccess.getClassData(BlObject.class), null, constructor);
 		compareClasses(classData, adresse);
 
 		SetterMethodData setterStrasse = new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false);

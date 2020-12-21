@@ -114,7 +114,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				ClassData classData = TestGenerationHelper.getClassData(methodParameter.getReference());
 
 				Set<FieldData> calledFields = Collections.emptySet();
-				if (TestgeneratorConfig.isFieldTrackingActivated()) {
+				if (TestgeneratorConfig.traceReadFieldAccess()) {
 					calledFields = TestGenerationHelper.getCalledFields(methodParameter.getReference());
 				}
 

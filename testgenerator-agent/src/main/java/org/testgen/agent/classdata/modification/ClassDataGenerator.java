@@ -5,12 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
-import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
-import org.testgen.agent.classdata.instructions.Instruction;
-import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodData;
@@ -21,9 +17,7 @@ import org.testgen.core.TestgeneratorConstants;
 import org.testgen.core.Wrapper;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtConstructor;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
@@ -32,23 +26,16 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.DuplicateMemberException;
-import javassist.bytecode.FieldInfo;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
 public class ClassDataGenerator {
-	private static final String CLASS_DATA_CLASS_NAME_EXTENSION = "$$Testgenerator$ClassData";
 
-	private static final String CLASS_DATA_FACTORY_CLASSNAME = "org/testgen/runtime/classdata/ClassDataFactory";
-	private static final String CLASS_DATA_FACTORY_METHOD_GET_INSTANCE = "getInstance";
-	private static final String CLASS_DATA_FACTORY_METHOD_GET_INSTANCE_DESC = "()Lorg/testgen/runtime/classdata/ClassDataFactory;";
-	private static final String CLASS_DATA_FACTORY_METHOD_REGISTER = "register";
-	private static final String CLASS_DATA_FACTORY_METHOD_REGISTER_DESC = "(Ljava/lang/Class;Ljava/lang/Class;)V";
-	private static final String CLASS_DATA_FACTORY_METHOD_GET_CLASSDATA = "getClassData";
-	private static final String CLASS_DATA_FACTORY_METHOD_GET_CLASSDATA_DESC = "(Ljava/lang/Class;)Lorg/testgen/runtime/classdata/model/ClassData;";
+	private static final String CLASS_DATA_ACCESS_CLASSNAME = "org/testgen/runtime/classdata/access/ClassDataAccess";
+	private static final String CLASS_DATA_ACCESS_METHOD_GET_CLASSDATA = "getClassData";
+	private static final String CLASS_DATA_ACCESS_METHOD_GET_CLASSDATA_DESC = "(Ljava/lang/Class;)Lorg/testgen/runtime/classdata/model/ClassData;";
 
 	private static final String CLASS_DATA_CLASSNAME = "org/testgen/runtime/classdata/model/ClassData";
-	private static final String CLASS_DATA = "Lorg/testgen/runtime/classdata/model/ClassData;";
 	private static final String CLASS_DATA_CONSTRUCTOR = "(Ljava/lang/String;Lorg/testgen/runtime/classdata/model/ConstructorData;)V";
 	private static final String CLASS_DATA_CONSTRUCTOR_ALL_PARAMETER = "(Ljava/lang/String;Ljava/util/function/Supplier;Ljava/util/function/Supplier;Lorg/testgen/runtime/classdata/model/ConstructorData;)V";
 	private static final String CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR = "addFieldSetterPair";
@@ -82,102 +69,43 @@ public class ClassDataGenerator {
 	private static final String SUPPLIER_METHOD_DESC = "()Ljava/util/function/Supplier;";
 	private static final String SUPPLIER_METHOD_NAME = "get";
 
-	private static final String EMPTY_VOID_DESC = "()V";
+	private static final String INTERFACE_CLASS_DATA_HOLDER = "org/testgen/runtime/classdata/ClassDataHolder";
 
 	private final ClassData classData;
-	private final String className;
-
-	private final ClassLoader loader;
 
 	private ConstPool constantPool;
 
 	private SignatureAdder signatureAdder;
 
 	private final Map<String, Integer> localVariableIndex = new HashMap<>();
-	private int localVariableCounter = 1;
+	private int localVariableCounter = 0;
+
+	private int localVariableClassDataIndex;
 	private int lambdaCounter = 0;
 
-	public ClassDataGenerator(ClassData classData, ClassLoader loader) {
+	public ClassDataGenerator(ClassData classData) {
 		this.classData = classData;
-		this.className = classData.getName() + CLASS_DATA_CLASS_NAME_EXTENSION;
-		this.loader = loader;
 	}
 
 	public void generate(CtClass loadingClass)
 			throws BadBytecode, CannotCompileException, IOException, ClassNotFoundException {
-		ClassPool pool = ClassPool.getDefault();
 
-		CtClass generatedClass = pool.makeClass(className);
+		ClassFile classFile = loadingClass.getClassFile();
 
-		ClassFile classFile = generatedClass.getClassFile();
+		classFile.addInterface(INTERFACE_CLASS_DATA_HOLDER);
 
 		this.constantPool = classFile.getConstPool();
 		this.signatureAdder = new SignatureAdder(constantPool);
 
-		FieldInfo classDataField = new FieldInfo(constantPool, TestgeneratorConstants.FIELDNAME_CLASS_DATA, CLASS_DATA);
-		classDataField.setAccessFlags(AccessFlag.PRIVATE | AccessFlag.FINAL);
-		classFile.addField(classDataField);
-
-		generateConstructor(generatedClass);
-		generateFactoryRegistration(loadingClass);
-
-		// load the class into the jvm
-		pool.toClass(generatedClass, null, loader, null);
+		generateGetClassDataMethod(classFile);
 	}
 
-	private void generateFactoryRegistration(CtClass loadingClass) throws BadBytecode, DuplicateMemberException {
-		ClassFile classFile = loadingClass.getClassFile();
-		ConstPool constantPool = classFile.getConstPool();
+	private void generateGetClassDataMethod(ClassFile classFile) throws BadBytecode, CannotCompileException {
 
 		Bytecode code = new Bytecode(constantPool);
-		code.addInvokestatic(CLASS_DATA_FACTORY_CLASSNAME, CLASS_DATA_FACTORY_METHOD_GET_INSTANCE,
-				CLASS_DATA_FACTORY_METHOD_GET_INSTANCE_DESC);
-		BytecodeUtils.addClassInfoToBytecode(code, constantPool, Descriptor.toJvmName(classData.getName()));
-		BytecodeUtils.addClassInfoToBytecode(code, constantPool,
-				Descriptor.toJvmName(classData.getName() + CLASS_DATA_CLASS_NAME_EXTENSION));
-
-		code.addInvokevirtual(CLASS_DATA_FACTORY_CLASSNAME, CLASS_DATA_FACTORY_METHOD_REGISTER,
-				CLASS_DATA_FACTORY_METHOD_REGISTER_DESC);
-
-		MethodInfo staticInitalizer = classFile.getMethod(MethodInfo.nameClinit);
-
-		if (staticInitalizer != null) {
-			List<Instruction> instructions = Instructions.getAllInstructions(staticInitalizer);
-
-			Optional<Instruction> returnInstruction = instructions.stream()
-					.filter(instruction -> Opcode.RETURN == instruction.getOpcode()).findAny();
-
-			if (returnInstruction.isPresent()) {
-				CodeAttribute codeAttribute = staticInitalizer.getCodeAttribute();
-				codeAttribute.iterator().insertEx(returnInstruction.get().getCodeArrayIndex(), code.get());
-				codeAttribute.computeMaxStack();
-			}
-		} else {
-			MethodInfo clinit = new MethodInfo(constantPool, MethodInfo.nameClinit, EMPTY_VOID_DESC);
-			clinit.setAccessFlags(AccessFlag.STATIC);
-
-			code.add(Opcode.RETURN);
-
-			CodeAttribute codeAttribute = code.toCodeAttribute();
-			codeAttribute.computeMaxStack();
-
-			clinit.setCodeAttribute(codeAttribute);
-			classFile.addMethod(clinit);
-
-		}
-
-	}
-
-	private void generateConstructor(CtClass generatedClass) throws BadBytecode, CannotCompileException {
-		ClassFile classFile = generatedClass.getClassFile();
-
-		Bytecode code = new Bytecode(constantPool);
-		code.addAload(0);
-		code.addInvokespecial(JVMTypes.OBJECT_CLASSNAME, MethodInfo.nameInit, EMPTY_VOID_DESC);
 
 		addFields(code);
 		addConstructor(code);
-		code.addAload(0);
 		code.addNew(CLASS_DATA_CLASSNAME);
 		code.add(Opcode.DUP);
 		code.addLdc(classData.getName());
@@ -208,26 +136,42 @@ public class ClassDataGenerator {
 		code.addInvokespecial(CLASS_DATA_CLASSNAME, MethodInfo.nameInit,
 				classData.getSuperClass() != null || classData.isInnerClass() ? CLASS_DATA_CONSTRUCTOR_ALL_PARAMETER
 						: CLASS_DATA_CONSTRUCTOR);
-		code.addPutfield(Descriptor.toJvmName(className), TestgeneratorConstants.FIELDNAME_CLASS_DATA, CLASS_DATA);
+
+		localVariableClassDataIndex = localVariableCounter++;
+		code.addAstore(localVariableClassDataIndex);
 
 		for (Entry<String, Integer> field : localVariableIndex.entrySet()) {
-			code.addAload(0);
-			code.addGetfield(Descriptor.toJvmName(className), TestgeneratorConstants.FIELDNAME_CLASS_DATA, CLASS_DATA);
+			code.addAload(localVariableClassDataIndex);
 			code.addAload(field.getValue());
 			code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD, CLASS_DATA_METHOD_ADD_FIELD_DESC);
 		}
 
 		addSetter(code);
-		code.add(Opcode.RETURN);
+
+		code.addAload(localVariableClassDataIndex);
+		code.add(Opcode.ARETURN);
 
 		CodeAttribute codeAttribute = code.toCodeAttribute();
 		codeAttribute.computeMaxStack();
 		codeAttribute.setMaxLocals(localVariableCounter);
 
-		CtConstructor constructor = new CtConstructor(null, generatedClass);
-		constructor.setModifiers(AccessFlag.PUBLIC);
-		constructor.getMethodInfo().setCodeAttribute(codeAttribute);
-		generatedClass.addConstructor(constructor);
+		MethodInfo getClassData = classFile.getMethods().stream()
+				.filter(method -> TestgeneratorConstants.CLASS_DATA_METHOD_GET_CLASS_DATA.equals(method.getName())
+						&& TestgeneratorConstants.CLASS_DATA_METHOD_GET_CLASS_DATA_DESC.equals(method.getDescriptor()))
+				.findAny().orElse(createGetClassDataMethodInfo(classFile));
+
+		getClassData.setCodeAttribute(codeAttribute);
+
+	}
+
+	private MethodInfo createGetClassDataMethodInfo(ClassFile classFile) throws DuplicateMemberException {
+		MethodInfo method = new MethodInfo(constantPool, TestgeneratorConstants.CLASS_DATA_METHOD_GET_CLASS_DATA,
+				TestgeneratorConstants.CLASS_DATA_METHOD_GET_CLASS_DATA_DESC);
+		method.setAccessFlags(AccessFlag.PUBLIC | AccessFlag.STATIC | AccessFlag.SYNTHETIC);
+
+		classFile.addMethod(method);
+
+		return method;
 	}
 
 	private void addFields(Bytecode code) {
@@ -304,9 +248,7 @@ public class ClassDataGenerator {
 						|| (JavaTypes.COLLECTION_LIST.contains(dataType)
 								&& (MethodType.COLLECTION_SETTER == type || MethodType.REFERENCE_VALUE_GETTER == type))
 						|| JavaTypes.isArray(dataType) && MethodType.REFERENCE_VALUE_GETTER == type) {
-					code.addAload(0);
-					code.addGetfield(Descriptor.toJvmName(className), TestgeneratorConstants.FIELDNAME_CLASS_DATA,
-							CLASS_DATA);
+					code.addAload(localVariableClassDataIndex);
 					// load specific LocalVariable Field
 					code.addAload(localVariableIndex.get(field.getName()));
 
@@ -339,19 +281,17 @@ public class ClassDataGenerator {
 		SupplierBootstrapMethodCreator bootstrapMethodCreator = new SupplierBootstrapMethodCreator(classFile,
 				constantPool, INDY_SUPPLIER_TYPED_RETURN_TYPE);
 
-		int bootstrapMethodAttributeIndex = bootstrapMethodCreator.create(InvocationType.INVOKE_STATIC, className,
-				INDY_METHOD_NAME + lambdaCounter);
+		int bootstrapMethodAttributeIndex = bootstrapMethodCreator.create(InvocationType.INVOKE_STATIC,
+				classData.getName(), INDY_METHOD_NAME + lambdaCounter);
 
 		MethodInfo lambdaBody = new MethodInfo(constantPool, INDY_METHOD_NAME + lambdaCounter++,
 				INDY_SUPPLIER_TYPED_RETURN_TYPE);
 		lambdaBody.setAccessFlags(AccessFlag.STATIC | AccessFlag.PRIVATE | AccessFlag.SYNTHETIC);
 
 		Bytecode lambdaCode = new Bytecode(constantPool);
-		lambdaCode.addInvokestatic(CLASS_DATA_FACTORY_CLASSNAME, CLASS_DATA_FACTORY_METHOD_GET_INSTANCE,
-				CLASS_DATA_FACTORY_METHOD_GET_INSTANCE_DESC);
 		lambdaCode.addLdc(constantPool.addClassInfo(name));
-		lambdaCode.addInvokevirtual(CLASS_DATA_FACTORY_CLASSNAME, CLASS_DATA_FACTORY_METHOD_GET_CLASSDATA,
-				CLASS_DATA_FACTORY_METHOD_GET_CLASSDATA_DESC);
+		lambdaCode.addInvokestatic(CLASS_DATA_ACCESS_CLASSNAME, CLASS_DATA_ACCESS_METHOD_GET_CLASSDATA,
+				CLASS_DATA_ACCESS_METHOD_GET_CLASSDATA_DESC);
 		lambdaCode.addOpcode(Opcode.ARETURN);
 
 		CodeAttribute lambdaBodycodeAttribute = lambdaCode.toCodeAttribute();

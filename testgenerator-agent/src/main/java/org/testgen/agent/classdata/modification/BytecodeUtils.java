@@ -1,10 +1,15 @@
 package org.testgen.agent.classdata.modification;
 
+import java.util.Arrays;
+
 import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 
+import javassist.bytecode.BootstrapMethodsAttribute;
+import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.Bytecode;
+import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Opcode;
 
@@ -142,6 +147,32 @@ public final class BytecodeUtils {
 		for (int i = 0; i < length; i++) {
 			code.add(Opcode.NOP);
 		}
+	}
+
+	public static int addBootstrapMethod(ClassFile classFile, BootstrapMethod bootstrapMethod) {
+		ConstPool constantPool = classFile.getConstPool();
+
+		int bootstrapMethodAttributeIndex = 0;
+
+		if (classFile.getAttribute(BootstrapMethodsAttribute.tag) != null) {
+
+			BootstrapMethodsAttribute attribute = (BootstrapMethodsAttribute) classFile
+					.getAttribute(BootstrapMethodsAttribute.tag);
+			BootstrapMethod[] bootstrapMethods = attribute.getMethods();
+
+			bootstrapMethodAttributeIndex = bootstrapMethods.length;
+
+			BootstrapMethod[] copyOfBootrapMethods = Arrays.copyOf(bootstrapMethods, bootstrapMethods.length + 1);
+			copyOfBootrapMethods[bootstrapMethodAttributeIndex] = bootstrapMethod;
+
+			classFile.addAttribute(new BootstrapMethodsAttribute(constantPool, copyOfBootrapMethods));
+
+		} else {
+			classFile.addAttribute(
+					new BootstrapMethodsAttribute(constantPool, new BootstrapMethod[] { bootstrapMethod }));
+		}
+
+		return bootstrapMethodAttributeIndex;
 	}
 
 }

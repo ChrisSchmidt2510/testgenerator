@@ -1,13 +1,10 @@
 package org.testgen.testgenerator.ui.plugin.dialogs;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -16,6 +13,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.core.IConfigurationElementConstants;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -27,8 +25,11 @@ import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -36,6 +37,9 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerCore;
 import org.testgen.testgenerator.ui.plugin.TestgeneratorActivator;
+import org.testgen.testgenerator.ui.plugin.dialogs.model.BlProject;
+import org.testgen.testgenerator.ui.plugin.dialogs.model.Dependency;
+import org.testgen.testgenerator.ui.plugin.dialogs.model.Model;
 import org.testgen.testgenerator.ui.plugin.helper.Descriptor;
 import org.testgen.testgenerator.ui.plugin.helper.Utils;
 import org.testgen.testgenerator.ui.plugin.preference.TestgeneratorPreferencePage;
@@ -52,7 +56,6 @@ public class TestgeneratorConfigurationController {
 	private static final String ARG_BL_PACKAGE = "BlPackage";
 	private static final String ARG_BL_PACKGE_JAR_DEST = "BlPackageJarDestination";
 	private static final String ARG_TRACE_READ_FIELD_ACCESS = "TraceReadFieldAccess";
-	private static final String ARG_PRINT_CLASSFILES_DIR = "PrintClassFilesDir";
 	private static final String ARG_COSTUM_TESTGENERATOR_CLASS = "CostumTestgeneratorClass";
 
 	private static final String GENERALL_ARG_SEPARATUR = "-";
@@ -69,10 +72,10 @@ public class TestgeneratorConfigurationController {
 
 	private IType selectedSourceType;
 	private IType customTestgeneratorType;
-	private Map<IMethod, String> methods = new HashMap<>();
+	private Map<String, IMethod> methods = new HashMap<>();
 
 	private Set<ILaunchConfiguration> javaLaunchConfigs = new HashSet<>();
-	private Set<ILaunchConfiguration> serverLaunchConfigs = new HashSet<>();
+	private Set<IServer> servers = new HashSet<>();
 
 	public TestgeneratorConfigurationController(Shell activeShell) {
 		this.activeShell = activeShell;
@@ -162,16 +165,6 @@ public class TestgeneratorConfigurationController {
 		return null;
 	}
 
-	public void openDirectoryDialog() {
-		DirectoryDialog dirDialog = new DirectoryDialog(activeShell);
-		dirDialog.setText("Select PrintClass Directory:");
-		String directory = dirDialog.open();
-
-		model.setPrintClassDirectory(directory);
-
-		dialog.updateComponents();
-	}
-
 	public void selectLaunchConfiguration() {
 
 		BusyIndicator.showWhile(Display.getCurrent(), () -> {
@@ -189,25 +182,13 @@ public class TestgeneratorConfigurationController {
 				TestgeneratorActivator.log(e);
 			}
 
-			IServer[] servers = ServerCore.getServers();
+			this.servers.addAll(Arrays.asList(ServerCore.getServers()));
 
-			for (IServer server : servers) {
-				try {
-					ILaunchConfiguration serverLaunchConfig = server.getLaunchConfiguration(false, null);
-
-					if (serverLaunchConfig != null) {
-						this.serverLaunchConfigs.add(serverLaunchConfig);
-					}
-
-				} catch (CoreException e) {
-					TestgeneratorActivator.log(e);
-				}
-			}
 		});
 
 		LaunchConfigurationDialog listDialog = new LaunchConfigurationDialog(activeShell);
 		listDialog.setInputApplications(javaLaunchConfigs);
-		listDialog.setInputServers(serverLaunchConfigs);
+		listDialog.setInputServers(servers);
 
 		if (IDialogConstants.OK_ID == listDialog.open()) {
 			Object[] result = listDialog.getResult();
@@ -222,6 +203,26 @@ public class TestgeneratorConfigurationController {
 
 	}
 
+	public void addProject() {
+		PackageSelectionDialog selection = new PackageSelectionDialog(activeShell);
+		if (Window.OK == selection.open()) {
+			BlProject project = (BlProject) selection.getResult()[0];
+
+			model.addProject(project);
+
+			dialog.updateComponents();
+		}
+
+	}
+
+	public void updateProject(BlProject project) {
+		PackageSelectionDialog selection = new PackageSelectionDialog(activeShell, project);
+
+		if (Window.OK == selection.open()) {
+			dialog.updateComponents();
+		}
+	}
+
 	public boolean addToLaunchConfiguraton() {
 		try {
 			String agentArgument = generateAgentArgumentList();
@@ -234,20 +235,39 @@ public class TestgeneratorConfigurationController {
 
 			ILaunchConfigurationWorkingCopy copy = launchConfig.getWorkingCopy();
 
-			if (arguments == null) {
-				addNewArgumentsToLaunchConfigCopy(null, agentArgument, bootstrapArgument, copy);
+			if (arguments.contains(JAVAAGENT) || arguments.contains(BOOT_CLASSPATH)) {
+
+				String message = null;
+
+				String[] data = null;
+
+				if (arguments.contains(JAVAAGENT) && arguments.contains(BOOT_CLASSPATH)) {
+					message = "The selected LaunchConfiguration already contains a " + JAVAAGENT + " and "
+							+ BOOT_CLASSPATH
+							+ " argument. Because it cant be garanteed that the arguments are overriden correctly your Testgeneratorarguments are copied to clipboard";
+
+					data = new String[] { agentArgument + System.lineSeparator() + bootstrapArgument };
+				} else if (arguments.contains(JAVAAGENT)) {
+					message = "The selected LaunchConfiguration already contains a " + JAVAAGENT
+							+ " argument. Because it cant be garanteed that the argument are overriden correctly your Testgeneratorargument is copied to clipboard";
+
+					data = new String[] { agentArgument };
+				} else {
+					message = "The selected LaunchConfiguration already contains a " + BOOT_CLASSPATH
+							+ " argument. Because it cant be garanteed that the argument are overriden correctly your Testgeneratorargument is copied to clipboard";
+
+					data = new String[] { bootstrapArgument };
+				}
+
+				MessageDialog.openInformation(activeShell, "Adding Argument to LaunchConfiguration failed", message);
+
+				Clipboard clipboard = new Clipboard(activeShell.getDisplay());
+				clipboard.setContents(data, new Transfer[] { TextTransfer.getInstance() });
 
 			} else {
-				if (arguments.contains(JAVAAGENT)) {
-					String actualAgent = arguments.substring(arguments.indexOf(JAVAAGENT));
-
-					System.out.println(actualAgent);
-				} else if (arguments.contains(BOOT_CLASSPATH)) {
-
-				} else {
-					addNewArgumentsToLaunchConfigCopy(arguments, agentArgument, bootstrapArgument, copy);
-				}
+				addNewArgumentsToLaunchConfigCopy(arguments, agentArgument, bootstrapArgument, copy);
 			}
+
 		} catch (IllegalArgumentException e) {
 			MessageDialog.openError(activeShell, "error while adding Testgeneratur arguments to Launch Config",
 					e.getMessage());
@@ -269,10 +289,11 @@ public class TestgeneratorConfigurationController {
 		if (oldArgument != null) {
 			builder.append(oldArgument);
 		}
-
+		builder.append(System.lineSeparator());
 		builder.append(agentArgument);
 
 		if (model.useTestgeneratorBootstrap()) {
+			builder.append(System.lineSeparator());
 			builder.append(bootstrapArgument);
 		}
 		copy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, builder.toString());
@@ -282,14 +303,14 @@ public class TestgeneratorConfigurationController {
 	private void updateModel(IMethod[] methods, IMethod selectedMethod) {
 		this.methods.clear();
 		for (IMethod method : methods) {
-			this.methods.put(method, createMethodString(method));
+			this.methods.put(createMethodString(method), method);
 		}
 
-		List<String> methodStrings = new ArrayList<>(this.methods.values());
-		model.setMethods(methodStrings);
+		model.setMethods(this.methods.keySet());
 
-		model.setSelectedMethodIndex(
-				selectedMethod != null ? methodStrings.indexOf(createMethodString(selectedMethod)) : 0);
+		if (selectedMethod != null)
+			model.setSelectedMethod(createMethodString(selectedMethod));
+
 		model.setClassName(selectedSourceType.getTypeQualifiedName());
 
 	}
@@ -320,13 +341,9 @@ public class TestgeneratorConfigurationController {
 			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL
 					+ selectedSourceType.getFullyQualifiedName().replace(".", "/"));
 
-			String selectedMethodStr = model.getMethods().get(model.getSelectedMethodIndex());
+			String selectedMethodStr = model.getSelectedMethod();
 
-			Entry<IMethod, String> selectedMethod = methods.entrySet().stream()
-					.filter(method -> method.getValue().equals(selectedMethodStr)).findAny()
-					.orElseThrow(() -> new RuntimeException("No matching Method found"));
-
-			IMethod method = selectedMethod.getKey();
+			IMethod method = methods.get(selectedMethodStr);
 
 			argument.append(GENERALL_ARG_SEPARATUR + ARG_METHOD_NAME + EQUAL + method.getElementName());
 
@@ -346,26 +363,37 @@ public class TestgeneratorConfigurationController {
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_TRACE_READ_FIELD_ACCESS);
 			}
 
-			if (!model.getBlPackages().isEmpty()) {
-				List<String> modifiedBlPackages = model.getBlPackages().stream().map(pack -> pack.replace(".", "/"))
-						.collect(Collectors.toList());
-				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL
-						+ String.join(LIST_ARG_SEPARATUR, modifiedBlPackages));
-			}
+			if (!model.getProjects().isEmpty()) {
+				Set<String> packages = new HashSet<>();
+				Set<String> jarDest = new HashSet<>();
 
-			if (!model.getBlPackageJarDest().isEmpty()) {
+				for (BlProject blProject : model.getProjects()) {
+					if (!blProject.getSelectedPackages().isEmpty()) {
+						jarDest.add(blProject.getOutputLocation().toPortableString());
+
+						for (Dependency dependency : blProject.getDependencies()) {
+							jarDest.add(dependency.getPackageFragmentPath());
+
+							for (IPackageFragment pkg : dependency.getSelectedPackages()) {
+								packages.add(pkg.getElementName());
+							}
+						}
+
+						for (IPackageFragment pkg : blProject.getSelectedPackages()) {
+							packages.add(pkg.getElementName());
+						}
+					}
+				}
+
+				argument.append(
+						GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL + String.join(LIST_ARG_SEPARATUR, packages));
 				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKGE_JAR_DEST + EQUAL
-						+ String.join(LIST_ARG_SEPARATUR, model.getBlPackageJarDest()));
+						+ String.join(LIST_ARG_SEPARATUR, jarDest));
 			}
 
 			if (model.getCostumTestgeneratorClassName() != null) {
 				argument.append(
 						GENERALL_ARG_SEPARATUR + ARG_COSTUM_TESTGENERATOR_CLASS + EQUAL + customTestgeneratorType);
-			}
-
-			if (model.getPrintClassDirectory() != null) {
-				argument.append(
-						GENERALL_ARG_SEPARATUR + ARG_PRINT_CLASSFILES_DIR + EQUAL + model.getPrintClassDirectory());
 			}
 
 		} catch (JavaModelException e) {
@@ -405,4 +433,5 @@ public class TestgeneratorConfigurationController {
 
 		return methodName;
 	}
+
 }

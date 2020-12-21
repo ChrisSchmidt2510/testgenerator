@@ -31,4 +31,9 @@ public class FloatProxy extends AbstractProxy {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return String.valueOf(value);
+	}
+
 }
