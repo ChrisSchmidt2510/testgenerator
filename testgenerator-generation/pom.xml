@@ -13,7 +13,7 @@
 	<properties>
 		<sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.testgen</groupId>
@@ -31,7 +31,7 @@
 			<artifactId>testgenerator-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-config</artifactId>
@@ -49,12 +49,17 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.github.javaparser</groupId>
+			<artifactId>javaparser-core</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
 
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
