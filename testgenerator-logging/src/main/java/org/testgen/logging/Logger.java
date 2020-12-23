@@ -59,15 +59,15 @@ public class Logger {
 	}
 
 	public void warning(String message) {
-		log(Level.WARNING, message);
+		log(Level.WARN, message);
 	}
 
 	public void warning(Supplier<String> message) {
-		log(Level.WARNING, message);
+		log(Level.WARN, message);
 	}
 
 	public void warning(Exception exception) {
-		log(Level.WARNING, exception);
+		log(Level.WARN, exception);
 	}
 
 	public void trace(String message) {

@@ -76,7 +76,7 @@
 			<enumeration value="TRACE" />
 			<enumeration value="DEBUG" />
 			<enumeration value="INFO" />
-			<enumeration value="WARNING" />
+			<enumeration value="WARN" />
 			<enumeration value="ERROR" />
 		</restriction>
 	</simpleType>

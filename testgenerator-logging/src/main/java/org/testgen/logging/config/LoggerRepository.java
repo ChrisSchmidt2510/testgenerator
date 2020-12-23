@@ -50,9 +50,9 @@ public final class LoggerRepository {
 		return root;
 	}
 
-	private void loadConfiguration() {
-		XmlConfigurationMapper mapper = new XmlConfigurationMapper();
-		List<Configuration> configurations = mapper.parseXMLConfiguration(config -> root = config);
+	public void loadConfiguration() {
+		List<Configuration> configurations = XmlConfigurationLoader.//
+				parseXMLConfiguration(config -> root = config);
 
 		repository.clear();
 		repository.addAll(configurations);
