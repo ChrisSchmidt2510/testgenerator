@@ -5,25 +5,34 @@ import java.time.Month;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.testgen.runtime.generation.ComplexObjectGeneration;
+import org.testgen.runtime.generation.GenerationFactory;
+import org.testgen.runtime.generation.javapoet.impl.DefaultArrayGeneration;
+import org.testgen.runtime.generation.javapoet.impl.DefaultComplexObjectGeneration;
 import org.testgen.runtime.generation.naming.NamingService;
+import org.testgen.runtime.generation.naming.impl.DefaultNamingService;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
+import com.squareup.javapoet.TypeSpec;
 
 public class DefaultContainerGenerationTest {
-	private DefaultContainerGeneration containerGenerator = new DefaultContainerGeneration();
+	private DefaultArrayGeneration containerGenerator;
 
 	@Before
 	public void init() {
-		NamingService namingService = new NamingService();
-		DefaultComplexObjectGeneration complexObjectGenerator = new DefaultComplexObjectGeneration();
-		complexObjectGenerator.setContainerGeneration(containerGenerator);
-		complexObjectGenerator.setNamingService(namingService);
 
-		containerGenerator.setComplexObjectGeneration(complexObjectGenerator);
-		containerGenerator.setNamingService(namingService);
+		GenerationFactory<TypeSpec.Builder, Builder> generationFactory = GenerationFactory.getInstance();
+
+		NamingService namingService = new DefaultNamingService();
+		ComplexObjectGeneration<TypeSpec.Builder, Builder> complexObjectGenerator = new DefaultComplexObjectGeneration();
+
+		generationFactory.setNamingService(namingService);
+		generationFactory.setComplexObjectGeneration(complexObjectGenerator);
+
+		containerGenerator = new DefaultArrayGeneration();
 	}
 
 	@Test

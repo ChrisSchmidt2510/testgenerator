@@ -1,4 +1,4 @@
-package org.testgen.runtime.generation.impl;
+package org.testgen.runtime.generation.javapoet.impl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

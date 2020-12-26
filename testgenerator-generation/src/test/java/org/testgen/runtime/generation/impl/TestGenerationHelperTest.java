@@ -11,7 +11,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
-import org.testgen.runtime.generation.impl.TestGenerationHelper;
+import org.testgen.runtime.generation.javapoet.impl.TestGenerationHelper;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;

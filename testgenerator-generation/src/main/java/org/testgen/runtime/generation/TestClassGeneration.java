@@ -8,23 +8,35 @@ import java.util.Set;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
+import org.testgen.runtime.generation.naming.NamingService;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 
-import com.squareup.javapoet.TypeSpec;
+public interface TestClassGeneration<T, E> {
 
-public interface TestClassGeneration {
+	T createTestClass(Class<?> testClass);
 
-	TypeSpec.Builder createTestClass(Class<?> testClass);
+	void prepareTestObject(T compilationUnit, BluePrint testObject, ClassData classData, Set<FieldData> calledFields);
 
-	void prepareTestObject(TypeSpec.Builder typeSpec, BluePrint testObject, ClassData classData,
-			Set<FieldData> calledFields);
-
-	void prepareMethodParameters(TypeSpec.Builder typeSpec, Collection<BluePrint> methodParameters, //
+	void prepareMethodParameters(T compilationUnit, Collection<BluePrint> methodParameters, //
 			List<DescriptorType> methodTypeTable);
 
-	void prepareProxyObjects(TypeSpec.Builder typeSpec, Map<ProxyBluePrint, List<BluePrint>> proxyObjects);
+	void prepareProxyObjects(T compilationUnit, Map<ProxyBluePrint, List<BluePrint>> proxyObjects);
 
-	void generateTestMethod(TypeSpec.Builder typeSpec, String methodName, boolean withProxyObjects);
+	void generateTestMethod(T compilationUnit, String methodName, boolean withProxyObjects);
+
+	void addDocumentation(T compilationUnit);
+
+	void toFile(T compilationUnit);
+
+	ComplexObjectGeneration<T, E> createComplexObjectGeneration();
+
+	SimpleObjectGeneration<T, E> createSimpleObjectGeneration();
+
+	CollectionGeneration<T, E> createCollectionGeneration();
+
+	ArrayGeneration<T, E> createArrayGeneration();
+
+	NamingService createNamingService();
 
 }

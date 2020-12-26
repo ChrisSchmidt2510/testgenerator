@@ -29,7 +29,7 @@ public interface BluePrint {
 	}
 
 	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {
-		if (isContainerBluePrint()) {
+		if (isCollectionBluePrint()) {
 			return (AbstractBasicCollectionBluePrint<?>) this;
 		}
 

@@ -1,4 +1,4 @@
-package org.testgen.runtime.generation.impl;
+package org.testgen.runtime.generation.javapoet.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,9 +18,10 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.generation.ArrayGeneration;
+import org.testgen.runtime.generation.CollectionGeneration;
 import org.testgen.runtime.generation.ComplexObjectGeneration;
-import org.testgen.runtime.generation.ContainerGeneration;
-import org.testgen.runtime.generation.naming.NamingService;
+import org.testgen.runtime.generation.naming.impl.DefaultNamingService;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -29,24 +30,17 @@ import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
+import com.squareup.javapoet.TypeSpec;
 
-public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
+public class DefaultComplexObjectGeneration implements ComplexObjectGeneration<TypeSpec.Builder, Builder> {
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultComplexObjectGeneration.class);
 
-	private ContainerGeneration containerGeneration;
+	private CollectionGeneration<TypeSpec.Builder, Builder> collectionGeneration = getCollectionGeneration();
 
-	private NamingService namingService;
+	private ArrayGeneration<TypeSpec.Builder, Builder> arrayGeneration = getArrayGeneration();
 
-	@Override
-	public void setContainerGeneration(ContainerGeneration containerGeneration) {
-		this.containerGeneration = containerGeneration;
-	}
-
-	@Override
-	public void setNamingService(NamingService namingService) {
-		this.namingService = namingService;
-	}
+	private DefaultNamingService namingService;
 
 	@Override
 	public void createObject(Builder code, ComplexBluePrint bluePrint, boolean isField, ClassData classData,
@@ -114,14 +108,14 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 						types.addAll(simpleBluePrint.getReferenceClasses());
 					} else if (constructorFieldBp.isCollectionBluePrint()) {
 
-						containerGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
+						collectionGeneration.createCollection(code, constructorFieldBp.castToCollectionBluePrint(),
 								constructorField.getValue().getSignature(), false, false);
 
 						creation.append(
 								index == constructorFields.size() ? (argumentName + ")") : (argumentName + ","));
 					} else if (constructorFieldBp.isArrayBluePrint()) {
 
-						containerGeneration.createArray(code, constructorFieldBp.castToArrayBluePrint(), //
+						arrayGeneration.createArray(code, constructorFieldBp.castToArrayBluePrint(), //
 								false, false);
 
 						creation.append(
@@ -205,8 +199,10 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 			code.addStatement(objectName + "." + field.getName() + "=" + simpleBluePrint.valueCreation(),
 					simpleBluePrint.getReferenceClasses().toArray());
 
-		} else if (bluePrint.isContainerBluePrint()) {
-			containerGeneration.addContainerToObject(code, bluePrint, field, objectName);
+		} else if (bluePrint.isCollectionBluePrint()) {
+			collectionGeneration.addContainerToObject(code, bluePrint.castToCollectionBluePrint(), field, objectName);
+		} else if (bluePrint.isArrayBluePrint()) {
+			arrayGeneration.addContainerToObject(code, bluePrint.castToArrayBluePrint(), field, objectName);
 		}
 	}
 
@@ -228,8 +224,11 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 
 				code.addStatement(objectName + "." + setter.getName() + "(" + simpleBluePrint.valueCreation() + ")",
 						simpleBluePrint.getReferenceClasses().toArray());
-			} else if (bluePrint.isContainerBluePrint()) {
-				containerGeneration.addContainerToObject(code, bluePrint, setter, objectName);
+			} else if (bluePrint.isCollectionBluePrint()) {
+				collectionGeneration.addContainerToObject(code, bluePrint.castToCollectionBluePrint(), setter,
+						objectName);
+			} else if (bluePrint.isArrayBluePrint()) {
+				arrayGeneration.addContainerToObject(code, bluePrint.castToArrayBluePrint(), setter, objectName);
 			}
 		}
 	}
@@ -279,7 +278,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 						setter = classData.getSetterInHierarchie(field);
 					}
 
-					containerGeneration.createCollection(code, collection, signature,
+					collectionGeneration.createCollection(code, collection, signature,
 							setter != null && SetterType.COLLECTION_SETTER == setter.getType(), false);
 				} else if (bp.isArrayBluePrint()) {
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();
@@ -288,7 +287,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 							arrayBluePrint.getType());
 					SetterMethodData setter = classData.getSetterInHierarchie(field);
 
-					containerGeneration.createArray(code, arrayBluePrint,
+					arrayGeneration.createArray(code, arrayBluePrint,
 							setter != null && SetterType.VALUE_GETTER == setter.getType(), false);
 				}
 			}
@@ -312,6 +311,12 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration {
 		return parent.getChildBluePrints().stream()
 				.filter(bp -> outerClass.getName().equals(bp.getClassNameOfReference())).map(BluePrint::getName)
 				.findFirst().orElse(null);
+	}
+
+	@Override
+	public void createField(TypeSpec.Builder compilationUnit, ComplexBluePrint bluePrint, SignatureType signature) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

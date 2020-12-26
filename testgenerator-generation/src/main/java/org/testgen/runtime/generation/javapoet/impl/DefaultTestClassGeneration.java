@@ -1,6 +1,9 @@
-package org.testgen.runtime.generation.impl;
+package org.testgen.runtime.generation.javapoet.impl;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,10 +24,14 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.BasicType;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.generation.ArrayGeneration;
+import org.testgen.runtime.generation.CollectionGeneration;
 import org.testgen.runtime.generation.ComplexObjectGeneration;
-import org.testgen.runtime.generation.ContainerGeneration;
+import org.testgen.runtime.generation.SimpleObjectGeneration;
 import org.testgen.runtime.generation.TestClassGeneration;
+import org.testgen.runtime.generation.Testgenerator;
 import org.testgen.runtime.generation.naming.NamingService;
+import org.testgen.runtime.generation.naming.impl.DefaultNamingService;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -34,11 +41,12 @@ import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 
-public class DefaultTestClassGeneration implements TestClassGeneration {
+public class DefaultTestClassGeneration implements TestClassGeneration<Builder, CodeBlock.Builder> {
 	private static final String TEST = "Test";
 
 	private static final String METHOD_INIT_TESTOBJECT = "initTestobject";
@@ -53,28 +61,23 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(DefaultTestClassGeneration.class);
 
+	private final CollectionGeneration<TypeSpec.Builder, CodeBlock.Builder> collectionGeneration = new DefaultCollectionGeneration();
+	private final ArrayGeneration<TypeSpec.Builder, CodeBlock.Builder> arrayGeneration = new DefaultArrayGeneration();
+	private final ComplexObjectGeneration<TypeSpec.Builder, CodeBlock.Builder> objectGeneration = new DefaultComplexObjectGeneration();
+	private final NamingService namingService = new DefaultNamingService();
+
 	private String testObjectName;
 	private List<String> methodParameterNames = new ArrayList<>();
 
-	private ContainerGeneration containerGeneration;
-	private ComplexObjectGeneration objectGeneration;
-
-	private final NamingService namingService = new NamingService();
-
-	{
-		containerGeneration = new DefaultContainerGeneration();
-		objectGeneration = new DefaultComplexObjectGeneration();
-
-		containerGeneration.setComplexObjectGeneration(objectGeneration);
-		containerGeneration.setNamingService(namingService);
-
-		objectGeneration.setContainerGeneration(containerGeneration);
-		objectGeneration.setNamingService(namingService);
-	}
+	private Class<?> testClass;
 
 	@Override
 	public Builder createTestClass(Class<?> testClass) {
-		return TypeSpec.classBuilder(testClass.getSimpleName() + TEST).addModifiers(Modifier.PUBLIC);
+		this.testClass = testClass;
+
+		Builder compilationUnit = TypeSpec.classBuilder(testClass.getSimpleName() + TEST)//
+				.addModifiers(Modifier.PUBLIC);
+		return compilationUnit;
 	}
 
 	@Override
@@ -135,13 +138,13 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 				DescriptorType type = methodParameterTypes.get(methodParameterIndex);
 				SignatureType collectionType = type.isSignatureType() ? type.castToSignatureType() : null;
 
-				containerGeneration.addFieldToClass(typeSpec, collectionBluePrint, collectionType);
-				containerGeneration.createCollection(code, collectionBluePrint, collectionType, false, true);
+				collectionGeneration.createField(typeSpec, collectionBluePrint, collectionType);
+				collectionGeneration.createCollection(code, collectionBluePrint, collectionType, false, true);
 			} else if (methodParameter.isArrayBluePrint()) {
 				ArrayBluePrint arrayBluePrint = methodParameter.castToArrayBluePrint();
 
-				containerGeneration.addFieldToClass(typeSpec, arrayBluePrint, null);
-				containerGeneration.createArray(code, arrayBluePrint, false, true);
+				arrayGeneration.createField(typeSpec, arrayBluePrint, null);
+				arrayGeneration.createArray(code, arrayBluePrint, false, true);
 			} else if (methodParameter instanceof ProxyBluePrint) {
 				typeSpec.addField(methodParameterTypes.get(methodParameterIndex).castToBasicType().getType(),
 						parameterName, Modifier.PRIVATE);
@@ -160,6 +163,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 
 	@Override
 	public void prepareProxyObjects(Builder typeSpec, Map<ProxyBluePrint, List<BluePrint>> proxyObjects) {
+
 		CodeBlock.Builder code = CodeBlock.builder();
 
 		for (Entry<ProxyBluePrint, List<BluePrint>> proxy : proxyObjects.entrySet()) {
@@ -199,10 +203,10 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 					SignatureType signature = TestGenerationHelper
 							.mapGenericTypeToSignature(proxyMethod.getGenericReturnType());
 
-					containerGeneration.createCollection(code, proxyObject.castToCollectionBluePrint(), //
+					collectionGeneration.createCollection(code, proxyObject.castToCollectionBluePrint(), //
 							signature, false, false);
 				} else if (proxyObject.isArrayBluePrint()) {
-					containerGeneration.createArray(code, proxyObject.castToArrayBluePrint(), false, false);
+					arrayGeneration.createArray(code, proxyObject.castToArrayBluePrint(), false, false);
 				}
 			}
 		}
@@ -213,6 +217,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 
 	@Override
 	public void generateTestMethod(Builder typeSpec, String methodName, boolean withProxyObjects) {
+
 		com.squareup.javapoet.CodeBlock.Builder codeInit = CodeBlock.builder()//
 				.addStatement(METHOD_INIT_TESTOBJECT + "()")//
 				.addStatement(METHOD_INIT_METHOD_PARAMETER + "()");
@@ -238,6 +243,53 @@ public class DefaultTestClassGeneration implements TestClassGeneration {
 	private String createTestMethodName(String methodName) {
 		return METHOD_TEST_START
 				+ methodName.replace(methodName.charAt(0), Character.toUpperCase(methodName.charAt(0)));
+	}
+
+	@Override
+	public void addDocumentation(Builder compilationUnit) {
+		compilationUnit.addJavadoc(
+				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
+						+ " with Testgenerator-" + Testgenerator.class.getPackage().getImplementationVersion());
+
+	}
+
+	@Override
+	public void toFile(Builder compilationUnit) {
+		JavaFile file = JavaFile.builder(testClass.getPackage().getName(), compilationUnit.build())
+				.skipJavaLangImports(true).build();
+		LOGGER.debug("generated Test", stream -> {
+			try {
+				file.writeTo(stream);
+			} catch (IOException e) {
+				LOGGER.error(e);
+			}
+		});
+
+	}
+
+	@Override
+	public ComplexObjectGeneration<Builder, CodeBlock.Builder> createComplexObjectGeneration() {
+		return objectGeneration;
+	}
+
+	@Override
+	public SimpleObjectGeneration<Builder, CodeBlock.Builder> createSimpleObjectGeneration() {
+		return null;
+	}
+
+	@Override
+	public CollectionGeneration<Builder, CodeBlock.Builder> createCollectionGeneration() {
+		return collectionGeneration;
+	}
+
+	@Override
+	public ArrayGeneration<Builder, CodeBlock.Builder> createArrayGeneration() {
+		return arrayGeneration;
+	}
+
+	@Override
+	public NamingService createNamingService() {
+		return namingService;
 	}
 
 }
