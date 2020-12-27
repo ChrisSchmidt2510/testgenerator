@@ -1,7 +1,5 @@
 package org.testgen.runtime.generation;
 
-import org.testgen.runtime.generation.naming.NamingService;
-
 public class GenerationFactory<T, E> {
 
 	private static final GenerationFactory<?, ?> INSTANCE = new GenerationFactory<>();
@@ -11,8 +9,6 @@ public class GenerationFactory<T, E> {
 
 	private CollectionGeneration<T, E> containerGeneration;
 	private ArrayGeneration<T, E> arrayGeneration;
-
-	private NamingService namingService;
 
 	private GenerationFactory() {
 	}
@@ -38,10 +34,6 @@ public class GenerationFactory<T, E> {
 		this.arrayGeneration = arrayGeneration;
 	}
 
-	public void setNamingService(NamingService namingService) {
-		this.namingService = namingService;
-	}
-
 	public ComplexObjectGeneration<T, E> getComplexObjectGeneration() {
 		return complexObjectGeneration;
 	}
@@ -56,10 +48,6 @@ public class GenerationFactory<T, E> {
 
 	public ArrayGeneration<T, E> getArrayGeneration() {
 		return arrayGeneration;
-	}
-
-	public NamingService getNamingService() {
-		return namingService;
 	}
 
 }

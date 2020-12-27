@@ -21,7 +21,7 @@ import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.ArrayGeneration;
 import org.testgen.runtime.generation.CollectionGeneration;
 import org.testgen.runtime.generation.ComplexObjectGeneration;
-import org.testgen.runtime.generation.naming.impl.DefaultNamingService;
+import org.testgen.runtime.generation.naming.NamingService;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -40,7 +40,7 @@ public class DefaultComplexObjectGeneration implements ComplexObjectGeneration<T
 
 	private ArrayGeneration<TypeSpec.Builder, Builder> arrayGeneration = getArrayGeneration();
 
-	private DefaultNamingService namingService;
+	private NamingService namingService = getNamingService();
 
 	@Override
 	public void createObject(Builder code, ComplexBluePrint bluePrint, boolean isField, ClassData classData,
