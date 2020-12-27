@@ -3,6 +3,7 @@ package org.testgen.core;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public final class ReflectionUtil {
 
@@ -19,6 +20,13 @@ public final class ReflectionUtil {
 
 	public static Class<?> forName(String className) {
 		return forName(className, Thread.currentThread().getContextClassLoader());
+	}
+
+	public static void checkForInterface(Class<?> clazz, Class<?> interfaceClass) {
+		if (!Arrays.stream(clazz.getInterfaces()).anyMatch(i -> interfaceClass.equals(i))) {
+			throw new IllegalArgumentException(
+					String.format("%s is a invalid implementation for %s", clazz, interfaceClass));
+		}
 	}
 
 	public static Constructor<?> getConstructor(Class<?> implementer, Class<?>... parameterTypes) {

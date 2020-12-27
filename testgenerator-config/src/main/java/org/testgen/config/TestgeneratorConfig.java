@@ -24,6 +24,8 @@ public final class TestgeneratorConfig {
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
 
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
+
+	private static final String PARAM_CUSTOM_NAMING_SERVICE_CLASS = "TestgeneratorCustomNamingServiceClass";
 	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
 
 	// Runtime-Properties
@@ -51,7 +53,9 @@ public final class TestgeneratorConfig {
 		System.setProperty(PARAM_PRINT_CLASS_FILE_DIR,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR)));
 		System.setProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS,
-				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_COSTUM_TESTGENERATOR_CLASS)));
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_TESTGENERATOR_CLASS)));
+		System.setProperty(PARAM_CUSTOM_NAMING_SERVICE_CLASS,
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_NAMING_SERVICE_CLASS)));
 		System.setProperty(PARAM_TRACE_READ_FIELD_ACCESS,
 				Boolean.toString(parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS)));
 
@@ -105,6 +109,12 @@ public final class TestgeneratorConfig {
 		return checkStringFilled(property) ? property : null;
 	}
 
+	public static String getCustomNamingServiceClass() {
+		String property = System.getProperty(PARAM_CUSTOM_NAMING_SERVICE_CLASS);
+
+		return checkStringFilled(property) ? property : null;
+	}
+
 	public static boolean traceReadFieldAccess() {
 		return Boolean.getBoolean(PARAM_TRACE_READ_FIELD_ACCESS);
 	}
@@ -149,6 +159,7 @@ public final class TestgeneratorConfig {
 				+ System.lineSeparator());
 		builder.append(PARAM_PRINT_CLASS_FILE_DIR + "=" + getPrintClassFileDirectory() + System.lineSeparator());
 		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomTestgeneratorClass() + System.lineSeparator());
+//		builder.append(PARAM_CUSTOM_NAMING_SERVICE_CLASS+ "=" + getN)
 		builder.append(PARAM_TRACE_READ_FIELD_ACCESS + "=" + traceReadFieldAccess() + System.lineSeparator());
 		builder.append(PARAM_RUNTIME_FIELD_TRACKING + "=" + isFieldTrackingActivated() + System.lineSeparator());
 		builder.append(PARAM_RUNTIME_PROXY_TRACKING + "=" + isProxyTrackingActivated() + System.lineSeparator());

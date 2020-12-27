@@ -8,7 +8,6 @@ import java.util.Set;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
-import org.testgen.runtime.generation.naming.NamingService;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 
@@ -36,7 +35,5 @@ public interface TestClassGeneration<T, E> {
 	CollectionGeneration<T, E> createCollectionGeneration();
 
 	ArrayGeneration<T, E> createArrayGeneration();
-
-	NamingService createNamingService();
 
 }

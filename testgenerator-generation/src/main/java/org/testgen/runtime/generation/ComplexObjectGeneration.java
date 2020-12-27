@@ -5,6 +5,7 @@ import java.util.Set;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.generation.naming.NamingService;
+import org.testgen.runtime.generation.naming.NamingServiceProvider;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 
 public interface ComplexObjectGeneration<T, E> extends FieldGeneration<T, ComplexBluePrint> {
@@ -25,7 +26,7 @@ public interface ComplexObjectGeneration<T, E> extends FieldGeneration<T, Comple
 	}
 
 	default NamingService getNamingService() {
-		return GenerationFactory.<T, E>getInstance().getNamingService();
+		return NamingServiceProvider.getNamingService();
 	}
 
 }

@@ -31,7 +31,7 @@ import org.testgen.runtime.generation.SimpleObjectGeneration;
 import org.testgen.runtime.generation.TestClassGeneration;
 import org.testgen.runtime.generation.Testgenerator;
 import org.testgen.runtime.generation.naming.NamingService;
-import org.testgen.runtime.generation.naming.impl.DefaultNamingService;
+import org.testgen.runtime.generation.naming.NamingServiceProvider;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -64,7 +64,7 @@ public class DefaultTestClassGeneration implements TestClassGeneration<Builder, 
 	private final CollectionGeneration<TypeSpec.Builder, CodeBlock.Builder> collectionGeneration = new DefaultCollectionGeneration();
 	private final ArrayGeneration<TypeSpec.Builder, CodeBlock.Builder> arrayGeneration = new DefaultArrayGeneration();
 	private final ComplexObjectGeneration<TypeSpec.Builder, CodeBlock.Builder> objectGeneration = new DefaultComplexObjectGeneration();
-	private final NamingService namingService = new DefaultNamingService();
+	private final NamingService namingService = NamingServiceProvider.getNamingService();
 
 	private String testObjectName;
 	private List<String> methodParameterNames = new ArrayList<>();
@@ -285,11 +285,6 @@ public class DefaultTestClassGeneration implements TestClassGeneration<Builder, 
 	@Override
 	public ArrayGeneration<Builder, CodeBlock.Builder> createArrayGeneration() {
 		return arrayGeneration;
-	}
-
-	@Override
-	public NamingService createNamingService() {
-		return namingService;
 	}
 
 }

@@ -48,9 +48,6 @@ public final class Testgenerator {
 		generationFactory.setCollectionGeneration(testGenerator.createCollectionGeneration());
 		generationFactory.setArrayGeneration(testGenerator.createArrayGeneration());
 
-		// TODO check possibility for lazy invokation of namingService, else NPE
-		generationFactory.setNamingService(testGenerator.createNamingService());
-
 		T compilationUnit = testGenerator.createTestClass(testClass);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();

@@ -3,6 +3,7 @@ package org.testgen.runtime.generation;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.generation.naming.NamingService;
+import org.testgen.runtime.generation.naming.NamingServiceProvider;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 
 public interface ArrayGeneration<T, E> extends FieldGeneration<T, ArrayBluePrint> {
@@ -28,6 +29,6 @@ public interface ArrayGeneration<T, E> extends FieldGeneration<T, ArrayBluePrint
 	}
 
 	default NamingService getNamingService() {
-		return GenerationFactory.<T, E>getInstance().getNamingService();
+		return NamingServiceProvider.getNamingService();
 	}
 }

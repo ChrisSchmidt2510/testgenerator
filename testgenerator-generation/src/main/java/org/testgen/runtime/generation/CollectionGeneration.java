@@ -4,6 +4,7 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.naming.NamingService;
+import org.testgen.runtime.generation.naming.NamingServiceProvider;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 
 public interface CollectionGeneration<T, E> extends FieldGeneration<T, AbstractBasicCollectionBluePrint<?>> {
@@ -30,7 +31,7 @@ public interface CollectionGeneration<T, E> extends FieldGeneration<T, AbstractB
 	}
 
 	default NamingService getNamingService() {
-		return GenerationFactory.<T, E>getInstance().getNamingService();
+		return NamingServiceProvider.getNamingService();
 	}
 
 }

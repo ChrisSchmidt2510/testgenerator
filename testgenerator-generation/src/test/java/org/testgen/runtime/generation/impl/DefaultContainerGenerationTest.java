@@ -9,8 +9,6 @@ import org.testgen.runtime.generation.ComplexObjectGeneration;
 import org.testgen.runtime.generation.GenerationFactory;
 import org.testgen.runtime.generation.javapoet.impl.DefaultArrayGeneration;
 import org.testgen.runtime.generation.javapoet.impl.DefaultComplexObjectGeneration;
-import org.testgen.runtime.generation.naming.NamingService;
-import org.testgen.runtime.generation.naming.impl.DefaultNamingService;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
 
@@ -26,10 +24,8 @@ public class DefaultContainerGenerationTest {
 
 		GenerationFactory<TypeSpec.Builder, Builder> generationFactory = GenerationFactory.getInstance();
 
-		NamingService namingService = new DefaultNamingService();
 		ComplexObjectGeneration<TypeSpec.Builder, Builder> complexObjectGenerator = new DefaultComplexObjectGeneration();
 
-		generationFactory.setNamingService(namingService);
 		generationFactory.setComplexObjectGeneration(complexObjectGenerator);
 
 		containerGenerator = new DefaultArrayGeneration();
