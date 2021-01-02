@@ -13,6 +13,8 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
+import org.testgen.runtime.generation.api.GenerationFactory;
+import org.testgen.runtime.generation.api.TestClassGeneration;
 import org.testgen.runtime.generation.javapoet.impl.DefaultTestClassGeneration;
 import org.testgen.runtime.generation.javapoet.impl.TestGenerationHelper;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -33,20 +35,23 @@ public final class Testgenerator {
 	 * 
 	 * @Param Name der Methode fuer die ein Testfall erstellt wird
 	 */
-	public static <T, E> void generate(Class<?> testClass, String method, List<DescriptorType> methodParameterTypes) {
+	public static <T, E, S> void generate(Class<?> testClass, String method,
+			List<DescriptorType> methodParameterTypes) {
 		LOGGER.info("Starting test-generation");
 		TestgeneratorConfig.setFieldTracking(false);
 		TestgeneratorConfig.setProxyTracking(false);
 		boolean trackingActivated = TestgeneratorConfig.traceReadFieldAccess();
 
-		TestClassGeneration<T, E> testGenerator = getTestClassGenerationImplementation();
+		TestClassGeneration<T, E, S> testGenerator = getTestClassGenerationImplementation();
 
-		GenerationFactory<T, E> generationFactory = GenerationFactory.getInstance();
+		GenerationFactory<T, E, S> generationFactory = GenerationFactory.getInstance();
 		generationFactory.setComplexObjectGeneration(testGenerator.createComplexObjectGeneration());
-		generationFactory.setSimpleObjectGeneration(testGenerator.createSimpleObjectGeneration());
+//		generationFactory.setSimpleObjectGenerationFactory(testGenerator.createSimpleObjectGeneration());
 
-		generationFactory.setCollectionGeneration(testGenerator.createCollectionGeneration());
+//		generationFactory.setCollectionGenerationFactory(testGenerator.createCollectionGeneration());
 		generationFactory.setArrayGeneration(testGenerator.createArrayGeneration());
+
+		generationFactory.setImportCallBackHandler(testGenerator.importCallBackHandler());
 
 		T compilationUnit = testGenerator.createTestClass(testClass);
 
@@ -75,7 +80,7 @@ public final class Testgenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T, E> TestClassGeneration<T, E> getTestClassGenerationImplementation() {
+	private static <T, E, S> TestClassGeneration<T, E, S> getTestClassGenerationImplementation() {
 		String costumTestgeneratorClass = TestgeneratorConfig.getCustomTestgeneratorClass();
 
 		if (costumTestgeneratorClass != null) {
@@ -91,10 +96,10 @@ public final class Testgenerator {
 						costumTestgeneratorClass + "is a invalid implementation. Defaultconstructor is needed");
 			}
 
-			return (TestClassGeneration<T, E>) ReflectionUtil.newInstance(costumTestgenerator);
+			return (TestClassGeneration<T, E, S>) ReflectionUtil.newInstance(costumTestgenerator);
 		}
 
-		return (TestClassGeneration<T, E>) new DefaultTestClassGeneration();
+		return (TestClassGeneration<T, E, S>) new DefaultTestClassGeneration();
 	}
 
 }

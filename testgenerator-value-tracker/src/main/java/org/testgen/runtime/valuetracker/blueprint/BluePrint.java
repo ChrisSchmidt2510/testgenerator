@@ -8,6 +8,10 @@ public interface BluePrint {
 
 	Object getReference();
 
+	Class<?> getReferenceClass();
+
+	String getSimpleClassName();
+
 	String getClassNameOfReference();
 
 	String getName();
@@ -22,10 +26,6 @@ public interface BluePrint {
 
 	default boolean isCollectionBluePrint() {
 		return this instanceof AbstractBasicCollectionBluePrint<?>;
-	}
-
-	default boolean isContainerBluePrint() {
-		return this instanceof AbstractBasicCollectionBluePrint<?> || this instanceof ArrayBluePrint;
 	}
 
 	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {

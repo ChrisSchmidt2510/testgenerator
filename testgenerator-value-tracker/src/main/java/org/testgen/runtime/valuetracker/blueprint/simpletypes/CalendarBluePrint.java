@@ -1,12 +1,22 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
+import java.util.function.BiFunction;
 
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
 
-public class CalendarBluePrint extends SimpleBluePrint<Calendar> {
+public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements DateBluePrint, TimeBluePrint {
+	private int year;
+	private int month;
+	private int day;
+
+	private int hour;
+	private int minute;
+	private int second;
 
 	CalendarBluePrint(String fieldName, Calendar value) {
 		super(fieldName, value);
@@ -14,14 +24,65 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> {
 
 	@Override
 	protected String createValue(Calendar value) {
-		return "new $T(" + value.get(Calendar.YEAR) + ", " + (value.get(Calendar.MONTH) + 1) + "-1, "
-				+ value.get(Calendar.DAY_OF_MONTH) + ", " + value.get(Calendar.HOUR_OF_DAY) + ", "
-				+ value.get(Calendar.MINUTE) + ", " + value.get(Calendar.SECOND) + ")";
+		year = value.get(Calendar.YEAR);
+		month = value.get(Calendar.MONTH);
+		day = value.get(Calendar.DAY_OF_MONTH);
+
+		hour = value.get(Calendar.HOUR_OF_DAY);
+		minute = value.get(Calendar.MINUTE);
+		second = value.get(Calendar.SECOND);
+
+		return null;
 	}
 
 	@Override
-	public List<Class<?>> getReferenceClasses() {
-		return Arrays.asList(value.getClass());
+	public int getDay() {
+		return day;
+	}
+
+	@Override
+	public int getMonth() {
+		return month;
+	}
+
+	@Override
+	public int getYear() {
+		return year;
+	}
+
+	@Override
+	public int getHour() {
+		return hour;
+	}
+
+	@Override
+	public int getMinute() {
+		return minute;
+	}
+
+	@Override
+	public int getSecond() {
+		return second;
+	}
+
+	public static class CalendarBluePrintFactory implements BluePrintFactory {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value instanceof Calendar;
+		}
+
+		@Override
+		public BluePrint createBluePrint(String name, Object value,
+				BiFunction<String, Object, BluePrint> childCallBack) {
+			return new CalendarBluePrint(name, (Calendar) value);
+		}
+
+		@Override
+		public boolean createsSimpleBluePrint() {
+			return true;
+		}
+
 	}
 
 }

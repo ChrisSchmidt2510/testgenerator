@@ -1,10 +1,8 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -15,23 +13,23 @@ public class NumberBluePrintTest {
 		NumberBluePrint integerBp = new NumberBluePrint("integer", 3);
 
 		assertEquals("3", integerBp.valueCreation());
-		assertTrue(integerBp.getReferenceClasses().isEmpty());
+		assertEquals(Integer.class, integerBp.getReferenceClass());
 	}
 
 	@Test
 	public void testValueCreationByte() {
 		NumberBluePrint byteBp = new NumberBluePrint("byte", (byte) 126);
 
-		assertEquals("(byte)126", byteBp.valueCreation());
-		assertTrue(byteBp.getReferenceClasses().isEmpty());
+		assertEquals("126", byteBp.valueCreation());
+		assertEquals(Byte.class, byteBp.getReferenceClass());
 	}
 
 	@Test
 	public void testValueCreationShort() {
 		NumberBluePrint shortBp = new NumberBluePrint("short", (short) 512);
 
-		assertEquals("(short)512", shortBp.valueCreation());
-		assertTrue(shortBp.getReferenceClasses().isEmpty());
+		assertEquals("512", shortBp.valueCreation());
+		assertEquals(Short.class, shortBp.getReferenceClass());
 	}
 
 	@Test
@@ -39,7 +37,7 @@ public class NumberBluePrintTest {
 		NumberBluePrint floatBp = new NumberBluePrint("float", 5.12f);
 
 		assertEquals("5.12f", floatBp.valueCreation());
-		assertTrue(floatBp.getReferenceClasses().isEmpty());
+		assertEquals(Float.class, floatBp.getReferenceClass());
 	}
 
 	@Test
@@ -47,23 +45,24 @@ public class NumberBluePrintTest {
 		NumberBluePrint doubleBp = new NumberBluePrint("double", 5.1278);
 
 		assertEquals("5.1278", doubleBp.valueCreation());
-		assertTrue(doubleBp.getReferenceClasses().isEmpty());
+		assertEquals(Double.class, doubleBp.getReferenceClass());
 	}
 
 	@Test
 	public void testValueCreationLong() {
 		NumberBluePrint longBp = new NumberBluePrint("long", 1_000_000L);
 
-		assertEquals("1000000L", longBp.valueCreation());
-		assertTrue(longBp.getReferenceClasses().isEmpty());
+		assertEquals("1000000", longBp.valueCreation());
+		assertEquals(Long.class, longBp.getReferenceClass());
 	}
 
 	@Test
 	public void testValueCreationBigDecimal() {
 		NumberBluePrint bigDecimalBp = new NumberBluePrint("BigDecimal", new BigDecimal("10.005"));
 
-		assertEquals("$T.valueOf(10.005).setScale(3)", bigDecimalBp.valueCreation());
-		assertEquals(Arrays.asList(BigDecimal.class), bigDecimalBp.getReferenceClasses());
+		assertEquals("10.005", bigDecimalBp.valueCreation());
+		assertEquals(3, bigDecimalBp.getBigDecimalScale());
+		assertEquals(BigDecimal.class, bigDecimalBp.getReferenceClass());
 	}
 
 }

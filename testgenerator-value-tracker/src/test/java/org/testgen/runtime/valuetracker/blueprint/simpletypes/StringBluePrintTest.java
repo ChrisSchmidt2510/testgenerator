@@ -9,7 +9,7 @@ public class StringBluePrintTest {
 	public void testValueCreation() {
 		StringBluePrint stringBp = new StringBluePrint("string", "testgenerator");
 
-		Assert.assertEquals("\"testgenerator\"", stringBp.valueCreation());
-		Assert.assertTrue(stringBp.getReferenceClasses().isEmpty());
+		Assert.assertEquals("testgenerator", stringBp.valueCreation());
+		Assert.assertEquals(String.class, stringBp.getReferenceClass());
 	}
 }

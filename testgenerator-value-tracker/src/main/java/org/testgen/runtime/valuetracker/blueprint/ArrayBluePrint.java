@@ -1,7 +1,9 @@
 package org.testgen.runtime.valuetracker.blueprint;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	private final BluePrint[] elements;
@@ -62,6 +64,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 		return true;
 	}
 
+	@Override
 	public void resetBuildState() {
 		if (build) {
 			build = false;
@@ -92,6 +95,35 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	@Override
 	public String toString() {
 		return value.getClass().getTypeName() + " " + name;
+	}
+
+	public static class ArrayBluePrintFactory implements BluePrintFactory {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value.getClass().isArray();
+		}
+
+		@Override
+		public BluePrint createBluePrint(String name, Object value,
+				BiFunction<String, Object, BluePrint> childCallBack) {
+			int length = Array.getLength(value);
+
+			ArrayBluePrint arrayBluePrint = new ArrayBluePrint(name, value, length);
+
+			for (int i = 0; i < length; i++) {
+				Object element = Array.get(value, i);
+
+				if (element != null) {
+
+					BluePrint bluePrint = childCallBack.apply(name + "Element", element);
+					arrayBluePrint.add(i, bluePrint);
+				}
+			}
+
+			return arrayBluePrint;
+		}
+
 	}
 
 }

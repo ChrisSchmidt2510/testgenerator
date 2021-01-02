@@ -7,12 +7,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-
-import java.util.Objects;
-import java.util.Set;
+import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 
 public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 	private List<BluePrint> keyBluePrints = new ArrayList<>();
@@ -37,6 +38,7 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 		return keyBluePrints;
 	}
 
+	@Override
 	public void resetBuildState() {
 		if (build) {
 			build = false;
@@ -56,6 +58,32 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 		}
 
 		return Collections.unmodifiableSet(set);
+	}
+
+	public static class MapBluePrintFactory implements BluePrintFactory {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value instanceof Map<?, ?>;
+		}
+
+		@Override
+		public BluePrint createBluePrint(String name, Object value,
+				BiFunction<String, Object, BluePrint> childCallBack) {
+			Map<?, ?> map = (Map<?, ?>) value;
+
+			MapBluePrint mapBluePrint = new MapBluePrint(name, map);
+
+			for (Entry<?, ?> entry : map.entrySet()) {
+				BluePrint keyBluePrint = childCallBack.apply(name + "Key", entry.getKey());
+				BluePrint valueBluePrint = childCallBack.apply(name + "Value", entry.getValue());
+
+				mapBluePrint.addKeyValuePair(keyBluePrint, valueBluePrint);
+			}
+
+			return mapBluePrint;
+		}
+
 	}
 
 }

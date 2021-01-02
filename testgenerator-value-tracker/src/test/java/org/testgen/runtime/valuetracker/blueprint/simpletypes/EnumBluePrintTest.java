@@ -13,6 +13,6 @@ public class EnumBluePrintTest {
 	public void testValueCreation() {
 		EnumBluePrint enumBp = new EnumBluePrint("enum", Sample.ANOTHER_TYPE);
 
-		Assert.assertEquals("$T.ANOTHER_TYPE", enumBp.valueCreation());
+		Assert.assertEquals("ANOTHER_TYPE", enumBp.valueCreation());
 	}
 }

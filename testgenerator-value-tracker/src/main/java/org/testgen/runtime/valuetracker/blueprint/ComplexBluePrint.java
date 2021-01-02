@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.testgen.runtime.valuetracker.blueprint.simpletypes.SimpleBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 
 public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
@@ -21,8 +21,10 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 	}
 
 	public BluePrint getBluePrintForName(String fieldName) {
+		NullBluePrintFactory nullFactory = new NullBluePrintFactory();
+
 		return bluePrints.stream().filter(bp -> fieldName.equals(bp.getName())).findAny()
-				.orElse(SimpleBluePrintFactory.of(fieldName, null));
+				.orElse(nullFactory.createBluePrint(fieldName, null, null));
 	}
 
 	public void addBluePrint(BluePrint bluePrint) {
@@ -33,6 +35,7 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 		return Collections.unmodifiableList(bluePrints);
 	}
 
+	@Override
 	public void resetBuildState() {
 		if (build) {
 			build = false;

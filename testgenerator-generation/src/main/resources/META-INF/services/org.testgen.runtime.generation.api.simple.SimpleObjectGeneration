@@ -1,0 +1,11 @@
+org.testgen.runtime.generation.javaparser.impl.simple.BooleanObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.CalendarObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.CharacterObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.ClassObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.DateObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.EnumObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.LocalDateTimeObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.NullObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.NumberObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.StringObjectGeneration
+org.testgen.runtime.generation.javaparser.impl.simple.XmlGregorianCalendarObjectGeneration
