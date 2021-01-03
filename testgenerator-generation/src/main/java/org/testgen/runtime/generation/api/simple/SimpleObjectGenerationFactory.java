@@ -4,6 +4,10 @@ import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 
 public interface SimpleObjectGenerationFactory<T, E, S> {
 
-	public SimpleObjectGeneration<T, E, S> of(SimpleBluePrint<?> bluePrint);
+	public void createField(T compilationUnit, SimpleBluePrint<?> bluePrint, boolean withInitalizer);
+
+	public void createObject(E statementTree, SimpleBluePrint<?> bluePrint, boolean isField);
+
+	public S createInlineObject(SimpleBluePrint<?> bluePrint);
 
 }

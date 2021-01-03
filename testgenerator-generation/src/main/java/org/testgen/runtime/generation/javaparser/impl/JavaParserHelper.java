@@ -1,7 +1,8 @@
 package org.testgen.runtime.generation.javaparser.impl;
 
-import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
@@ -23,10 +24,23 @@ public class JavaParserHelper {
 		return new IntegerLiteralExpr(Integer.toString(value));
 	}
 
-	public static Type mapToType(BluePrint bluePrint) {
-		ClassOrInterfaceType type = new ClassOrInterfaceType(null, bluePrint.getSimpleClassName());
+	public static ClassOrInterfaceType generateGenericSignature(SignatureType signature) {
 
-		return type.isBoxedType() ? type.toUnboxedType() : type;
+		if (signature.isSimpleSignature())
+			return new ClassOrInterfaceType(null, signature.getType().getSimpleName());
+
+		else {
+			ClassOrInterfaceType baseType = new ClassOrInterfaceType(null, signature.getType().getSimpleName());
+
+			NodeList<Type> typeArguments = new NodeList<>();
+
+			for (SignatureType subSignature : signature.getSubTypes()) {
+				typeArguments.add(generateGenericSignature(subSignature));
+			}
+
+			baseType.setTypeArguments(typeArguments);
+			return baseType;
+		}
 	}
 
 }

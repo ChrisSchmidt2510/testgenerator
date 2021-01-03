@@ -25,7 +25,6 @@ public class JavaParserSimpleObjectGenerationFactory
 		loader.forEach(generators::add);
 	}
 
-	@Override
 	public SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> of(SimpleBluePrint<?> bluePrint) {
 		Optional<SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression>> optional = generators
 				.stream().filter(gen -> gen.canGenerateBluePrint(bluePrint)).findAny();
@@ -35,6 +34,28 @@ public class JavaParserSimpleObjectGenerationFactory
 		}
 
 		throw new IllegalArgumentException("cant generate BluePrint " + bluePrint);
+	}
+
+	@Override
+	public void createField(ClassOrInterfaceDeclaration compilationUnit, SimpleBluePrint<?> bluePrint,
+			boolean withInitalizer) {
+		SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		generator.createField(compilationUnit, bluePrint, withInitalizer);
+	}
+
+	@Override
+	public void createObject(BlockStmt statementTree, SimpleBluePrint<?> bluePrint, boolean isField) {
+		SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		generator.createObject(statementTree, bluePrint, isField);
+	}
+
+	@Override
+	public Expression createInlineObject(SimpleBluePrint<?> bluePrint) {
+		SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		return generator.createInlineObject(bluePrint);
 	}
 
 }

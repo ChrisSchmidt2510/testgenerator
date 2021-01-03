@@ -1,4 +1,4 @@
-package org.testgen.runtime.generation.javaparser.impl.simpleGeneration;
+package org.testgen.runtime.generation.javaparser.impl.simple;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.LocalDateTimeObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateBluePrint.LocalDateBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateTimeBluePrint.LocalDateTimeBluePrintFactory;

@@ -1,4 +1,4 @@
-package org.testgen.runtime.generation.javaparser.impl.simpleGeneration;
+package org.testgen.runtime.generation.javaparser.impl.simple;
 
 import static org.junit.Assert.fail;
 
@@ -13,18 +13,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.generation.javaparser.impl.simple.BooleanObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.CalendarObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.ClassObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.DateObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.EnumObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
-import org.testgen.runtime.generation.javaparser.impl.simple.LocalDateTimeObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.NullObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.NumberObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.StringObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.XmlGregorianCalendarObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.BooleanBluePrint.BooleanBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.CalendarBluePrint.CalendarBluePrintFactory;
@@ -38,13 +26,9 @@ import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.Nu
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBluePrint.XMLGregorianCalendarBluePrintFactory;
 
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.stmt.BlockStmt;
-
 public class JavaParserSimpleObjectGenerationFactoryTest {
 
-	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> factory = new JavaParserSimpleObjectGenerationFactory();
+	private JavaParserSimpleObjectGenerationFactory factory = new JavaParserSimpleObjectGenerationFactory();
 
 	@Test
 	public void testSimpleGenerationBoolean() {

@@ -2,9 +2,6 @@ package org.testgen.runtime.generation.api.collections;
 
 import java.util.function.Consumer;
 
-import org.testgen.runtime.classdata.model.FieldData;
-import org.testgen.runtime.classdata.model.SetterMethodData;
-import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
 import org.testgen.runtime.generation.api.FieldGeneration;
@@ -14,19 +11,10 @@ import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 
-public interface CollectionGeneration<T, E, S> extends FieldGeneration<T, AbstractBasicCollectionBluePrint<?>> {
+public interface CollectionGeneration<T, E, S>
+		extends FieldGeneration<T, AbstractBasicCollectionBluePrint<?>>, CollectionGenerationFactory<T, E, S> {
 
 	boolean canGenerateBluePrint(AbstractBasicCollectionBluePrint<?> bluePrint);
-
-	void createCollection(E statementTree, AbstractBasicCollectionBluePrint<?> basicCollectionBP, //
-			SignatureType signature, boolean onlyCreateCollectionElements, boolean isField);
-
-	void addCollectionToObject(E statementTree, AbstractBasicCollectionBluePrint<?> collectionBP,
-			SetterMethodData setter, //
-			String objectName);
-
-	void addCollectionToObject(E statementTree, AbstractBasicCollectionBluePrint<?> collectionBP, FieldData field,
-			String objectName);
 
 	default SimpleObjectGenerationFactory<T, E, S> getSimpleObjectGenerationFactory() {
 		return GenerationFactory.<T, E, S>getInstance().getSimpleObjectGenerationFactory();

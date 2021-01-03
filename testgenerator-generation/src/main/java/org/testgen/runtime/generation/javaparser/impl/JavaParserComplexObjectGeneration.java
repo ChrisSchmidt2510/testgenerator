@@ -20,11 +20,9 @@ import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
 import org.testgen.runtime.generation.api.GenerationHelper;
-import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
-import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
@@ -103,9 +101,8 @@ public class JavaParserComplexObjectGeneration
 						if (constructorFieldBp.isSimpleBluePrint()) {
 							SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
 
-							SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerator = simpleObjectGenerationFactory
-									.of(simpleBluePrint);
-							Expression inlinedSimpleObject = simpleGenerator.createInlineObject(simpleBluePrint);
+							Expression inlinedSimpleObject = simpleObjectGenerationFactory
+									.createInlineObject(simpleBluePrint);
 
 							arguments.add(inlinedSimpleObject);
 						} else {
@@ -178,10 +175,7 @@ public class JavaParserComplexObjectGeneration
 						setter = classData.getSetterInHierarchie(field);
 					}
 
-					CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionFactory = collectionGenerationFactory
-							.of(collection);
-
-					collectionFactory.createCollection(code, collection, signature,
+					collectionGenerationFactory.createCollection(code, collection, signature,
 							setter != null && SetterType.COLLECTION_SETTER == setter.getType(), false);
 				} else if (bp.isArrayBluePrint()) {
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();

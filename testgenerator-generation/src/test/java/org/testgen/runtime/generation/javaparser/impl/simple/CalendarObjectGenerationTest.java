@@ -1,4 +1,4 @@
-package org.testgen.runtime.generation.javaparser.impl.simpleGeneration;
+package org.testgen.runtime.generation.javaparser.impl.simple;
 
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
-import org.testgen.runtime.generation.javaparser.impl.simple.CalendarObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.CalendarBluePrint.CalendarBluePrintFactory;
 
