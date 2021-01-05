@@ -44,7 +44,7 @@ public class StringObjectGenerationTest {
 
 	@Test
 	public void testCreateField() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "Word", null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "Word");
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -58,7 +58,7 @@ public class StringObjectGenerationTest {
 
 	@Test
 	public void testCreateObject() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "foo", null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "foo");
 
 		BlockStmt block = new BlockStmt();
 
@@ -71,7 +71,7 @@ public class StringObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObject() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "This is a test", null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "This is a test");
 
 		Assert.assertEquals("\"This is a test\"", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}

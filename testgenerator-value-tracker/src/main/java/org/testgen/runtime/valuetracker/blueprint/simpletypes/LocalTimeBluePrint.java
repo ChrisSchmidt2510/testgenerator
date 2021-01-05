@@ -1,11 +1,9 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.time.LocalTime;
-import java.util.function.BiFunction;
 
-import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
 
 public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements TimeBluePrint {
@@ -43,7 +41,7 @@ public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements Ti
 		return second;
 	}
 
-	public static class LocalTimeBluePrintFactory implements BluePrintFactory {
+	public static class LocalTimeBluePrintFactory implements SimpleBluePrintFactory {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -51,14 +49,8 @@ public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements Ti
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
 			return new LocalTimeBluePrint(name, (LocalTime) value);
-		}
-
-		@Override
-		public boolean createsSimpleBluePrint() {
-			return true;
 		}
 
 	}

@@ -1,12 +1,10 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.time.LocalDate;
-import java.util.function.BiFunction;
 
-import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 
 public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements DateBluePrint {
 	private int year;
@@ -41,7 +39,7 @@ public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements Da
 		return year;
 	}
 
-	public static class LocalDateBluePrintFactory implements BluePrintFactory {
+	public static class LocalDateBluePrintFactory implements SimpleBluePrintFactory {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -49,14 +47,8 @@ public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements Da
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
 			return new LocalDateBluePrint(name, (LocalDate) value);
-		}
-
-		@Override
-		public boolean createsSimpleBluePrint() {
-			return true;
 		}
 
 	}

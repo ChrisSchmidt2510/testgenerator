@@ -1,12 +1,10 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.util.Calendar;
-import java.util.function.BiFunction;
 
-import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
 
 public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements DateBluePrint, TimeBluePrint {
@@ -65,7 +63,7 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements Date
 		return second;
 	}
 
-	public static class CalendarBluePrintFactory implements BluePrintFactory {
+	public static class CalendarBluePrintFactory implements SimpleBluePrintFactory {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -73,14 +71,8 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements Date
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
 			return new CalendarBluePrint(name, (Calendar) value);
-		}
-
-		@Override
-		public boolean createsSimpleBluePrint() {
-			return true;
 		}
 
 	}

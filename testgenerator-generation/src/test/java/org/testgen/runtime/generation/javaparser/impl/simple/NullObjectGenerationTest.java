@@ -48,7 +48,7 @@ public class NullObjectGenerationTest {
 		PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
 		config.setPrintJavadoc(false);
 
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -62,7 +62,7 @@ public class NullObjectGenerationTest {
 
 	@Test
 	public void testCreateObject() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
 		BlockStmt block = new BlockStmt();
 
@@ -82,7 +82,7 @@ public class NullObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObject() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
 		Assert.assertEquals("null", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}

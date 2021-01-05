@@ -26,6 +26,8 @@ public class CalendarObjectGenerationTest {
 
 	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
 
+	private CalendarBluePrintFactory factory = new CalendarBluePrintFactory();
+
 	@Before
 	public void init() {
 		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
@@ -43,10 +45,7 @@ public class CalendarObjectGenerationTest {
 
 	@Test
 	public void testCreateField() {
-		CalendarBluePrintFactory factory = new CalendarBluePrintFactory();
-
-		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -63,10 +62,7 @@ public class CalendarObjectGenerationTest {
 
 	@Test
 	public void testCreateObject() {
-		CalendarBluePrintFactory factory = new CalendarBluePrintFactory();
-
-		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25));
 
 		BlockStmt block = new BlockStmt();
 
@@ -81,23 +77,18 @@ public class CalendarObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObject() {
-		CalendarBluePrintFactory factory = new CalendarBluePrintFactory();
-
-		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25));
 
 		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25)",
 				simpleObjectGeneration.createInlineObject(dateBp).toString());
 
-		SimpleBluePrint<?> dateTimeBp = factory
-				.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25, 12, 17), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> dateTimeBp = factory.createBluePrint("calendar",
+				new GregorianCalendar(2020, 10 - 1, 25, 12, 17));
 		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17)",
 				simpleObjectGeneration.createInlineObject(dateTimeBp).toString());
 
-		SimpleBluePrint<?> dateTimeWithSecondsBp = factory
-				.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> dateTimeWithSecondsBp = factory.createBluePrint("calendar",
+				new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35));
 		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35)",
 				simpleObjectGeneration.createInlineObject(dateTimeWithSecondsBp).toString());
 

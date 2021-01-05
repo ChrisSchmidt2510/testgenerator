@@ -45,7 +45,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldInteger() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 7, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 7);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -59,7 +59,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldByte() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (byte) 127, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (byte) 127);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -73,7 +73,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldShort() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (short) 255, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (short) 255);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -87,7 +87,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldFloat() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 10.15f, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 10.15f);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -101,7 +101,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldDouble() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 35.49872, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 35.49872);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -115,7 +115,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldLong() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 5_000_000L, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 5_000_000L);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -129,8 +129,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldBigDecimal() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", BigDecimal.ONE.setScale(3), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", BigDecimal.ONE.setScale(3));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -145,7 +144,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectInteger() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 312, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 312);
 
 		BlockStmt block = new BlockStmt();
 
@@ -158,7 +157,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectByte() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (byte) 15, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (byte) 15);
 
 		BlockStmt block = new BlockStmt();
 
@@ -171,7 +170,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectShort() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (short) 113, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", (short) 113);
 
 		BlockStmt block = new BlockStmt();
 
@@ -184,7 +183,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectFloat() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 170.837f, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 170.837f);
 
 		BlockStmt block = new BlockStmt();
 
@@ -197,7 +196,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectDouble() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 35.49872, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 35.49872);
 
 		BlockStmt block = new BlockStmt();
 
@@ -210,7 +209,7 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectLong() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 987654321L, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", 987654321L);
 
 		BlockStmt block = new BlockStmt();
 
@@ -223,9 +222,8 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectBigDecimal() {
-		SimpleBluePrint<?> bluePrint = factory
-				.createBluePrint("value", BigDecimal.valueOf(799663.33333333).setScale(8), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value",
+				BigDecimal.valueOf(799663.33333333).setScale(8));
 
 		BlockStmt block = new BlockStmt();
 
@@ -240,50 +238,49 @@ public class NumberObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObjectInteger() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Integer", 25, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Integer", 25);
 
 		Assert.assertEquals("25", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectByte() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Byte", (byte) 127, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Byte", (byte) 127);
 
 		Assert.assertEquals("(byte) 127", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectShort() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("short", (short) 255, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("short", (short) 255);
 
 		Assert.assertEquals("(short) 255", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectFloat() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("float", 5.12f, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("float", 5.12f);
 
 		Assert.assertEquals("5.12f", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectDouble() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("double", 5.1872, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("double", 5.1872);
 
 		Assert.assertEquals("5.1872", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectLong() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("long", 1_000_000L, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("long", 1_000_000L);
 
 		Assert.assertEquals("1000000L", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectBigDecimal() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("BigDecimal", BigDecimal.TEN.setScale(3), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("BigDecimal", BigDecimal.TEN.setScale(3));
 
 		Assert.assertEquals("BigDecimal.valueOf(10.0).setScale(3)",
 				simpleObjectGeneration.createInlineObject(bluePrint).toString());

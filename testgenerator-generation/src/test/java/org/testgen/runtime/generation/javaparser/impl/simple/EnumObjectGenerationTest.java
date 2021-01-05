@@ -44,7 +44,7 @@ public class EnumObjectGenerationTest {
 
 	@Test
 	public void testCreateField() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.DECEMBER, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.DECEMBER);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -58,7 +58,7 @@ public class EnumObjectGenerationTest {
 
 	@Test
 	public void testCreateObject() {
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.JULY, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.JULY);
 
 		BlockStmt block = new BlockStmt();
 
@@ -72,7 +72,7 @@ public class EnumObjectGenerationTest {
 	@Test
 	public void testCreateInlineObject() {
 
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.JANUARY, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.JANUARY);
 
 		Assert.assertEquals("Month.JANUARY", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 		Assert.assertTrue(imports.contains(Month.class));

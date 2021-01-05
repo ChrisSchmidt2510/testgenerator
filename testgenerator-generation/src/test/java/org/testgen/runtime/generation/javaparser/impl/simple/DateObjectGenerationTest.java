@@ -26,6 +26,8 @@ public class DateObjectGenerationTest {
 
 	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
 
+	private JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
+
 	@Before
 	public void init() {
 		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
@@ -44,10 +46,8 @@ public class DateObjectGenerationTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateFieldSqlDate() {
-		JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
 
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -66,10 +66,7 @@ public class DateObjectGenerationTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateFieldDate() {
-		JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -88,10 +85,7 @@ public class DateObjectGenerationTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateObjectSqlDate() {
-		JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25));
 
 		BlockStmt block = new BlockStmt();
 
@@ -109,10 +103,7 @@ public class DateObjectGenerationTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateObjectDate() {
-		JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24));
 
 		BlockStmt block = new BlockStmt();
 
@@ -128,10 +119,7 @@ public class DateObjectGenerationTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateInlineObjectSqlDate() {
-		JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25));
 
 		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 25)",
 				simpleObjectGeneration.createInlineObject(bluePrint).toString());
@@ -141,21 +129,17 @@ public class DateObjectGenerationTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateInlineObjectDate() {
-		JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24));
 
 		Assert.assertEquals("new Date(2020 - 1900, 12 - 1, 24)",
 				simpleObjectGeneration.createInlineObject(bluePrint).toString());
 
-		SimpleBluePrint<?> dateTime = factory.createBluePrint("date", new Date(2020 - 1900, 10 - 1, 31, 7, 8), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> dateTime = factory.createBluePrint("date", new Date(2020 - 1900, 10 - 1, 31, 7, 8));
 		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8)",
 				simpleObjectGeneration.createInlineObject(dateTime).toString());
 
-		SimpleBluePrint<?> dateTimeWithSeconds = factory
-				.createBluePrint("date", new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55), null).castToSimpleBluePrint();
+		SimpleBluePrint<?> dateTimeWithSeconds = factory.createBluePrint("date",
+				new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55));
 		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55)",
 				simpleObjectGeneration.createInlineObject(dateTimeWithSeconds).toString());
 

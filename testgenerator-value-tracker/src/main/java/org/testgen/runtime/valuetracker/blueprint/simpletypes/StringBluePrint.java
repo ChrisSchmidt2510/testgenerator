@@ -1,10 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
-import java.util.function.BiFunction;
-
-import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 
 public class StringBluePrint extends SimpleBluePrint<String> {
 
@@ -17,7 +14,7 @@ public class StringBluePrint extends SimpleBluePrint<String> {
 		return value;
 	}
 
-	public static class StringBluePrintFactory implements BluePrintFactory {
+	public static class StringBluePrintFactory implements SimpleBluePrintFactory {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -25,14 +22,8 @@ public class StringBluePrint extends SimpleBluePrint<String> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
 			return new StringBluePrint(name, (String) value);
-		}
-
-		@Override
-		public boolean createsSimpleBluePrint() {
-			return true;
 		}
 
 	}

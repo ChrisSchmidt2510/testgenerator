@@ -54,7 +54,7 @@ public abstract class DefaultCollectionGeneration
 			AbstractBasicCollectionBluePrint<?> collection = child.castToCollectionBluePrint();
 
 			collectionGenerationFactory.createCollection(statementTree, collection, signature, //
-					false, ValueStorage.getInstance().getMethodParameters().contains(child));
+					ValueStorage.getInstance().getMethodParameters().contains(child));
 
 		} else if (child.isArrayBluePrint() && child.isNotBuild()) {
 			arrayGeneration.createArray(statementTree, child.castToArrayBluePrint(), false,

@@ -162,21 +162,17 @@ public class JavaParserComplexObjectGeneration
 				} else if (bp.isCollectionBluePrint()) {
 					AbstractBasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
 
-					SetterMethodData setter = null;
 					SignatureType signature = null;
 					if (TestgeneratorConfig.traceReadFieldAccess()) {
 						FieldData field = classData.getFieldInHierarchie(calledField.get());
 						signature = field.getSignature();
-						setter = classData.getSetterInHierarchie(field);
 
 					} else {
 						FieldData field = classData.getCollectionFieldInHierarchie(collection.getName());
 						signature = field.getSignature();
-						setter = classData.getSetterInHierarchie(field);
 					}
 
-					collectionGenerationFactory.createCollection(code, collection, signature,
-							setter != null && SetterType.COLLECTION_SETTER == setter.getType(), false);
+					collectionGenerationFactory.createCollection(code, collection, signature, false);
 				} else if (bp.isArrayBluePrint()) {
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();
 

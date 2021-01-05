@@ -1,11 +1,9 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.math.BigDecimal;
-import java.util.function.BiFunction;
 
-import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 
 public class NumberBluePrint extends SimpleBluePrint<Number> {
 	private int bigDecimalScale;
@@ -41,7 +39,7 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 		return bigDecimalScale;
 	}
 
-	public static class NumberBluePrintFactory implements BluePrintFactory {
+	public static class NumberBluePrintFactory implements SimpleBluePrintFactory {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -49,14 +47,8 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
 			return new NumberBluePrint(name, (Number) value);
-		}
-
-		@Override
-		public boolean createsSimpleBluePrint() {
-			return true;
 		}
 
 	}

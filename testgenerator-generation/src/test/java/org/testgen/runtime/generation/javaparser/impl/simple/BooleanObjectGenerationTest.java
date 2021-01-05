@@ -25,6 +25,8 @@ public class BooleanObjectGenerationTest {
 
 	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
 
+	private BooleanBluePrintFactory factory = new BooleanBluePrintFactory();
+
 	@Before
 	public void init() {
 		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
@@ -42,9 +44,7 @@ public class BooleanObjectGenerationTest {
 
 	@Test
 	public void testCreateField() {
-		BooleanBluePrintFactory factory = new BooleanBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", false, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", false);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -60,9 +60,7 @@ public class BooleanObjectGenerationTest {
 
 	@Test
 	public void testCreateObject() {
-		BooleanBluePrintFactory factory = new BooleanBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", false, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", false);
 
 		BlockStmt blockStmt = new BlockStmt();
 
@@ -76,9 +74,7 @@ public class BooleanObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObject() {
-		BooleanBluePrintFactory factory = new BooleanBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("boolean", true, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("boolean", true);
 
 		Assert.assertEquals("true", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 	}

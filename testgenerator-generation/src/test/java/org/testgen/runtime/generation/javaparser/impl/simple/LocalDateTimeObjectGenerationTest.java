@@ -52,7 +52,7 @@ public class LocalDateTimeObjectGenerationTest {
 	@Test
 	public void testCreateFieldLocalDate() {
 		SimpleBluePrint<?> bluePrint = dateFactory.createBluePrint("localDate", //
-				LocalDate.of(2020, Month.DECEMBER, 31), null).castToSimpleBluePrint();
+				LocalDate.of(2020, Month.DECEMBER, 31));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -68,7 +68,7 @@ public class LocalDateTimeObjectGenerationTest {
 	@Test
 	public void testCreateFieldLocalTime() {
 		SimpleBluePrint<?> bluePrint = timeFactory.createBluePrint("localTime", //
-				LocalTime.of(17, 15), null).castToSimpleBluePrint();
+				LocalTime.of(17, 15));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -82,10 +82,8 @@ public class LocalDateTimeObjectGenerationTest {
 
 	@Test
 	public void testCreateFieldLocalDateTime() {
-		SimpleBluePrint<?> bluePrint = dateTimeFactory
-				.createBluePrint("localDateTime",
-						LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = dateTimeFactory.createBluePrint("localDateTime",
+				LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)));
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -102,7 +100,7 @@ public class LocalDateTimeObjectGenerationTest {
 	@Test
 	public void testCreateObjectLocalDate() {
 		SimpleBluePrint<?> bluePrint = dateFactory.createBluePrint("localDate", //
-				LocalDate.of(2020, Month.OCTOBER, 31), null).castToSimpleBluePrint();
+				LocalDate.of(2020, Month.OCTOBER, 31));
 
 		BlockStmt block = new BlockStmt();
 
@@ -118,7 +116,7 @@ public class LocalDateTimeObjectGenerationTest {
 	@Test
 	public void testCreateObjectLocalTime() {
 		SimpleBluePrint<?> bluePrint = timeFactory.createBluePrint("localTime", //
-				LocalTime.of(17, 15), null).castToSimpleBluePrint();
+				LocalTime.of(17, 15));
 
 		BlockStmt block = new BlockStmt();
 
@@ -131,10 +129,8 @@ public class LocalDateTimeObjectGenerationTest {
 
 	@Test
 	public void testCreateObjectLocalDateTime() {
-		SimpleBluePrint<?> bluePrint = dateTimeFactory
-				.createBluePrint("localDateTime",
-						LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = dateTimeFactory.createBluePrint("localDateTime",
+				LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)));
 
 		BlockStmt block = new BlockStmt();
 
@@ -152,7 +148,7 @@ public class LocalDateTimeObjectGenerationTest {
 	@Test
 	public void testCreateInlineObjectLocalDate() {
 		SimpleBluePrint<?> bluePrint = dateFactory.createBluePrint("localDate", //
-				LocalDate.of(2020, Month.DECEMBER, 31), null).castToSimpleBluePrint();
+				LocalDate.of(2020, Month.DECEMBER, 31));
 
 		Assert.assertEquals("LocalDate.of(2020, Month.DECEMBER, 31)",
 				simpleObjectGeneration.createInlineObject(bluePrint).toString());
@@ -163,13 +159,13 @@ public class LocalDateTimeObjectGenerationTest {
 	@Test
 	public void testCreateInlineObjectLocalTime() {
 		SimpleBluePrint<?> bluePrint = timeFactory.createBluePrint("localTime", //
-				LocalTime.of(17, 15), null).castToSimpleBluePrint();
+				LocalTime.of(17, 15));
 
 		Assert.assertEquals("LocalTime.of(17, 15)", //
 				simpleObjectGeneration.createInlineObject(bluePrint).toString());
 
 		SimpleBluePrint<?> time = timeFactory.createBluePrint("localTime", //
-				LocalTime.of(23, 7, 28), null).castToSimpleBluePrint();
+				LocalTime.of(23, 7, 28));
 
 		Assert.assertEquals("LocalTime.of(23, 7, 28)", //
 				simpleObjectGeneration.createInlineObject(time).toString());
@@ -179,18 +175,14 @@ public class LocalDateTimeObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObjectLocalDateTime() {
-		SimpleBluePrint<?> bluePrint = dateTimeFactory
-				.createBluePrint("localDateTime",
-						LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = dateTimeFactory.createBluePrint("localDateTime",
+				LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)));
 
 		Assert.assertEquals("LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18))",
 				simpleObjectGeneration.createInlineObject(bluePrint).toString());
 
-		SimpleBluePrint<?> withSeconds = dateTimeFactory
-				.createBluePrint("localDateTime",
-						LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25)), null)
-				.castToSimpleBluePrint();
+		SimpleBluePrint<?> withSeconds = dateTimeFactory.createBluePrint("localDateTime",
+				LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25)));
 
 		Assert.assertEquals("LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25))",
 				simpleObjectGeneration.createInlineObject(withSeconds).toString());

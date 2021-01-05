@@ -63,7 +63,7 @@ public class XmlGregorianCalendarGenerationTest {
 			fail(e.getMessage());
 		}
 
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", calendar, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", calendar);
 
 		BlockStmt block = new BlockStmt();
 

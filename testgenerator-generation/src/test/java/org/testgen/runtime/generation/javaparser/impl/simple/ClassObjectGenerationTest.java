@@ -26,6 +26,8 @@ public class ClassObjectGenerationTest {
 
 	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
 
+	private ClassBluePrintFactory factory = new ClassBluePrintFactory();
+
 	@Before
 	public void init() {
 		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
@@ -43,9 +45,8 @@ public class ClassObjectGenerationTest {
 
 	@Test
 	public void testCreateField() {
-		ClassBluePrintFactory factory = new ClassBluePrintFactory();
 
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("clazz", String.class, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("clazz", String.class);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -61,9 +62,7 @@ public class ClassObjectGenerationTest {
 
 	@Test
 	public void testCreateObject() {
-		ClassBluePrintFactory factory = new ClassBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("clazz", String.class, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("clazz", String.class);
 
 		BlockStmt block = new BlockStmt();
 
@@ -79,9 +78,7 @@ public class ClassObjectGenerationTest {
 
 	@Test
 	public void testCreateInlineObject() {
-		ClassBluePrintFactory factory = new ClassBluePrintFactory();
-
-		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Class", List.class, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Class", List.class);
 
 		Assert.assertEquals("List.class", simpleObjectGeneration.createInlineObject(bluePrint).toString());
 		Assert.assertTrue(imports.contains(List.class));
