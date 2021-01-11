@@ -3,6 +3,7 @@ package org.testgen.runtime.valuetracker.blueprint.collections;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -62,6 +63,9 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 
 			else if (value instanceof Set<?>)
 				bluePrint = new CollectionBluePrint(name, collection, Set.class);
+
+			else if (value instanceof Deque<?>)
+				bluePrint = new CollectionBluePrint(name, collection, Deque.class);
 
 			else if (value instanceof Queue<?>)
 				bluePrint = new CollectionBluePrint(name, collection, Queue.class);

@@ -18,6 +18,8 @@ public interface BluePrint {
 
 	boolean isComplexType();
 
+	boolean isBuild();
+
 	boolean isNotBuild();
 
 	void setBuild();

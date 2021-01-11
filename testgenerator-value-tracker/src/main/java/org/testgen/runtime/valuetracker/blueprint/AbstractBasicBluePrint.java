@@ -48,4 +48,9 @@ public abstract class AbstractBasicBluePrint<E> implements BluePrint {
 		return !build;
 	}
 
+	@Override
+	public boolean isBuild() {
+		return build;
+	}
+
 }

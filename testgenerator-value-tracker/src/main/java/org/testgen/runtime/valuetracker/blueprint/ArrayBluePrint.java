@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	private final BluePrint[] elements;
@@ -44,7 +45,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 
 	@Override
 	public List<BluePrint> getPreExecuteBluePrints() {
-		throw new UnsupportedOperationException();
+		return Arrays.stream(elements).filter(BluePrint::isComplexType).collect(Collectors.toList());
 	}
 
 	public void add(int index, BluePrint element) {
