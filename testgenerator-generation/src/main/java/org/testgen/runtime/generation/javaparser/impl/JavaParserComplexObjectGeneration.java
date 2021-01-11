@@ -14,8 +14,6 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.ConstructorData;
 import org.testgen.runtime.classdata.model.FieldData;
-import org.testgen.runtime.classdata.model.SetterMethodData;
-import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
@@ -176,12 +174,7 @@ public class JavaParserComplexObjectGeneration
 				} else if (bp.isArrayBluePrint()) {
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();
 
-					FieldData field = classData.getFieldInHierarchie(arrayBluePrint.getName(),
-							arrayBluePrint.getType());
-					SetterMethodData setter = classData.getSetterInHierarchie(field);
-
-					arrayGeneration.createArray(code, arrayBluePrint,
-							setter != null && SetterType.VALUE_GETTER == setter.getType(), false);
+					arrayGeneration.createArray(code, arrayBluePrint, null, false);
 				}
 			}
 		}

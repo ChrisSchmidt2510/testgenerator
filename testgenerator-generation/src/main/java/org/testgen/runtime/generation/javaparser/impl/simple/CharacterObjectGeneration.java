@@ -8,7 +8,7 @@ import org.testgen.runtime.valuetracker.blueprint.simpletypes.CharacterBluePrint
 import com.github.javaparser.ast.expr.CharLiteralExpr;
 import com.github.javaparser.ast.expr.Expression;
 
-public class CharacterObjectGeneration extends DefaultSimpleObjectGeneration {
+public class CharacterObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(CharacterObjectGeneration.class);
 

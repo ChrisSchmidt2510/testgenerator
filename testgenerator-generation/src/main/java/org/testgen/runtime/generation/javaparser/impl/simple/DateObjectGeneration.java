@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.generation.javaparser.impl.JavaParserHelper;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.JavaDateBluePrint;
 
@@ -13,8 +12,9 @@ import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.BinaryExpr.Operator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
-public class DateObjectGeneration extends DefaultSimpleObjectGeneration {
+public class DateObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(DateObjectGeneration.class);
 
@@ -30,7 +30,9 @@ public class DateObjectGeneration extends DefaultSimpleObjectGeneration {
 		if (!bluePrint.isNotBuild())
 			LOGGER.warning("you try to create a already builded SimpleBluePrint " + bluePrint);
 
-		importCallBackHandler.accept(bluePrint.getReferenceClass());
+		Class<?> type = bluePrint.getReferenceClass();
+
+		importCallBackHandler.accept(type);
 
 		JavaDateBluePrint date = (JavaDateBluePrint) bluePrint;
 
@@ -53,8 +55,7 @@ public class DateObjectGeneration extends DefaultSimpleObjectGeneration {
 			}
 		}
 
-		return new ObjectCreationExpr(null, JavaParserHelper.getClassOrInterfaceType(bluePrint.getReferenceClass()),
-				arguments);
+		return new ObjectCreationExpr(null, new ClassOrInterfaceType(null, type.getSimpleName()), arguments);
 	}
 
 }

@@ -8,7 +8,7 @@ import org.testgen.runtime.valuetracker.blueprint.simpletypes.BooleanBluePrint;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.Expression;
 
-public class BooleanObjectGeneration extends DefaultSimpleObjectGeneration {
+public class BooleanObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(BooleanObjectGeneration.class);
 

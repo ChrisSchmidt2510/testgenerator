@@ -14,7 +14,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
-public class CalendarObjectGeneration extends DefaultSimpleObjectGeneration {
+public class CalendarObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(CalendarObjectGeneration.class);
 

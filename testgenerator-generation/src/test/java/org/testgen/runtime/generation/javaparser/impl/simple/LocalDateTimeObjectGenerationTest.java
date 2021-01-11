@@ -46,7 +46,7 @@ public class LocalDateTimeObjectGenerationTest {
 	public void cleanUp() {
 		imports.clear();
 
-		NamingServiceProvider.getNamingService().clearFieldNames();
+		NamingServiceProvider.getNamingService().clearFields();
 	}
 
 	@Test

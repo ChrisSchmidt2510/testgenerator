@@ -1,0 +1,74 @@
+package org.testgen.runtime.generation.javaparser.impl.collection;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
+
+import org.testgen.runtime.classdata.model.SetterMethodData;
+import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.generation.api.collections.CollectionGeneration;
+import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
+import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.stmt.BlockStmt;
+
+public class JavaParserCollectionGenerationFactory
+		implements CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> {
+
+	private final List<CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression>> generators = new ArrayList<>();
+
+	public JavaParserCollectionGenerationFactory() {
+		@SuppressWarnings("rawtypes")
+		ServiceLoader<CollectionGeneration> loader = ServiceLoader.load(CollectionGeneration.class);
+
+		loader.forEach(generators::add);
+	}
+
+	CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> of(
+			AbstractBasicCollectionBluePrint<?> bluePrint) {
+		Optional<CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression>> generatorOptional = generators
+				.stream().filter(gen -> gen.canGenerateBluePrint(bluePrint)).findAny();
+
+		if (generatorOptional.isPresent()) {
+			return generatorOptional.get();
+		}
+
+		throw new IllegalArgumentException("cant generate AbstractBasicCollectionBluePrint " + bluePrint);
+	}
+
+	@Override
+	public void createCollection(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+			SignatureType signature, boolean isField) {
+		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		generator.createCollection(statementTree, bluePrint, signature, isField);
+	}
+
+	@Override
+	public void createComplexElements(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+			SignatureType signature) {
+		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		generator.createComplexElements(statementTree, bluePrint, signature);
+	}
+
+	@Override
+	public void addCollectionToObject(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+			boolean isField, SetterMethodData setter, Expression accessExpr) {
+		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		generator.addCollectionToObject(statementTree, bluePrint, isField, setter, accessExpr);
+	}
+
+	@Override
+	public void addCollectionToField(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+			boolean isField, Expression accessExpr) {
+		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+
+		generator.addCollectionToField(statementTree, bluePrint, isField, accessExpr);
+	}
+
+}

@@ -40,7 +40,7 @@ public class DateObjectGenerationTest {
 	public void cleanUp() {
 		imports.clear();
 
-		NamingServiceProvider.getNamingService().clearFieldNames();
+		NamingServiceProvider.getNamingService().clearFields();
 	}
 
 	@SuppressWarnings("deprecation")

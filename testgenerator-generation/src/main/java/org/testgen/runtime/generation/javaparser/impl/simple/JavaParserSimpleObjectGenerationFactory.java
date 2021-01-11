@@ -25,7 +25,7 @@ public class JavaParserSimpleObjectGenerationFactory
 		loader.forEach(generators::add);
 	}
 
-	public SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> of(SimpleBluePrint<?> bluePrint) {
+	SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> of(SimpleBluePrint<?> bluePrint) {
 		Optional<SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression>> optional = generators
 				.stream().filter(gen -> gen.canGenerateBluePrint(bluePrint)).findAny();
 

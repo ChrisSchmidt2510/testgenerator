@@ -10,12 +10,16 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
 
 public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
+	private static final Predicate<BluePrint> CHECK_COMPLEX_TYPES = BluePrint::isComplexType;
+
 	private List<BluePrint> keyBluePrints = new ArrayList<>();
 	private List<BluePrint> valueBluePrints = new ArrayList<>();
 
@@ -33,9 +37,13 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 
 	@Override
 	public List<BluePrint> getPreExecuteBluePrints() {
-		keyBluePrints.addAll(valueBluePrints);
+		Predicate<BluePrint> checkComplexTypes = BluePrint::isComplexType;
 
-		return keyBluePrints;
+		List<BluePrint> complexTypes = keyBluePrints.stream().filter(checkComplexTypes).collect(Collectors.toList());
+
+		valueBluePrints.stream().filter(checkComplexTypes).forEach(complexTypes::add);
+
+		return complexTypes;
 	}
 
 	@Override
@@ -45,6 +53,14 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 			keyBluePrints.forEach(BluePrint::resetBuildState);
 			valueBluePrints.forEach(BluePrint::resetBuildState);
 		}
+	}
+
+	public List<BluePrint> getComplexKeys() {
+		return keyBluePrints.stream().filter(CHECK_COMPLEX_TYPES).collect(Collectors.toList());
+	}
+
+	public List<BluePrint> getComplexValues() {
+		return valueBluePrints.stream().filter(CHECK_COMPLEX_TYPES).collect(Collectors.toList());
 	}
 
 	public Set<Entry<BluePrint, BluePrint>> getBluePrints() {

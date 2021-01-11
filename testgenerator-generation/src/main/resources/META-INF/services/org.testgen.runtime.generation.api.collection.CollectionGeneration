@@ -1,1 +1,2 @@
 org.testgen.runtime.generation.javaparser.impl.collection.CollectionsGeneration
+org.testgen.runtime.generation.javaparser.impl.collection.MapGeneration

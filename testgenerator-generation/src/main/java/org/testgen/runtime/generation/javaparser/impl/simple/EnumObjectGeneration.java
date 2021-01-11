@@ -9,7 +9,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 
-public class EnumObjectGeneration extends DefaultSimpleObjectGeneration {
+public class EnumObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(EnumObjectGeneration.class);
 

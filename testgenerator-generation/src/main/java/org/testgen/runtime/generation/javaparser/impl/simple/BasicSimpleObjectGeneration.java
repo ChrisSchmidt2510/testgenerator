@@ -20,7 +20,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
-public abstract class DefaultSimpleObjectGeneration
+public abstract class BasicSimpleObjectGeneration
 		implements SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> {
 
 	private NamingService<BlockStmt> namingService = getNamingService();

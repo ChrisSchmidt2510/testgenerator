@@ -2,9 +2,7 @@ package org.testgen.runtime.generation.api.collections;
 
 import java.util.Collection;
 
-import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.SetterMethodData;
-import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
@@ -38,12 +36,11 @@ public interface CollectionGenerationFactory<T, E, S> {
 	/**
 	 * Generates only the complexTypes {@link BluePrint#isComplexType()} of
 	 * the @param bluePrint. ComplexTypes are: <br>
-	 * - {@link AbstractBasicCollectionBluePrint} and all of his implementations
-	 * <br>
+	 * - {@link AbstractBasicCollectionBluePrint} and all his implementations <br>
 	 * - {@link ArrayBluePrint} <br>
 	 * - {@link ComplexBluePrint} <br>
 	 * 
-	 * All Types of {@link SimpleBluePrint} don't get generated.
+	 * All Types of {@link SimpleBluePrint} doesnt't get generated.
 	 * 
 	 * @param statementTree codeBlock where the generated code is added
 	 * @param bluePrint     of the {@link Collection}
@@ -52,7 +49,7 @@ public interface CollectionGenerationFactory<T, E, S> {
 	void createComplexElements(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureType signature);
 
 	/**
-	 * Add the collection to a Object dependent on the {@link SetterType}
+	 * Add the collection to a Object dependent on the {@link SetterMethodData}
 	 * 
 	 * @param statementTree codeBlock where the generated code is added
 	 * @param bluePrint     of the {@link Collection}
@@ -72,10 +69,9 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param bluePrint     of the {@link Collection}
 	 * @param isField       marks the that the collection is a Field of generated
 	 *                      Class
-	 * @param field         detaildata of the field where collection is assigned
 	 * @param accessExpr    expression to access the object where to collection is
 	 *                      added to
 	 */
-	void addCollectionToObject(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
-			FieldData field, S accessExpr);
+	void addCollectionToField(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
+			S accessExpr);
 }

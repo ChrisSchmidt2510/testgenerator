@@ -17,7 +17,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.PrimitiveType;
 
-public class NumberObjectGeneration extends DefaultSimpleObjectGeneration {
+public class NumberObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(NumberObjectGeneration.class);
 

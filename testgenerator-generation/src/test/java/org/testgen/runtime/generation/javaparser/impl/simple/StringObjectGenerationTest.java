@@ -39,7 +39,7 @@ public class StringObjectGenerationTest {
 	public void cleanUp() {
 		imports.clear();
 
-		NamingServiceProvider.getNamingService().clearFieldNames();
+		NamingServiceProvider.getNamingService().clearFields();
 	}
 
 	@Test

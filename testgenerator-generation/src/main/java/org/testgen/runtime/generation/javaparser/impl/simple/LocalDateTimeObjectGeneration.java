@@ -20,7 +20,7 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 
-public class LocalDateTimeObjectGeneration extends DefaultSimpleObjectGeneration {
+public class LocalDateTimeObjectGeneration extends BasicSimpleObjectGeneration {
 
 	private static final Logger LOGGER = LogManager.getLogger(LocalDateTimeObjectGeneration.class);
 

@@ -17,8 +17,17 @@ public class DefaultNamingService<E> implements NamingService<E> {
 
 	@Override
 	public String getFieldName(BluePrint bluePrint) {
-
 		return getName(bluePrint, fieldNames);
+	}
+
+	@Override
+	public boolean existsField(BluePrint bluePrint) {
+		return existsName(bluePrint, fieldNames);
+	}
+
+	@Override
+	public void clearFields() {
+		fieldNames.clear();
 	}
 
 	@Override
@@ -38,8 +47,11 @@ public class DefaultNamingService<E> implements NamingService<E> {
 	}
 
 	@Override
-	public void clearFieldNames() {
-		fieldNames.clear();
+	public boolean existsLocal(E statementTree, BluePrint bluePrint) {
+		if (localNames.containsKey(statementTree))
+			return existsName(bluePrint, localNames.get(statementTree));
+
+		return false;
 	}
 
 	private String getName(BluePrint bluePrint, List<Name> names) {
@@ -60,6 +72,18 @@ public class DefaultNamingService<E> implements NamingService<E> {
 			names.add(name);
 			return name.getBaseName();
 		}
+	}
+
+	private boolean existsName(BluePrint bluePrint, List<Name> names) {
+		String requestedName = bluePrint.getName();
+
+		Optional<Name> baseNameOptional = names.stream().filter(name -> name.getBaseName().equals(requestedName))
+				.findAny();
+
+		if (baseNameOptional.isPresent())
+			return baseNameOptional.get().sharedNames.contains(bluePrint);
+
+		return false;
 	}
 
 	public static class Name {
