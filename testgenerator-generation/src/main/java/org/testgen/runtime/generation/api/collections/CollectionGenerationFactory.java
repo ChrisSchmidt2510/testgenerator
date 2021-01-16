@@ -24,13 +24,13 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * Generates the complete {@link Collection} inclusive the elements of the
 	 * collection. The collection gets also fully initalized with his elements
 	 * 
-	 * @param statementTree codeBlock where the generated code is added
+	 * @param codeBlock codeBlock where the generated code is added
 	 * @param bluePrint     of the {@link Collection}
 	 * @param signature     of the {@link Collection}
 	 * @param isField       marks the that the collection is a Field of generated
 	 *                      Class
 	 */
-	void createCollection(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, //
+	void createCollection(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, //
 			SignatureType signature, boolean isField);
 
 	/**
@@ -42,16 +42,16 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * 
 	 * All Types of {@link SimpleBluePrint} doesnt't get generated.
 	 * 
-	 * @param statementTree codeBlock where the generated code is added
+	 * @param codeBlock codeBlock where the generated code is added
 	 * @param bluePrint     of the {@link Collection}
 	 * @param signature     of the {@link Collection}
 	 */
-	void createComplexElements(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureType signature);
+	void createComplexElements(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureType signature);
 
 	/**
 	 * Add the collection to a Object dependent on the {@link SetterMethodData}
 	 * 
-	 * @param statementTree codeBlock where the generated code is added
+	 * @param codeBlock codeBlock where the generated code is added
 	 * @param bluePrint     of the {@link Collection}
 	 * @param isField       marks the that the collection is a Field of generated
 	 *                      Class
@@ -59,19 +59,19 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param accessExpr    expression to access the object where to collection is
 	 *                      added to
 	 */
-	void addCollectionToObject(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
+	void addCollectionToObject(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
 			SetterMethodData setter, S accessExpr);
 
 	/**
 	 * Add the collection to a Object direct by accessing a field directly
 	 * 
-	 * @param statementTree codeBlock where the generated code is added
+	 * @param codeBlock codeBlock where the generated code is added
 	 * @param bluePrint     of the {@link Collection}
 	 * @param isField       marks the that the collection is a Field of generated
 	 *                      Class
 	 * @param accessExpr    expression to access the object where to collection is
 	 *                      added to
 	 */
-	void addCollectionToField(E statementTree, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
+	void addCollectionToField(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
 			S accessExpr);
 }

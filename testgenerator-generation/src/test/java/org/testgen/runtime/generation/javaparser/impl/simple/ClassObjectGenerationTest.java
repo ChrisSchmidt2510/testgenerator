@@ -80,7 +80,7 @@ public class ClassObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Class", List.class);
 
-		Assert.assertEquals("List.class", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("List.class", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 		Assert.assertTrue(imports.contains(List.class));
 	}
 }

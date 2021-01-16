@@ -84,7 +84,7 @@ public class NullObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
-		Assert.assertEquals("null", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("null", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 }

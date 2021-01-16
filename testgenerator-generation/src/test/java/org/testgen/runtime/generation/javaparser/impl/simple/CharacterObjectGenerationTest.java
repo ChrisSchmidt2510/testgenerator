@@ -74,7 +74,7 @@ public class CharacterObjectGenerationTest {
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("char", 'c');
 
-		Assert.assertEquals("'c'", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("'c'", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 }

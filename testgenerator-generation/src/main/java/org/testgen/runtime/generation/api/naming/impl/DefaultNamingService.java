@@ -80,8 +80,10 @@ public class DefaultNamingService<E> implements NamingService<E> {
 		Optional<Name> baseNameOptional = names.stream().filter(name -> name.getBaseName().equals(requestedName))
 				.findAny();
 
-		if (baseNameOptional.isPresent())
-			return baseNameOptional.get().sharedNames.contains(bluePrint);
+		if (baseNameOptional.isPresent()) {
+			Name name = baseNameOptional.get();
+			return name.baseName == bluePrint || name.sharedNames.contains(bluePrint);
+		}
 
 		return false;
 	}

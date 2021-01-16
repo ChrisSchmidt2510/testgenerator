@@ -39,8 +39,6 @@ public final class TestgeneratorConfig {
 	public static void initConfiguration(String arguments) {
 		ArgumentParser parser = new ArgumentParser(arguments, DefinedArguments.getArguments());
 
-//		System.setProperties(null);
-
 		String className = parser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME);
 		System.setProperty(PARAM_CLASS_NAME, className);
 		System.setProperty(PARAM_CLASS_NAMES, generateSystemPropertyArgument(isInnerClass(className)));

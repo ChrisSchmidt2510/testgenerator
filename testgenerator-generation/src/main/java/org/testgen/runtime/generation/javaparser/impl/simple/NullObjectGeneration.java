@@ -72,7 +72,7 @@ public class NullObjectGeneration
 	}
 
 	@Override
-	public Expression createInlineObject(SimpleBluePrint<?> bluePrint) {
+	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		return new NullLiteralExpr();
 	}
 

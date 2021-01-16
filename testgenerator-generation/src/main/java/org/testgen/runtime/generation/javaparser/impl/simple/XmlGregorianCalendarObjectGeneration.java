@@ -148,7 +148,7 @@ public class XmlGregorianCalendarObjectGeneration
 	}
 
 	@Override
-	public Expression createInlineObject(SimpleBluePrint<?> bluePrint) {
+	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		throw new UnsupportedOperationException("cant create inline object XMLGregorianCalendarBluePrint");
 	}
 

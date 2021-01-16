@@ -162,27 +162,6 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 			if ((isField && namingService.existsField(bluePrint))
 					|| namingService.existsLocal(statementTree, bluePrint)) {
 
-				Type arrayType = createArrayType(null, bluePrint);
-				String name = namingService.getLocalName(statementTree, bluePrint);
-				MethodCallExpr initalizer = new MethodCallExpr(accessExpr, setter.getName());
-
-				statementTree
-						.addStatement(new VariableDeclarationExpr(new VariableDeclarator(arrayType, name, initalizer)));
-
-				for (int i = 0; i < bluePrint.getElements().length; i++) {
-					BluePrint element = bluePrint.getElements()[i];
-
-					if (element != null) {
-						ArrayAccessExpr arrayIndexExpr = new ArrayAccessExpr(accessExpr,
-								JavaParserHelper.mapIntegerExpression(i));
-
-						statementTree.addStatement(new AssignExpr(arrayIndexExpr,
-								getExpressionForElement(statementTree, element), Operator.ASSIGN));
-					}
-				}
-
-			} else {
-
 				Expression valueAccessExpr = isField
 						? new FieldAccessExpr(new ThisExpr(), namingService.getFieldName(bluePrint))
 						: new NameExpr(namingService.getLocalName(statementTree, bluePrint));
@@ -190,18 +169,46 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 				Expression targetAccessExpr = new MethodCallExpr(accessExpr, setter.getName());
 
 				for (int i = 0; i < bluePrint.size(); i++) {
-					ArrayAccessExpr arrayAccessTarget = new ArrayAccessExpr(targetAccessExpr,
-							JavaParserHelper.mapIntegerExpression(i));
+					BluePrint element = bluePrint.getElements()[i];
 
-					ArrayAccessExpr arrayAccessValue = new ArrayAccessExpr(valueAccessExpr,
-							JavaParserHelper.mapIntegerExpression(i));
+					if (element != null) {
 
-					statementTree.addStatement(new AssignExpr(arrayAccessTarget, arrayAccessValue, Operator.ASSIGN));
+						ArrayAccessExpr arrayAccessTarget = new ArrayAccessExpr(targetAccessExpr,
+								JavaParserHelper.mapIntegerExpression(i));
+
+						ArrayAccessExpr arrayAccessValue = new ArrayAccessExpr(valueAccessExpr,
+								JavaParserHelper.mapIntegerExpression(i));
+
+						statementTree
+								.addStatement(new AssignExpr(arrayAccessTarget, arrayAccessValue, Operator.ASSIGN));
+
+					}
 				}
-			}
-		}
+			} else {
+				Type arrayType = createArrayType(null, bluePrint);
+				String name = namingService.getLocalName(statementTree, bluePrint);
+				MethodCallExpr initalizer = new MethodCallExpr(accessExpr, setter.getName());
 
-		throw new IllegalArgumentException("invalid SetterType for arrays: " + type);
+				statementTree
+						.addStatement(new VariableDeclarationExpr(new VariableDeclarator(arrayType, name, initalizer)));
+
+				NameExpr nameExpr = new NameExpr(name);
+
+				for (int i = 0; i < bluePrint.getElements().length; i++) {
+					BluePrint element = bluePrint.getElements()[i];
+
+					if (element != null) {
+						ArrayAccessExpr arrayIndexExpr = new ArrayAccessExpr(nameExpr,
+								JavaParserHelper.mapIntegerExpression(i));
+
+						statementTree.addStatement(new AssignExpr(arrayIndexExpr,
+								getExpressionForElement(statementTree, element), Operator.ASSIGN));
+					}
+				}
+
+			}
+		} else
+			throw new IllegalArgumentException("invalid SetterType for arrays: " + type);
 	}
 
 	@Override
@@ -281,6 +288,6 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 					? new FieldAccessExpr(new ThisExpr(), namingService.getFieldName(bluePrint))
 					: new NameExpr(namingService.getLocalName(statementTree, bluePrint));
 
-		return simpleGenerationFactory.createInlineObject(bluePrint.castToSimpleBluePrint());
+		return simpleGenerationFactory.createInlineExpression(bluePrint.castToSimpleBluePrint());
 	}
 }

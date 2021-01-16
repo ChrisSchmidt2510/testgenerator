@@ -105,7 +105,7 @@ public abstract class BasicCollectionGeneration
 					? new FieldAccessExpr(new ThisExpr(), namingService.getFieldName(bluePrint))
 					: new NameExpr(namingService.getLocalName(statementTree, bluePrint));
 
-		return simpleGenerationFactory.createInlineObject(bluePrint.castToSimpleBluePrint());
+		return simpleGenerationFactory.createInlineExpression(bluePrint.castToSimpleBluePrint());
 
 	}
 

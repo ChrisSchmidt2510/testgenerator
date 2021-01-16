@@ -76,6 +76,6 @@ public class BooleanObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("boolean", true);
 
-		Assert.assertEquals("true", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("true", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 }

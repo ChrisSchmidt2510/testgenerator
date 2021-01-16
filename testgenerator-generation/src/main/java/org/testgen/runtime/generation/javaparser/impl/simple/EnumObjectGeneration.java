@@ -19,7 +19,7 @@ public class EnumObjectGeneration extends BasicSimpleObjectGeneration {
 	}
 
 	@Override
-	public Expression createInlineObject(SimpleBluePrint<?> bluePrint) {
+	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		LOGGER.debug("create Inline SimpleBluePrint " + bluePrint);
 
 		if (!bluePrint.isNotBuild())

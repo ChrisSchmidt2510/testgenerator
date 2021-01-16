@@ -74,7 +74,7 @@ public class EnumObjectGenerationTest {
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.JANUARY);
 
-		Assert.assertEquals("Month.JANUARY", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("Month.JANUARY", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 		Assert.assertTrue(imports.contains(Month.class));
 	}
 }

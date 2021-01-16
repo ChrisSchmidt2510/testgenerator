@@ -240,42 +240,42 @@ public class NumberObjectGenerationTest {
 	public void testCreateInlineObjectInteger() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Integer", 25);
 
-		Assert.assertEquals("25", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("25", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectByte() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Byte", (byte) 127);
 
-		Assert.assertEquals("(byte) 127", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("(byte) 127", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectShort() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("short", (short) 255);
 
-		Assert.assertEquals("(short) 255", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("(short) 255", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectFloat() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("float", 5.12f);
 
-		Assert.assertEquals("5.12f", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("5.12f", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectDouble() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("double", 5.1872);
 
-		Assert.assertEquals("5.1872", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("5.1872", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test
 	public void testCreateInlineObjectLong() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("long", 1_000_000L);
 
-		Assert.assertEquals("1000000L", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("1000000L", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test
@@ -283,7 +283,7 @@ public class NumberObjectGenerationTest {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("BigDecimal", BigDecimal.TEN.setScale(3));
 
 		Assert.assertEquals("BigDecimal.valueOf(10.0).setScale(3)",
-				simpleObjectGeneration.createInlineObject(bluePrint).toString());
+				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 		Assert.assertTrue(imports.contains(BigDecimal.class));
 	}
 }

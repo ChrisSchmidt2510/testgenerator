@@ -73,6 +73,6 @@ public class StringObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "This is a test");
 
-		Assert.assertEquals("\"This is a test\"", simpleObjectGeneration.createInlineObject(bluePrint).toString());
+		Assert.assertEquals("\"This is a test\"", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 }

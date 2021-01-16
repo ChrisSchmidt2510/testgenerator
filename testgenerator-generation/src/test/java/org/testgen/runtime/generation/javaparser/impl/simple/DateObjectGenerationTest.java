@@ -122,7 +122,7 @@ public class DateObjectGenerationTest {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25));
 
 		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 25)",
-				simpleObjectGeneration.createInlineObject(bluePrint).toString());
+				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 		Assert.assertTrue(imports.contains(java.sql.Date.class));
 	}
 
@@ -132,16 +132,16 @@ public class DateObjectGenerationTest {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24));
 
 		Assert.assertEquals("new Date(2020 - 1900, 12 - 1, 24)",
-				simpleObjectGeneration.createInlineObject(bluePrint).toString());
+				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 
 		SimpleBluePrint<?> dateTime = factory.createBluePrint("date", new Date(2020 - 1900, 10 - 1, 31, 7, 8));
 		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8)",
-				simpleObjectGeneration.createInlineObject(dateTime).toString());
+				simpleObjectGeneration.createInlineExpression(dateTime).toString());
 
 		SimpleBluePrint<?> dateTimeWithSeconds = factory.createBluePrint("date",
 				new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55));
 		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55)",
-				simpleObjectGeneration.createInlineObject(dateTimeWithSeconds).toString());
+				simpleObjectGeneration.createInlineExpression(dateTimeWithSeconds).toString());
 
 		Assert.assertTrue(imports.contains(Date.class));
 	}

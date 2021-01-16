@@ -14,6 +14,8 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.ConstructorData;
 import org.testgen.runtime.classdata.model.FieldData;
+import org.testgen.runtime.classdata.model.SetterMethodData;
+import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
@@ -28,6 +30,7 @@ import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 
+import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -35,6 +38,8 @@ import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NullLiteralExpr;
@@ -42,8 +47,9 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 
 public class JavaParserComplexObjectGeneration
 		implements ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> {
@@ -63,8 +69,18 @@ public class JavaParserComplexObjectGeneration
 	@Override
 	public void createField(ClassOrInterfaceDeclaration compilationUnit, ComplexBluePrint bluePrint,
 			SignatureType signature) {
-		// TODO Auto-generated method stub
 
+		Type type;
+
+		if (signature != null)
+			type = JavaParserHelper.generateSignature(signature, importCallBackHandler);
+		else {
+			importCallBackHandler.accept(bluePrint.getReferenceClass());
+
+			type = new ClassOrInterfaceType(null, bluePrint.getSimpleClassName());
+		}
+
+		compilationUnit.addField(type, namingService.getFieldName(bluePrint), Keyword.PRIVATE);
 	}
 
 	@Override
@@ -76,7 +92,7 @@ public class JavaParserComplexObjectGeneration
 
 			Set<BluePrint> usedBluePrints = new HashSet<>();
 
-			createComplexTypesOfObject(statementTree, bluePrint.getPreExecuteBluePrints(), classData, calledFields);
+			createComplexTypes(statementTree, bluePrint, classData, calledFields);
 
 			NodeList<Expression> arguments = new NodeList<>();
 
@@ -100,7 +116,7 @@ public class JavaParserComplexObjectGeneration
 							SimpleBluePrint<?> simpleBluePrint = constructorFieldBp.castToSimpleBluePrint();
 
 							Expression inlinedSimpleObject = simpleObjectGenerationFactory
-									.createInlineObject(simpleBluePrint);
+									.createInlineExpression(simpleBluePrint);
 
 							arguments.add(inlinedSimpleObject);
 						} else {
@@ -139,15 +155,20 @@ public class JavaParserComplexObjectGeneration
 							new VariableDeclarator(new ClassOrInterfaceType(null, bluePrint.getSimpleClassName()), //
 									name, objInitalizer));
 
-			statementTree.addStatement(new ExpressionStmt(objectCreation));
+			statementTree.addStatement(objectCreation);
+
+			addChildsToObject(statementTree, bluePrint, classData, calledFields, usedBluePrints);
+
+			bluePrint.setBuild();
 		}
 
 	}
 
-	private void createComplexTypesOfObject(BlockStmt code, List<BluePrint> complexChilds, ClassData classData,
+	@Override
+	public void createComplexTypes(BlockStmt codeBlock, ComplexBluePrint bluePrint, ClassData classData,
 			Set<FieldData> calledFields) {
 
-		for (BluePrint bp : complexChilds) {
+		for (BluePrint bp : bluePrint.getPreExecuteBluePrints()) {
 			Optional<FieldData> calledField = calledFields.stream()
 					.filter(field -> field.getName().equals(bp.getName())).findAny();
 
@@ -155,7 +176,7 @@ public class JavaParserComplexObjectGeneration
 					(classData.isInnerClass()
 							&& classData.getOuterClass().getName().equals(bp.getClassNameOfReference()))) {
 				if (bp.isComplexBluePrint()) {
-					createComplexObject(code, bp);
+					createComplexObject(codeBlock, bp);
 
 				} else if (bp.isCollectionBluePrint()) {
 					AbstractBasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
@@ -170,15 +191,118 @@ public class JavaParserComplexObjectGeneration
 						signature = field.getSignature();
 					}
 
-					collectionGenerationFactory.createCollection(code, collection, signature, false);
+					collectionGenerationFactory.createCollection(codeBlock, collection, signature, false);
 				} else if (bp.isArrayBluePrint()) {
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();
 
-					arrayGeneration.createArray(code, arrayBluePrint, null, false);
+					arrayGeneration.createArray(codeBlock, arrayBluePrint, null, false);
 				}
 			}
 		}
 
+	}
+
+	@Override
+	public void addChildToObject(BlockStmt codeBlock, BluePrint bluePrint, SetterMethodData setter,
+			Expression accessExpr) {
+
+		boolean isField = namingService.existsField(bluePrint);
+
+		if (setter == null) {
+			EmptyStmt stmt = new EmptyStmt();
+			stmt.addOrphanComment(new LineComment(
+					"TODO  no setter found for Field: " + (isField ? namingService.getFieldName(bluePrint)
+							: namingService.getLocalName(codeBlock, bluePrint))));
+
+		} else if (bluePrint.isCollectionBluePrint())
+			collectionGenerationFactory.addCollectionToObject(codeBlock, bluePrint.castToCollectionBluePrint(), isField,
+					setter, accessExpr);
+
+		else if (bluePrint.isArrayBluePrint())
+			arrayGeneration.addArrayToObject(codeBlock, bluePrint.castToArrayBluePrint(), setter, isField, accessExpr);
+
+		else if (SetterType.VALUE_SETTER == setter.getType()
+				&& (bluePrint.isComplexBluePrint() || bluePrint.isSimpleBluePrint())) {
+			Expression param = getExpressionForBluePrint(bluePrint, codeBlock);
+			codeBlock.addStatement(new MethodCallExpr(accessExpr, setter.getName(), NodeList.nodeList(param)));
+		}
+	}
+
+	@Override
+	public void addChildToField(BlockStmt codeBlock, BluePrint bluePrint, Expression accessExpr) {
+
+		boolean isField = namingService.existsField(bluePrint);
+
+		if (bluePrint.isCollectionBluePrint())
+			collectionGenerationFactory.addCollectionToField(codeBlock, bluePrint.castToCollectionBluePrint(), isField,
+					accessExpr);
+
+		else if (bluePrint.isArrayBluePrint())
+			arrayGeneration.addArrayToField(codeBlock, bluePrint.castToArrayBluePrint(), isField, accessExpr);
+
+		// for ComplexBluePrints and SimpleBluePrints
+		else if (bluePrint.isComplexBluePrint() || bluePrint.isSimpleBluePrint()) {
+			Expression param = getExpressionForBluePrint(bluePrint, codeBlock);
+			codeBlock.addStatement(new AssignExpr(accessExpr, param, Operator.ASSIGN));
+		}
+	}
+
+	private Expression getExpressionForBluePrint(BluePrint bluePrint, BlockStmt codeBlock) {
+		if (bluePrint.isComplexType() || bluePrint.isBuild())
+			return namingService.existsField(bluePrint)
+					? new FieldAccessExpr(new ThisExpr(), namingService.getFieldName(bluePrint))
+					: new NameExpr(namingService.getLocalName(codeBlock, bluePrint));
+		else
+			return simpleObjectGenerationFactory.createInlineExpression(bluePrint.castToSimpleBluePrint());
+	}
+
+	private void addChildsToObject(BlockStmt codeBlock, ComplexBluePrint bluePrint, ClassData classData,
+			Set<FieldData> calledFields, Set<BluePrint> usedBluePrints) {
+
+		Expression accessExpr = namingService.existsField(bluePrint)
+				? new FieldAccessExpr(new ThisExpr(), namingService.getFieldName(bluePrint))
+				: new NameExpr(namingService.getLocalName(codeBlock, bluePrint));
+
+		if (TestgeneratorConfig.traceReadFieldAccess()) {
+
+			for (FieldData field : calledFields) {
+				LOGGER.info("add Field " + field + " to Object " + bluePrint);
+
+				BluePrint bpField = bluePrint.getBluePrintForName(field.getName());
+
+				FieldData originalField = classData.getFieldInHierarchie(field);
+
+				if (originalField.isPublic())
+					addChildToField(codeBlock, bpField, accessExpr);
+				else {
+					SetterMethodData setter = classData.getSetterInHierarchie(field);
+
+					addChildToObject(codeBlock, bluePrint, setter, accessExpr);
+				}
+			}
+
+		} else {
+			for (BluePrint child : bluePrint.getChildBluePrints()) {
+
+				if (!usedBluePrints.contains(child)) {
+
+					FieldData field = child.isCollectionBluePrint()
+							? classData.getCollectionFieldInHierarchie(child.getName())
+							: classData.getFieldInHierarchie(child.getName(), child.getReference().getClass());
+
+					LOGGER.info("add Field " + field + " to Object " + bluePrint);
+
+					if (field.isPublic())
+						addChildToField(codeBlock, bluePrint, accessExpr);
+
+					else {
+						SetterMethodData setter = classData.getSetterInHierarchie(field);
+
+						addChildToObject(codeBlock, child, setter, accessExpr);
+					}
+				}
+			}
+		}
 	}
 
 	private void createComplexObject(BlockStmt code, BluePrint bluePrint) {
@@ -198,7 +322,7 @@ public class JavaParserComplexObjectGeneration
 	 * Filters for BluePrint of the outerClass and returns the Name of it in the
 	 * generated SourceCode. This works cause the BluePrint is already generated in
 	 * the Method
-	 * {@link JavaParserComplexObjectGeneration#createComplexTypesOfObject(BlockStmt, List, ClassData, Set)}
+	 * {@link JavaParserComplexObjectGeneration#createComplexTypes(BlockStmt, List, ClassData, Set)}
 	 */
 	private String getBluePrintForClassData(ComplexBluePrint parent, ClassData outerClass, BlockStmt blockStmt) {
 		BluePrint outerClassBP = parent.getChildBluePrints().stream()

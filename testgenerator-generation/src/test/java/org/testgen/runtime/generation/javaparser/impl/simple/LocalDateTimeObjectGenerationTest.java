@@ -151,7 +151,7 @@ public class LocalDateTimeObjectGenerationTest {
 				LocalDate.of(2020, Month.DECEMBER, 31));
 
 		Assert.assertEquals("LocalDate.of(2020, Month.DECEMBER, 31)",
-				simpleObjectGeneration.createInlineObject(bluePrint).toString());
+				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 		Assert.assertTrue(imports.contains(LocalDate.class));
 		Assert.assertTrue(imports.contains(Month.class));
 	}
@@ -162,13 +162,13 @@ public class LocalDateTimeObjectGenerationTest {
 				LocalTime.of(17, 15));
 
 		Assert.assertEquals("LocalTime.of(17, 15)", //
-				simpleObjectGeneration.createInlineObject(bluePrint).toString());
+				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 
 		SimpleBluePrint<?> time = timeFactory.createBluePrint("localTime", //
 				LocalTime.of(23, 7, 28));
 
 		Assert.assertEquals("LocalTime.of(23, 7, 28)", //
-				simpleObjectGeneration.createInlineObject(time).toString());
+				simpleObjectGeneration.createInlineExpression(time).toString());
 
 		Assert.assertTrue(imports.contains(LocalTime.class));
 	}
@@ -179,13 +179,13 @@ public class LocalDateTimeObjectGenerationTest {
 				LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)));
 
 		Assert.assertEquals("LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18))",
-				simpleObjectGeneration.createInlineObject(bluePrint).toString());
+				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 
 		SimpleBluePrint<?> withSeconds = dateTimeFactory.createBluePrint("localDateTime",
 				LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25)));
 
 		Assert.assertEquals("LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25))",
-				simpleObjectGeneration.createInlineObject(withSeconds).toString());
+				simpleObjectGeneration.createInlineExpression(withSeconds).toString());
 
 		Assert.assertTrue(imports.contains(LocalDateTime.class));
 		Assert.assertTrue(imports.contains(LocalDate.class));

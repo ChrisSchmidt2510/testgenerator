@@ -80,17 +80,17 @@ public class CalendarObjectGenerationTest {
 		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25));
 
 		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25)",
-				simpleObjectGeneration.createInlineObject(dateBp).toString());
+				simpleObjectGeneration.createInlineExpression(dateBp).toString());
 
 		SimpleBluePrint<?> dateTimeBp = factory.createBluePrint("calendar",
 				new GregorianCalendar(2020, 10 - 1, 25, 12, 17));
 		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17)",
-				simpleObjectGeneration.createInlineObject(dateTimeBp).toString());
+				simpleObjectGeneration.createInlineExpression(dateTimeBp).toString());
 
 		SimpleBluePrint<?> dateTimeWithSecondsBp = factory.createBluePrint("calendar",
 				new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35));
 		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35)",
-				simpleObjectGeneration.createInlineObject(dateTimeWithSecondsBp).toString());
+				simpleObjectGeneration.createInlineExpression(dateTimeWithSecondsBp).toString());
 
 		Assert.assertTrue(imports.contains(GregorianCalendar.class));
 	}

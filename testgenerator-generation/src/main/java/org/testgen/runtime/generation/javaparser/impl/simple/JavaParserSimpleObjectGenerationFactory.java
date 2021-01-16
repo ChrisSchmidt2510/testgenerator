@@ -52,10 +52,10 @@ public class JavaParserSimpleObjectGenerationFactory
 	}
 
 	@Override
-	public Expression createInlineObject(SimpleBluePrint<?> bluePrint) {
+	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
 
-		return generator.createInlineObject(bluePrint);
+		return generator.createInlineExpression(bluePrint);
 	}
 
 }

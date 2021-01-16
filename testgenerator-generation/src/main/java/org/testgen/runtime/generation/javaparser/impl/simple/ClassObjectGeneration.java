@@ -44,7 +44,7 @@ public class ClassObjectGeneration
 		ClassOrInterfaceType type = getClassType();
 
 		if (withInitalizer)
-			compilationUnit.addFieldWithInitializer(type, name, createInlineObject(bluePrint), Keyword.PRIVATE);
+			compilationUnit.addFieldWithInitializer(type, name, createInlineExpression(bluePrint), Keyword.PRIVATE);
 		else
 			compilationUnit.addField(type, name, Keyword.PRIVATE);
 
@@ -57,7 +57,7 @@ public class ClassObjectGeneration
 		String name = isField ? namingService.getFieldName(bluePrint)
 				: namingService.getLocalName(statementTree, bluePrint);
 
-		Expression initalizer = createInlineObject(bluePrint);
+		Expression initalizer = createInlineExpression(bluePrint);
 
 		ClassOrInterfaceType type = new ClassOrInterfaceType(null, Class.class.getSimpleName());
 		type.setTypeArguments(new WildcardType());
@@ -73,7 +73,7 @@ public class ClassObjectGeneration
 	}
 
 	@Override
-	public Expression createInlineObject(SimpleBluePrint<?> bluePrint) {
+	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		LOGGER.debug("create Inline SimpleBluePrint " + bluePrint);
 
 		if (!bluePrint.isNotBuild())

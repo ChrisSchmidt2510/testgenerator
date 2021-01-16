@@ -36,7 +36,7 @@ public abstract class BasicSimpleObjectGeneration
 		Type type = mapToType(bluePrint);
 
 		if (withInitalizer)
-			compilationUnit.addFieldWithInitializer(type, name, createInlineObject(bluePrint), Keyword.PRIVATE);
+			compilationUnit.addFieldWithInitializer(type, name, createInlineExpression(bluePrint), Keyword.PRIVATE);
 		else
 			compilationUnit.addField(type, name, Keyword.PRIVATE);
 
@@ -48,7 +48,7 @@ public abstract class BasicSimpleObjectGeneration
 		String name = isField ? namingService.getFieldName(bluePrint)
 				: namingService.getLocalName(statementTree, bluePrint);
 
-		Expression initalizer = createInlineObject(bluePrint);
+		Expression initalizer = createInlineExpression(bluePrint);
 
 		Expression objectCreation = isField
 				? new AssignExpr(new FieldAccessExpr(new ThisExpr(), name), initalizer, AssignExpr.Operator.ASSIGN)
