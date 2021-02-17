@@ -17,6 +17,7 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
@@ -25,7 +26,7 @@ public abstract class BasicSimpleObjectGeneration
 
 	private NamingService<BlockStmt> namingService = getNamingService();
 
-	protected Consumer<Class<?>> importCallBackHandler = getImportCallBackHandler();
+	protected Consumer<Class<?>> importCallBackHandler;
 
 	@Override
 	public void createField(ClassOrInterfaceDeclaration compilationUnit, SimpleBluePrint<?> bluePrint,
@@ -56,8 +57,14 @@ public abstract class BasicSimpleObjectGeneration
 						name, initalizer));
 
 		statementTree.addStatement(objectCreation);
+		statementTree.addStatement(new EmptyStmt());
 
 		bluePrint.setBuild();
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		this.importCallBackHandler = importCallBackHandler;
 	}
 
 	protected Type mapToType(BluePrint bluePrint) {

@@ -8,7 +8,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -24,16 +23,13 @@ public class NumberObjectGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new NumberObjectGeneration();
 
 	private NumberBluePrintFactory factory = new NumberBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new NumberObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -121,7 +117,7 @@ public class NumberObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private long value = 5000000L;", cu.getFields().get(0).toString());
+		Assert.assertEquals("private long value = 5000000;", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
 		Assert.assertEquals("private long value;", cu.getFields().get(1).toString());
@@ -152,7 +148,7 @@ public class NumberObjectGenerationTest {
 		Assert.assertEquals("this.value = 312;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("int value = 312;", block.getStatement(1).toString());
+		Assert.assertEquals("int value = 312;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -165,7 +161,7 @@ public class NumberObjectGenerationTest {
 		Assert.assertEquals("this.value = (byte) 15;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("byte value = (byte) 15;", block.getStatement(1).toString());
+		Assert.assertEquals("byte value = (byte) 15;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -178,7 +174,7 @@ public class NumberObjectGenerationTest {
 		Assert.assertEquals("this.value = (short) 113;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("short value = (short) 113;", block.getStatement(1).toString());
+		Assert.assertEquals("short value = (short) 113;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -191,7 +187,7 @@ public class NumberObjectGenerationTest {
 		Assert.assertEquals("this.value = 170.837f;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("float value = 170.837f;", block.getStatement(1).toString());
+		Assert.assertEquals("float value = 170.837f;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -204,7 +200,7 @@ public class NumberObjectGenerationTest {
 		Assert.assertEquals("this.value = 35.49872;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("double value = 35.49872;", block.getStatement(1).toString());
+		Assert.assertEquals("double value = 35.49872;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -217,7 +213,7 @@ public class NumberObjectGenerationTest {
 		Assert.assertEquals("this.value = 987654321;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("long value = 987654321;", block.getStatement(1).toString());
+		Assert.assertEquals("long value = 987654321;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -233,7 +229,7 @@ public class NumberObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 		Assert.assertEquals("BigDecimal value = BigDecimal.valueOf(799663.33333333).setScale(8);",
-				block.getStatement(1).toString());
+				block.getStatement(2).toString());
 	}
 
 	@Test
@@ -275,7 +271,7 @@ public class NumberObjectGenerationTest {
 	public void testCreateInlineObjectLong() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("long", 1_000_000L);
 
-		Assert.assertEquals("1000000L", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		Assert.assertEquals("1000000", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 	@Test

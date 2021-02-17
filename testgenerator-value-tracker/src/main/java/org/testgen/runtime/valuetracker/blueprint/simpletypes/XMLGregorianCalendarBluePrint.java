@@ -32,10 +32,17 @@ public class XMLGregorianCalendarBluePrint extends SimpleBluePrint<XMLGregorianC
 		month = value.getMonth();
 		day = value.getDay();
 
-		hour = value.getHour();
-		minute = value.getMinute();
-		second = value.getSecond();
-		millis = value.getMillisecond();
+		if (value.getHour() >= 0)
+			hour = value.getHour();
+
+		if (value.getMinute() > 0)
+			minute = value.getMinute();
+
+		if (value.getSecond() >= 0)
+			second = value.getSecond();
+
+		if (value.getMillisecond() >= 0)
+			millis = value.getMillisecond();
 
 		timezone = value.getTimezone();
 		return null;

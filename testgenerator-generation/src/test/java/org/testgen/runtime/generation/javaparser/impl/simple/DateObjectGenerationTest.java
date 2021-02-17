@@ -8,7 +8,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -24,16 +23,13 @@ public class DateObjectGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new DateObjectGeneration();
 
 	private JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new DateObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -95,7 +91,7 @@ public class DateObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 
-		Assert.assertEquals("Date date = new Date(2020 - 1900, 10 - 1, 25);", block.getStatement(1).toString());
+		Assert.assertEquals("Date date = new Date(2020 - 1900, 10 - 1, 25);", block.getStatement(2).toString());
 
 		Assert.assertTrue(imports.contains(java.sql.Date.class));
 	}
@@ -111,7 +107,7 @@ public class DateObjectGenerationTest {
 		Assert.assertEquals("this.date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("Date date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(1).toString());
+		Assert.assertEquals("Date date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(2).toString());
 
 		Assert.assertTrue(imports.contains(Date.class));
 	}

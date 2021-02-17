@@ -1,5 +1,7 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import java.util.function.Consumer;
+
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 import org.testgen.runtime.generation.api.naming.NamingService;
@@ -18,6 +20,7 @@ import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 public class NullObjectGeneration
@@ -67,6 +70,7 @@ public class NullObjectGeneration
 		objectCreation.setLineComment("TODO set correct Type for " + name);
 
 		statementTree.addStatement(objectCreation);
+		statementTree.addStatement(new EmptyStmt());
 
 		bluePrint.setBuild();
 	}
@@ -74,6 +78,11 @@ public class NullObjectGeneration
 	@Override
 	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		return new NullLiteralExpr();
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		// nothing to do here
 	}
 
 }

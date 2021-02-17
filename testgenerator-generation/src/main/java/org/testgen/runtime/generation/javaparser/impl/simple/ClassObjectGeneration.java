@@ -19,6 +19,7 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.WildcardType;
 
@@ -27,7 +28,7 @@ public class ClassObjectGeneration
 
 	private NamingService<BlockStmt> namingService = getNamingService();
 
-	protected Consumer<Class<?>> importCallBackHandler = getImportCallBackHandler();
+	protected Consumer<Class<?>> importCallBackHandler;
 
 	private static final Logger LOGGER = LogManager.getLogger(ClassObjectGeneration.class);
 
@@ -68,6 +69,7 @@ public class ClassObjectGeneration
 						name, initalizer));
 
 		statementTree.addStatement(objectCreation);
+		statementTree.addStatement(new EmptyStmt());
 
 		bluePrint.setBuild();
 	}
@@ -82,6 +84,11 @@ public class ClassObjectGeneration
 		importCallBackHandler.accept(bluePrint.getReferenceClass());
 
 		return new ClassExpr(new ClassOrInterfaceType(null, bluePrint.valueCreation()));
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		this.importCallBackHandler = importCallBackHandler;
 	}
 
 	private static ClassOrInterfaceType getClassType() {

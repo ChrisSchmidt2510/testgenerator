@@ -11,11 +11,11 @@ import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
+import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.generation.javapoet.impl.TestGenerationHelper;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
@@ -33,17 +33,46 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 public abstract class BasicCollectionGeneration
 		implements CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> {
 
-	protected ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexGeneration = getComplexObjectGeneration();
+	protected ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexGeneration;
 
-	protected ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration = getArrayGeneration();
+	protected ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration;
 
-	protected SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory = getSimpleObjectGenerationFactory();
+	protected SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory;
 
-	protected CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory = getCollectionGenerationFactory();
+	protected CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory;
 
 	protected NamingService<BlockStmt> namingService = getNamingService();
 
-	protected Consumer<Class<?>> importCallbackHandler = getImportCallBackHandler();
+	protected Consumer<Class<?>> importCallbackHandler;
+
+	@Override
+	public void setSimpleObjectGenerationFactory(
+			SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory) {
+		this.simpleGenerationFactory = simpleGenerationFactory;
+	}
+
+	@Override
+	public void setCollectionGenerationFactory(
+			CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory) {
+		this.collectionGenerationFactory = collectionGenerationFactory;
+	}
+
+	@Override
+	public void setArrayGeneration(
+			ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration) {
+		this.arrayGeneration = arrayGeneration;
+	}
+
+	@Override
+	public void setComplexObjectGeneration(
+			ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexObjectGeneration) {
+		this.complexGeneration = complexObjectGeneration;
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		this.importCallbackHandler = importCallBackHandler;
+	}
 
 	@Override
 	public void addCollectionToField(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
@@ -60,11 +89,11 @@ public abstract class BasicCollectionGeneration
 		boolean isField = namingService.existsField(child);
 
 		if (child.isComplexBluePrint() && child.isNotBuild()) {
-			ClassData classData = TestGenerationHelper.getClassData(child.getReference());
+			ClassData classData = GenerationHelper.getClassData(child.getReference());
 
 			Set<FieldData> calledFields = Collections.emptySet();
 			if (TestgeneratorConfig.traceReadFieldAccess()) {
-				calledFields = TestGenerationHelper.getCalledFields(child.getReference());
+				calledFields = GenerationHelper.getCalledFields(child.getReference());
 			}
 
 			complexGeneration.createObject(statementTree, child.castToComplexBluePrint(), isField, classData,

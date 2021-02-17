@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -14,7 +15,6 @@ import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.javaparser.impl.collection.JavaParserCollectionGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
@@ -32,26 +32,31 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
 public class JavaParserArrayGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
-	private ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration;
+	private ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration = new JavaParserArrayGeneration();
 
 	private ArrayBluePrintFactory arrayFactory = new ArrayBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
+		JavaParserSimpleObjectGenerationFactory simpleObjectGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
+		JavaParserCollectionGenerationFactory collectionGenerationFactory = new JavaParserCollectionGenerationFactory();
 
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setSimpleObjectGenerationFactory(new JavaParserSimpleObjectGenerationFactory());
+		Consumer<Class<?>> importCallBackHandler = imports::add;
 
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setCollectionGenerationFactory(new JavaParserCollectionGenerationFactory());
+		arrayGeneration.setImportCallBackHandler(importCallBackHandler);
+		simpleObjectGenerationFactory.setImportCallBackHandler(importCallBackHandler);
+		collectionGenerationFactory.setImportCallBackHandler(importCallBackHandler);
 
-		arrayGeneration = new JavaParserArrayGeneration();
+		collectionGenerationFactory.setSimpleObjectGenerationFactory(simpleObjectGenerationFactory);
+
+		arrayGeneration.setSimpleObjectGenerationFactory(simpleObjectGenerationFactory);
+
+		arrayGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
 	}
 
 	@After
@@ -118,15 +123,20 @@ public class JavaParserArrayGenerationTest {
 				+ "    this.value[1] = 2;\r\n"//
 				+ "    this.value[2] = 4;\r\n"//
 				+ "    this.value[3] = 8;\r\n"//
+				+ "\r\n"//
 				+ "}";
-		Assert.assertEquals(expected, fieldWithSignature.toString());
+
+		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
+				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+
+		Assert.assertEquals(expected, fieldWithSignature.toString(printerConfig));
 
 		bluePrint.resetBuildState();
 
 		BlockStmt fieldWithoutSignature = new BlockStmt();
 
 		arrayGeneration.createArray(fieldWithoutSignature, bluePrint, null, true);
-		Assert.assertEquals(expected, fieldWithoutSignature.toString());
+		Assert.assertEquals(expected, fieldWithoutSignature.toString(printerConfig));
 
 		bluePrint.resetBuildState();
 
@@ -140,15 +150,16 @@ public class JavaParserArrayGenerationTest {
 				+ "    value[1] = 2;\r\n"//
 				+ "    value[2] = 4;\r\n"//
 				+ "    value[3] = 8;\r\n"//
+				+ "\r\n"//
 				+ "}";
-		Assert.assertEquals(expectedLocal, localWithSignature.toString());
+		Assert.assertEquals(expectedLocal, localWithSignature.toString(printerConfig));
 
 		bluePrint.resetBuildState();
 
 		BlockStmt localWithoutSignature = new BlockStmt();
 
 		arrayGeneration.createArray(localWithoutSignature, bluePrint, null, false);
-		Assert.assertEquals(expectedLocal, localWithoutSignature.toString());
+		Assert.assertEquals(expectedLocal, localWithoutSignature.toString(printerConfig));
 	}
 
 	@Test
@@ -221,4 +232,5 @@ public class JavaParserArrayGenerationTest {
 		arrayGeneration.addArrayToField(codeBlock, bluePrint, false, accessExpr);
 		Assert.assertEquals("this.object = value;", codeBlock.getStatement(1).toString());
 	}
+
 }

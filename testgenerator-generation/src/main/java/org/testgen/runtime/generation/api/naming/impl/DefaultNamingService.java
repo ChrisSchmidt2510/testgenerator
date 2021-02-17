@@ -1,7 +1,7 @@
 package org.testgen.runtime.generation.api.naming.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +13,7 @@ public class DefaultNamingService<E> implements NamingService<E> {
 
 	private List<Name> fieldNames = new ArrayList<>();
 
-	private Map<E, List<Name>> localNames = new HashMap<>();
+	private Map<E, List<Name>> localNames = new IdentityHashMap<>();
 
 	@Override
 	public String getFieldName(BluePrint bluePrint) {

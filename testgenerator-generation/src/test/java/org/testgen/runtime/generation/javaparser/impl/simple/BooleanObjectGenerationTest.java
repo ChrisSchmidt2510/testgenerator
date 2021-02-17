@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -23,16 +22,14 @@ public class BooleanObjectGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new BooleanObjectGeneration();
 
 	private BooleanBluePrintFactory factory = new BooleanBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 
-		simpleObjectGeneration = new BooleanObjectGeneration();
 	}
 
 	@After
@@ -68,7 +65,7 @@ public class BooleanObjectGenerationTest {
 		Assert.assertEquals("boolean value = false;", blockStmt.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(blockStmt, bluePrint, true);
-		Assert.assertEquals("this.value = false;", blockStmt.getStatement(1).toString());
+		Assert.assertEquals("this.value = false;", blockStmt.getStatement(2).toString());
 
 	}
 

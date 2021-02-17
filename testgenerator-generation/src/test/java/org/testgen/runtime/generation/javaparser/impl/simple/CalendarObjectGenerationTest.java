@@ -8,7 +8,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -24,16 +23,14 @@ public class CalendarObjectGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new CalendarObjectGeneration();
 
 	private CalendarBluePrintFactory factory = new CalendarBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 
-		simpleObjectGeneration = new CalendarObjectGeneration();
 	}
 
 	@After
@@ -72,7 +69,7 @@ public class CalendarObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, dateBp, false);
 		Assert.assertEquals("GregorianCalendar calendar = new GregorianCalendar(2020, 10 - 1, 25);",
-				block.getStatement(1).toString());
+				block.getStatement(2).toString());
 	}
 
 	@Test

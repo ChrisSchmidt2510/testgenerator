@@ -8,7 +8,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -23,16 +22,13 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 public class EnumObjectGenerationTest {
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new EnumObjectGeneration();
 
 	private EnumBluePrintFactory factory = new EnumBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new EnumObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -66,7 +62,7 @@ public class EnumObjectGenerationTest {
 		Assert.assertEquals("this.month = Month.JULY;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("Month month = Month.JULY;", block.getStatement(1).toString());
+		Assert.assertEquals("Month month = Month.JULY;", block.getStatement(2).toString());
 	}
 
 	@Test

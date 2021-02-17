@@ -8,7 +8,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -24,16 +23,13 @@ public class ClassObjectGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new ClassObjectGeneration();
 
 	private ClassBluePrintFactory factory = new ClassBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new ClassObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -72,7 +68,7 @@ public class ClassObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 
-		Assert.assertEquals("Class<?> clazz = String.class;", block.getStatement(1).toString());
+		Assert.assertEquals("Class<?> clazz = String.class;", block.getStatement(2).toString());
 
 	}
 

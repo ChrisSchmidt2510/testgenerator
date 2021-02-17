@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
@@ -27,7 +28,8 @@ public class JavaParserSimpleObjectGenerationFactory
 
 	SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> of(SimpleBluePrint<?> bluePrint) {
 		Optional<SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression>> optional = generators
-				.stream().filter(gen -> gen.canGenerateBluePrint(bluePrint)).findAny();
+				.stream().filter(gen -> gen.canGenerateBluePrint(bluePrint))
+				.max((gen1, gen2) -> Integer.compare(gen1.getPriority(), gen2.getPriority()));
 
 		if (optional.isPresent()) {
 			return optional.get();
@@ -56,6 +58,12 @@ public class JavaParserSimpleObjectGenerationFactory
 		SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
 
 		return generator.createInlineExpression(bluePrint);
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		generators.forEach(gen -> gen.setImportCallBackHandler(importCallBackHandler));
+
 	}
 
 }

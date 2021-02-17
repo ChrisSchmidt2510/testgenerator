@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -99,6 +100,28 @@ public class JavaParserHelper {
 			return PrimitiveType.longType();
 
 		throw new IllegalArgumentException("invalid primitive type" + primitive);
+	}
+
+	public static String getMethodName(ClassOrInterfaceDeclaration classDeclaration, String methodName) {
+		StringBuilder testMethodName = new StringBuilder("test");
+
+		testMethodName.append(methodName.substring(0, 1).toUpperCase());
+		testMethodName.append(methodName.substring(1));
+
+		String tempMethodName = testMethodName.toString();
+
+		int counter = 1;
+
+		while (!classDeclaration.getMethodsByName(tempMethodName).isEmpty()) {
+
+			if (Character.isDigit(tempMethodName.charAt(tempMethodName.length() - 1)))
+				tempMethodName = tempMethodName.substring(0, tempMethodName.length() - 1) + counter++;
+
+			else
+				tempMethodName += counter++;
+		}
+
+		return tempMethodName;
 	}
 
 }

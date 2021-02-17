@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -28,7 +27,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 public class LocalDateTimeObjectGenerationTest {
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new LocalDateTimeObjectGeneration();
 
 	private LocalDateBluePrintFactory dateFactory = new LocalDateBluePrintFactory();
 	private LocalTimeBluePrintFactory timeFactory = new LocalTimeBluePrintFactory();
@@ -36,10 +35,7 @@ public class LocalDateTimeObjectGenerationTest {
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new LocalDateTimeObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -110,7 +106,7 @@ public class LocalDateTimeObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 		Assert.assertEquals("LocalDate localDate = LocalDate.of(2020, Month.OCTOBER, 31);",
-				block.getStatement(1).toString());
+				block.getStatement(2).toString());
 	}
 
 	@Test
@@ -124,7 +120,7 @@ public class LocalDateTimeObjectGenerationTest {
 		Assert.assertEquals("this.localTime = LocalTime.of(17, 15);", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("LocalTime localTime = LocalTime.of(17, 15);", block.getStatement(1).toString());
+		Assert.assertEquals("LocalTime localTime = LocalTime.of(17, 15);", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -142,7 +138,7 @@ public class LocalDateTimeObjectGenerationTest {
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 		Assert.assertEquals(
 				"LocalDateTime localDateTime = LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18));",
-				block.getStatement(1).toString());
+				block.getStatement(2).toString());
 	}
 
 	@Test

@@ -14,10 +14,10 @@ import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
+import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.generation.javapoet.impl.TestGenerationHelper;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -38,6 +38,7 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
@@ -46,15 +47,15 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 
 	private static final Logger LOGGER = LogManager.getLogger(JavaParserArrayGeneration.class);
 
-	private ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexGeneration = getComplexObjectGeneration();
+	private ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexGeneration;
 
-	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory = getSimpleObjectGenerationFactory();
+	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory;
 
-	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory = getCollectionGenerationFactory();
+	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory;
 
 	private NamingService<BlockStmt> namingService = getNamingService();
 
-	private Consumer<Class<?>> importCallbackHandler = getImportCallBackHandler();
+	private Consumer<Class<?>> importCallbackHandler;
 
 	@Override
 	public void createField(ClassOrInterfaceDeclaration compilationUnit, ArrayBluePrint bluePrint,
@@ -103,6 +104,8 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 
 			}
 
+			statementTree.addStatement(new EmptyStmt());
+
 			bluePrint.setBuild();
 		}
 
@@ -122,11 +125,11 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 			boolean isField = namingService.existsField(child);
 
 			if (child.isComplexBluePrint() && child.isNotBuild()) {
-				ClassData classData = TestGenerationHelper.getClassData(child.getReference());
+				ClassData classData = GenerationHelper.getClassData(child.getReference());
 
 				Set<FieldData> calledFields = Collections.emptySet();
 				if (TestgeneratorConfig.traceReadFieldAccess()) {
-					calledFields = TestGenerationHelper.getCalledFields(child.getReference());
+					calledFields = GenerationHelper.getCalledFields(child.getReference());
 				}
 
 				complexGeneration.createObject(statementTree, child.castToComplexBluePrint(), isField, classData,
@@ -159,8 +162,8 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 			statementTree.addStatement(new MethodCallExpr(accessExpr, setter.getName(), NodeList.nodeList(arrayExpr)));
 		} else if (SetterType.VALUE_GETTER == type) {
 
-			if ((isField && namingService.existsField(bluePrint))
-					|| namingService.existsLocal(statementTree, bluePrint)) {
+			if ((isField && namingService.existsField(bluePrint)) || namingService.existsLocal(statementTree, bluePrint)
+					|| bluePrint.isBuild()) {
 
 				Expression valueAccessExpr = isField
 						? new FieldAccessExpr(new ThisExpr(), namingService.getFieldName(bluePrint))
@@ -289,5 +292,28 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 					: new NameExpr(namingService.getLocalName(statementTree, bluePrint));
 
 		return simpleGenerationFactory.createInlineExpression(bluePrint.castToSimpleBluePrint());
+	}
+
+	@Override
+	public void setSimpleObjectGenerationFactory(
+			SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory) {
+		this.simpleGenerationFactory = simpleGenerationFactory;
+	}
+
+	@Override
+	public void setCollectionGenerationFactory(
+			CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory) {
+		this.collectionGenerationFactory = collectionGenerationFactory;
+	}
+
+	@Override
+	public void setComplexObjectGeneration(
+			ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexObjectGeneration) {
+		this.complexGeneration = complexObjectGeneration;
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		this.importCallbackHandler = importCallBackHandler;
 	}
 }

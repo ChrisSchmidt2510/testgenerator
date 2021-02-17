@@ -1,9 +1,12 @@
 package org.testgen.testgenerator.ui.plugin.helper;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.swt.graphics.Point;
@@ -33,6 +36,40 @@ public final class JDTUtil {
 			return null;
 		}
 
+	}
+
+	public static boolean validateType(IType type) {
+		if (!type.isBinary())
+			try {
+
+				return (type.isClass() || type.isEnum()) && !Flags.isPrivate(type.getFlags());
+
+			} catch (JavaModelException e) {
+				TestgeneratorActivator.log(e);
+				return false;
+			}
+
+		return false;
+	}
+
+	public static boolean validateMethod(IMethod method) {
+		if (method != null) {
+
+			boolean isNotTest = false;
+
+			int flags = 0;
+			try {
+				flags = method.getFlags();
+
+				isNotTest = !JavaModelUtil.getPackageFragmentRoot(method).getResolvedClasspathEntry().isTest();
+			} catch (JavaModelException e) {
+				TestgeneratorActivator.log(e);
+			}
+
+			return isNotTest && !Flags.isPrivate(flags) && !Flags.isProtected(flags);
+		}
+
+		return false;
 	}
 
 }

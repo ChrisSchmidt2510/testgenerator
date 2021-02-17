@@ -48,6 +48,7 @@ import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.EmptyStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
@@ -56,13 +57,13 @@ public class JavaParserComplexObjectGeneration
 
 	private static final Logger LOGGER = LogManager.getLogger(JavaParserComplexObjectGeneration.class);
 
-	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGenerationFactory = getSimpleObjectGenerationFactory();
+	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGenerationFactory;
 
-	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory = getCollectionGenerationFactory();
+	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory;
 
-	private ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration = getArrayGeneration();
+	private ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration;
 
-	private Consumer<Class<?>> importCallBackHandler = getImportCallBackHandler();
+	private Consumer<Class<?>> importCallBackHandler;
 
 	private NamingService<BlockStmt> namingService = NamingServiceProvider.getNamingService();
 
@@ -126,22 +127,25 @@ public class JavaParserComplexObjectGeneration
 						}
 					}
 
-					ClassOrInterfaceType type = new ClassOrInterfaceType(null, bluePrint.getSimpleClassName());
-
-					if (classData.isInnerClass()) {
-						NameExpr outerClassName = new NameExpr(
-								getBluePrintForClassData(bluePrint, classData.getOuterClass(), statementTree));
-
-						objInitalizer = new ObjectCreationExpr(outerClassName, type, arguments);
-					} else {
-						objInitalizer = new ObjectCreationExpr(null, type, arguments);
-					}
-
-				} else {
-					objInitalizer = new NullLiteralExpr();
-					objInitalizer.addOrphanComment(new LineComment(
-							"TODO add initalization for class: " + bluePrint.getClassNameOfReference()));
 				}
+			}
+
+			ClassOrInterfaceType type = new ClassOrInterfaceType(null, bluePrint.getSimpleClassName());
+
+			String comment = null;
+
+			if (!classData.hasDefaultConstructor() && !classData.getConstructor().isNotEmpty()) {
+				objInitalizer = new NullLiteralExpr();
+				comment = "TODO add initalization for class: " + bluePrint.getReferenceClass().getSimpleName();
+
+			} else if (classData.isInnerClass()) {
+				NameExpr outerClassName = new NameExpr(
+						getBluePrintForClassData(bluePrint, classData.getOuterClass(), statementTree));
+
+				objInitalizer = new ObjectCreationExpr(outerClassName, type, arguments);
+
+			} else {
+				objInitalizer = new ObjectCreationExpr(null, type, arguments);
 			}
 
 			importCallBackHandler.accept(bluePrint.getReference().getClass());
@@ -151,13 +155,17 @@ public class JavaParserComplexObjectGeneration
 
 			Expression objectCreation = isField
 					? new AssignExpr(new ThisExpr(new Name(name)), objInitalizer, Operator.ASSIGN)
-					: new VariableDeclarationExpr(
-							new VariableDeclarator(new ClassOrInterfaceType(null, bluePrint.getSimpleClassName()), //
-									name, objInitalizer));
+					: new VariableDeclarationExpr(new VariableDeclarator(type, name, objInitalizer));
 
-			statementTree.addStatement(objectCreation);
+			ExpressionStmt stmt = new ExpressionStmt(objectCreation);
+			if (comment != null)
+				stmt.setLineComment(comment);
+
+			statementTree.addStatement(stmt);
 
 			addChildsToObject(statementTree, bluePrint, classData, calledFields, usedBluePrints);
+
+			statementTree.addStatement(new EmptyStmt());
 
 			bluePrint.setBuild();
 		}
@@ -175,6 +183,7 @@ public class JavaParserComplexObjectGeneration
 			if (calledField.isPresent() || !TestgeneratorConfig.traceReadFieldAccess() || //
 					(classData.isInnerClass()
 							&& classData.getOuterClass().getName().equals(bp.getClassNameOfReference()))) {
+
 				if (bp.isComplexBluePrint()) {
 					createComplexObject(codeBlock, bp);
 
@@ -182,20 +191,47 @@ public class JavaParserComplexObjectGeneration
 					AbstractBasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
 
 					SignatureType signature = null;
+					SetterMethodData setter = null;
 					if (TestgeneratorConfig.traceReadFieldAccess()) {
 						FieldData field = classData.getFieldInHierarchie(calledField.get());
 						signature = field.getSignature();
 
+						setter = classData.getSetterInHierarchie(field);
+
 					} else {
 						FieldData field = classData.getCollectionFieldInHierarchie(collection.getName());
 						signature = field.getSignature();
+
+						setter = classData.getSetterInHierarchie(field);
 					}
 
-					collectionGenerationFactory.createCollection(codeBlock, collection, signature, false);
+					if (SetterType.COLLECTION_SETTER == setter.getType())
+						collectionGenerationFactory.createComplexElements(codeBlock, collection, signature);
+
+					else
+						collectionGenerationFactory.createCollection(codeBlock, collection, signature, false);
+
 				} else if (bp.isArrayBluePrint()) {
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();
 
-					arrayGeneration.createArray(codeBlock, arrayBluePrint, null, false);
+					SignatureType signature = null;
+					SetterMethodData setter = null;
+					if (TestgeneratorConfig.traceReadFieldAccess()) {
+						FieldData field = classData.getFieldInHierarchie(calledField.get());
+						signature = field.getSignature();
+
+						setter = classData.getSetterInHierarchie(field);
+
+					} else {
+						FieldData field = classData.getFieldInHierarchie(arrayBluePrint.getName(),
+								arrayBluePrint.getReferenceClass());
+						signature = field.getSignature();
+
+						setter = classData.getSetterInHierarchie(field);
+					}
+
+					if (SetterType.VALUE_SETTER == setter.getType())
+						arrayGeneration.createArray(codeBlock, arrayBluePrint, signature, false);
 				}
 			}
 		}
@@ -274,10 +310,11 @@ public class JavaParserComplexObjectGeneration
 
 				if (originalField.isPublic())
 					addChildToField(codeBlock, bpField, accessExpr);
+
 				else {
 					SetterMethodData setter = classData.getSetterInHierarchie(field);
 
-					addChildToObject(codeBlock, bluePrint, setter, accessExpr);
+					addChildToObject(codeBlock, bpField, setter, accessExpr);
 				}
 			}
 
@@ -331,6 +368,29 @@ public class JavaParserComplexObjectGeneration
 						String.format("no BluePrint found for ClassData %s", outerClass)));
 
 		return namingService.getLocalName(blockStmt, outerClassBP);
+	}
+
+	@Override
+	public void setSimpleObjectGenerationFactory(
+			SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory) {
+		this.simpleObjectGenerationFactory = simpleGenerationFactory;
+	}
+
+	@Override
+	public void setCollectionGenerationFactory(
+			CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory) {
+		this.collectionGenerationFactory = collectionGenerationFactory;
+	}
+
+	@Override
+	public void setArrayGeneration(
+			ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration) {
+		this.arrayGeneration = arrayGeneration;
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		this.importCallBackHandler = importCallBackHandler;
 	}
 
 }

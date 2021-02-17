@@ -31,6 +31,7 @@ import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -42,7 +43,7 @@ public class XmlGregorianCalendarObjectGeneration
 
 	private NamingService<BlockStmt> namingService = getNamingService();
 
-	private Consumer<Class<?>> importCallBackHandler = getImportCallBackHandler();
+	private Consumer<Class<?>> importCallBackHandler;
 
 	@Override
 	public boolean canGenerateBluePrint(SimpleBluePrint<?> bluePrint) {
@@ -144,12 +145,18 @@ public class XmlGregorianCalendarObjectGeneration
 		TryStmt tryStmt = new TryStmt(tryBlock, NodeList.nodeList(catchClause), null);
 
 		statementTree.addStatement(tryStmt);
+		statementTree.addStatement(new EmptyStmt());
 
 	}
 
 	@Override
 	public Expression createInlineExpression(SimpleBluePrint<?> bluePrint) {
 		throw new UnsupportedOperationException("cant create inline object XMLGregorianCalendarBluePrint");
+	}
+
+	@Override
+	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
+		this.importCallBackHandler = importCallBackHandler;
 	}
 
 }

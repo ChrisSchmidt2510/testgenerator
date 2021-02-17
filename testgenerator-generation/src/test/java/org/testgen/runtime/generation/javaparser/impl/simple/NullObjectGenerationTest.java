@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -24,16 +23,13 @@ public class NullObjectGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new NullObjectGeneration();
 
 	private NullBluePrintFactory factory = new NullBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new NullObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -46,18 +42,28 @@ public class NullObjectGenerationTest {
 	@Test
 	public void testCreateField() {
 		PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
-		config.setPrintJavadoc(false);
+		config.setPrintJavadoc(true);
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
 
+		String expectedValueWithInit = "/**\r\n" + //
+				" * TODO set correct Type for value\r\n" + //
+				" */\r\n" + //
+				"private Object value = null;";
+
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private Object value = null;", cu.getFields().get(0).toString(config));
+		Assert.assertEquals(expectedValueWithInit, cu.getFields().get(0).toString(config));
+
+		String expectedValueWithoutInit = "/**\r\n" + //
+				" * TODO set correct Type for value\r\n" + //
+				" */\r\n" + //
+				"private Object value;";
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private Object value;", cu.getFields().get(1).toString(config));
+		Assert.assertEquals(expectedValueWithoutInit, cu.getFields().get(1).toString(config));
 	}
 
 	@Test
@@ -77,7 +83,7 @@ public class NullObjectGenerationTest {
 				+ "Object value = null;";
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals(expectedLocal, block.getStatement(1).toString());
+		Assert.assertEquals(expectedLocal, block.getStatement(2).toString());
 	}
 
 	@Test

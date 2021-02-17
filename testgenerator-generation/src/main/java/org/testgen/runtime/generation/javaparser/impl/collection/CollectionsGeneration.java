@@ -34,6 +34,7 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
@@ -99,6 +100,8 @@ public class CollectionsGeneration extends BasicCollectionGeneration {
 				statementTree.addStatement(new MethodCallExpr(accessExpr, "add", //
 						NodeList.nodeList(expr)));
 			}
+
+			statementTree.addStatement(new EmptyStmt());
 
 			bluePrint.setBuild();
 		}

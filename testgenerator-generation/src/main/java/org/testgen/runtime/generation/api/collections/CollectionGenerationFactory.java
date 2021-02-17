@@ -1,9 +1,15 @@
 package org.testgen.runtime.generation.api.collections;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
+import org.testgen.runtime.generation.api.ArrayGeneration;
+import org.testgen.runtime.generation.api.ComplexObjectGeneration;
+import org.testgen.runtime.generation.api.naming.NamingService;
+import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
+import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -25,10 +31,9 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * collection. The collection gets also fully initalized with his elements
 	 * 
 	 * @param codeBlock codeBlock where the generated code is added
-	 * @param bluePrint     of the {@link Collection}
-	 * @param signature     of the {@link Collection}
-	 * @param isField       marks the that the collection is a Field of generated
-	 *                      Class
+	 * @param bluePrint of the {@link Collection}
+	 * @param signature of the {@link Collection}
+	 * @param isField   marks the that the collection is a Field of generated Class
 	 */
 	void createCollection(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, //
 			SignatureType signature, boolean isField);
@@ -43,21 +48,20 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * All Types of {@link SimpleBluePrint} doesnt't get generated.
 	 * 
 	 * @param codeBlock codeBlock where the generated code is added
-	 * @param bluePrint     of the {@link Collection}
-	 * @param signature     of the {@link Collection}
+	 * @param bluePrint of the {@link Collection}
+	 * @param signature of the {@link Collection}
 	 */
 	void createComplexElements(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureType signature);
 
 	/**
 	 * Add the collection to a Object dependent on the {@link SetterMethodData}
 	 * 
-	 * @param codeBlock codeBlock where the generated code is added
-	 * @param bluePrint     of the {@link Collection}
-	 * @param isField       marks the that the collection is a Field of generated
-	 *                      Class
-	 * @param setter        setter of the object the collection is added to.
-	 * @param accessExpr    expression to access the object where to collection is
-	 *                      added to
+	 * @param codeBlock  codeBlock where the generated code is added
+	 * @param bluePrint  of the {@link Collection}
+	 * @param isField    marks the that the collection is a Field of generated Class
+	 * @param setter     setter of the object the collection is added to.
+	 * @param accessExpr expression to access the object where to collection is
+	 *                   added to
 	 */
 	void addCollectionToObject(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
 			SetterMethodData setter, S accessExpr);
@@ -65,13 +69,24 @@ public interface CollectionGenerationFactory<T, E, S> {
 	/**
 	 * Add the collection to a Object direct by accessing a field directly
 	 * 
-	 * @param codeBlock codeBlock where the generated code is added
-	 * @param bluePrint     of the {@link Collection}
-	 * @param isField       marks the that the collection is a Field of generated
-	 *                      Class
-	 * @param accessExpr    expression to access the object where to collection is
-	 *                      added to
+	 * @param codeBlock  codeBlock where the generated code is added
+	 * @param bluePrint  of the {@link Collection}
+	 * @param isField    marks the that the collection is a Field of generated Class
+	 * @param accessExpr expression to access the object where to collection is
+	 *                   added to
 	 */
 	void addCollectionToField(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
 			S accessExpr);
+
+	void setSimpleObjectGenerationFactory(SimpleObjectGenerationFactory<T, E, S> simpleGenerationFactory);
+
+	void setComplexObjectGeneration(ComplexObjectGeneration<T, E, S> complexObjectGeneration);
+
+	void setArrayGeneration(ArrayGeneration<T, E, S> arrayGeneration);
+
+	void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler);
+
+	default NamingService<E> getNamingService() {
+		return NamingServiceProvider.getNamingService();
+	}
 }

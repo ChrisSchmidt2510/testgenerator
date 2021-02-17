@@ -31,21 +31,13 @@ public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, Com
 
 	void addChildToField(E codeBlock, BluePrint bluePrint, S accessExpr);
 
-	default SimpleObjectGenerationFactory<T, E, S> getSimpleObjectGenerationFactory() {
-		return GenerationFactory.<T, E, S>getInstance().getSimpleObjectGenerationFactory();
-	}
+	void setSimpleObjectGenerationFactory(SimpleObjectGenerationFactory<T, E, S> simpleGenerationFactory);
 
-	default CollectionGenerationFactory<T, E, S> getCollectionGenerationFactory() {
-		return GenerationFactory.<T, E, S>getInstance().getCollectionGenerationFactory();
-	}
+	void setCollectionGenerationFactory(CollectionGenerationFactory<T, E, S> collectionGenerationFactory);
 
-	default ArrayGeneration<T, E, S> getArrayGeneration() {
-		return GenerationFactory.<T, E, S>getInstance().getArrayGeneration();
-	}
+	void setArrayGeneration(ArrayGeneration<T, E, S> arrayGeneration);
 
-	default Consumer<Class<?>> getImportCallBackHandler() {
-		return GenerationFactory.<T, E, S>getInstance().getImportCallBackHandler();
-	}
+	void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler);
 
 	default NamingService<E> getNamingService() {
 		return NamingServiceProvider.getNamingService();

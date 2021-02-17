@@ -1,6 +1,5 @@
 package org.testgen.runtime.generation;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +12,9 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
-import org.testgen.runtime.generation.api.GenerationFactory;
+import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.TestClassGeneration;
-import org.testgen.runtime.generation.javapoet.impl.DefaultTestClassGeneration;
-import org.testgen.runtime.generation.javapoet.impl.TestGenerationHelper;
+import org.testgen.runtime.generation.javaparser.impl.JavaParserTestClassGeneration;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 import org.testgen.runtime.valuetracker.storage.ValueStorage;
@@ -44,22 +42,12 @@ public final class Testgenerator {
 
 		TestClassGeneration<T, E, S> testGenerator = getTestClassGenerationImplementation();
 
-		GenerationFactory<T, E, S> generationFactory = GenerationFactory.getInstance();
-		generationFactory.setComplexObjectGeneration(testGenerator.createComplexObjectGeneration());
-//		generationFactory.setSimpleObjectGenerationFactory(testGenerator.createSimpleObjectGeneration());
-
-//		generationFactory.setCollectionGenerationFactory(testGenerator.createCollectionGeneration());
-		generationFactory.setArrayGeneration(testGenerator.createArrayGeneration());
-
-		generationFactory.setImportCallBackHandler(testGenerator.importCallBackHandler());
-
 		T compilationUnit = testGenerator.createTestClass(testClass);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
 
-		ClassData classData = TestGenerationHelper.getClassData(testObject.getReference());
-		Set<FieldData> calledFields = trackingActivated
-				? TestGenerationHelper.getCalledFields(testObject.getReference())
+		ClassData classData = GenerationHelper.getClassData(testObject.getReference());
+		Set<FieldData> calledFields = trackingActivated ? GenerationHelper.getCalledFields(testObject.getReference())
 				: Collections.emptySet();
 
 		testGenerator.prepareTestObject(compilationUnit, testObject, classData, calledFields);
@@ -76,6 +64,8 @@ public final class Testgenerator {
 
 		testGenerator.generateTestMethod(compilationUnit, method, withProxyObjects);
 
+		testGenerator.toFile(compilationUnit);
+
 		ValueStorage.getInstance().popAndResetTestData();
 	}
 
@@ -85,11 +75,8 @@ public final class Testgenerator {
 
 		if (costumTestgeneratorClass != null) {
 			Class<?> costumTestgenerator = ReflectionUtil.forName(costumTestgeneratorClass);
-			if (!Arrays.stream(costumTestgenerator.getInterfaces())
-					.anyMatch(i -> TestClassGeneration.class.isAssignableFrom(i))) {
-				throw new IllegalArgumentException(
-						costumTestgenerator + "is a invalid implementation for " + TestClassGeneration.class);
-			}
+
+			ReflectionUtil.checkForInterface(costumTestgenerator, TestClassGeneration.class);
 
 			if (ReflectionUtil.getConstructor(costumTestgenerator) == null) {
 				throw new IllegalArgumentException(
@@ -99,7 +86,7 @@ public final class Testgenerator {
 			return (TestClassGeneration<T, E, S>) ReflectionUtil.newInstance(costumTestgenerator);
 		}
 
-		return (TestClassGeneration<T, E, S>) new DefaultTestClassGeneration();
+		return (TestClassGeneration<T, E, S>) new JavaParserTestClassGeneration();
 	}
 
 }

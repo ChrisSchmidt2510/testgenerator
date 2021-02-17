@@ -52,7 +52,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 		CharacterBluePrintFactory bluePrintFactory = new CharacterBluePrintFactory();
 		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", 'C', null).castToSimpleBluePrint();
 
-		Assert.assertTrue(factory.of(bluePrint) instanceof DateObjectGeneration);
+		Assert.assertTrue(factory.of(bluePrint) instanceof CharacterObjectGeneration);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", new Date(2021 - 1900, 1 - 1, 1), null)
 				.castToSimpleBluePrint();
 
-		Assert.assertTrue(factory.of(bluePrint) instanceof ClassObjectGeneration);
+		Assert.assertTrue(factory.of(bluePrint) instanceof DateObjectGeneration);
 	}
 
 	@Test

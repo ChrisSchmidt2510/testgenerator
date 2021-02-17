@@ -45,7 +45,8 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 
 	@Override
 	public List<BluePrint> getPreExecuteBluePrints() {
-		return Arrays.stream(elements).filter(BluePrint::isComplexType).collect(Collectors.toList());
+		return Arrays.stream(elements).filter(bluePrint -> bluePrint != null && bluePrint.isComplexType())
+				.collect(Collectors.toList());
 	}
 
 	public void add(int index, BluePrint element) {
@@ -69,7 +70,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	public void resetBuildState() {
 		if (build) {
 			build = false;
-			Arrays.stream(elements).forEach(BluePrint::resetBuildState);
+			Arrays.stream(elements).filter(el -> el != null).forEach(BluePrint::resetBuildState);
 		}
 	}
 

@@ -22,9 +22,9 @@ public final class TestgeneratorConfig {
 	private static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
 	private static final String PARAM_BL_PACKAGE_JAR_DEST = "TestgeneratorBlPackageJarDest";
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
+	private static final String PARAM_PATH_TO_TESTCLASS = "TestgeneratorPathToTestClass";
 
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
-
 	private static final String PARAM_CUSTOM_NAMING_SERVICE_CLASS = "TestgeneratorCustomNamingServiceClass";
 	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
 
@@ -41,19 +41,30 @@ public final class TestgeneratorConfig {
 
 		String className = parser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME);
 		System.setProperty(PARAM_CLASS_NAME, className);
+
 		System.setProperty(PARAM_CLASS_NAMES, generateSystemPropertyArgument(isInnerClass(className)));
+
 		System.setProperty(PARAM_METHOD_NAME, parser.getArgumentValue(DefinedArguments.ARG_METHOD_NAME));
+
 		System.setProperty(PARAM_METHOD_DESC, parser.getArgumentValue(DefinedArguments.ARG_METHOD_DESC));
+
 		System.setProperty(PARAM_BL_PACKAGE,
 				generateSystemPropertyArgument(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE)));
+
 		System.setProperty(PARAM_BL_PACKAGE_JAR_DEST,
 				generateSystemPropertyArgument(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST)));
+
+		System.setProperty(PARAM_PATH_TO_TESTCLASS, parser.getArgumentValue(DefinedArguments.ARG_PATH_TO_TESTCLASS));
+
 		System.setProperty(PARAM_PRINT_CLASS_FILE_DIR,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR)));
+
 		System.setProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_TESTGENERATOR_CLASS)));
+
 		System.setProperty(PARAM_CUSTOM_NAMING_SERVICE_CLASS,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_NAMING_SERVICE_CLASS)));
+
 		System.setProperty(PARAM_TRACE_READ_FIELD_ACCESS,
 				Boolean.toString(parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS)));
 
@@ -99,6 +110,10 @@ public final class TestgeneratorConfig {
 		String property = System.getProperty(PARAM_PRINT_CLASS_FILE_DIR);
 
 		return checkStringFilled(property) ? property : null;
+	}
+
+	public static String getPathToTestclass() {
+		return System.getProperty(PARAM_PATH_TO_TESTCLASS);
 	}
 
 	public static String getCustomTestgeneratorClass() {
@@ -157,7 +172,9 @@ public final class TestgeneratorConfig {
 				+ System.lineSeparator());
 		builder.append(PARAM_PRINT_CLASS_FILE_DIR + "=" + getPrintClassFileDirectory() + System.lineSeparator());
 		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomTestgeneratorClass() + System.lineSeparator());
-//		builder.append(PARAM_CUSTOM_NAMING_SERVICE_CLASS+ "=" + getN)
+		builder.append(
+				PARAM_CUSTOM_NAMING_SERVICE_CLASS + "=" + getCustomNamingServiceClass() + System.lineSeparator());
+		builder.append(PARAM_PATH_TO_TESTCLASS + "=" + getPathToTestclass() + System.lineSeparator());
 		builder.append(PARAM_TRACE_READ_FIELD_ACCESS + "=" + traceReadFieldAccess() + System.lineSeparator());
 		builder.append(PARAM_RUNTIME_FIELD_TRACKING + "=" + isFieldTrackingActivated() + System.lineSeparator());
 		builder.append(PARAM_RUNTIME_PROXY_TRACKING + "=" + isProxyTrackingActivated() + System.lineSeparator());

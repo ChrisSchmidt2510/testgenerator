@@ -15,9 +15,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
+import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBluePrint.XMLGregorianCalendarBluePrintFactory;
 
@@ -30,16 +30,13 @@ public class XmlGregorianCalendarGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
 
-	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration;
+	private SimpleObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new XmlGregorianCalendarObjectGeneration();
 
 	private XMLGregorianCalendarBluePrintFactory factory = new XMLGregorianCalendarBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
-
-		simpleObjectGeneration = new XmlGregorianCalendarObjectGeneration();
+		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
 	@After
@@ -53,6 +50,7 @@ public class XmlGregorianCalendarGenerationTest {
 	public void testCreateObject() throws IOException {
 		PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
 		config.setPrintComments(false);
+		config.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
 		XMLGregorianCalendar calendar = null;
 
@@ -85,6 +83,7 @@ public class XmlGregorianCalendarGenerationTest {
 				+ "    } catch (DatatypeConfigurationException e) {\r\n" //
 				+ "        e.printStackTrace();\r\n"//
 				+ "    }\r\n"//
+				+ "\r\n"//
 				+ "}";
 
 		simpleObjectGeneration.createObject(newBlock, bluePrint, false);

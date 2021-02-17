@@ -20,9 +20,9 @@ import org.junit.Test;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
+import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint.CollectionBluePrintFactory;
@@ -36,23 +36,20 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
 public class CollectionsGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
-	private CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGeneration;
+	private CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGeneration = new CollectionsGeneration();
 
 	private CollectionBluePrintFactory collectionFactory = new CollectionBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
+		collectionGeneration.setImportCallBackHandler(imports::add);
 
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setSimpleObjectGenerationFactory(new JavaParserSimpleObjectGenerationFactory());
-
-		collectionGeneration = new CollectionsGeneration();
+		collectionGeneration.setSimpleObjectGenerationFactory(new JavaParserSimpleObjectGenerationFactory());
 	}
 
 	@After
@@ -194,9 +191,13 @@ public class CollectionsGenerationTest {
 				+ "    list.add(\"foo\");\r\n"//
 				+ "    list.add(\"oof\");\r\n"//
 				+ "    list.add(\"why\");\r\n"//
+				+ "\r\n"//
 				+ "}";
 
-		Assert.assertEquals(expected, block.toString());
+		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
+				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+
+		Assert.assertEquals(expected, block.toString(printerConfig));
 
 		Assert.assertTrue(imports.contains(List.class) && imports.contains(ArrayList.class));
 

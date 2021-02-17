@@ -16,9 +16,9 @@ import org.junit.Test;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
-import org.testgen.runtime.generation.api.GenerationFactory;
 import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
+import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -34,23 +34,20 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
 public class MapGenerationTest {
 
 	private Set<Class<?>> imports = new HashSet<>();
-	private CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGeneration;
+	private CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGeneration = new MapGeneration();
 
 	private MapBluePrintFactory mapFactory = new MapBluePrintFactory();
 
 	@Before
 	public void init() {
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setImportCallBackHandler(imports::add);
+		collectionGeneration.setImportCallBackHandler(imports::add);
 
-		GenerationFactory.<ClassOrInterfaceDeclaration, BlockStmt, Expression>getInstance()
-				.setSimpleObjectGenerationFactory(new JavaParserSimpleObjectGenerationFactory());
-
-		collectionGeneration = new MapGeneration();
+		collectionGeneration.setSimpleObjectGenerationFactory(new JavaParserSimpleObjectGenerationFactory());
 	}
 
 	@After
@@ -120,10 +117,14 @@ public class MapGenerationTest {
 		String expectedField = "{\r\n"//
 				+ "    this.value.put(5, \"foo\");\r\n"//
 				+ "    this.value.put(10, \"oof\");\r\n"//
+				+ "\r\n"//
 				+ "}";
 
+		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
+				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+
 		collectionGeneration.createCollection(block, bluePrint, signature, true);
-		Assert.assertEquals(expectedField, block.toString());
+		Assert.assertEquals(expectedField, block.toString(printerConfig));
 
 		bluePrint.resetBuildState();
 
@@ -133,10 +134,11 @@ public class MapGenerationTest {
 				+ "    Map<Integer, String> value = new HashMap<>();\r\n"//
 				+ "    value.put(5, \"foo\");\r\n"//
 				+ "    value.put(10, \"oof\");\r\n"//
+				+ "\r\n"//
 				+ "}";
 
 		collectionGeneration.createCollection(newBlock, bluePrint, signature, false);
-		Assert.assertEquals(expectedLocal, newBlock.toString());
+		Assert.assertEquals(expectedLocal, newBlock.toString(printerConfig));
 
 	}
 
