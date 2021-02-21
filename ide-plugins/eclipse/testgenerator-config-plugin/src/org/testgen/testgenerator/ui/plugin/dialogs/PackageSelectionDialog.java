@@ -341,7 +341,8 @@ public class PackageSelectionDialog extends SelectionDialog {
 		IMavenProjectFacade mavenProject = projectRegistry.getProject(project);
 
 		selectedProject.setFragmentRoot(packageFragment);
-		selectedProject.setOutputLocation(project.getFolder(mavenProject.getOutputLocation()).getLocation());
+		selectedProject.setOutputLocation(
+				project.getFolder(mavenProject.getOutputLocation().removeFirstSegments(1)).getLocation());
 
 		packageViewer.setInput(packageFragment);
 		packageViewer.expandAll();
