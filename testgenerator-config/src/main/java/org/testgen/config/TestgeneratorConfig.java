@@ -26,7 +26,8 @@ public final class TestgeneratorConfig {
 
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
 	private static final String PARAM_CUSTOM_NAMING_SERVICE_CLASS = "TestgeneratorCustomNamingServiceClass";
-	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
+	/* only for test cases public */
+	public static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
 
 	// Runtime-Properties
 	private static final String PARAM_RUNTIME_FIELD_TRACKING = "TestgeneratorRuntimeFieldTracking";

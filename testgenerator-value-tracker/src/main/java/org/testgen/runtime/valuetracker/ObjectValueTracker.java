@@ -10,7 +10,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -29,6 +29,7 @@ import org.testgen.runtime.proxy.impl.LongProxy;
 import org.testgen.runtime.proxy.impl.ReferenceProxy;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.BluePrintsFactory;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.Type;
@@ -48,7 +49,7 @@ public final class ObjectValueTracker {
 
 	private static final ObjectValueTracker INSTANCE = new ObjectValueTracker();
 
-	private final List<BluePrintFactory> factories = new ArrayList<>();
+	private final BluePrintsFactory bluePrintsFactory = new BluePrintsFactory();
 
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
 
@@ -56,8 +57,6 @@ public final class ObjectValueTracker {
 	private final Map<Object, List<Consumer<BluePrint>>> addValueAfterCreation = new HashMap<>();
 
 	private ObjectValueTracker() {
-		ServiceLoader<BluePrintFactory> serviceLoader = ServiceLoader.load(BluePrintFactory.class);
-		serviceLoader.forEach(factories::add);
 	}
 
 	public static ObjectValueTracker getInstance() {
@@ -95,19 +94,18 @@ public final class ObjectValueTracker {
 
 		BluePrint bluePrint = null;
 
-		BiFunction<String, Object, BluePrint> childCallBack = (newName, newValue) -> trackValues(newValue, newName);
+		Optional<BluePrintFactory> factoryOptional = bluePrintsFactory.getBluePrintFactory(proxyValue);
 
-		for (BluePrintFactory factory : factories) {
-			if (factory.createBluePrintForType(proxyValue)) {
+		if (factoryOptional.isPresent()) {
+			BluePrintFactory factory = factoryOptional.get();
 
-				if (factory.createsSimpleBluePrint())
-					bluePrint = factory.createBluePrint(name, proxyValue, childCallBack);
-				else
-					bluePrint = getBluePrintForReference(proxyValue,
-							() -> factory.createBluePrint(name, proxyValue, childCallBack));
-				break;
-			}
+			BiFunction<String, Object, BluePrint> childCallBack = (newName, newValue) -> trackValues(newValue, newName);
 
+			if (factory.createsSimpleBluePrint())
+				bluePrint = factory.createBluePrint(name, proxyValue, childCallBack);
+			else
+				bluePrint = getBluePrintForReference(proxyValue,
+						() -> factory.createBluePrint(name, proxyValue, childCallBack));
 		}
 
 		if (bluePrint == null) {

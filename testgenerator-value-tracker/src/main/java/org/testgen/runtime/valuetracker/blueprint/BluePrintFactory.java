@@ -11,4 +11,8 @@ public interface BluePrintFactory {
 	default boolean createsSimpleBluePrint() {
 		return false;
 	}
+
+	default int getPriority() {
+		return 1;
+	}
 }

@@ -34,13 +34,11 @@ import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -139,8 +137,11 @@ public class JavaParserComplexObjectGeneration
 				comment = "TODO add initalization for class: " + bluePrint.getReferenceClass().getSimpleName();
 
 			} else if (classData.isInnerClass()) {
-				NameExpr outerClassName = new NameExpr(
-						getBluePrintForClassData(bluePrint, classData.getOuterClass(), statementTree));
+				BluePrint outerClassBp = getBluePrintForClassData(bluePrint, classData.getOuterClass());
+
+				usedBluePrints.add(outerClassBp);
+
+				NameExpr outerClassName = new NameExpr(namingService.getLocalName(statementTree, outerClassBp));
 
 				objInitalizer = new ObjectCreationExpr(outerClassName, type, arguments);
 
@@ -154,7 +155,7 @@ public class JavaParserComplexObjectGeneration
 					: namingService.getLocalName(statementTree, bluePrint);
 
 			Expression objectCreation = isField
-					? new AssignExpr(new ThisExpr(new Name(name)), objInitalizer, Operator.ASSIGN)
+					? new AssignExpr(new FieldAccessExpr(new ThisExpr(), name), objInitalizer, Operator.ASSIGN)
 					: new VariableDeclarationExpr(new VariableDeclarator(type, name, objInitalizer));
 
 			ExpressionStmt stmt = new ExpressionStmt(objectCreation);
@@ -246,10 +247,10 @@ public class JavaParserComplexObjectGeneration
 
 		if (setter == null) {
 			EmptyStmt stmt = new EmptyStmt();
-			stmt.addOrphanComment(new LineComment(
-					"TODO  no setter found for Field: " + (isField ? namingService.getFieldName(bluePrint)
-							: namingService.getLocalName(codeBlock, bluePrint))));
+			stmt.setLineComment(String.format("TODO no setter found for Field: %s Value: %s", bluePrint.getName(),
+					getExpressionForBluePrint(bluePrint, codeBlock)));
 
+			codeBlock.addStatement(stmt);
 		} else if (bluePrint.isCollectionBluePrint())
 			collectionGenerationFactory.addCollectionToObject(codeBlock, bluePrint.castToCollectionBluePrint(), isField,
 					setter, accessExpr);
@@ -361,13 +362,13 @@ public class JavaParserComplexObjectGeneration
 	 * the Method
 	 * {@link JavaParserComplexObjectGeneration#createComplexTypes(BlockStmt, List, ClassData, Set)}
 	 */
-	private String getBluePrintForClassData(ComplexBluePrint parent, ClassData outerClass, BlockStmt blockStmt) {
+	private BluePrint getBluePrintForClassData(ComplexBluePrint parent, ClassData outerClass) {
 		BluePrint outerClassBP = parent.getChildBluePrints().stream()
 				.filter(bp -> outerClass.getName().equals(bp.getClassNameOfReference())).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException(
 						String.format("no BluePrint found for ClassData %s", outerClass)));
 
-		return namingService.getLocalName(blockStmt, outerClassBP);
+		return outerClassBP;
 	}
 
 	@Override
