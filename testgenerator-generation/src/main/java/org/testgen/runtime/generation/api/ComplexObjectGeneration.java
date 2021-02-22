@@ -14,7 +14,7 @@ import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 
 /**
- * Interface for generating {@link ComplexBluePrint}.
+ * Interface for generating a Object from a {@link ComplexBluePrint}.
  *
  * @param <T> Type of ClassDeclaration
  * @param <E> Type of a CodeBlock
@@ -22,13 +22,51 @@ import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
  */
 public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, ComplexBluePrint> {
 
+	/**
+	 * Generates a complete Object inclusive all of his childs. The Object gets
+	 * fully initialized if possible.
+	 * 
+	 * @param codeBlock    where the generated code is added
+	 * @param bluePrint    of the Object
+	 * @param isField      marks that the array is a Field of generated Class
+	 * @param classData    metadata of the Object
+	 * @param calledFields all used fields from this Object
+	 */
 	void createObject(E codeBlock, ComplexBluePrint bluePrint, boolean isField, ClassData classData,
 			Set<FieldData> calledFields);
 
+	/**
+	 * Generates the all childs of the BluePrint where the method
+	 * {@link BluePrint#isComplexType()} is true. Normally this method is called in
+	 * method {@link this#createObject(Object, ComplexBluePrint, boolean, ClassData,
+	 * Set)}
+	 * 
+	 * @param codeBlock    where the generated code is added
+	 * @param bluePrint    of the Object
+	 * @param classData    metadata of the Object
+	 * @param calledFields all used fields from this Object
+	 */
 	void createComplexTypes(E codeBlock, ComplexBluePrint bluePrint, ClassData classData, Set<FieldData> calledFields);
 
+	/**
+	 * Adds a child BluePrint to a object with a setter.
+	 * 
+	 * @param codeBlock  where the generated code is added
+	 * @param bluePrint  child of the Object
+	 * @param setter     metadata for a setter method
+	 * @param accessExpr expression to access the parent object where to child is
+	 *                   added to
+	 */
 	void addChildToObject(E codeBlock, BluePrint bluePrint, SetterMethodData setter, S accessExpr);
 
+	/**
+	 * Adds a child BluePrint direct to a Field.
+	 * 
+	 * @param codeBlock  where the generated code is added
+	 * @param bluePrint  child of a Object
+	 * @param accessExpr expression to access the parent object where to child is
+	 *                   added to
+	 */
 	void addChildToField(E codeBlock, BluePrint bluePrint, S accessExpr);
 
 	void setSimpleObjectGenerationFactory(SimpleObjectGenerationFactory<T, E, S> simpleGenerationFactory);

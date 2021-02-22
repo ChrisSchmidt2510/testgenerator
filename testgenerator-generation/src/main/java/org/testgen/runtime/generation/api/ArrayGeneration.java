@@ -20,7 +20,7 @@ public interface ArrayGeneration<T, E, S> extends FieldGeneration<T, ArrayBluePr
 
 	/**
 	 * Generates a complete array inclusive all elements of the array. The array
-	 * also gets fully initalized with his elements.
+	 * also gets fully initialized with his elements.
 	 * 
 	 * @param statementTree codeBlock where the generated code is added
 	 * @param bluePrint     of the array
