@@ -76,7 +76,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				ClassData classData = collectClassData(loadingClass);
 				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
-				if (!classData.isEnum()) {
+				if (!classData.isEnum() || !classData.isInterface()) {
 					ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
 					classDataGenerator.generate(loadingClass);
 				}
@@ -87,8 +87,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				LOGGER.error(e);
 				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
 			} finally {
-				if (loadingClass != null)
+				if (loadingClass != null) {
 					loadingClass.detach();
+				}
 			}
 		}
 
@@ -105,7 +106,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		if (Modifier.isEnum(loadingClass.getModifiers())) {
 			LOGGER.info("isEnum: true");
 			classData = new ClassData(loadingClass.getName());
-			classData.setIsEnum(true);
+			classData.setEnum(true);
+
+		} else if (Modifier.isInterface(loadingClass.getModifiers())) {
+			LOGGER.info(loadingClass.getName() + " isInterface: true");
+
+			classData = new ClassData(loadingClass.getName());
+			classData.setInterface(true);
 
 		} else {
 			LOGGER.info("create ClassHierachie for " + classFile.getName());
