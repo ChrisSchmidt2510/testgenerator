@@ -53,7 +53,7 @@ public final class ObjectValueTracker {
 
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
 
-	private final Deque<Object> currentlyBuildedBluePrints = new ArrayDeque<>();
+	private final Deque<Object> currentlyBuiltBluePrints = new ArrayDeque<>();
 	private final Map<Object, List<Consumer<BluePrint>>> addValueAfterCreation = new HashMap<>();
 
 	private ObjectValueTracker() {
@@ -90,7 +90,7 @@ public final class ObjectValueTracker {
 		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
 		Object proxyValue = getProxyValue(value);
 
-		currentlyBuildedBluePrints.push(proxyValue);
+		currentlyBuiltBluePrints.push(proxyValue);
 
 		BluePrint bluePrint = null;
 
@@ -124,7 +124,7 @@ public final class ObjectValueTracker {
 		}
 
 		addValueAfterCreation.remove(proxyValue);
-		currentlyBuildedBluePrints.pop();
+		currentlyBuiltBluePrints.pop();
 
 		return bluePrint;
 	}
@@ -153,7 +153,7 @@ public final class ObjectValueTracker {
 
 						LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
-						if (currentlyBuildedBluePrints.contains(fieldValue)) {
+						if (currentlyBuiltBluePrints.contains(fieldValue)) {
 							Consumer<BluePrint> consumer = bp -> complexBluePrint.addBluePrint(bp);
 
 							if (addValueAfterCreation.containsKey(fieldValue)) {
