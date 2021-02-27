@@ -323,14 +323,16 @@ public class TestgeneratorConfigurationController {
 	private void updateModel(IMethod[] methods, IMethod selectedMethod) {
 		this.methods.clear();
 		for (IMethod method : methods) {
-			if (JDTUtil.validateMethod(method))
+			if (JDTUtil.validateMethod(method)) {
 				this.methods.put(createMethodString(method), method);
+			}
 		}
 
 		model.setMethods(this.methods.keySet());
 
-		if (selectedMethod != null)
+		if (selectedMethod != null) {
 			model.setSelectedMethod(createMethodString(selectedMethod));
+		}
 
 		model.setClassName(selectedType.getTypeQualifiedName());
 
@@ -359,7 +361,8 @@ public class TestgeneratorConfigurationController {
 						"no JAR found for " + model.getAgentType() + ". Pls add the jar at the Preferences");
 			}
 
-			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL + selectedType.getFullyQualifiedName('/'));
+			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL
+					+ selectedType.getFullyQualifiedName().replace('.', '/'));
 
 			String selectedMethodStr = model.getSelectedMethod();
 
@@ -417,12 +420,12 @@ public class TestgeneratorConfigurationController {
 					jarDest.add(dependency.getPackageFragmentPath());
 
 					for (IPackageFragment pkg : dependency.getSelectedPackages()) {
-						packages.add(pkg.getElementName());
+						packages.add(pkg.getElementName().replace('.', '/'));
 					}
 				}
 
 				for (IPackageFragment pkg : blProject.getSelectedPackages()) {
-					packages.add(pkg.getElementName());
+					packages.add(pkg.getElementName().replace('.', '/'));
 				}
 			}
 		}

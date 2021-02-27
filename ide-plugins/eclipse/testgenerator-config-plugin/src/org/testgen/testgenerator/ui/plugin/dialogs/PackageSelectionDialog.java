@@ -111,12 +111,13 @@ public class PackageSelectionDialog extends SelectionDialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		if (DialogType.PROJECT_SELECTION == dialogType)
+		if (DialogType.PROJECT_SELECTION == dialogType) {
 			newShell.setText("Select Project");
-		else if (DialogType.PROJECT == dialogType)
+		} else if (DialogType.PROJECT == dialogType) {
 			newShell.setText("update Project");
-		else if (DialogType.DEPENDENCY == dialogType)
+		} else if (DialogType.DEPENDENCY == dialogType) {
 			newShell.setText("update Dependency");
+		}
 	}
 
 	@Override
@@ -182,7 +183,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 					return ((Dependency) element).isProject()
 							? PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT)
 							: JavaPluginImages.DESC_OBJS_EXTJAR.createImage();
-				};
+				}
 			});
 			TableColumn tblColName = colName.getColumn();
 			tblColName.setWidth(250);
@@ -203,7 +204,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 				@Override
 				public Image getImage(Object element) {
 					return JavaPluginImages.DESC_OBJS_PACKAGE.createImage();
-				};
+				}
 			});
 			TableColumn tblColSelectedProjects = colSelectedPackages.getColumn();
 			tblColSelectedProjects.setWidth(350);
@@ -291,8 +292,9 @@ public class PackageSelectionDialog extends SelectionDialog {
 
 		@Override
 		public Object getParent(Object element) {
-			if (element instanceof IJavaElement)
+			if (element instanceof IJavaElement) {
 				return ((IJavaElement) element).getParent();
+			}
 
 			return null;
 		}
@@ -327,8 +329,9 @@ public class PackageSelectionDialog extends SelectionDialog {
 		selectedProject.setProject(project);
 
 		try {
-			if (project.hasNature(IMavenConstants.NATURE_ID))
+			if (project.hasNature(IMavenConstants.NATURE_ID)) {
 				updatePackageViewerForMavenProject(project);
+			}
 		} catch (CoreException e) {
 			TestgeneratorActivator.log(e);
 		}
@@ -341,8 +344,8 @@ public class PackageSelectionDialog extends SelectionDialog {
 		IMavenProjectFacade mavenProject = projectRegistry.getProject(project);
 
 		selectedProject.setFragmentRoot(packageFragment);
-		selectedProject.setOutputLocation(
-				project.getFolder(mavenProject.getOutputLocation().removeFirstSegments(1)).getLocation());
+		selectedProject.setOutputLocation(project.getFolder(mavenProject.getOutputLocation().removeFirstSegments(1))
+				.getLocation().removeLastSegments(1));
 
 		packageViewer.setInput(packageFragment);
 		packageViewer.expandAll();
@@ -378,8 +381,9 @@ public class PackageSelectionDialog extends SelectionDialog {
 				dependencyPackageRoot = javaProject.findPackageFragmentRoot(cp.getPath());
 			}
 
-			if (!dependencyPackageRoot.isOpen())
+			if (!dependencyPackageRoot.isOpen()) {
 				dependencyPackageRoot.open(new NullProgressMonitor());
+			}
 
 			dependency.setPackageFragmentRoot(dependencyPackageRoot);
 
@@ -398,8 +402,9 @@ public class PackageSelectionDialog extends SelectionDialog {
 				IPackageFragment basePackage = basePackageOptional.get();
 				PackageCache packageCache = new PackageCache(dependencyPackageRoot);
 
-				while (packageCache.hasSingleChild(basePackage) && basePackage.getOrdinaryClassFiles().length == 0)
+				while (packageCache.hasSingleChild(basePackage) && basePackage.getOrdinaryClassFiles().length == 0) {
 					basePackage = packageCache.getSingleChild(basePackage);
+				}
 
 				dependency.addSelectedPackage(basePackage);
 			}
@@ -439,9 +444,10 @@ public class PackageSelectionDialog extends SelectionDialog {
 
 			packageFragment = selectSourceFragmentRoot(fragments);
 
-			if (packageFragment == null)
+			if (packageFragment == null) {
 				MessageDialog.openError(getShell(), "Error Selecting source-root",
 						"pls select a source-root for this project");
+			}
 
 		}
 
