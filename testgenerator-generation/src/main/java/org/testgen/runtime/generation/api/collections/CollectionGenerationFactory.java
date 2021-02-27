@@ -19,16 +19,22 @@ import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 /**
  * Base interface that is used for generating Collections{@link Collection} for
  * a {@link AbstractBasicCollectionBluePrint}. If the user a want to implement a
- * CollectionGeneration only for a single or group of Types use
- * {@link CollectionGeneration}. In the standard implementation of the
- * CollectionGenerationFactory are all types of CollectionGeneration are loaded
- * with the Java SPI.
+ * CollectionGeneration only for a single or a group of Types use
+ * {@link CollectionGeneration}.
+ * 
+ * @implNote The standard implementation of the
+ *           {@link CollectionGenerationFactory} includes all implementations of
+ *           the {@link CollectionGeneration} using the Java SPI technology.
+ * 
+ * @param <T> Type of ClassDeclaration
+ * @param <E> Type of a CodeBlock
+ * @param <S> Type of a single Expression
  */
 public interface CollectionGenerationFactory<T, E, S> {
 
 	/**
 	 * Generates the complete {@link Collection} inclusive the elements of the
-	 * collection. The collection gets also fully initalized with his elements
+	 * collection. The collection gets also fully initialized with his elements
 	 * 
 	 * @param codeBlock codeBlock where the generated code is added
 	 * @param bluePrint of the {@link Collection}
