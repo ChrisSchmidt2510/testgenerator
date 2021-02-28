@@ -14,7 +14,11 @@ import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 
 /**
- * Interface for Generating Arrays for {@link ArrayBluePrint}
+ * Interface for Generating Arrays from a {@link ArrayBluePrint}.
+ * 
+ * @param <T> Type of ClassDeclaration
+ * @param <E> Type of a CodeBlock
+ * @param <S> Type of a single Expression
  */
 public interface ArrayGeneration<T, E, S> extends FieldGeneration<T, ArrayBluePrint> {
 
@@ -25,13 +29,15 @@ public interface ArrayGeneration<T, E, S> extends FieldGeneration<T, ArrayBluePr
 	 * @param statementTree codeBlock where the generated code is added
 	 * @param bluePrint     of the array
 	 * @param signature     of the array
-	 * @param isField       marks that the array is a Field of generated Class
+	 * @param isField       flag if the {@link ArrayBluePrint} is a field of the
+	 *                      compilationUnit
 	 */
 	void createArray(E statementTree, ArrayBluePrint bluePrint, SignatureType signature, boolean isField);
 
 	/**
 	 * Generates only the complexTypes {@link BluePrint#isComplexType()} of the
-	 * array ComplexTypes are: <br>
+	 * array. <br>
+	 * ComplexTypes are: <br>
 	 * - {@link ArrayBluePrint} <br>
 	 * - {@link AbstractBasicCollectionBluePrint} and all his implementations <br>
 	 * - {@link ComplexBluePrint} <br>
@@ -49,8 +55,8 @@ public interface ArrayGeneration<T, E, S> extends FieldGeneration<T, ArrayBluePr
 	 * @param statementTree codeBlock where the generated code is added
 	 * @param bluePrint     of the array
 	 * @param setter        setter of the object the collection is added to.
-	 * @param isField       marks the that the collection is a Field of generated
-	 *                      Class
+	 * @param isField       flag if the {@link ArrayBluePrint} is a field of the
+	 *                      compilationUnit
 	 * @param accessExpr    expression to access the object where to collection is
 	 *                      added to
 	 */
@@ -62,8 +68,8 @@ public interface ArrayGeneration<T, E, S> extends FieldGeneration<T, ArrayBluePr
 	 * 
 	 * @param statementTree codeBlock where the generated code is added
 	 * @param bluePrint     of the array
-	 * @param isField       marks the that the collection is a Field of generated
-	 *                      Class
+	 * @param isField       flag if the {@link ArrayBluePrint} is a field of the
+	 *                      compilationUnit
 	 * @param accessExpr    expression to access the object where to collection is
 	 *                      added to
 	 */

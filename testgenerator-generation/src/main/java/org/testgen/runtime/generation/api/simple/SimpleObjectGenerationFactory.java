@@ -36,7 +36,8 @@ public interface SimpleObjectGenerationFactory<T, E, S> {
 	 * 
 	 * @param statementTree codeBlock where the generated is added to
 	 * @param bluePrint     data for the local variable
-	 * @param isField       flag if the {@link SimpleBluePrint} is a Field
+	 * @param isField       flag if the {@link SimpleBluePrint} is a Field of the
+	 *                      compilationUnit
 	 */
 	public void createObject(E statementTree, SimpleBluePrint<?> bluePrint, boolean isField);
 
