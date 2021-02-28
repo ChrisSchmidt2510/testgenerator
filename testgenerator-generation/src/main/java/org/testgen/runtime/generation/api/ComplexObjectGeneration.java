@@ -10,6 +10,8 @@ import org.testgen.runtime.generation.api.collections.CollectionGenerationFactor
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 
@@ -23,12 +25,13 @@ import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, ComplexBluePrint> {
 
 	/**
-	 * Generates a complete Object inclusive all of his childs. The Object gets
+	 * Generates a complete Object inclusive all of his child's. The Object gets
 	 * fully initialized if possible.
 	 * 
 	 * @param codeBlock    where the generated code is added
 	 * @param bluePrint    of the Object
-	 * @param isField      marks that the array is a Field of generated Class
+	 * @param isField      flag if the {@link ComplexBluePrint} is a field of the
+	 *                     compilationUnit
 	 * @param classData    metadata of the Object
 	 * @param calledFields all used fields from this Object
 	 */
@@ -36,10 +39,18 @@ public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, Com
 			Set<FieldData> calledFields);
 
 	/**
-	 * Generates the all childs of the BluePrint where the method
-	 * {@link BluePrint#isComplexType()} is true. Normally this method is called in
-	 * method {@link this#createObject(Object, ComplexBluePrint, boolean, ClassData,
-	 * Set)}
+	 * Generates the all child's of the {@link ComplexBluePrint} where the method
+	 * {@link BluePrint#isComplexType()} is true.<br>
+	 * 
+	 * ComplexTypes are: <br>
+	 * - {@link ArrayBluePrint} <br>
+	 * - {@link AbstractBasicCollectionBluePrint} and all his implementations <br>
+	 * - {@link ComplexBluePrint} <br>
+	 * 
+	 * 
+	 * @implNote Normally this method is called in method
+	 *           {@link this#createObject(Object, ComplexBluePrint, boolean,
+	 *           ClassData, Set)}
 	 * 
 	 * @param codeBlock    where the generated code is added
 	 * @param bluePrint    of the Object
@@ -49,7 +60,7 @@ public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, Com
 	void createComplexTypes(E codeBlock, ComplexBluePrint bluePrint, ClassData classData, Set<FieldData> calledFields);
 
 	/**
-	 * Adds a child BluePrint to a object with a setter.
+	 * Adds a child BluePrint to a object dependent on the {@link SetterMethodData}.
 	 * 
 	 * @param codeBlock  where the generated code is added
 	 * @param bluePrint  child of the Object
@@ -60,7 +71,7 @@ public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, Com
 	void addChildToObject(E codeBlock, BluePrint bluePrint, SetterMethodData setter, S accessExpr);
 
 	/**
-	 * Adds a child BluePrint direct to a Field.
+	 * Sets a child BluePrint direct to a Field.
 	 * 
 	 * @param codeBlock  where the generated code is added
 	 * @param bluePrint  child of a Object
