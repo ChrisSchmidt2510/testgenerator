@@ -12,7 +12,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 
-public class JavaParserHelper {
+public final class JavaParserHelper {
 
 	private JavaParserHelper() {
 	}
