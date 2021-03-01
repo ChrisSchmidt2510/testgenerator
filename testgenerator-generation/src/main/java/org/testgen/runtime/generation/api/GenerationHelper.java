@@ -11,7 +11,10 @@ import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
-public class GenerationHelper {
+public final class GenerationHelper {
+
+	private GenerationHelper() {
+	}
 
 	public static ClassData getClassData(Object reference) {
 		return ClassDataAccess.getClassData(reference.getClass());
