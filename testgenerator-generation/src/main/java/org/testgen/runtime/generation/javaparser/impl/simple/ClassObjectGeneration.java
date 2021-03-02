@@ -60,9 +60,6 @@ public class ClassObjectGeneration
 
 		Expression initalizer = createInlineExpression(bluePrint);
 
-		ClassOrInterfaceType type = new ClassOrInterfaceType(null, Class.class.getSimpleName());
-		type.setTypeArguments(new WildcardType());
-
 		Expression objectCreation = isField
 				? new AssignExpr(new FieldAccessExpr(new ThisExpr(), name), initalizer, AssignExpr.Operator.ASSIGN)
 				: new VariableDeclarationExpr(new VariableDeclarator(getClassType(), //
