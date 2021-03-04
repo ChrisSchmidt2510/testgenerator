@@ -129,21 +129,6 @@ public class FieldTypeChanger {
 
 		LOGGER.debug("before manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 
-		if (putFieldInstructions.isEmpty()) {
-			// a Constructor has always a return-instruction
-			Instruction returnInstruction = instructions.stream().filter(inst -> Opcode.RETURN == inst.getOpcode())
-					.max((inst1, inst2) -> Integer.compare(inst1.getCodeArrayIndex(), inst2.getCodeArrayIndex()))
-					.orElse(null);
-
-			Instruction constructorCall = Instructions.getBeforeInstruction(instructions, returnInstruction);
-
-			if (Opcode.INVOKESPECIAL == constructorCall.getOpcode()
-					&& constructorCall.getClassRef().equals(classData.getName())
-					&& MethodInfo.nameInit.equals(constructorCall.getName())) {
-				return;
-			}
-		}
-
 		CodeArrayModificator codeArrayModificator = new CodeArrayModificator();
 
 		List<FieldData> initalizedFields = new ArrayList<>();
@@ -241,7 +226,10 @@ public class FieldTypeChanger {
 				.filter(inst -> isInstructionFromClassOrSuperClass(inst) && MethodInfo.nameInit.equals(inst.getName()))
 				.findFirst().orElse(null);
 
-		initalizeUnitalizedFields(initalizedFields, superConstructorCall.getCodeArrayIndex() + 3, iterator);
+		// if super constructor call is another constructor from this class all fields
+		// are already initialized
+		if (!classData.getName().equals(superConstructorCall.getClassRef()))
+			initalizeUnitalizedFields(initalizedFields, superConstructorCall.getCodeArrayIndex() + 3, iterator);
 
 		LOGGER.debug("after manipulation: ", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
 

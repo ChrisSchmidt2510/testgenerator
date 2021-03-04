@@ -160,7 +160,8 @@ public class FieldTypeChangerTest extends TestHelper {
 
 	@Test
 	public void testChangeFieldInitalization() throws NotFoundException, BadBytecode {
-		init(Adresse.class, MethodInfo.nameInit, Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
+		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;I)V",
+				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
 
 		FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String").build();
 		FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short").build();
@@ -266,7 +267,55 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withName("plz").withType(INTEGER_PROXY).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(72)//
 				.withOpcode(Opcode.RETURN).build());
-		Assert.assertEquals(Instructions.getAllInstructions(methodInfo), modifiedInstructionSet);
+		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+	}
+
+	@Test
+	public void testChangeFieldInitializationWithSuperConstructorCall() throws NotFoundException, BadBytecode {
+		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;ILjava/lang/String;)V",
+				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
+
+		FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String").build();
+		FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short").build();
+		FieldData fieldOrt = new FieldData.Builder().withName("ort").withDataType("java.lang.String").build();
+		FieldData fieldPlz = new FieldData.Builder().withName("plz").withDataType("int").build();
+
+		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Adresse");
+		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
+
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
+		fieldTypeChanger.changeFieldInitialization(instructions, filteredInstructions.get(Opcode.PUTFIELD),
+				codeAttribute);
+
+		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+
+		List<Instruction> modifiedInstructionSet = new ArrayList<>();
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(0).withOpcode(Opcode.ALOAD_0).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(1).withOpcode(Opcode.ALOAD_1).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(2).withOpcode(Opcode.ILOAD_2).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(3).withOpcode(Opcode.INVOKESPECIAL)
+				.withClassRef("org.testgen.agent.classdata.testclasses.Adresse").withName(MethodInfo.nameInit)
+				.withType("(Ljava/lang/String;I)V").build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(6).withOpcode(Opcode.ALOAD_0).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(7).withOpcode(Opcode.NEW)
+				.withClassRef(REFERENCE_PROXY_CLASSNAME).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(10).withOpcode(Opcode.DUP).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(11).withOpcode(Opcode.ALOAD_3).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(12).withOpcode(Opcode.ALOAD_0).build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(13).withOpcode(Opcode.LDC)
+				.withConstantValue("strasse").build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(15)//
+				.withOpcode(Opcode.LDC).withConstantValue("java.lang.String").build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(17)//
+				.withOpcode(Opcode.INVOKESPECIAL).withClassRef(REFERENCE_PROXY_CLASSNAME)//
+				.withName(MethodInfo.nameInit)//
+				.withType("(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Class;)V").build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(20)//
+				.withOpcode(Opcode.PUTFIELD).withClassRef("org.testgen.agent.classdata.testclasses.Adresse")
+				.withType(REFERENCE_PROXY).withName("strasse").build());
+		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(23).withOpcode(Opcode.RETURN).build());
+
+		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 	}
 
 	/*
