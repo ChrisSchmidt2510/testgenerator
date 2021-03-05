@@ -1,8 +1,11 @@
 package org.testgen.agent.classdata.analysis;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.classdata.constants.JVMTypes;
@@ -16,10 +19,9 @@ import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 
 /**
- * Can be used for a Collection, a List, a Queue and a Set
+ * Can be used for a {@link Collection}, a {@link List}, a {@link Queue} and a
+ * {@link Set}
  * 
- * @author Christoph
- *
  */
 public class CollectionSetterAnalyser implements MethodAnalysis {
 	private final List<FieldData> fields;
