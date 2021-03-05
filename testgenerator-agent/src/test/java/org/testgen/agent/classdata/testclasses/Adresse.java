@@ -14,6 +14,11 @@ public class Adresse {
 		this.plz = plz;
 	}
 
+	public Adresse(String ort, int plz, String strasse) {
+		this(ort, plz);
+		this.strasse = strasse;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
