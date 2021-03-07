@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.testgen.agent.classdata.TestHelper;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
@@ -60,7 +60,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(10)//
 				.withOpcode(Opcode.ARETURN).build());
 
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assertions.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 
 	}
 
@@ -91,7 +91,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(8)//
 				.withOpcode(Opcode.RETURN).build());
 
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assertions.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(12)//
 				.withOpcode(Opcode.RETURN).build());
 
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assertions.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(6)//
 				.withOpcode(Opcode.RETURN).build());
 
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assertions.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 
 	}
 
@@ -267,7 +267,7 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withName("plz").withType(INTEGER_PROXY).build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(72)//
 				.withOpcode(Opcode.RETURN).build());
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assertions.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 	}
 
 	@Test
@@ -315,7 +315,7 @@ public class FieldTypeChangerTest extends TestHelper {
 				.withType(REFERENCE_PROXY).withName("strasse").build());
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(23).withOpcode(Opcode.RETURN).build());
 
-		Assert.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
+		Assertions.assertEquals(modifiedInstructionSet, Instructions.getAllInstructions(methodInfo));
 	}
 
 	/*
@@ -356,47 +356,47 @@ public class FieldTypeChangerTest extends TestHelper {
 				FieldInfo fieldInfo = classFile.getFields().stream().filter(field -> field.getName().equals("name"))
 						.findAny().orElse(null);
 
-				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
+				Assertions.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/lang/String;>;",
+				Assertions.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/lang/String;>;",
 						signature.getSignature());
 			} else if (ctField.getName().equals("firstName")) {
 				FieldInfo fieldInfo = classFile.getFields().stream()
 						.filter(field -> field.getName().equals("firstName")).findAny().orElse(null);
 
-				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
+				Assertions.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/lang/String;>;",
+				Assertions.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/lang/String;>;",
 						signature.getSignature());
 			} else if (ctField.getName().equals("dateOfBirth")) {
 				FieldInfo fieldInfo = classFile.getFields().stream()
 						.filter(field -> field.getName().equals("dateOfBirth")).findAny().orElse(null);
 
-				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
+				Assertions.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/time/LocalDate;>;",
+				Assertions.assertEquals("Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/time/LocalDate;>;",
 						signature.getSignature());
 			} else if (ctField.getName().equals("geschlecht")) {
 				FieldInfo fieldInfo = classFile.getFields().stream()
 						.filter(field -> field.getName().equals("geschlecht")).findAny().orElse(null);
 
-				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
+				Assertions.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals(
+				Assertions.assertEquals(
 						"Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;>;",
 						signature.getSignature());
 			} else if (ctField.getName().equals("adressen")) {
 				FieldInfo fieldInfo = classFile.getFields().stream().filter(field -> field.getName().equals("adressen"))
 						.findAny().orElse(null);
 
-				Assert.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
+				Assertions.assertEquals(REFERENCE_PROXY, fieldInfo.getDescriptor());
 
 				SignatureAttribute signature = (SignatureAttribute) fieldInfo.getAttribute(SignatureAttribute.tag);
-				Assert.assertEquals(
+				Assertions.assertEquals(
 						"Lorg/testgen/runtime/proxy/impl/ReferenceProxy<Ljava/util/List<Lorg/testgen/agent/classdata/testclasses/Adresse;>;>;",
 						signature.getSignature());
 			}
