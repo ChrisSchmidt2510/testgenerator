@@ -7,9 +7,9 @@
 		<artifactId>testgenerator-parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>testgenerator-bootstrap</artifactId>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.testgen</groupId>
@@ -26,18 +26,18 @@
 			<artifactId>testgenerator-config</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		 <dependency>
+		<dependency>
 			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
