@@ -13,7 +13,15 @@ public class CalenderBluePrintTest {
 		Calendar calendar = new GregorianCalendar(2020, Calendar.OCTOBER, 25, 12, 5, 3);
 
 		CalendarBluePrint calendarBp = new CalendarBluePrint("calendar", calendar);
-		Assert.assertEquals("new $T(2020, 10-1, 25, 12, 5, 3)", calendarBp.valueCreation());
+
+		Assert.assertEquals(2020, calendarBp.getYear());
+		Assert.assertEquals(9, calendarBp.getMonth());
+		Assert.assertEquals(25, calendarBp.getDay());
+		Assert.assertEquals(12, calendarBp.getHour());
+		Assert.assertEquals(5, calendarBp.getMinute());
+		Assert.assertEquals(3, calendarBp.getSecond());
+
+		Assert.assertEquals(GregorianCalendar.class, calendarBp.getReferenceClass());
 	}
 
 }

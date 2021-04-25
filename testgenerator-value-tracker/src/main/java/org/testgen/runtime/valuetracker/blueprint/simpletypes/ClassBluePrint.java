@@ -1,9 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 
 public class ClassBluePrint extends SimpleBluePrint<Class<?>> {
 
@@ -11,12 +9,28 @@ public class ClassBluePrint extends SimpleBluePrint<Class<?>> {
 		super(fieldname, value);
 	}
 
+	@Override
 	protected String createValue(Class<?> value) {
-		return "$T.class";
+		return value.getSimpleName();
 	}
 
-	public List<Class<?>> getReferenceClasses() {
-		return Collections.singletonList(value);
+	@Override
+	public Class<?> getReferenceClass() {
+		return value;
+	}
+
+	public static class ClassBluePrintFactory implements SimpleBluePrintFactory {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value instanceof Class<?>;
+		}
+
+		@Override
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
+			return new ClassBluePrint(name, (Class<?>) value);
+		}
+
 	}
 
 }

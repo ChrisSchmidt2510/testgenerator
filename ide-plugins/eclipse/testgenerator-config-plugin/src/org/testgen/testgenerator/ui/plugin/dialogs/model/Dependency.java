@@ -66,7 +66,8 @@ public class Dependency {
 					IMavenProjectRegistry projectRegistry = MavenPlugin.getMavenProjectRegistry();
 					IMavenProjectFacade mavenProject = projectRegistry.getProject(iProject);
 
-					return iProject.getFolder(mavenProject.getOutputLocation()).getLocation().toPortableString();
+					return iProject.getFolder(mavenProject.getOutputLocation().removeFirstSegments(1)).getLocation()
+							.removeLastSegments(1).toPortableString();
 				}
 			} catch (CoreException e) {
 				TestgeneratorActivator.log(e);

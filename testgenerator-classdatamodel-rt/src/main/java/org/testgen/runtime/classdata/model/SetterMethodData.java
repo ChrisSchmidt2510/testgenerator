@@ -8,10 +8,6 @@ public class SetterMethodData {
 	private final boolean isStatic;
 	private final SetterType type;
 
-	public SetterMethodData(String name, String descriptor, boolean isStatic) {
-		this(name, descriptor, isStatic, null);
-	}
-
 	public SetterMethodData(String name, String descriptor, boolean isStatic, SetterType type) {
 		this.name = name;
 		this.descriptor = descriptor;

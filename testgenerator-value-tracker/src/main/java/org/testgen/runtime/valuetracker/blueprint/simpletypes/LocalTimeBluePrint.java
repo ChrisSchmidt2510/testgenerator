@@ -1,12 +1,17 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
 
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
 
-public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> {
+public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements TimeBluePrint {
+	private int hour;
+
+	private int minute;
+
+	private int second;
 
 	LocalTimeBluePrint(String fieldName, LocalTime value) {
 		super(fieldName, value);
@@ -14,12 +19,40 @@ public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> {
 
 	@Override
 	protected String createValue(LocalTime value) {
-		return "$T.of(" + value.getHour() + "," + value.getMinute() + "," + value.getSecond() + ")";
+		hour = value.getHour();
+		minute = value.getMinute();
+		second = value.getSecond();
+
+		return null;
 	}
 
 	@Override
-	public List<Class<?>> getReferenceClasses() {
-		return Arrays.asList(LocalTime.class);
+	public int getHour() {
+		return hour;
+	}
+
+	@Override
+	public int getMinute() {
+		return minute;
+	}
+
+	@Override
+	public int getSecond() {
+		return second;
+	}
+
+	public static class LocalTimeBluePrintFactory implements SimpleBluePrintFactory {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value instanceof LocalTime;
+		}
+
+		@Override
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
+			return new LocalTimeBluePrint(name, (LocalTime) value);
+		}
+
 	}
 
 }

@@ -1,9 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 
 public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 
@@ -13,12 +11,21 @@ public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 
 	@Override
 	protected String createValue(Enum<?> value) {
-		return "$T." + value.name();
+		return value.name();
 	}
 
-	@Override
-	public List<Class<?>> getReferenceClasses() {
-		return Arrays.asList(value.getClass());
+	public static class EnumBluePrintFactory implements SimpleBluePrintFactory {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value instanceof Enum<?>;
+		}
+
+		@Override
+		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
+			return new EnumBluePrint(name, (Enum<?>) value);
+		}
+
 	}
 
 }

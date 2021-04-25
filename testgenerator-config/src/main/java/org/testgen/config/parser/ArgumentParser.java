@@ -38,17 +38,15 @@ public class ArgumentParser {
 
 			int startIndexArgument = args.indexOf(completeArg);
 
-			if (startIndexArgument >= 0) {
-				return args.substring(startIndexArgument + completeArg.length(),
-						args.indexOf(GENERALL_ARG_SEPARATUR, startIndexArgument + 1) != -1
-								? args.indexOf(GENERALL_ARG_SEPARATUR, startIndexArgument + 1)
-								: args.length());
+			if (startIndexArgument >= 0)
+				return getParameterValue(args.substring(startIndexArgument + completeArg.length()));
 
-			} else if (arg.isRequired()) {
+			else if (arg.isRequired())
 				throw new ParserException("required Argument " + argument + " is missing");
-			} else {
+
+			else
 				return null;
-			}
+
 		}
 
 		throw new ParserException(argument + " has no single-argument");
@@ -67,11 +65,12 @@ public class ArgumentParser {
 
 				return getParameters(argParameter);
 
-			} else if (arg.isRequired()) {
+			} else if (arg.isRequired())
 				throw new ParserException("required Argument " + argument + " is missing");
-			} else {
+
+			else
 				return Collections.emptyList();
-			}
+
 		}
 
 		throw new ParserException(argument + " has no multiple-arguments");
@@ -80,21 +79,28 @@ public class ArgumentParser {
 	private List<String> getParameters(String parameters) {
 		List<String> parametersList = new ArrayList<>();
 
-		for (String arg : completeArgs.values()) {
+		String parameterValue = getParameterValue(parameters);
 
-			int startIndexArg = parameters.indexOf(arg);
-			if (startIndexArg > 0) {
-				parameters = parameters.substring(0, startIndexArg);
-			}
-		}
-
-		StringTokenizer tokenizer = new StringTokenizer(parameters, LIST_ARG_SEPARATUR);
+		StringTokenizer tokenizer = new StringTokenizer(parameterValue, LIST_ARG_SEPARATUR);
 
 		while (tokenizer.hasMoreTokens()) {
 			parametersList.add(tokenizer.nextToken());
 		}
 
 		return parametersList;
+	}
+
+	private String getParameterValue(String parameter) {
+		for (String arg : completeArgs.values()) {
+
+			int startIndexArg = parameter.indexOf(arg);
+
+			if (startIndexArg >= 0) {
+				parameter = parameter.substring(0, startIndexArg);
+			}
+		}
+
+		return parameter;
 	}
 
 	private String buildArgument(Model arg) {

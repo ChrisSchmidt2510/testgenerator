@@ -10,7 +10,7 @@ public class NullBluePrintTest {
 		NullBluePrint nullBp = new NullBluePrint("null");
 
 		Assert.assertEquals("null", nullBp.valueCreation());
-		Assert.assertTrue(nullBp.getReferenceClasses().isEmpty());
+		Assert.assertTrue(nullBp.getReferenceClass() == null);
 	}
 
 }

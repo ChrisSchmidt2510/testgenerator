@@ -185,16 +185,19 @@ public class ClassDataGeneratorTest extends TestHelper {
 				() -> ClassDataAccess.getClassData(BlObject.class), null, constructor);
 		compareClasses(classData, adresse);
 
-		SetterMethodData setterStrasse = new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false);
+		SetterMethodData setterStrasse = new SetterMethodData("setStrasse", "(Ljava/lang/String;)V", false,
+				SetterType.VALUE_SETTER);
 		compareSetterMethods(setterStrasse, adresse.getSetterInHierarchie(fieldStrasse));
 
-		SetterMethodData setterHausnummer = new SetterMethodData("setHausnummer", "(S)V", false);
+		SetterMethodData setterHausnummer = new SetterMethodData("setHausnummer", "(S)V", false,
+				SetterType.VALUE_SETTER);
 		compareSetterMethods(setterHausnummer, adresse.getSetterInHierarchie(fieldHausnummer));
 
-		SetterMethodData setterOrt = new SetterMethodData("setOrt", "(Ljava/lang/String;)V", false);
+		SetterMethodData setterOrt = new SetterMethodData("setOrt", "(Ljava/lang/String;)V", false,
+				SetterType.VALUE_SETTER);
 		compareSetterMethods(setterOrt, adresse.getSetterInHierarchie(fieldOrt));
 
-		SetterMethodData setterPlz = new SetterMethodData("setPlz", "(I)V", false);
+		SetterMethodData setterPlz = new SetterMethodData("setPlz", "(I)V", false, SetterType.VALUE_SETTER);
 		compareSetterMethods(setterPlz, adresse.getSetterInHierarchie(fieldPlz));
 
 	}
@@ -234,17 +237,20 @@ public class ClassDataGeneratorTest extends TestHelper {
 				"org.testgen.agent.classdata.testclasses.Person", constructor);
 		compareClasses(classData, person);
 
-		SetterMethodData setterName = new SetterMethodData("setName", "(Ljava/lang/String;)V", false);
+		SetterMethodData setterName = new SetterMethodData("setName", "(Ljava/lang/String;)V", false,
+				SetterType.VALUE_SETTER);
 		compareSetterMethods(setterName, person.getSetterInHierarchie(fieldName));
 
-		SetterMethodData setterVorname = new SetterMethodData("setVorname", "(Ljava/lang/String;)V", false);
+		SetterMethodData setterVorname = new SetterMethodData("setVorname", "(Ljava/lang/String;)V", false,
+				SetterType.VALUE_SETTER);
 		compareSetterMethods(setterVorname, person.getSetterInHierarchie(fieldVorname));
 
-		SetterMethodData setterDateOfBirth = new SetterMethodData("setDateOfBirth", "(Ljava/time/LocalDate;)V", false);
+		SetterMethodData setterDateOfBirth = new SetterMethodData("setDateOfBirth", "(Ljava/time/LocalDate;)V", false,
+				SetterType.VALUE_SETTER);
 		compareSetterMethods(setterDateOfBirth, person.getSetterInHierarchie(fieldDateOfBirth));
 
 		SetterMethodData setterGeschlecht = new SetterMethodData("setGeschlecht",
-				"(Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;)V", false);
+				"(Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;)V", false, SetterType.VALUE_SETTER);
 		compareSetterMethods(setterGeschlecht, person.getSetterInHierarchie(fieldGeschlecht));
 
 		SetterMethodData setterAdresse = new SetterMethodData("addAdresse",

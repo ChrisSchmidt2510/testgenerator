@@ -1,6 +1,5 @@
 package org.testgen.runtime.valuetracker.blueprint;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,10 +20,6 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 
 	public String valueCreation() {
 		return createdValue;
-	}
-
-	public List<Class<?>> getReferenceClasses() {
-		return Collections.emptyList();
 	}
 
 	@Override

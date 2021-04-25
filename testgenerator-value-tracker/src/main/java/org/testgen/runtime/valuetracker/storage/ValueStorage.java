@@ -2,7 +2,6 @@ package org.testgen.runtime.valuetracker.storage;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -55,8 +54,8 @@ public final class ValueStorage {
 
 	}
 
-	public Collection<BluePrint> getMethodParameters() {
-		return Collections.unmodifiableCollection(testData.peek().methodParameters);
+	public List<BluePrint> getMethodParameters() {
+		return Collections.unmodifiableList(testData.peek().methodParameters);
 	}
 
 	public Map<ProxyBluePrint, List<BluePrint>> getProxyObjects() {
