@@ -92,7 +92,7 @@ public final class BytecodeUtils {
 	}
 
 	public static void addLoad(Bytecode code, int index, String dataType) {
-		if (Primitives.isPrimitiveDataType(dataType)) {
+		if (Primitives.isPrimitiveJVMDataType(dataType)) {
 			switch (dataType) {
 			case Primitives.JVM_BOOLEAN:
 			case Primitives.JVM_BYTE:

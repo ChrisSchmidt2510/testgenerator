@@ -11,7 +11,9 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
+import org.testgen.agent.classdata.instructions.Instruction.Builder;
 import org.testgen.core.MapBuilder;
 
 import javassist.Modifier;
@@ -118,6 +120,16 @@ public final class Instructions {
 				instructions.add(instructionMethod);
 				break;
 
+			case Opcode.INVOKEDYNAMIC:
+				cpIndex = iterator.s16bitAt(index + 1);
+
+				Instruction invokeDynamicInstruction = new Instruction.Builder().withCodeArrayIndex(index)
+						.withOpcode(opcode).withBootstrapMethodIndex(constantPool.getInvokeDynamicBootstrap(cpIndex))
+						.withType(constantPool.getInvokeDynamicType(cpIndex)).build();
+
+				instructions.add(invokeDynamicInstruction);
+				break;
+
 			case Opcode.ALOAD:
 			case Opcode.ILOAD:
 			case Opcode.DLOAD:
@@ -157,6 +169,7 @@ public final class Instructions {
 
 			case Opcode.NEW:
 			case Opcode.CHECKCAST:
+			case Opcode.INSTANCEOF:
 				cpIndex = iterator.s16bitAt(index + 1);
 
 				Instruction instruction = new Instruction.Builder().withCodeArrayIndex(index)
@@ -165,17 +178,23 @@ public final class Instructions {
 
 				instructions.add(instruction);
 				break;
+
 			case Opcode.LDC:
-				Instruction ldcInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
-						.withOpcode(opcode).withConstantValue(ldc(constantPool, iterator.byteAt(index + 1)))//
+				Builder instructionBuilder = new Instruction.Builder().withCodeArrayIndex(index)//
+						.withOpcode(opcode);
+
+				Instruction ldcInstruction = ldc(instructionBuilder, constantPool, iterator.byteAt(index + 1))//
 						.build();
 
 				instructions.add(ldcInstruction);
 				break;
 			case Opcode.LDC_W:
 			case Opcode.LDC2_W:
-				Instruction ldcwInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
-						.withOpcode(opcode).withConstantValue(ldc(constantPool, iterator.u16bitAt(index + 1)))//
+
+				Builder instructionBuilderLdcw = new Instruction.Builder().withCodeArrayIndex(index)//
+						.withOpcode(opcode);
+
+				Instruction ldcwInstruction = ldc(instructionBuilderLdcw, constantPool, iterator.u16bitAt(index + 1))//
 						.build();
 
 				instructions.add(ldcwInstruction);
@@ -186,6 +205,32 @@ public final class Instructions {
 						.withOpcode(opcode).withType(constantPool.getClassInfo(cpIndex)).build();
 
 				instructions.add(newArrayInstruction);
+				break;
+
+			case Opcode.NEWARRAY:
+				int arrayType = iterator.byteAt(index + 1);
+				Instruction newPrimitiveArrayInstruction = new Instruction.Builder().withCodeArrayIndex(index)
+						.withOpcode(opcode).withType(arrayType(arrayType)).build();
+
+				instructions.add(newPrimitiveArrayInstruction);
+				break;
+			case Opcode.MULTIANEWARRAY:
+				cpIndex = iterator.s16bitAt(index + 1);
+				int dimensions = iterator.byteAt(index + 3);
+
+				String type = null;
+
+				for (int i = 0; i < dimensions; i++) {
+					type += "[";
+				}
+
+				String arrayClass = constantPool.getClassInfo(cpIndex);
+				type += Descriptor.toArrayComponent(arrayClass, Descriptor.arrayDimension(arrayClass));
+
+				Instruction newMultiDimArray = new Instruction.Builder().withCodeArrayIndex(index).withOpcode(opcode)
+						.withType(type).build();
+
+				instructions.add(newMultiDimArray);
 				break;
 			default:
 				Instruction defaultInstruction = new Instruction.Builder().withCodeArrayIndex(index)//
@@ -199,25 +244,52 @@ public final class Instructions {
 		return Collections.unmodifiableList(instructions);
 	}
 
-	private static String ldc(ConstPool constantPool, int index) {
+	private static Builder ldc(Builder instructionBuilder, ConstPool constantPool, int index) {
 		int tag = constantPool.getTag(index);
 		switch (tag) {
 		case ConstPool.CONST_String:
-			return constantPool.getStringInfo(index);
+			return instructionBuilder.withConstantValue(constantPool.getStringInfo(index)).withType(JavaTypes.STRING);
 		case ConstPool.CONST_Integer:
-			return Integer.toString(constantPool.getIntegerInfo(index));
+			return instructionBuilder.withConstantValue(Integer.toString(constantPool.getIntegerInfo(index)))
+					.withType(Primitives.JAVA_INT);
 		case ConstPool.CONST_Float:
-			return Float.toString(constantPool.getFloatInfo(index));
+			return instructionBuilder.withConstantValue(Float.toString(constantPool.getFloatInfo(index)))
+					.withType(Primitives.JAVA_FLOAT);
 		case ConstPool.CONST_Long:
-			return Long.toString(constantPool.getLongInfo(index));
+			return instructionBuilder.withConstantValue(Long.toString(constantPool.getLongInfo(index)))
+					.withType(Primitives.JAVA_LONG);
 		case ConstPool.CONST_Double:
-			return Double.toString(constantPool.getDoubleInfo(index));
+			return instructionBuilder.withConstantValue(Double.toString(constantPool.getDoubleInfo(index)))
+					.withType(Primitives.JAVA_DOUBLE);
 		case ConstPool.CONST_Class:
-			return constantPool.getClassInfo(index);
+			return instructionBuilder.withConstantValue(constantPool.getClassInfo(index)).withType(JavaTypes.CLASS);
 		default:
 			throw new RuntimeException("bad LDC: " + tag);
 		}
 
+	}
+
+	private static String arrayType(int type) {
+		switch (type) {
+		case Opcode.T_BOOLEAN:
+			return Primitives.JAVA_BOOLEAN;
+		case Opcode.T_CHAR:
+			return Primitives.JAVA_CHAR;
+		case Opcode.T_FLOAT:
+			return Primitives.JAVA_FLOAT;
+		case Opcode.T_DOUBLE:
+			return Primitives.JAVA_DOUBLE;
+		case Opcode.T_BYTE:
+			return Primitives.JAVA_BYTE;
+		case Opcode.T_SHORT:
+			return Primitives.JAVA_SHORT;
+		case Opcode.T_INT:
+			return Primitives.JAVA_INT;
+		case Opcode.T_LONG:
+			return Primitives.JAVA_LONG;
+		default:
+			throw new IllegalArgumentException("invalid array type");
+		}
 	}
 
 	/**
@@ -323,10 +395,15 @@ public final class Instructions {
 		return parameters;
 	}
 
+	public static Instruction getInstructionByCodeArrayIndex(List<Instruction> instructions, int codeArrayIndex) {
+		return instructions.stream().filter(inst -> inst.getCodeArrayIndex() == codeArrayIndex).findAny().orElseThrow(
+				() -> new IllegalArgumentException(String.format("invalid codeArrayIndex %s", codeArrayIndex)));
+	}
+
 	private static String nextDescriptorParameter(String descriptor) {
 		if ('[' == descriptor.charAt(0)) {
 			return "[" + nextDescriptorParameter(descriptor.substring(1));
-		} else if (Primitives.isPrimitiveDataType(Character.toString(descriptor.charAt(0)))) {
+		} else if (Primitives.isPrimitiveJVMDataType(Character.toString(descriptor.charAt(0)))) {
 			return Character.toString(descriptor.charAt(0));
 		} else {
 			int index = descriptor.indexOf(';') + 1;

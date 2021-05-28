@@ -12,8 +12,6 @@ public final class FieldData {
 	/** Is only used for genericTypes */
 	private final SignatureData signature;
 
-	private String comment;
-
 	private FieldData(String dataType, String name, boolean mutable, boolean isStatic, boolean isPublic,
 			boolean isSynthetic, SignatureData signature) {
 		this.dataType = dataType;
@@ -53,14 +51,6 @@ public final class FieldData {
 		return signature;
 	}
 
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(dataType, name);
@@ -85,7 +75,7 @@ public final class FieldData {
 	@Override
 	public String toString() {
 		return "FieldData [dataType=" + dataType + ", name=" + name + ", mutable=" + mutable + ", isStatic=" + isStatic
-				+ ", signature=" + signature + ", comment=" + comment + "]";
+				+ ", signature=" + signature + "]";
 	}
 
 	public static class Builder {

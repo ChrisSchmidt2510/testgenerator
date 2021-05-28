@@ -93,6 +93,10 @@ public class Account {
 		historie.put(dateTime, action);
 	}
 
+	public void addHistorieIfNotPresent(LocalDateTime dateTime, String action) {
+		historie.computeIfAbsent(dateTime, key -> action);
+	}
+
 	public Map<LocalDateTime, String> getHistorie() {
 		return historie;
 	}

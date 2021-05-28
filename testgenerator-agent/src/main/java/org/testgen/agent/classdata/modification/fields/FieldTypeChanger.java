@@ -10,8 +10,8 @@ import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
-import org.testgen.agent.classdata.instructions.InstructionFilter;
 import org.testgen.agent.classdata.instructions.Instructions;
+import org.testgen.agent.classdata.instructions.filter.ReverseInstructionFilter;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.modification.BytecodeUtils;
@@ -133,7 +133,7 @@ public class FieldTypeChanger {
 
 		List<FieldData> initalizedFields = new ArrayList<>();
 
-		InstructionFilter filter = new InstructionFilter(instructions);
+		ReverseInstructionFilter filter = new ReverseInstructionFilter(loadingClass.getClassFile(), instructions);
 
 		for (Instruction instruction : putFieldInstructions) {
 
@@ -334,7 +334,7 @@ public class FieldTypeChanger {
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
 
-		InstructionFilter filter = new InstructionFilter(instructions);
+		ReverseInstructionFilter filter = new ReverseInstructionFilter(loadingClass.getClassFile(), instructions);
 
 		for (Instruction instruction : putFieldInstructions) {
 
@@ -471,7 +471,7 @@ public class FieldTypeChanger {
 	}
 
 	private static String getGetValueDescriptor(String dataType) {
-		return "()" + (Primitives.isPrimitiveDataType(dataType) ? dataType : JVMTypes.OBJECT);
+		return "()" + (Primitives.isPrimitiveJVMDataType(dataType) ? dataType : JVMTypes.OBJECT);
 	}
 
 	private List<FieldData> getUnitializedFields(List<FieldData> initalizedFields) {

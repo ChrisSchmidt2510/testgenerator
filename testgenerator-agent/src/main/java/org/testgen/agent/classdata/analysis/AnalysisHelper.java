@@ -15,8 +15,8 @@ public final class AnalysisHelper {
 	private AnalysisHelper() {
 	}
 
-	static boolean isDescriptorEqual(List<Instruction> instructions, int fieldInstructionIndex, String fieldDescriptor,
-			List<String> methodParameters, Wrapper<Integer> argumentIndex) {
+	public static boolean isDescriptorEqual(List<Instruction> instructions, int fieldInstructionIndex,
+			String fieldDescriptor, List<String> methodParameters, Wrapper<Integer> argumentIndex) {
 
 		Instruction instruction = instructions.get(fieldInstructionIndex - 1);
 
@@ -98,7 +98,7 @@ public final class AnalysisHelper {
 		return false;
 	}
 
-	static FieldData getField(List<FieldData> fields, String name, String type) {
+	public static FieldData getField(List<FieldData> fields, String name, String type) {
 		return fields.stream().filter(field -> field.getName().equals(name) && field.getDataType().equals(type))
 				.findAny()
 				// can't be null cause the classfile would be otherwise incorrect

@@ -1,79 +1,101 @@
-package org.testgen.agent.classdata.instructions;
+package org.testgen.agent.classdata.instructions.filter;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
-import org.testgen.logging.LogManager;
-import org.testgen.logging.Logger;
+import org.testgen.agent.classdata.instructions.Instruction;
+import org.testgen.agent.classdata.instructions.Instructions;
 
+import javassist.bytecode.BootstrapMethodsAttribute;
+import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
+import javassist.bytecode.ClassFile;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 
-public class InstructionFilter {
-
-	private static final Logger LOGGER = LogManager.getLogger(InstructionFilter.class);
+public class ReverseInstructionFilter extends InstructionFilter {
 
 	private static final List<Integer> POP_OPCODES = Collections.unmodifiableList(Arrays.asList(
 			// remove the first entry in the operand-stack for aconst_null instruction
 			Opcode.ACONST_NULL, Opcode.NEW, Opcode.GETSTATIC, //
 			// pop the element, before the dup instruction the first and second-instructions
 			// should be of the same type
-			Opcode.DUP, Opcode.LDC, Opcode.LDC_W, Opcode.LDC2_W, Opcode.POP, Opcode.POP2));
+			// TODO add putstatic opcode to filter For InstructionCallerIntern
+			Opcode.DUP, Opcode.LDC, Opcode.LDC_W, Opcode.LDC2_W));
 
-	private final List<Instruction> instructions;
-
-	public InstructionFilter(List<Instruction> instructions) {
-		this.instructions = simplifyInstructionTree(instructions);
+	public ReverseInstructionFilter(ClassFile classFile, List<Instruction> instructions) {
+		super(classFile, instructions);
 	}
 
 	public final Instruction filterForAloadInstruction(Instruction instruction) {
-		LOGGER.debug("searching for instruction-caller of " + instruction);
+		logger.debug("searching for instruction-caller of " + instruction);
+
+		calledLoadInstructions.clear();
 
 		Deque<String> operandStack = new ArrayDeque<>();
-		operandStack.push(instruction.getClassRef());
-		operandStack.push(Descriptor.toClassName(instruction.getType()));
 
-		return filterForInstructionCallerIntern(instruction,
-				Instructions.getBeforeInstruction(instructions, instruction), operandStack);
+		return filterForInstructionCallerIntern(instruction, operandStack);
+	}
+
+	@Override
+	public List<Instruction> filterForCalledLoadInstructions(Instruction instruction) {
+		logger.debug("searching for arguments of invoke instruction " + instruction);
+
+		Deque<String> operandStack = new ArrayDeque<>();
+
+		if (Instructions.isInvokeInstruction(instruction)) {
+			String returnType = Instructions.getReturnType(instruction.getType());
+
+			if (!Primitives.JVM_VOID.equals(returnType))
+				operandStack.add(returnType);
+		}
+
+		filterForInstructionCallerIntern(instruction, operandStack);
+
+		return calledLoadInstructions;
 	}
 
 	/**
 	 * filtering throw the instructions of a method and returns the caller of the
 	 * searchInstruction. To reach this goal, a operandStack is build, in reverse
-	 * order to the normal operandstack the jvm is using.
+	 * order to the normal operand stack the jvm is using.
 	 * 
-	 * @param searchInstruction
 	 * @param currentInstruction
 	 * @param numberOfParameters
 	 * @return the caller-instruction of the searchInstruction
 	 */
-	private Instruction filterForInstructionCallerIntern(Instruction searchInstruction, Instruction instruction,
-			Deque<String> operandStack) {
-		LOGGER.debug("search-instruction " + searchInstruction + "\n" + //
-				"current-instruction " + instruction + "\n" + //
+	private Instruction filterForInstructionCallerIntern(Instruction instruction, Deque<String> operandStack) {
+		logger.debug("current-instruction " + instruction + "\n" + //
 				"current operandStack: " + operandStack + "\n");
 
-		if (Instructions.isLoadInstruction(instruction) || //
-				POP_OPCODES.contains(instruction.getOpcode())) {
+		if (Instructions.isLoadInstruction(instruction)) {
+			operandStack.pop();
+			calledLoadInstructions.add(instruction);
+
+		} else if (POP_OPCODES.contains(instruction.getOpcode())) {
 			operandStack.pop();
 
 		} else if (Opcode.GETFIELD == instruction.getOpcode()) {
 			operandStack.pop();
 			operandStack.push(instruction.getClassRef());
 
+		} else if (Opcode.PUTFIELD == instruction.getOpcode()) {
+			operandStack.push(instruction.getClassRef());
+			operandStack.push(Descriptor.toClassName(instruction.getType()));
+
 		} else if (Instructions.isInvokeInstruction(instruction)) {
 			// update the instruction to the instruction, who starts the invoke-instruction
 			instruction = filterForInstructionBeforeInvokeInstruction(instruction, operandStack);
+
+		} else if (Opcode.INVOKEDYNAMIC == instruction.getOpcode()) {
+
+			instruction = filterForInstructionBeforeInvokeDynamicInstruction(instruction, operandStack);
 
 		} else if (Instructions.isPrimitiveMathOperation(instruction)) {
 			String type = operandStack.peek();
@@ -96,7 +118,7 @@ public class InstructionFilter {
 				operandStack.push(JavaTypes.OBJECT);
 				operandStack.push(JavaTypes.OBJECT);
 			} else {
-				// all other two-item-comparisons like IF_ICMPEQ popping ints
+				// all other two-item-comparisons like IF_ICMPEQ popping int's
 				operandStack.push(Primitives.JAVA_INT);
 				operandStack.push(Primitives.JAVA_INT);
 			}
@@ -105,6 +127,7 @@ public class InstructionFilter {
 
 			String dataType = Instructions.getPrimitiveCastType(instruction);
 			operandStack.push(dataType);
+
 		} else if (Instructions.isArrayStoreInstruction(instruction)) {
 			// can't know which type gets inserted in the array, so the most common type is
 			// pushed
@@ -113,11 +136,13 @@ public class InstructionFilter {
 			operandStack.push(Primitives.JAVA_INT);
 			// can't know which type the array has, so the most common type is pushed
 			operandStack.push(JavaTypes.OBJECT_ARRAY);
+
 		} else if (Instructions.isArrayLoadInstruction(instruction)) {
 			// array-index
 			operandStack.push(Primitives.JAVA_INT);
 			// can't know which type the array has, so the most common type is pushed
 			operandStack.push(JavaTypes.OBJECT_ARRAY);
+
 		} else if (Opcode.ANEWARRAY == instruction.getOpcode()) {
 			// remove the type of the array from the stack
 			operandStack.pop();
@@ -130,20 +155,19 @@ public class InstructionFilter {
 		if (operandStack.isEmpty()) {
 			return instruction;
 		} else if (beforeInstruction != null) {
-			return filterForInstructionCallerIntern(searchInstruction, beforeInstruction, operandStack);
+			return filterForInstructionCallerIntern(beforeInstruction, operandStack);
 		}
 
-		throw new NoSuchElementException(
-				"No matching caller-instruction for search-instruction " + searchInstruction + " found");
+		throw new NoSuchElementException("No matching caller-instruction found");
 	}
 
 	/**
 	 * Filtering for the call-instruction of the method-invocation. If the
 	 * invoke-instruction has a return-type, it pops the return-type from the
-	 * commited operandStack. In order to get the call-instruction a new
+	 * committed operand Stack. In order to get the call-instruction a new
 	 * operandStack is created and the parameter of the invoke-instruction getting
 	 * pushed. After that the method
-	 * {@link InstructionFilter#filterForInstructionCallerIntern(Instruction, Instruction, Stack)}
+	 * {@link ReverseInstructionFilter#filterForInstructionCallerIntern(Instruction, Instruction, Deque)}
 	 * gets called. <br>
 	 * Exclusion: if the invoke-instruction has the Opcode INVOKE_STATIC and the
 	 * method has no parameters, the invokeInstruction gets returned
@@ -172,66 +196,53 @@ public class InstructionFilter {
 			methodOperandStack.add(invokeInstruction.getClassRef());
 		}
 
-		// reverse the list cause the lifo-principle ->last methodparameter gets pushed
-		// first
-		Collections.reverse(methodParams);
-
 		for (String param : methodParams) {
 			methodOperandStack.push(Descriptor.toClassName(param));
 		}
 
-		return filterForInstructionCallerIntern(invokeInstruction,
-				Instructions.getBeforeInstruction(instructions, invokeInstruction), methodOperandStack);
+		return filterForInstructionCallerIntern(Instructions.getBeforeInstruction(instructions, invokeInstruction),
+				methodOperandStack);
 	}
 
-	/**
-	 * Modifies the instruction-set of a method in the case that a if-else-cascade
-	 * exists to manipulate the value of a field. Then will the else-instructions
-	 * excluded from the modified instructionsset. This is necessary to enable the
-	 * reverse filtering of the correct aload-instruction of a field.
-	 * 
-	 * @param instructions
-	 * @return a modified-instructionsset without else-branch bytecodes, if a field
-	 *         gets manipulated directly after the last instruction of the
-	 *         else-branch
-	 */
-	private List<Instruction> simplifyInstructionTree(List<Instruction> instructions) {
-		List<Instruction> branches = instructions.stream()
-				.filter(inst -> Instructions.isOneItemComparison(inst) || Instructions.isTwoItemComparison(inst))
-				.collect(Collectors.toList());
+	private Instruction filterForInstructionBeforeInvokeDynamicInstruction(Instruction invokeDynamicInstruction,
+			Deque<String> operandStack) {
+		operandStack.pop();
 
-		List<Instruction> modifiedInstructions = new ArrayList<>(instructions);
+		BootstrapMethodsAttribute bootstrapMethodAttribute = (BootstrapMethodsAttribute) classFile
+				.getAttribute(BootstrapMethodsAttribute.tag);
 
-		for (Instruction branchInstruction : branches) {
+		BootstrapMethod bootstrapMethod = bootstrapMethodAttribute.getMethods()[invokeDynamicInstruction
+				.getBootstrapMethodIndex()];
 
-			int ifEnd = branchInstruction.getCodeArrayIndex() + branchInstruction.getOffset();
-			Optional<Instruction> gotoOptional = instructions.stream()
-					.filter(inst -> Opcode.GOTO == inst.getOpcode()
-							&& inst.getCodeArrayIndex() > branchInstruction.getCodeArrayIndex()
-							&& ifEnd > inst.getCodeArrayIndex())//
-					.findAny();
+		int methodRefIndex = constantPool.getMethodHandleIndex(bootstrapMethod.methodRef);
 
-			if (gotoOptional.isPresent()) {
-				Instruction gotoInstruction = gotoOptional.get();
+		String name = constantPool.getMethodrefName(methodRefIndex);
+		String type = constantPool.getMethodrefClassName(methodRefIndex);
 
-				int branchEnd = gotoInstruction.getCodeArrayIndex() + gotoInstruction.getOffset();
+		if ((LAMBDAMETAFACTORY_METHOD_METAFACTORY.equals(name) || LAMBDAMETAFACTORY_METHOD_ALT_METAFACTORY.equals(name))
+				&& type.contains("LambdaMetafactory")) {
+			String typedLambdaDesc = constantPool
+					.getUtf8Info(constantPool.getMethodTypeInfo(bootstrapMethod.arguments[2]));
+			List<String> lambdaOriginalParameters = Instructions.getMethodParams(typedLambdaDesc);
 
-				if (instructions.stream().anyMatch(
-						inst -> Opcode.PUTFIELD == inst.getOpcode() && branchEnd == inst.getCodeArrayIndex())) {
+			String lambdaImplDesc = constantPool
+					.getMethodrefType(constantPool.getMethodHandleIndex(bootstrapMethod.arguments[1]));
+			List<String> lambdaImplParameters = Instructions.getMethodParams(lambdaImplDesc);
 
-					List<Instruction> removedInstructions = instructions.stream()
-							.filter(inst -> inst.getCodeArrayIndex() >= gotoInstruction.getCodeArrayIndex()
-									&& inst.getCodeArrayIndex() < branchEnd)
-							.collect(Collectors.toList());
+			List<String> additionalParams = lambdaImplParameters.stream()
+					.filter(param -> !lambdaOriginalParameters.contains(param)).collect(Collectors.toList());
 
-					LOGGER.debug("removedInstructions", stream -> removedInstructions.forEach(stream::println));
+			Deque<String> invokeDynamicOperandStack = new ArrayDeque<>();
+			additionalParams.forEach(invokeDynamicOperandStack::push);
 
-					modifiedInstructions.removeAll(removedInstructions);
-				}
-			}
-		}
+			return filterForInstructionCallerIntern(
+					Instructions.getBeforeInstruction(instructions, invokeDynamicInstruction),
+					invokeDynamicOperandStack);
 
-		return modifiedInstructions;
+		} else
+			logger.error("can't process invokedynamic instruction " + invokeDynamicInstruction);
+
+		return invokeDynamicInstruction;
 	}
 
 }

@@ -47,13 +47,13 @@ public class MethodAnalyser {
 		MethodData methodData = null;
 
 		if (setterAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
-			methodData = new MethodData(name, descriptor, MethodType.REFERENCE_VALUE_SETTER, 0,
+			methodData = new MethodData(name, descriptor, MethodType.REFERENCE_VALUE_SETTER,
 					Modifier.isStatic(modifier));
 		} else if (collectionAddAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
-			methodData = new MethodData(name, descriptor, MethodType.COLLECTION_SETTER, 0, //
+			methodData = new MethodData(name, descriptor, MethodType.COLLECTION_SETTER, //
 					Modifier.isStatic(modifier));
 		} else if (immutableCollectionGetter.analyse(descriptor, instructions, fieldWrapper)) {
-			methodData = new MethodData(name, descriptor, MethodType.IMMUTABLE_GETTER, -1, //
+			methodData = new MethodData(name, descriptor, MethodType.IMMUTABLE_GETTER, //
 					Modifier.isStatic(modifier));
 		} else if (getterAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
 
@@ -66,7 +66,7 @@ public class MethodAnalyser {
 					field.isMutable() || (!field.isMutable() && JavaTypes.COLLECTION_LIST.contains(field.getDataType()))
 							? MethodType.REFERENCE_VALUE_GETTER
 							: MethodType.IMMUTABLE_GETTER, //
-					-1, Modifier.isStatic(modifier));
+					Modifier.isStatic(modifier));
 		}
 
 		LOGGER.info("Result of Analysis: " + methodData);

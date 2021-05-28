@@ -173,7 +173,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 			valueTracking.addAload(valueTrackerLocalIndex);
 			BytecodeUtils.addLoad(valueTracking, i, descriptor);
-			if (Primitives.isPrimitiveDataType(descriptor))
+			if (Primitives.isPrimitiveJVMDataType(descriptor))
 				BytecodeUtils.addBoxingForPrimitiveDataType(valueTracking, descriptor);
 
 			valueTracking.addLdc(variableName);

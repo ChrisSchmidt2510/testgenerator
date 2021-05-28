@@ -33,7 +33,7 @@ public final class Primitives {
 	private Primitives() {
 	}
 
-	public static boolean isPrimitiveDataType(String dataType) {
+	public static boolean isPrimitiveJVMDataType(String dataType) {
 		return PRIMTIVE_JVM_TYPES.contains(dataType);
 	}
 

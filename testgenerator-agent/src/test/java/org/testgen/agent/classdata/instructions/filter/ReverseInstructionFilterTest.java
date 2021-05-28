@@ -1,10 +1,12 @@
-package org.testgen.agent.classdata.instructions;
+package org.testgen.agent.classdata.instructions.filter;
 
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testgen.agent.classdata.TestHelper;
+import org.testgen.agent.classdata.instructions.Instruction;
+import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.testclasses.Adresse;
 import org.testgen.agent.classdata.testclasses.FragmentDate;
 import org.testgen.agent.classdata.testclasses.Person;
@@ -16,7 +18,7 @@ import javassist.bytecode.BadBytecode;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
-public class InstructionFilterTest extends TestHelper {
+public class ReverseInstructionFilterTest extends TestHelper {
 
 	@Test
 	public void testFilterForInstructionCallerWithSimplestSetter() throws NotFoundException, BadBytecode {
@@ -24,7 +26,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has only 1 putField-instruction so-> get(0)
@@ -40,7 +42,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -64,7 +66,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -84,7 +86,7 @@ public class InstructionFilterTest extends TestHelper {
 		Instruction searchInstruction = filteredInstructions.get(Opcode.PUTFIELD).stream()
 				.filter(inst -> inst.getCodeArrayIndex() == 54).findAny().orElse(null);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter.filterForAloadInstruction(searchInstruction);
 
@@ -98,7 +100,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -116,7 +118,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -133,7 +135,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -150,7 +152,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// this method has multiple putField-instructions, but only the first is for
@@ -167,7 +169,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				// for this method only the first aload-instruction is for
@@ -184,7 +186,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(1));
@@ -199,7 +201,7 @@ public class InstructionFilterTest extends TestHelper {
 
 		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
 
-		InstructionFilter filter = createInstructionFilter();
+		ReverseInstructionFilter filter = createInstructionFilter();
 
 		Instruction aloadInstruction = filter
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
@@ -208,7 +210,7 @@ public class InstructionFilterTest extends TestHelper {
 		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
-	private InstructionFilter createInstructionFilter() {
-		return new InstructionFilter(instructions);
+	private ReverseInstructionFilter createInstructionFilter() {
+		return new ReverseInstructionFilter(classFile, instructions);
 	}
 }
