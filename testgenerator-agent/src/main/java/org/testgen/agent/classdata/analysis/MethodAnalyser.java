@@ -1,11 +1,13 @@
 package org.testgen.agent.classdata.analysis;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.instructions.Instruction;
@@ -19,59 +21,49 @@ import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
 import javassist.Modifier;
+import javassist.bytecode.ClassFile;
 import javassist.bytecode.Descriptor;
+import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
 public class MethodAnalyser {
 
 	private static final Logger LOGGER = LogManager.getLogger(MethodAnalyser.class);
 
-	private final NormalSetterAnalyser setterAnalyser = new NormalSetterAnalyser();
-	private final NormalGetterAnalyser getterAnalyser;
-	private final CollectionSetterAnalyser collectionAddAnalyser;
-	private final ImmutableCollectionGetterAnalyser immutableCollectionGetter = new ImmutableCollectionGetterAnalyser();
+	private static final List<MethodAnalysis> ANALYSER = new ArrayList<>();
 
-	private final ClassData classData;
-
-	public MethodAnalyser(ClassData classData) {
-		collectionAddAnalyser = new CollectionSetterAnalyser(classData.getFields());
-		getterAnalyser = new NormalGetterAnalyser(classData.getName());
-		this.classData = classData;
+	static {
+		ServiceLoader<MethodAnalysis> serviceLoader = ServiceLoader.load(MethodAnalysis.class);
+		serviceLoader.forEach(ANALYSER::add);
 	}
 
-	public MethodData analyse(String name, String descriptor, int modifier, List<Instruction> instructions,
-			Wrapper<FieldData> fieldWrapper) {
+	public MethodAnalyser(ClassData classData, ClassFile classFile) {
+		ANALYSER.forEach(an -> initAnalyser(an, classData, classFile));
+	}
 
-		LOGGER.info("Starting Analysis of Method: " + name + descriptor);
+	private void initAnalyser(MethodAnalysis analyser, ClassData classData, ClassFile classFile) {
+		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
+	}
 
-		MethodData methodData = null;
-
-		if (setterAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
-			methodData = new MethodData(name, descriptor, MethodType.REFERENCE_VALUE_SETTER,
-					Modifier.isStatic(modifier));
-		} else if (collectionAddAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
-			methodData = new MethodData(name, descriptor, MethodType.COLLECTION_SETTER, //
-					Modifier.isStatic(modifier));
-		} else if (immutableCollectionGetter.analyse(descriptor, instructions, fieldWrapper)) {
-			methodData = new MethodData(name, descriptor, MethodType.IMMUTABLE_GETTER, //
-					Modifier.isStatic(modifier));
-		} else if (getterAnalyser.analyse(descriptor, instructions, fieldWrapper)) {
-
-			FieldData foundedField = fieldWrapper.getValue();
-
-			FieldData field = AnalysisHelper.getField(classData.getFields(), foundedField.getName(),
-					foundedField.getDataType());
-
-			methodData = new MethodData(name, descriptor,
-					field.isMutable() || (!field.isMutable() && JavaTypes.COLLECTION_LIST.contains(field.getDataType()))
-							? MethodType.REFERENCE_VALUE_GETTER
-							: MethodType.IMMUTABLE_GETTER, //
-					Modifier.isStatic(modifier));
+	public void analyse(MethodInfo method, List<Instruction> instructions) {
+		LOGGER.info("Starting Analysis of Method: " +method);
+		
+		for (MethodAnalysis analyser : ANALYSER) {
+			String analyserName = analyser.getClass().getName();
+			
+			LOGGER.debug(String.format("use %s for analysis", analyserName));
+			
+			if(!analyser.canAnalysisBeApplied(method)) {
+				LOGGER.debug(String.format("requirements for analyser %s arent fulfilled", analyserName));
+				continue;
+			}
+			
+			if(analyser.hasAnalysisMatched(method, instructions)) {
+				LOGGER.debug(String.format("analysis found a result with analyser %s", analyserName));
+				break;
+			}
 		}
-
-		LOGGER.info("Result of Analysis: " + methodData);
-
-		return methodData;
 	}
 
 	public Map<Integer, FieldData> analyseConstructor(String methodDescriptor, //

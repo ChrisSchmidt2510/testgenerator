@@ -1,13 +1,18 @@
 package de.nvg.app;
 
 import java.lang.reflect.Proxy;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 
 import de.nvg.bl.Account;
 import de.nvg.bl.partner.Adresse;
 import de.nvg.bl.partner.Person;
 
 public class BusinessLogik {
+	private Greeter proxy = (Greeter) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+			new Class[] { Greeter.class }, new Handler());
 
 	public void addAdresseToPerson(Person person, Adresse adresse) {
 		person.addAdresse(adresse);
@@ -22,8 +27,15 @@ public class BusinessLogik {
 //				return null;
 		}
 
-		Greeter proxy = (Greeter) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-				new Class[] { Greeter.class }, new Handler());
+		proxy.getList();
+
+		method2(password, Arrays.asList(account.getPassword()));
+
+		Person proxyPerson = proxy.person();
+		System.out.println(proxyPerson.getName());
+		System.out.println(proxyPerson.getFirstName());
+		System.out.println(proxyPerson.getAdressen().get(0).getOrt());
+		System.out.println(proxyPerson.getAdressen().get(0).getPlz());
 
 		System.out.println(proxy.greet("Christoph"));
 
@@ -54,11 +66,14 @@ public class BusinessLogik {
 
 	public String method(String passwort) {
 		System.out.println(passwort);
-		return passwort;
+
+		return null;
 	}
 
-	public void method2(String password, List<String> oldPasswords) {
+	public Entry<String, Integer> method2(String password, List<String> oldPasswords) {
 		System.out.println(oldPasswords);
+
+		return new SimpleEntry<>("hier", 5);
 	}
 
 }

@@ -25,7 +25,7 @@ import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
-public abstract class BasicMethodAnalysis implements MethodAnalysis2 {
+public abstract class BasicMethodAnalysis implements MethodAnalysis {
 
 	protected ClassData classData;
 	protected ClassFile classFile;

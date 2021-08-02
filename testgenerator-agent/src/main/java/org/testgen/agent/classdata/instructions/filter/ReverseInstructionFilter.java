@@ -41,6 +41,25 @@ public class ReverseInstructionFilter extends InstructionFilter {
 
 		return filterForInstructionCallerIntern(instruction, operandStack);
 	}
+	
+	public List<Instruction> filterForCalledLoadInstructions(Instruction instruction) {
+		logger.debug("searching for arguments of invoke instruction " + instruction);
+		
+		calledLoadInstructions.clear();
+
+		Deque<String> operandStack = new ArrayDeque<>();
+
+		if (Instructions.isInvokeInstruction(instruction)) {
+			String returnType = Instructions.getReturnType(instruction.getType());
+
+			if (!Primitives.JVM_VOID.equals(returnType))
+				operandStack.add(returnType);
+		}
+
+		filterForInstructionCallerIntern(instruction, operandStack);
+
+		return calledLoadInstructions;
+	}
 
 	/**
 	 * filtering throw the instructions of a method and returns the caller of the

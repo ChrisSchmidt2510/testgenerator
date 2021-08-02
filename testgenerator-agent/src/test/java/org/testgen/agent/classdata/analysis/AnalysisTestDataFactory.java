@@ -1,4 +1,4 @@
-package org.testgen.agent.classdata.analysis.impl;
+package org.testgen.agent.classdata.analysis;
 
 import java.util.Arrays;
 import java.util.stream.Stream;

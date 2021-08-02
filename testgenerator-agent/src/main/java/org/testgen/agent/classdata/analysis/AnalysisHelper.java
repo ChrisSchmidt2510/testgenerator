@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
-import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.core.Wrapper;
 
 import javassist.bytecode.Opcode;
@@ -98,10 +97,4 @@ public final class AnalysisHelper {
 		return false;
 	}
 
-	public static FieldData getField(List<FieldData> fields, String name, String type) {
-		return fields.stream().filter(field -> field.getName().equals(name) && field.getDataType().equals(type))
-				.findAny()
-				// can't be null cause the classfile would be otherwise incorrect
-				.orElse(null);
-	}
 }

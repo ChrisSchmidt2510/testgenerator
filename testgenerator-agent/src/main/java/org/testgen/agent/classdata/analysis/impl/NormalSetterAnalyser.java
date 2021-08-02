@@ -2,14 +2,13 @@ package org.testgen.agent.classdata.analysis.impl;
 
 import java.util.List;
 
-import org.testgen.agent.classdata.analysis.AnalysisHelper;
 import org.testgen.agent.classdata.analysis.BasicMethodAnalysis;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
+import org.testgen.agent.classdata.instructions.filter.ReverseInstructionFilter;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodType;
-import org.testgen.core.Wrapper;
-
+import javassist.Modifier;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
@@ -30,9 +29,21 @@ public class NormalSetterAnalyser extends BasicMethodAnalysis {
 
 				List<String> parameters = Instructions.getMethodParams(method.getDescriptor());
 
+				ReverseInstructionFilter instructionFilter = new ReverseInstructionFilter(classFile, instructions);
+				List<Instruction> calledLoadInstructions = instructionFilter
+						.filterForCalledLoadInstructions(instruction);
+
+				boolean isStaticMethod = Modifier.isStatic(method.getAccessFlags());
+
+				if (!isStaticMethod) {
+					Instruction aload0Instruction = calledLoadInstructions.stream()
+							.filter(inst -> Opcode.ALOAD_0 == inst.getOpcode()).findAny()
+							.orElseThrow(() -> new IllegalArgumentException("Aload0 Instruction has to exist"));
+					calledLoadInstructions.remove(aload0Instruction);
+				}
+
 				if (instructions.size() < 25 && //
-						AnalysisHelper.isDescriptorEqual(instructions, index, //
-								instruction.getType(), parameters, new Wrapper<>())) {
+						areAllMethodParametersUsed(calledLoadInstructions, parameters, isStaticMethod)) {
 
 					FieldData field = classData.getField(instruction.getName(),
 							Descriptor.toClassName(instruction.getType()));

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testgen.agent.classdata.TestHelper;
-import org.testgen.agent.classdata.analysis.MethodAnalysis2;
+import org.testgen.agent.classdata.analysis.MethodAnalysis;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodData;
@@ -20,10 +20,10 @@ import javassist.bytecode.BadBytecode;
 
 public class ImmutableCollectionGetterAnalyserTest extends TestHelper {
 
-	private MethodAnalysis2 analyser = new ImmutableCollectionGetterAnalyser();
+	private MethodAnalysis analyser = new ImmutableCollectionGetterAnalyser();
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
 	public void testAnalyseGetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, "getStrasse");
 
@@ -34,7 +34,7 @@ public class ImmutableCollectionGetterAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
 	public void testAnalyseImmutableGetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, "getHausnummer");
 
@@ -45,7 +45,7 @@ public class ImmutableCollectionGetterAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
 	public void testAnalyseSetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, "setStrasse");
 
@@ -56,7 +56,7 @@ public class ImmutableCollectionGetterAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getPersonClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getPersonClassData")
 	public void testAnalyseCollectionSetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Person.class, "addAdresse");
 
@@ -67,7 +67,7 @@ public class ImmutableCollectionGetterAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getPersonClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getPersonClassData")
 	public void testAnalyseImmutableCollectionGetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Person.class, "getAdressen");
 

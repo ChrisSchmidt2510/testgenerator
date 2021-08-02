@@ -23,13 +23,11 @@ import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.ClassDataStorage;
 import org.testgen.agent.classdata.model.ConstructorData;
 import org.testgen.agent.classdata.model.FieldData;
-import org.testgen.agent.classdata.model.MethodData;
 import org.testgen.agent.classdata.model.SignatureData;
 import org.testgen.agent.classdata.modification.ClassDataGenerator;
 import org.testgen.agent.classdata.modification.fields.FieldTypeChanger;
 import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.TestgeneratorConstants;
-import org.testgen.core.Wrapper;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
@@ -120,7 +118,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			checkIsInnerClass(classFile, classData);
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser(classData);
+			MethodAnalyser methodAnalyser = new MethodAnalyser(classData, classFile);
 
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
 					loadingClass);
@@ -253,19 +251,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	private void analyseMethod(MethodInfo method, List<Instruction> instructions, ClassData classData,
 			MethodAnalyser methodAnalyser) {
 
-		if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())
-				&& (AccessFlag.SYNTHETIC & method.getAccessFlags()) == 0
-				&& !AccessFlag.isPrivate(method.getAccessFlags())) {
+		if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
-			Wrapper<FieldData> fieldWrapper = new Wrapper<>();
-
-			MethodData methodData = methodAnalyser.analyse(method.getName(), method.getDescriptor(),
-					method.getAccessFlags(), instructions, fieldWrapper);
-
-			if (methodData != null) {
-				classData.addMethod(methodData, fieldWrapper.getValue());
-			}
-
+			methodAnalyser.analyse(method, instructions);
 		}
 	}
 
