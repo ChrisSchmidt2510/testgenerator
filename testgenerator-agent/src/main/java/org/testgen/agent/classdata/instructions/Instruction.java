@@ -10,6 +10,7 @@ public final class Instruction {
 	private final int opcode;
 	private final int localVariableIndex;
 	private final int offset;
+	private final int arrayDimensions;
 
 	private final int bootstrapMethodIndex;
 	private final String type;
@@ -17,12 +18,13 @@ public final class Instruction {
 	private final String classRef;
 	private final String constantValue;
 
-	private Instruction(int codeArrayIndex, int opcode, int localVariableIndex, int offset, int bootstrapMethodIndex,
-			String type, String name, String classRef, String constantValue) {
+	private Instruction(int codeArrayIndex, int opcode, int localVariableIndex, int offset, int arrayDimensions,
+			int bootstrapMethodIndex, String type, String name, String classRef, String constantValue) {
 		this.codeArrayIndex = codeArrayIndex;
 		this.opcode = opcode;
 		this.localVariableIndex = localVariableIndex;
 		this.offset = offset;
+		this.arrayDimensions = arrayDimensions;
 		this.bootstrapMethodIndex = bootstrapMethodIndex;
 		this.type = type;
 		this.name = name;
@@ -56,6 +58,10 @@ public final class Instruction {
 
 	public int getOffset() {
 		return offset;
+	}
+
+	public int getArrayDimensions() {
+		return arrayDimensions;
 	}
 
 	public int getBootstrapMethodIndex() {
@@ -106,6 +112,7 @@ public final class Instruction {
 		private int localVariableIndex = -1;
 		private int offset = -1;
 		private int bootstrapMethodIndex = -1;
+		private int arrayDimensions = -1;
 		private String type;
 		private String name;
 		private String classRef;
@@ -128,6 +135,11 @@ public final class Instruction {
 
 		public Builder withOffset(int offset) {
 			this.offset = offset;
+			return this;
+		}
+
+		public Builder withArrayDimensions(int arrayDimensions) {
+			this.arrayDimensions = arrayDimensions;
 			return this;
 		}
 
@@ -157,8 +169,8 @@ public final class Instruction {
 		}
 
 		public Instruction build() {
-			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, bootstrapMethodIndex, type, name,
-					classRef, constantValue);
+			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, arrayDimensions,
+					bootstrapMethodIndex, type, name, classRef, constantValue);
 
 		}
 	}

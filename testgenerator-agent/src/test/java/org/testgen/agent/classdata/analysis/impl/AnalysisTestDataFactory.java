@@ -67,7 +67,7 @@ public class AnalysisTestDataFactory {
 				.withSignature(signatureSet).build();
 
 		SignatureData signatureQueue = new SignatureData("Ljava/util/Queue;");
-		signatureQueue.addSubType(signatureQueue);
+		signatureQueue.addSubType(signatureString);
 
 		FieldData queue = new FieldData.Builder().withName("queue").withDataType("java.util.Queue")
 				.withSignature(signatureQueue).build();

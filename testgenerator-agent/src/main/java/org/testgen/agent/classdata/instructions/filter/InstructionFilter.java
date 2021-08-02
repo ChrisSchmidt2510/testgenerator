@@ -10,6 +10,8 @@ import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
+import javassist.bytecode.BootstrapMethodsAttribute;
+import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Opcode;
@@ -29,6 +31,7 @@ public abstract class InstructionFilter {
 
 	protected static final String LAMBDAMETAFACTORY_METHOD_METAFACTORY = "metafactory";
 	protected static final String LAMBDAMETAFACTORY_METHOD_ALT_METAFACTORY = "altMetafactory";
+	protected static final String LAMBDAMETAFACTORY_CLASSNAME = "java.lang.invoke.LambdaMetafactory";
 
 	protected final List<Instruction> instructions;
 	protected final ClassFile classFile;
@@ -43,13 +46,6 @@ public abstract class InstructionFilter {
 		this.constantPool = classFile.getConstPool();
 		this.instructions = simplifyInstructionTree(instructions);
 	}
-
-	/**
-	 * 
-	 * @param instruction
-	 * @return
-	 */
-	public abstract List<Instruction> filterForCalledLoadInstructions(Instruction instruction);
 
 	/**
 	 * Modifies the instruction-set of a method in the case that a if-else-cascade
@@ -108,7 +104,7 @@ public abstract class InstructionFilter {
 		return modifiedInstructions;
 	}
 
-	public boolean putsItemOnOperandStack(Instruction instruction) {
+	protected boolean putsItemOnOperandStack(Instruction instruction) {
 		int opcode = instruction.getOpcode();
 
 		return Instructions.isLoadInstruction(instruction) || Instructions.isArrayLoadInstruction(instruction)
@@ -117,6 +113,21 @@ public abstract class InstructionFilter {
 						&& !Primitives.JVM_VOID.equals(Instructions.getReturnType(instruction.getType())))
 				|| Opcode.INVOKEDYNAMIC == opcode || Opcode.GETFIELD == opcode || Opcode.GETSTATIC == opcode
 				|| Opcode.LDC == opcode || Opcode.LDC2_W == opcode || Opcode.LDC_W == opcode || Opcode.DUP == opcode;
+	}
+
+	protected BootstrapMethod getBootstrapMethodForInvokeDynamicInstruction(Instruction instruction) {
+		if (Opcode.INVOKEDYNAMIC != instruction.getOpcode())
+			throw new IllegalArgumentException(
+					String.format("Instruction %s has no InvokeDynamic opcode", instruction));
+
+		BootstrapMethodsAttribute bootstrapMethodAttribute = (BootstrapMethodsAttribute) classFile
+				.getAttribute(BootstrapMethodsAttribute.tag);
+
+		return bootstrapMethodAttribute.getMethods()[instruction.getBootstrapMethodIndex()];
+	}
+
+	public List<Instruction> getCalledLoadInstructions() {
+		return new ArrayList<>(calledLoadInstructions);
 	}
 
 }

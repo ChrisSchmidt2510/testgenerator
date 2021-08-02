@@ -18,7 +18,6 @@ import org.testgen.agent.classdata.testclasses.Person;
 
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
-import javassist.bytecode.StackMapTable;
 
 public class CollectionSetterAnalyserTest extends TestHelper {
 
@@ -30,6 +29,7 @@ public class CollectionSetterAnalyserTest extends TestHelper {
 		init(Adresse.class, "getStrasse");
 
 		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
 
 		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));
@@ -67,9 +67,6 @@ public class CollectionSetterAnalyserTest extends TestHelper {
 
 		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
-
-		StackMapTable stackMapTable = (StackMapTable) codeAttribute.getAttribute(StackMapTable.tag);
-		stackMapTable.println(System.out);
 
 		String fieldName = "collection";
 		String fieldType = "java.util.Collection";
@@ -130,7 +127,7 @@ public class CollectionSetterAnalyserTest extends TestHelper {
 		Entry<MethodData, FieldData> addAllListEntry = classData.getMethod("addAllList", "(Ljava/util/Collection;)V");
 		compareResult(addAllListEntry, fieldName, fieldType, signature);
 
-		init(Collections.class, "addAllWithIndexList");
+		init(Collections.class, "addAllListWithIndex");
 
 		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
@@ -149,6 +146,136 @@ public class CollectionSetterAnalyserTest extends TestHelper {
 
 		Entry<MethodData, FieldData> addArrayListEntry = classData.getMethod("addArrayList", "(Ljava/lang/String;)V");
 		compareResult(addArrayListEntry, "arrayList", "java.util.ArrayList", signatureArrayList);
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getCollectionsClassData")
+	public void testAnalyseCollectionSetterSet(ClassData classData) throws NotFoundException, BadBytecode {
+		init(Collections.class, "addSet");
+
+		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		String fieldName = "set";
+		String fieldType = "java.util.Set";
+
+		SignatureData signature = new SignatureData("Ljava/util/Set;");
+		signature.addSubType(new SignatureData("Ljava/lang/String;"));
+
+		Entry<MethodData, FieldData> addSetEntry = classData.getMethod("addSet", "(Ljava/lang/String;)V");
+		compareResult(addSetEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "addAllSet");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> addAllSetEntry = classData.getMethod("addAllSet", "(Ljava/util/Set;)V");
+		compareResult(addAllSetEntry, fieldName, fieldType, signature);
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getCollectionsClassData")
+	public void testAnalyseCollectionSetterQueue(ClassData classData) throws NotFoundException, BadBytecode {
+		init(Collections.class, "addQueue");
+
+		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		String fieldName = "queue";
+		String fieldType = "java.util.Queue";
+
+		SignatureData signature = new SignatureData("Ljava/util/Queue;");
+		signature.addSubType(new SignatureData("Ljava/lang/String;"));
+
+		Entry<MethodData, FieldData> addQueueEntry = classData.getMethod("addQueue", "(Ljava/lang/String;)V");
+		compareResult(addQueueEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "offerQueue");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> offerQueueEntry = classData.getMethod("offerQueue", "(Ljava/lang/String;)V");
+		compareResult(offerQueueEntry, fieldName, fieldType, signature);
+
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.testgen.agent.classdata.analysis.impl.AnalysisTestDataFactory#getCollectionsClassData")
+	public void testAnalyseCollectionSetterDeque(ClassData classData) throws NotFoundException, BadBytecode {
+		init(Collections.class, "addDeque");
+
+		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		String fieldName = "deque";
+		String fieldType = "java.util.Deque";
+
+		SignatureData signature = new SignatureData("Ljava/util/Deque;");
+		signature.addSubType(new SignatureData("Ljava/lang/String;"));
+
+		Entry<MethodData, FieldData> addDequeEntry = classData.getMethod("addDeque", "(Ljava/lang/String;)V");
+		compareResult(addDequeEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "addFirstDeque");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> addFirstDequeEntry = classData.getMethod("addFirstDeque", "(Ljava/lang/String;)V");
+		compareResult(addFirstDequeEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "addLastDeque");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> addLastDequeEntry = classData.getMethod("addLastDeque", "(Ljava/lang/String;)V");
+		compareResult(addLastDequeEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "addAllDeque");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> addAllDequeEntry = classData.getMethod("addAllDeque", "(Ljava/util/Collection;)V");
+		compareResult(addAllDequeEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "offerFirstDeque");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> offerFirstDequeEntry = classData.getMethod("offerFirstDeque",
+				"(Ljava/lang/String;)V");
+		compareResult(offerFirstDequeEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "offerLastDeque");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> offerLastDequeEntry = classData.getMethod("offerLastDeque",
+				"(Ljava/lang/String;)V");
+		compareResult(offerLastDequeEntry, fieldName, fieldType, signature);
+
+		init(Collections.class, "pushDeque");
+
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> pushDequeEntry = classData.getMethod("pushDeque", "(Ljava/lang/String;)V");
+		compareResult(pushDequeEntry, fieldName, fieldType, signature);
 	}
 
 	@ParameterizedTest
@@ -221,6 +348,7 @@ public class CollectionSetterAnalyserTest extends TestHelper {
 		init(Person.class, "getAdressen");
 
 		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
 
 		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));

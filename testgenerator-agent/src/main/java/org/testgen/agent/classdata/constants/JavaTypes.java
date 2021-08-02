@@ -54,7 +54,7 @@ public final class JavaTypes {
 	public static final String COLLECTIONS = "java.util.Collections";
 
 	public static final List<String> COLLECTION_LIST = Collections
-			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, MAP, QUEUE));
+			.unmodifiableList(Arrays.asList(COLLECTION, LIST, SET, MAP, QUEUE, DEQUE));
 
 	public static final Map<String, List<String>> COLLECTION_ADD_METHODS = MapBuilder
 			.<String, List<String>>hashMapBuilder()//

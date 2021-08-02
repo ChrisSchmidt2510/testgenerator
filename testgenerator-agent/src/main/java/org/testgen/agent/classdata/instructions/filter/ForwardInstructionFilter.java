@@ -1,18 +1,18 @@
 package org.testgen.agent.classdata.instructions.filter;
 
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
 
+import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.ClassFile;
-import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 
 public class ForwardInstructionFilter extends InstructionFilter {
@@ -21,14 +21,20 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		super(classFile, instructions);
 	}
 
-	@Override
-	public List<Instruction> filterForCalledLoadInstructions(Instruction instruction) {
-		calledLoadInstructions.clear();
+	public Instruction filterForUseOfGetFieldInstruction(Instruction instruction) {
+		if (Opcode.GETFIELD != instruction.getOpcode())
+			throw new IllegalArgumentException(String.format("Instruction %s has no Opcode GETFIELD", instruction));
 
-		return calledLoadInstructions;
+		OperandStack operandStack = new OperandStack();
+		operandStack.push(JavaTypes.OBJECT, null);
+
+		Function<OperandStack, Boolean> breakCondition = stack -> !stack.contains(instruction.getType(), instruction);
+
+		return filterForInstructionCallerIntern(instruction, operandStack, breakCondition);
 	}
 
-	private Instruction filterForInstructionCallerIntern(Instruction instruction, LinkedList<String> operandStack) {
+	private Instruction filterForInstructionCallerIntern(Instruction instruction, OperandStack operandStack,
+			Function<OperandStack, Boolean> breakCondition) {
 		ListIterator<Instruction> iterator = instructions.listIterator(instructions.indexOf(instruction) + 1);
 
 		// implNote:
@@ -52,76 +58,76 @@ public class ForwardInstructionFilter extends InstructionFilter {
 
 		} else if (Opcode.GETFIELD == opcode) {
 			operandStack.pop();
-			operandStack.offer(instruction.getType());
+			operandStack.push(instruction.getType(), instruction);
 
 		} else if (Opcode.PUTFIELD == opcode) {
 			operandStack.pop();
 			operandStack.pop();
 
 		} else if (Opcode.ACONST_NULL == opcode)
-			operandStack.offer(JavaTypes.OBJECT);
+			operandStack.push(JavaTypes.OBJECT, instruction);
 
 		else if (Opcode.NEW == opcode)
-			operandStack.offer(instruction.getClassRef());
+			operandStack.push(instruction.getClassRef(), instruction);
 
 		else if (Opcode.GETSTATIC == opcode)
-			operandStack.offer(instruction.getType());
+			operandStack.push(instruction.getType(), instruction);
 
 		else if (Opcode.PUTSTATIC == opcode)
 			operandStack.pop();
 
 		else if (Opcode.DUP == opcode)
-			operandStack.offer(operandStack.peek());
+			operandStack.push(operandStack.peek(), instruction);
 
 		else if (Opcode.DUP_X1 == opcode)
 			// copy the top value of the stack two values down
-			operandStack.add(2, operandStack.peek());
+			operandStack.add(2, operandStack.peek(), instruction);
 
 		else if (Opcode.DUP_X2 == opcode)
 			// if the second item on the stack is a double or long copy to the third else
 			// fourth position on the operand stack
-			operandStack.add(isDoubleOrLong(operandStack.get(1)) ? 2 : 3, operandStack.peek());
+			operandStack.add(isDoubleOrLong(operandStack.get(1)) ? 2 : 3, operandStack.peek(), instruction);
 
 		else if (Opcode.DUP2 == opcode)
 			if (isDoubleOrLong(operandStack.peek()))
-				operandStack.offer(operandStack.peek());
+				operandStack.push(operandStack.peek(), instruction);
 
 			else {
-				operandStack.add(2, operandStack.peek());
-				operandStack.add(3, operandStack.get(1));
+				operandStack.add(2, operandStack.peek(), instruction);
+				operandStack.add(3, operandStack.get(1), instruction);
 			}
 
 		else if (Opcode.DUP2_X1 == opcode)
 			if (isDoubleOrLong(operandStack.peek()))
-				operandStack.add(2, operandStack.peek());
+				operandStack.add(2, operandStack.peek(), instruction);
 
 			else {
-				operandStack.add(3, operandStack.peek());
-				operandStack.add(4, operandStack.get(1));
+				operandStack.add(3, operandStack.peek(), instruction);
+				operandStack.add(4, operandStack.get(1), instruction);
 			}
 
 		else if (Opcode.DUP2_X2 == opcode)
 			// Form 4
 			if (isDoubleOrLong(operandStack.peek()) && isDoubleOrLong(operandStack.get(1))) {
-				operandStack.add(2, operandStack.peek());
+				operandStack.add(2, operandStack.peek(), instruction);
 
 				// Form 3
 			} else if (isDoubleOrLong(operandStack.get(2))) {
-				operandStack.add(3, operandStack.peek());
-				operandStack.add(4, operandStack.get(1));
+				operandStack.add(3, operandStack.peek(), instruction);
+				operandStack.add(4, operandStack.get(1), instruction);
 
 				// Form 2
 			} else if (isDoubleOrLong(operandStack.peek()))
-				operandStack.add(3, operandStack.peek());
+				operandStack.add(3, operandStack.peek(), instruction);
 
 			// Form 1
 			else {
-				operandStack.add(4, operandStack.peek());
-				operandStack.add(5, operandStack.get(1));
+				operandStack.add(4, operandStack.peek(), instruction);
+				operandStack.add(5, operandStack.get(1), instruction);
 			}
 
 		else if (Opcode.LDC == opcode || Opcode.LDC_W == opcode || Opcode.LDC2_W == opcode)
-			operandStack.offer(instruction.getType());
+			operandStack.push(instruction.getType(), instruction);
 
 		else if (Instructions.isPrimitiveMathOperation(instruction))
 			// remove on of the two top variables, because the result of this math operation
@@ -146,35 +152,82 @@ public class ForwardInstructionFilter extends InstructionFilter {
 			operandStack.pop();
 			operandStack.pop();
 
-			operandStack.offer(getArrayComponentType(opcode));
+			operandStack.push(getArrayComponentType(opcode), instruction);
 		}
 
 		else if (Opcode.NEWARRAY == opcode || Opcode.ANEWARRAY == opcode) {
 			operandStack.pop();
 
-			operandStack.offer(instruction.getType());
+			operandStack.push(instruction.getType(), instruction);
 		}
 
 		else if (Opcode.MULTIANEWARRAY == opcode) {
 			String arrayType = instruction.getType();
 
-			for (int i = 0; i < Descriptor.arrayDimension(arrayType); i++) {
+			for (int i = 0; i < instruction.getArrayDimensions(); i++) {
 				operandStack.pop();
 			}
 
-			operandStack.offer(arrayType);
+			operandStack.push(arrayType, instruction);
 		}
 
-		if (operandStack.isEmpty())
+		else if (Opcode.INSTANCEOF == opcode)
+			operandStack.push(Primitives.JAVA_INT, instruction);
+
+		else if (Instructions.isInvokeInstruction(instruction))
+			filterForInvokeInstruction(instruction, operandStack);
+
+		else if (Opcode.INVOKEDYNAMIC == opcode)
+			filterForInvokeDynamicInstruction(instruction, operandStack);
+
+		if (operandStack.isEmpty() || Boolean.TRUE.equals(breakCondition.apply(operandStack)))
 			return instruction;
 
 		else if (iterator.hasNext())
-			return filterForInstructionCallerIntern(iterator.next(), operandStack);
+			return filterForInstructionCallerIntern(iterator.next(), operandStack, breakCondition);
 
 		throw new NoSuchElementException("No matching caller-instruction found");
 	}
 
-	private void pushLoadInstructionOnStack(Instruction instruction, Deque<String> operandStack) {
+	private void filterForInvokeInstruction(Instruction instruction, OperandStack operandStack) {
+		List<String> methodParams = Instructions.getMethodParams(instruction.getType());
+
+		methodParams.forEach(e -> operandStack.pop());
+
+		if (Opcode.INVOKESTATIC != instruction.getOpcode())
+			operandStack.pop();
+
+		String returnType = Instructions.getReturnType(instruction.getType());
+
+		if (!Primitives.JVM_VOID.equals(returnType))
+			operandStack.push(returnType, instruction);
+	}
+
+	private void filterForInvokeDynamicInstruction(Instruction instruction, OperandStack operandStack) {
+
+		BootstrapMethod bootstrapMethod = getBootstrapMethodForInvokeDynamicInstruction(instruction);
+
+		int methodRefIndex = constantPool.getMethodHandleIndex(bootstrapMethod.methodRef);
+
+		String name = constantPool.getMethodrefName(methodRefIndex);
+		String type = constantPool.getMethodrefClassName(methodRefIndex);
+
+		if ((LAMBDAMETAFACTORY_METHOD_METAFACTORY.equals(name) || LAMBDAMETAFACTORY_METHOD_ALT_METAFACTORY.equals(name))
+				&& LAMBDAMETAFACTORY_CLASSNAME.equals(type)) {
+
+			String lambdaImplDesc = constantPool
+					.getMethodrefType(constantPool.getMethodHandleIndex(bootstrapMethod.arguments[1]));
+			List<String> lambdaImplParameters = Instructions.getMethodParams(lambdaImplDesc);
+
+			lambdaImplParameters.forEach(e -> operandStack.pop());
+
+			operandStack.push(Instructions.getReturnType(instruction.getType()), instruction);
+
+		} else
+			logger.error("can't process invokedynamic instruction " + instruction);
+	}
+
+	private void pushLoadInstructionOnStack(Instruction instruction, OperandStack operandStack) {
 
 		switch (instruction.getOpcode()) {
 		case Opcode.ALOAD:
@@ -183,8 +236,9 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		case Opcode.ALOAD_2:
 		case Opcode.ALOAD_3:
 			// reference is pushed to the stack, so reference gets pushed onto the stack
-			operandStack.offer(JavaTypes.OBJECT);
+			operandStack.push(JavaTypes.OBJECT, instruction);
 			break;
+
 		case Opcode.ILOAD:
 		case Opcode.ILOAD_0:
 		case Opcode.ILOAD_1:
@@ -199,8 +253,9 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		case Opcode.ICONST_M1:
 		case Opcode.BIPUSH:
 		case Opcode.SIPUSH:
-			operandStack.offer(Primitives.JAVA_INT);
+			operandStack.push(Primitives.JAVA_INT, instruction);
 			break;
+
 		case Opcode.FLOAD:
 		case Opcode.FLOAD_0:
 		case Opcode.FLOAD_1:
@@ -209,8 +264,9 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		case Opcode.FCONST_0:
 		case Opcode.FCONST_1:
 		case Opcode.FCONST_2:
-			operandStack.offer(Primitives.JAVA_FLOAT);
+			operandStack.push(Primitives.JAVA_FLOAT, instruction);
 			break;
+
 		case Opcode.DLOAD:
 		case Opcode.DLOAD_0:
 		case Opcode.DLOAD_1:
@@ -218,8 +274,9 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		case Opcode.DLOAD_3:
 		case Opcode.DCONST_0:
 		case Opcode.DCONST_1:
-			operandStack.offer(Primitives.JAVA_DOUBLE);
+			operandStack.push(Primitives.JAVA_DOUBLE, instruction);
 			break;
+
 		case Opcode.LLOAD:
 		case Opcode.LLOAD_0:
 		case Opcode.LLOAD_1:
@@ -227,7 +284,7 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		case Opcode.LLOAD_3:
 		case Opcode.LCONST_0:
 		case Opcode.LCONST_1:
-			operandStack.offer(Primitives.JAVA_LONG);
+			operandStack.push(Primitives.JAVA_LONG, instruction);
 			break;
 		}
 
@@ -266,6 +323,49 @@ public class ForwardInstructionFilter extends InstructionFilter {
 	private boolean isDoubleOrLong(String type) {
 		return Primitives.JAVA_DOUBLE.equals(type) || Primitives.JVM_DOUBLE.equals(type)
 				|| Primitives.JAVA_LONG.equals(type) || Primitives.JVM_LONG.equals(type);
+	}
+
+	private class OperandStack {
+		private LinkedList<StackEntry> stack = new LinkedList<>();
+
+		public void push(String type, Instruction instruction) {
+			stack.offer(new StackEntry(type, instruction));
+		}
+
+		public String peek() {
+			return stack.peek().type;
+		}
+
+		public void pop() {
+			stack.pollLast();
+		}
+
+		public boolean isEmpty() {
+			return stack.isEmpty();
+		}
+
+		public String get(int index) {
+			return stack.get(index).type;
+		}
+
+		public void add(int index, String type, Instruction instruction) {
+			stack.add(index, new StackEntry(type, instruction));
+		}
+
+		public boolean contains(String type, Instruction instruction) {
+			return stack.stream().anyMatch(el -> el.type.equals(type) && el.instruction.equals(instruction));
+		}
+	}
+
+	private class StackEntry {
+		public final String type;
+		public final Instruction instruction;
+
+		StackEntry(String type, Instruction instruction) {
+			this.type = type;
+			this.instruction = instruction;
+		}
+
 	}
 
 }

@@ -218,17 +218,10 @@ public final class Instructions {
 				cpIndex = iterator.s16bitAt(index + 1);
 				int dimensions = iterator.byteAt(index + 3);
 
-				String type = null;
-
-				for (int i = 0; i < dimensions; i++) {
-					type += "[";
-				}
-
-				String arrayClass = constantPool.getClassInfo(cpIndex);
-				type += Descriptor.toArrayComponent(arrayClass, Descriptor.arrayDimension(arrayClass));
+				String multiDimArrayType = constantPool.getClassInfo(cpIndex);
 
 				Instruction newMultiDimArray = new Instruction.Builder().withCodeArrayIndex(index).withOpcode(opcode)
-						.withType(type).build();
+						.withType(multiDimArrayType).withArrayDimensions(dimensions).build();
 
 				instructions.add(newMultiDimArray);
 				break;

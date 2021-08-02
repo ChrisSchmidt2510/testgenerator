@@ -13,7 +13,6 @@ import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
 
-import javassist.bytecode.BootstrapMethodsAttribute;
 import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.Descriptor;
@@ -41,24 +40,6 @@ public class ReverseInstructionFilter extends InstructionFilter {
 		Deque<String> operandStack = new ArrayDeque<>();
 
 		return filterForInstructionCallerIntern(instruction, operandStack);
-	}
-
-	@Override
-	public List<Instruction> filterForCalledLoadInstructions(Instruction instruction) {
-		logger.debug("searching for arguments of invoke instruction " + instruction);
-
-		Deque<String> operandStack = new ArrayDeque<>();
-
-		if (Instructions.isInvokeInstruction(instruction)) {
-			String returnType = Instructions.getReturnType(instruction.getType());
-
-			if (!Primitives.JVM_VOID.equals(returnType))
-				operandStack.add(returnType);
-		}
-
-		filterForInstructionCallerIntern(instruction, operandStack);
-
-		return calledLoadInstructions;
 	}
 
 	/**
@@ -208,11 +189,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			Deque<String> operandStack) {
 		operandStack.pop();
 
-		BootstrapMethodsAttribute bootstrapMethodAttribute = (BootstrapMethodsAttribute) classFile
-				.getAttribute(BootstrapMethodsAttribute.tag);
-
-		BootstrapMethod bootstrapMethod = bootstrapMethodAttribute.getMethods()[invokeDynamicInstruction
-				.getBootstrapMethodIndex()];
+		BootstrapMethod bootstrapMethod = getBootstrapMethodForInvokeDynamicInstruction(invokeDynamicInstruction);
 
 		int methodRefIndex = constantPool.getMethodHandleIndex(bootstrapMethod.methodRef);
 
@@ -220,7 +197,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 		String type = constantPool.getMethodrefClassName(methodRefIndex);
 
 		if ((LAMBDAMETAFACTORY_METHOD_METAFACTORY.equals(name) || LAMBDAMETAFACTORY_METHOD_ALT_METAFACTORY.equals(name))
-				&& type.contains("LambdaMetafactory")) {
+				&& LAMBDAMETAFACTORY_CLASSNAME.equals(type)) {
 			String typedLambdaDesc = constantPool
 					.getUtf8Info(constantPool.getMethodTypeInfo(bootstrapMethod.arguments[2]));
 			List<String> lambdaOriginalParameters = Instructions.getMethodParams(typedLambdaDesc);
