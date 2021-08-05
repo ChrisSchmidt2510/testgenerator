@@ -12,7 +12,6 @@ import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodType;
 import org.testgen.core.MapBuilder;
 
-import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
@@ -48,8 +47,7 @@ public class NormalGetterAnalyser extends BasicMethodAnalysis {
 
 				if ((returnOpcode != null && returnOpcode.equals(opcode)) || Opcode.ARETURN == opcode) {
 
-					FieldData field = classData.getField(instruction.getName(),
-							Descriptor.toClassName(instruction.getType()));
+					FieldData field = getField(instruction);
 
 					// TODO CS maybe reworken
 					MethodType methodType = field.isMutable()

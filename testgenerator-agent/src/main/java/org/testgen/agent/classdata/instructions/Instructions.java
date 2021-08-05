@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
@@ -25,7 +24,6 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.InstructionPrinter;
 import javassist.bytecode.MethodInfo;
-import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
 public final class Instructions {
@@ -296,21 +294,6 @@ public final class Instructions {
 		return instructions.stream().filter(inst -> opcodes.contains(inst.getOpcode()))
 				.collect(Collectors.groupingBy(Instruction::getOpcode, LinkedHashMap::new, //
 						Collectors.toList()));
-	}
-
-	public static List<Instruction> getFilteredInstructions(List<Instruction> instructions, int opcode) {
-		return instructions.stream().filter(inst -> inst.getOpcode() == opcode).collect(Collectors.toList());
-	}
-
-	public static Instruction filterOpcode(List<Instruction> instructions, int maxIndex, int opcode) {
-		for (int i = maxIndex; i >= 0; i--) {
-			Instruction instruction = instructions.get(i);
-
-			if (opcode == instruction.getOpcode()) {
-				return instruction;
-			}
-		}
-		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
 	}
 
 	public static void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {

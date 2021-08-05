@@ -69,6 +69,10 @@ public class TestHelper {
 	public void init(Class<?> clazz) throws NotFoundException, BadBytecode {
 		init(clazz.getName(), null, null, Collections.emptyList());
 	}
+	
+	public void init(Class<?> clazz, String methodName, String methodDescriptor) throws NotFoundException, BadBytecode {
+		init(clazz, methodName, methodDescriptor, Collections.emptyList());
+	}
 
 	public void init(Class<?> clazz, String methodName, String methodDescriptor, List<Integer> opcodes)
 			throws NotFoundException, BadBytecode {

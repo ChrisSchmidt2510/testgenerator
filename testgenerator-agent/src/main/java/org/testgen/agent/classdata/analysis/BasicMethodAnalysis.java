@@ -3,6 +3,7 @@ package org.testgen.agent.classdata.analysis;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
+import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodData;
@@ -23,6 +25,7 @@ import javassist.bytecode.AccessFlag;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
+import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
 public abstract class BasicMethodAnalysis implements MethodAnalysis {
@@ -99,6 +102,21 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		}
 
 		return implementedCollections;
+	}
+
+	protected FieldData getField(Instruction instruction) {
+		if (Opcode.GETFIELD != instruction.getOpcode() && Opcode.PUTFIELD != instruction.getOpcode())
+			throw new IllegalArgumentException(
+					String.format("invalid Opcode for method getField %s", Mnemonic.OPCODE[instruction.getOpcode()]));
+
+		return classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType()));
+	}
+
+	protected Entry<MethodData, FieldData> getMethod(Instruction instruction) {
+		if (!Instructions.isInvokeInstruction(instruction))
+			throw new IllegalArgumentException(String.format("invalid invoke instruction %s", instruction));
+
+		return classData.getMethod(instruction.getName(), instruction.getType());
 	}
 
 	protected boolean areAllMethodParametersUsed(List<Instruction> calledLoadInstructions,
@@ -243,6 +261,20 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 				Modifier.isStatic(method.getAccessFlags()));
 
 		classData.addMethod(methodData, fieldData);
+	}
+
+	/**
+	 * Call only if your method isn't static and the Opcode you filtered is a
+	 * instance opcode e.g. PutField, GetField...
+	 * 
+	 * @param calledLoadInstructions
+	 */
+	protected void removeAload0InstructionFromLoadInstructions(List<Instruction> calledLoadInstructions) {
+		Instruction aload0Instruction = calledLoadInstructions.stream()
+				.filter(inst -> Opcode.ALOAD_0 == inst.getOpcode()).findAny()
+				.orElseThrow(() -> new IllegalArgumentException("Aload0 Instruction has to exist"));
+
+		calledLoadInstructions.remove(aload0Instruction);
 	}
 
 }

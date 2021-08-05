@@ -2,3 +2,4 @@ org.testgen.agent.classdata.analysis.impl.CollectionSetterAnalyser
 org.testgen.agent.classdata.analysis.impl.ImmutableCollectionGetterAnalyser
 org.testgen.agent.classdata.analysis.impl.NormalGetterAnalyser
 org.testgen.agent.classdata.analysis.impl.NormalSetterAnalyser
+org.testgen.agent.classdata.analysis.impl.ConstructorAnalyser

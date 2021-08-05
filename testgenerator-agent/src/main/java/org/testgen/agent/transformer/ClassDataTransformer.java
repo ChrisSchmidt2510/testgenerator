@@ -21,7 +21,6 @@ import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.ClassDataStorage;
-import org.testgen.agent.classdata.model.ConstructorData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.SignatureData;
 import org.testgen.agent.classdata.modification.ClassDataGenerator;
@@ -118,8 +117,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			checkIsInnerClass(classFile, classData);
 
-			MethodAnalyser methodAnalyser = new MethodAnalyser(classData, classFile);
-
 			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
 					loadingClass);
 
@@ -142,7 +139,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			long start = System.currentTimeMillis();
 
-			analyseAndManipulateMethods(classFile.getMethods(), classData, methodAnalyser, fieldTypeChanger);
+			analyseAndManipulateMethods(classFile, classData, fieldTypeChanger);
 
 			long end = System.currentTimeMillis();
 
@@ -187,9 +184,12 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return fieldsFromClass;
 	}
 
-	private void analyseAndManipulateMethods(List<MethodInfo> methods, ClassData classData,
-			MethodAnalyser methodAnalyser, FieldTypeChanger fieldTypeChanger) throws BadBytecode {
+	private void analyseAndManipulateMethods(ClassFile classFile, ClassData classData,
+			 FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
+		MethodAnalyser methodAnalyser = new MethodAnalyser(classData, classFile);
+		
+		List<MethodInfo> methods = classFile.getMethods();
 		for (MethodInfo method : methods) {
 			if (!isMethodClInitOrConstructor(method) && !Modifier.isAbstract(method.getAccessFlags())) {
 
@@ -208,7 +208,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		for (MethodInfo constructor : constructors) {
 
 			List<Instruction> instructions = Instructions.getAllInstructions(constructor);
-			analyseConstructor(constructor, instructions, classData, methodAnalyser);
+			methodAnalyser.analyse(constructor, instructions);
 
 			if (TestgeneratorConfig.traceReadFieldAccess()) {
 				manipulateConstructor(constructor, instructions, fieldTypeChanger);
@@ -254,28 +254,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
 			methodAnalyser.analyse(method, instructions);
-		}
-	}
-
-	private void analyseConstructor(MethodInfo method, List<Instruction> instructions, //
-			ClassData classData, MethodAnalyser methodAnalyser) {
-
-		if ((!classData.hasDefaultConstructor()) && AccessFlag.isPublic(method.getAccessFlags())) {
-			List<Instruction> filteredInstructions = instructions
-					.stream().filter(inst -> Opcode.PUTFIELD == inst.getOpcode()
-							|| Opcode.INVOKEVIRTUAL == inst.getOpcode() || Opcode.INVOKESPECIAL == inst.getOpcode())
-					.collect(Collectors.toList());
-
-			Map<Integer, FieldData> constructorInitalizedFields = methodAnalyser
-					.analyseConstructor(method.getDescriptor(), filteredInstructions, instructions);
-
-			if (constructorInitalizedFields.isEmpty()) {
-				classData.setDefaultConstructor(true);
-			} else if (classData.getConstructor() == null) {
-				ConstructorData constructor = new ConstructorData(constructorInitalizedFields);
-				classData.setConstructor(constructor);
-			}
-
 		}
 	}
 

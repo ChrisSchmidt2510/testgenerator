@@ -54,5 +54,8 @@ public interface MethodAnalysis {
 	 * @return
 	 */
 	boolean hasAnalysisMatched(MethodInfo method, List<Instruction> instructions);
+	
+	default void reset() {
+	}
 
 }

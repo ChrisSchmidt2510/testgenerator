@@ -18,6 +18,13 @@ public class Adresse {
 		this(ort, plz);
 		this.strasse = strasse;
 	}
+	
+	public Adresse(String ort, int plz, String strasse, short hausnummer) {
+		setOrt(ort);
+		setPlz(plz);
+		setStrasse(strasse);
+		setHausnummer(hausnummer);
+	}
 
 	@Override
 	public int hashCode() {

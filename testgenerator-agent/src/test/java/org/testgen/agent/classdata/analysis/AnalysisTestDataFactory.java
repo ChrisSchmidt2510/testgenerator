@@ -18,8 +18,14 @@ public class AnalysisTestDataFactory {
 
 		FieldData fieldHausnummer = new FieldData.Builder().isMutable(false).withName("hausnummer")
 				.withDataType(Primitives.JAVA_SHORT).build();
+		
+		FieldData fieldOrt = new FieldData.Builder().isMutable(true).withName("ort")
+				.withDataType("java.lang.String").build();
 
-		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer));
+		FieldData fieldPlz = new FieldData.Builder().isMutable(true).withName("plz")
+				.withDataType(Primitives.JAVA_INT).build();
+
+		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
 
 		return Stream.of(classData);
 	}

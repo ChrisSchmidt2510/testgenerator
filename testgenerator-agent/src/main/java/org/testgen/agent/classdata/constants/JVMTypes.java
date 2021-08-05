@@ -50,5 +50,13 @@ public final class JVMTypes {
 
 	private JVMTypes() {
 	}
+	
+	public static boolean isArrayType(String type) {
+		return type.startsWith("[");
+	}
+	
+	public static boolean isReferenceType(String type) {
+		return type.startsWith("L") && type.endsWith(";");
+	}
 
 }

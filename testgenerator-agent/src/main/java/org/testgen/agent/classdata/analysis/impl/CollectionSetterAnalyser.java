@@ -54,8 +54,7 @@ public class CollectionSetterAnalyser extends BasicMethodAnalysis {
 			List<String> methodParams = Instructions.getMethodParams(method.getDescriptor());
 			if (areAllMethodParametersUsed(calledLoadInstructions, methodParams,
 					Modifier.isStatic(method.getAccessFlags()))) {
-				FieldData fieldData = classData.getField(getFieldInstruction.getName(),
-						Descriptor.toClassName(getFieldInstruction.getType()));
+				FieldData fieldData = getField(getFieldInstruction);
 
 				addAnalysisResult(method, MethodType.COLLECTION_SETTER, fieldData);
 				return true;

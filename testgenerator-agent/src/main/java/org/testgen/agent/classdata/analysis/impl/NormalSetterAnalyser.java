@@ -8,6 +8,7 @@ import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.instructions.filter.ReverseInstructionFilter;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodType;
+
 import javassist.Modifier;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
@@ -36,17 +37,13 @@ public class NormalSetterAnalyser extends BasicMethodAnalysis {
 				boolean isStaticMethod = Modifier.isStatic(method.getAccessFlags());
 
 				if (!isStaticMethod) {
-					Instruction aload0Instruction = calledLoadInstructions.stream()
-							.filter(inst -> Opcode.ALOAD_0 == inst.getOpcode()).findAny()
-							.orElseThrow(() -> new IllegalArgumentException("Aload0 Instruction has to exist"));
-					calledLoadInstructions.remove(aload0Instruction);
+					removeAload0InstructionFromLoadInstructions(calledLoadInstructions);
 				}
 
 				if (instructions.size() < 25 && //
 						areAllMethodParametersUsed(calledLoadInstructions, parameters, isStaticMethod)) {
 
-					FieldData field = classData.getField(instruction.getName(),
-							Descriptor.toClassName(instruction.getType()));
+					FieldData field = getField(instruction);
 
 					addAnalysisResult(method, MethodType.REFERENCE_VALUE_SETTER, field);
 

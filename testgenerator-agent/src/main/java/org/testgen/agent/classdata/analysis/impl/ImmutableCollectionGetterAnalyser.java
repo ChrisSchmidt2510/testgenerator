@@ -40,8 +40,7 @@ public class ImmutableCollectionGetterAnalyser extends BasicMethodAnalysis {
 						&& invokeStatic.getName().startsWith("unmodifiable") && instructions.size() >= i + 2
 						&& Opcode.ARETURN == instructions.get(i + 2).getOpcode()) {
 
-					FieldData field = classData.getField(instruction.getName(),
-							Descriptor.toClassName(instruction.getType()));
+					FieldData field = getField(instruction);
 
 					addAnalysisResult(method, MethodType.IMMUTABLE_GETTER, field);
 
