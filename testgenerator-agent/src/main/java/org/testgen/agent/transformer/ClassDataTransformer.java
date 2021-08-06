@@ -17,6 +17,7 @@ import org.testgen.agent.classdata.analysis.MethodAnalyser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
 import org.testgen.agent.classdata.constants.JavaTypes;
+import org.testgen.agent.classdata.constants.Modifiers;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.model.ClassData;
@@ -127,11 +128,13 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 				for (CtField field : loadingClass.getDeclaredFields()) {
 
-					if (!Instructions.isConstant(field.getModifiers()) //
-							&& !AccessFlag.isPublic(field.getModifiers()) && !isSynthetic(field.getModifiers())
-							&& !TestgeneratorConstants.isTestgeneratorField(field.getName())) {
+					if (!Modifiers.isConstant(field.getModifiers()) //
+							&& !AccessFlag.isPublic(field.getModifiers())
+							&& !Modifiers.isSynthetic(field.getModifiers())
+							&& !TestgeneratorConstants.isTestgeneratorField(field.getName()))
+						
 						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
-					}
+
 				}
 
 				fieldTypeChanger.addFieldCalledField();
@@ -154,7 +157,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		for (FieldInfo field : loadedClass.getFields()) {
 
-			if (!Instructions.isConstant(field.getAccessFlags())) {
+			if (!Modifiers.isConstant(field.getAccessFlags())) {
 
 				SignatureAttribute signature = (SignatureAttribute) field.getAttribute(SignatureAttribute.tag);
 
@@ -173,7 +176,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 						.isMutable(!Modifier.isFinal(field.getAccessFlags()))
 						.isStatic(Modifier.isStatic(field.getAccessFlags()))
 						.isPublic(Modifier.isPublic(field.getAccessFlags()))
-						.isSynthetic(isSynthetic(field.getAccessFlags())).withSignature(signatureData).build();
+						.isSynthetic(Modifiers.isSynthetic(field.getAccessFlags())).withSignature(signatureData)
+						.build();
 
 				LOGGER.info("added Field: " + fieldData);
 
@@ -185,10 +189,10 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	}
 
 	private void analyseAndManipulateMethods(ClassFile classFile, ClassData classData,
-			 FieldTypeChanger fieldTypeChanger) throws BadBytecode {
+			FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
 		MethodAnalyser methodAnalyser = new MethodAnalyser(classData, classFile);
-		
+
 		List<MethodInfo> methods = classFile.getMethods();
 		for (MethodInfo method : methods) {
 			if (!isMethodClInitOrConstructor(method) && !Modifier.isAbstract(method.getAccessFlags())) {
@@ -214,6 +218,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				manipulateConstructor(constructor, instructions, fieldTypeChanger);
 			}
 		}
+
+		methodAnalyser.reset();
 
 	}
 
@@ -282,10 +288,6 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, method.getCodeAttribute());
 
 		method.rebuildStackMap(ClassPool.getDefault());
-	}
-
-	private static boolean isSynthetic(int modifier) {
-		return (modifier & AccessFlag.SYNTHETIC) != 0;
 	}
 
 	private static void checkIsInnerClass(ClassFile classFile, ClassData classData) {

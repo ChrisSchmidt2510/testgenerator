@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
+import org.testgen.agent.classdata.constants.Modifiers;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
@@ -21,7 +22,6 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Modifier;
 import javassist.NotFoundException;
-import javassist.bytecode.AccessFlag;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.MethodInfo;
@@ -44,7 +44,7 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 	}
 
 	protected boolean isMethodAccessible(int accessFlags) {
-		return !AccessFlag.isPrivate(accessFlags) && (AccessFlag.SYNTHETIC & accessFlags) == 0;
+		return !Modifier.isPrivate(accessFlags) && !Modifiers.isSynthetic(accessFlags);
 	}
 
 	protected boolean isTypeCollection(String descriptor) {
@@ -156,6 +156,9 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 
 			if (calledLoadInstructions.stream().noneMatch(filter))
 				return false;
+			
+			//increase the counter of the methodParameterIndex pro methodparameter
+			methodVariableIndex++;
 		}
 
 		return true;

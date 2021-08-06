@@ -14,6 +14,7 @@ import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodData;
 import org.testgen.agent.classdata.model.MethodType;
 import org.testgen.agent.classdata.testclasses.Adresse;
+import org.testgen.agent.classdata.testclasses.Collections;
 
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
@@ -96,5 +97,19 @@ public class ConstructorAnalyserTest extends TestHelper {
 		result.put(3, fieldHausnummer);
 		
 		Assertions.assertEquals(result, classData.getConstructor().getConstructorElements());
+	}
+	
+	@ParameterizedTest
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getCollectionsClassData")
+	public void testAnalyseDefaultConstructor(ClassData classData) throws NotFoundException, BadBytecode {
+		init(Collections.class, MethodInfo.nameInit);
+		
+		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
+		
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+		
+		Assertions.assertTrue(classData.hasDefaultConstructor());
 	}
 }

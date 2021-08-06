@@ -51,5 +51,9 @@ public class MethodAnalyser {
 			}
 		}
 	}
+	
+	public void reset() {
+		ANALYSER.forEach(MethodAnalysis::reset);
+	}
 
 }

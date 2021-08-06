@@ -17,8 +17,8 @@ import javassist.bytecode.MethodInfo;
  * 
  * Before the analysis is executed on the instructions of the method, a
  * validation is applied implemented in the method
- * {@link MethodAnalysis#canAnalysisBeApplied(MethodInfo)}. If the validation
- * is passed successfully the analysis gets executed
+ * {@link MethodAnalysis#canAnalysisBeApplied(MethodInfo)}. If the validation is
+ * passed successfully the analysis gets executed
  * {@link MethodAnalysis#hasAnalysisMatched(MethodInfo, List)}.
  * 
  * Custom analyzers can easy included, because this interface is used with the
@@ -54,7 +54,13 @@ public interface MethodAnalysis {
 	 * @return
 	 */
 	boolean hasAnalysisMatched(MethodInfo method, List<Instruction> instructions);
-	
+
+	/**
+	 * if the analyzer need to store information for all methods that will be
+	 * analyzed with this analyzer of a class, the collected data can be reseted
+	 * within this method.
+	 * This method is called after the analysis process of a class is finished.
+	 */
 	default void reset() {
 	}
 

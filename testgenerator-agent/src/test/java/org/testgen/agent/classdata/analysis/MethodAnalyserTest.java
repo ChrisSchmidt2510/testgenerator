@@ -12,6 +12,7 @@ import org.testgen.agent.classdata.testclasses.Person;
 
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
+import javassist.bytecode.MethodInfo;
 
 public class MethodAnalyserTest extends TestHelper {
 
@@ -65,5 +66,17 @@ public class MethodAnalyserTest extends TestHelper {
 
 		Assertions.assertEquals(MethodType.COLLECTION_SETTER,
 				classData.getMethod("addCollection", "(Ljava/lang/String;)V").getKey().getMethodType());
+	}
+	
+	@ParameterizedTest
+	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getCollectionsClassData")
+	public void testAnalyseConstructor(ClassData classData) throws NotFoundException, BadBytecode {
+		init(Collections.class, MethodInfo.nameInit);
+		
+		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
+		
+		analyser.analyse(methodInfo, instructions);
+		
+		Assertions.assertTrue(classData.hasDefaultConstructor());
 	}
 }

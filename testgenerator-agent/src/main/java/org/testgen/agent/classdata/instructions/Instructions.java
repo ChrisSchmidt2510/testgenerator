@@ -15,7 +15,6 @@ import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction.Builder;
 import org.testgen.core.MapBuilder;
 
-import javassist.Modifier;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.CodeAttribute;
@@ -311,10 +310,6 @@ public final class Instructions {
 		}
 	}
 
-	public static boolean isAloadInstruction(Instruction instruction) {
-		return ALOAD_OPCODES.contains(instruction.getOpcode());
-	}
-
 	public static boolean isInvokeInstruction(Instruction instruction) {
 		return INVOKE_OPCODES.contains(instruction.getOpcode());
 	}
@@ -336,10 +331,6 @@ public final class Instructions {
 		return PRIMITVE_CASTS.entrySet().stream()
 				.filter(returnType -> returnType.getKey().contains(instruction.getOpcode()))//
 				.map(Entry::getValue).findAny().orElse(null);
-	}
-
-	public static boolean isConstant(int modifier) {
-		return Modifier.isFinal(modifier) && Modifier.isStatic(modifier);
 	}
 
 	public static Instruction getBeforeInstruction(List<Instruction> instructions, Instruction instruction) {
