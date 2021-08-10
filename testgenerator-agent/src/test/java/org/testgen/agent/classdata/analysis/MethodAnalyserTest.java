@@ -23,7 +23,7 @@ public class MethodAnalyserTest extends TestHelper {
 
 		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
 
-		analyser.analyse(methodInfo, instructions);
+		analyser.analyseMethod(methodInfo, instructions);
 
 		Assertions.assertEquals(MethodType.REFERENCE_VALUE_GETTER,
 				classData.getMethod("getStrasse", "()Ljava/lang/String;").getKey().getMethodType());
@@ -36,7 +36,7 @@ public class MethodAnalyserTest extends TestHelper {
 
 		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
 
-		analyser.analyse(methodInfo, instructions);
+		analyser.analyseMethod(methodInfo, instructions);
 
 		Assertions.assertEquals(MethodType.REFERENCE_VALUE_SETTER,
 				classData.getMethod("setStrasse", "(Ljava/lang/String;)V").getKey().getMethodType());
@@ -49,7 +49,7 @@ public class MethodAnalyserTest extends TestHelper {
 
 		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
 
-		analyser.analyse(methodInfo, instructions);
+		analyser.analyseMethod(methodInfo, instructions);
 
 		Assertions.assertEquals(MethodType.IMMUTABLE_GETTER,
 				classData.getMethod("getAdressen", "()Ljava/util/List;").getKey().getMethodType());
@@ -62,7 +62,7 @@ public class MethodAnalyserTest extends TestHelper {
 
 		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
 
-		analyser.analyse(methodInfo, instructions);
+		analyser.analyseMethod(methodInfo, instructions);
 
 		Assertions.assertEquals(MethodType.COLLECTION_SETTER,
 				classData.getMethod("addCollection", "(Ljava/lang/String;)V").getKey().getMethodType());
@@ -75,7 +75,7 @@ public class MethodAnalyserTest extends TestHelper {
 		
 		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
 		
-		analyser.analyse(methodInfo, instructions);
+		analyser.analyseMethod(methodInfo, instructions);
 		
 		Assertions.assertTrue(classData.hasDefaultConstructor());
 	}

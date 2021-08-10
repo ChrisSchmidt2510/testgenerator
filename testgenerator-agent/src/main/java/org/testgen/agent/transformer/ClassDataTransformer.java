@@ -212,14 +212,14 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		for (MethodInfo constructor : constructors) {
 
 			List<Instruction> instructions = Instructions.getAllInstructions(constructor);
-			methodAnalyser.analyse(constructor, instructions);
+			methodAnalyser.analyseMethod(constructor, instructions);
 
 			if (TestgeneratorConfig.traceReadFieldAccess()) {
 				manipulateConstructor(constructor, instructions, fieldTypeChanger);
 			}
 		}
 
-		methodAnalyser.reset();
+		methodAnalyser.resetMethodAnalyser();
 
 	}
 
@@ -259,7 +259,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
-			methodAnalyser.analyse(method, instructions);
+			methodAnalyser.analyseMethod(method, instructions);
 		}
 	}
 

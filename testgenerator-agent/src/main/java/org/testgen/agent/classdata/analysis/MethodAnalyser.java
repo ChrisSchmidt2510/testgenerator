@@ -1,6 +1,5 @@
 package org.testgen.agent.classdata.analysis;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -12,11 +11,9 @@ import org.testgen.logging.Logger;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.MethodInfo;
 
-public class MethodAnalyser {
+public class MethodAnalyser extends Analyser {
 
 	private static final Logger LOGGER = LogManager.getLogger(MethodAnalyser.class);
-
-	private static final List<MethodAnalysis> ANALYSER = new ArrayList<>();
 
 	static {
 		ServiceLoader<MethodAnalysis> serviceLoader = ServiceLoader.load(MethodAnalysis.class);
@@ -24,15 +21,11 @@ public class MethodAnalyser {
 	}
 
 	public MethodAnalyser(ClassData classData, ClassFile classFile) {
-		ANALYSER.forEach(an -> initAnalyser(an, classData, classFile));
+		super(classData, classFile);
 	}
 
-	private void initAnalyser(MethodAnalysis analyser, ClassData classData, ClassFile classFile) {
-		analyser.setClassData(classData);
-		analyser.setClassFile(classFile);
-	}
-
-	public void analyse(MethodInfo method, List<Instruction> instructions) {
+	
+	public void analyseMethod(MethodInfo method, List<Instruction> instructions) {
 		LOGGER.info("Starting Analysis of Method: " +method);
 		
 		for (MethodAnalysis analyser : ANALYSER) {
@@ -50,10 +43,6 @@ public class MethodAnalyser {
 				break;
 			}
 		}
-	}
-	
-	public void reset() {
-		ANALYSER.forEach(MethodAnalysis::reset);
 	}
 
 }

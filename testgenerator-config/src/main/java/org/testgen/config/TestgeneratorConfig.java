@@ -24,6 +24,7 @@ public final class TestgeneratorConfig {
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
 
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
+	private static final String PARAM_CUSTOM_ANALYSIS_CLASS = "TestgeneratorCustomAnalysisClass";
 	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
 
 	// Runtime-Properties
@@ -52,6 +53,8 @@ public final class TestgeneratorConfig {
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR)));
 		System.setProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_COSTUM_TESTGENERATOR_CLASS)));
+		System.setProperty(PARAM_CUSTOM_ANALYSIS_CLASS,
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_ANALYSIS_CLASS)));
 		System.setProperty(PARAM_TRACE_READ_FIELD_ACCESS,
 				Boolean.toString(parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS)));
 
@@ -80,29 +83,24 @@ public final class TestgeneratorConfig {
 	}
 
 	public static List<String> getBlPackages() {
-		String blPackages = System.getProperty(PARAM_BL_PACKAGE);
-
-		return Collections.unmodifiableList(convertArgumentToList(blPackages));
+		return getPropertyList(PARAM_BL_PACKAGE);
 	}
 
 	public static List<String> getBlPackageJarDest() {
-		String blPackageJarDest = System.getProperty(PARAM_BL_PACKAGE_JAR_DEST);
+		return getPropertyList(PARAM_BL_PACKAGE_JAR_DEST);
 
-		return checkStringFilled(blPackageJarDest) ? //
-				Collections.unmodifiableList(convertArgumentToList(blPackageJarDest)) : //
-				Collections.emptyList();
 	}
 
 	public static String getPrintClassFileDirectory() {
-		String property = System.getProperty(PARAM_PRINT_CLASS_FILE_DIR);
-
-		return checkStringFilled(property) ? property : null;
+		return getNullableProperty(PARAM_PRINT_CLASS_FILE_DIR);
 	}
 
 	public static String getCustomTestgeneratorClass() {
-		String property = System.getProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS);
+		return getNullableProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS);
+	}
 
-		return checkStringFilled(property) ? property : null;
+	public static String getCustomAnalysisClass() {
+		return getNullableProperty(PARAM_CUSTOM_ANALYSIS_CLASS);
 	}
 
 	public static boolean traceReadFieldAccess() {
@@ -149,6 +147,7 @@ public final class TestgeneratorConfig {
 				+ System.lineSeparator());
 		builder.append(PARAM_PRINT_CLASS_FILE_DIR + "=" + getPrintClassFileDirectory() + System.lineSeparator());
 		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomTestgeneratorClass() + System.lineSeparator());
+		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomAnalysisClass() + System.lineSeparator());
 		builder.append(PARAM_TRACE_READ_FIELD_ACCESS + "=" + traceReadFieldAccess() + System.lineSeparator());
 		builder.append(PARAM_RUNTIME_FIELD_TRACKING + "=" + isFieldTrackingActivated() + System.lineSeparator());
 		builder.append(PARAM_RUNTIME_PROXY_TRACKING + "=" + isProxyTrackingActivated() + System.lineSeparator());
@@ -164,6 +163,20 @@ public final class TestgeneratorConfig {
 		}
 
 		return Collections.singletonList(className);
+	}
+
+	private static String getNullableProperty(String propertyName) {
+		String property = System.getProperty(propertyName);
+
+		return checkStringFilled(property) ? property : null;
+	}
+
+	private static List<String> getPropertyList(String propertyName) {
+		String propertyList = System.getProperty(propertyName);
+
+		return checkStringFilled(propertyList) ? //
+				Collections.unmodifiableList(convertArgumentToList(propertyList)) : //
+				Collections.emptyList();
 	}
 
 	private static String checkForEmptyArgument(String argument) {
