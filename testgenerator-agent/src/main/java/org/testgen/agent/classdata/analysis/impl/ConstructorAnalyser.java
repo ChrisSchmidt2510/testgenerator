@@ -31,13 +31,18 @@ import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
 /**
- * @implSpec - fields of superclasses are ignored<br>
- *           - fields that are initalized directly or indirectly(with
- *           subconstructor call) with null are ignored<br>
- *           <br>
- *           Goal of this implementation is to create a instance of a Class the
- *           most easy way. On perfect circumstances the class has a default
- *           constructor
+ * This analyzer is created to analyze a constructor of a class. Goal of this
+ * analyzer is to find the easiest way of creating an instance of a class.
+ * 
+ * The following things were analyzed:<br>
+ * - direct field access e.g. <code> this.field = field</code><br>
+ * - accessing fields with a setter e.g.<code> setField(field)</code><br>
+ * - accessing fields with a subconstructor <code> this(field) </code><br>
+ * <br>
+ * This wont recognized:<br>
+ * - fields that will initialized with null<br>
+ * - fields of a superclass<br>
+ * - subconstructor of a superclass<br>
  *
  */
 public class ConstructorAnalyser extends BasicMethodAnalysis {
@@ -80,17 +85,18 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 
 			ReverseInstructionFilter instructionFilter = new ReverseInstructionFilter(classFile, instructions);
 
-			constructorParameters.putAll(processSuperConstructorCall(instructions, instructionFilter, methodParameters));
+			constructorParameters
+					.putAll(processSuperConstructorCall(instructions, instructionFilter, methodParameters));
 
 			List<Instruction> putFieldInstructions = instructionsPerOpcode.get(Opcode.PUTFIELD);
 
-			if (putFieldInstructions != null &&!putFieldInstructions.isEmpty())
+			if (putFieldInstructions != null && !putFieldInstructions.isEmpty())
 				constructorParameters
 						.putAll(processPutFieldInstructions(putFieldInstructions, instructionFilter, methodParameters));
 
 			List<Instruction> invokeVirtualInstructions = instructionsPerOpcode.get(Opcode.INVOKEVIRTUAL);
 
-			if (invokeVirtualInstructions!= null && !invokeVirtualInstructions.isEmpty())
+			if (invokeVirtualInstructions != null && !invokeVirtualInstructions.isEmpty())
 				constructorParameters.putAll(
 						processInvokeInstructions(invokeVirtualInstructions, instructionFilter, methodParameters));
 
@@ -110,9 +116,9 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 
 	private Map<Integer, FieldData> processSuperConstructorCall(List<Instruction> instructions,
 			ReverseInstructionFilter instructionFilter, List<String> methodParameters) {
-		
+
 		Map<Integer, FieldData> constructorParameters = new LinkedHashMap<>();
-		
+
 		Instruction superConstructorInst = instructions.stream()
 				.filter(inst -> Opcode.INVOKESPECIAL == inst.getOpcode() && MethodInfo.nameInit.equals(inst.getName()))
 				.findAny().orElseThrow(
@@ -135,20 +141,21 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 			List<Instruction> calledLoadInstructions = instructionFilter
 					.filterForCalledLoadInstructions(superConstructorInst);
 			removeAload0InstructionFromLoadInstructions(calledLoadInstructions);
-			
+
 			Collections.reverse(calledLoadInstructions);
-			
-			Map<Integer, FieldData> superConstructorFields = analysisResults.get(superConstructorMethod).getConstructorElements();
-			
-			for(int i=0; i<calledLoadInstructions.size(); i++) {
+
+			Map<Integer, FieldData> superConstructorFields = analysisResults.get(superConstructorMethod)
+					.getConstructorElements();
+
+			for (int i = 0; i < calledLoadInstructions.size(); i++) {
 				Instruction loadInstruction = calledLoadInstructions.get(i);
-				
-				Optional<Integer> methodParameterIndex = isLoadInstructionAMethodParameter(loadInstruction, methodParameters);
-				
-				if(methodParameterIndex.isPresent())
+
+				Optional<Integer> methodParameterIndex = isLoadInstructionAMethodParameter(loadInstruction,
+						methodParameters);
+
+				if (methodParameterIndex.isPresent())
 					constructorParameters.put(methodParameterIndex.get(), superConstructorFields.get(i));
 			}
-			
 
 		}
 
@@ -228,7 +235,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 		case Opcode.ALOAD_3:
 			return checkType(2, methodParameters, REFERENCE_CHECK);
 		case Opcode.ALOAD:
-			return checkType(loadInstruction.getLocalVariableIndex()-1, methodParameters, REFERENCE_CHECK);
+			return checkType(loadInstruction.getLocalVariableIndex() - 1, methodParameters, REFERENCE_CHECK);
 
 		case Opcode.ILOAD_1:
 			return checkType(0, methodParameters, ILOAD_CHECK);
@@ -237,7 +244,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 		case Opcode.ILOAD_3:
 			return checkType(2, methodParameters, ILOAD_CHECK);
 		case Opcode.ILOAD:
-			return checkType(loadInstruction.getLocalVariableIndex()-1, methodParameters, ILOAD_CHECK);
+			return checkType(loadInstruction.getLocalVariableIndex() - 1, methodParameters, ILOAD_CHECK);
 
 		case Opcode.FLOAD_1:
 			return checkType(0, methodParameters, FLOAD_CHECK);
@@ -246,7 +253,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 		case Opcode.FLOAD_3:
 			return checkType(2, methodParameters, FLOAD_CHECK);
 		case Opcode.FLOAD:
-			return checkType(loadInstruction.getLocalVariableIndex()-1, methodParameters, FLOAD_CHECK);
+			return checkType(loadInstruction.getLocalVariableIndex() - 1, methodParameters, FLOAD_CHECK);
 
 		case Opcode.DLOAD_1:
 			return checkType(0, methodParameters, DLOAD_CHECK);
@@ -255,7 +262,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 		case Opcode.DLOAD_3:
 			return checkType(2, methodParameters, DLOAD_CHECK);
 		case Opcode.DLOAD:
-			return checkType(loadInstruction.getLocalVariableIndex()-1, methodParameters, DLOAD_CHECK);
+			return checkType(loadInstruction.getLocalVariableIndex() - 1, methodParameters, DLOAD_CHECK);
 
 		case Opcode.LLOAD_1:
 			return checkType(0, methodParameters, LLOAD_CHECK);
@@ -264,7 +271,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 		case Opcode.LLOAD_3:
 			return checkType(2, methodParameters, LLOAD_CHECK);
 		case Opcode.LLOAD:
-			return checkType(loadInstruction.getLocalVariableIndex()-1, methodParameters, LLOAD_CHECK);
+			return checkType(loadInstruction.getLocalVariableIndex() - 1, methodParameters, LLOAD_CHECK);
 		default:
 			throw new IllegalArgumentException(
 					String.format("invalid load opcode: %s", Mnemonic.OPCODE[loadInstruction.getOpcode()]));
