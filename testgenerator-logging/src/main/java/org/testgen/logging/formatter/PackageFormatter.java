@@ -10,7 +10,7 @@ import java.util.logging.LogRecord;
 import org.testgen.logging.config.Level;
 
 public class PackageFormatter extends Formatter {
-	/* Format yyyy-MM-dd hh:mm:ss [Thread-name] [package] level message linebreak */
+	/* Format yyyy-MM-dd hh:mm:ss [Thread-name] [className] level message linebreak */
 	private static final String PATTERN = "%tF %tT [%s] %s %s %s %n";
 	
 	private LocalDateTime testDateTime;
