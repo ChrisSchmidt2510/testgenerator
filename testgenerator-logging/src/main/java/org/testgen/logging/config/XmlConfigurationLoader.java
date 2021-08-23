@@ -39,6 +39,7 @@ public class XmlConfigurationLoader {
 				if (loggerConfigPath.isAbsolute()) {
 					byte[] bytesOfFile = Files.readAllBytes(loggerConfigPath);
 					xmlResource = new ByteArrayInputStream(bytesOfFile);
+					
 				} else {
 					xmlResource = classLoader.getResourceAsStream(loggerConfig);
 				}
@@ -50,8 +51,12 @@ public class XmlConfigurationLoader {
 			xmlResource = classLoader.getResourceAsStream(DEFAULT_LOGGING_XML);
 		}
 
+		return parseXmlConfiguration(xmlResource, rootLoggerAdder);
+	}
+
+	static List<Configuration> parseXmlConfiguration(InputStream xmlResource, Consumer<Configuration> rootLoggerAdder) {
 		try {
-			URL xsdUrl = classLoader.getResource(SCHEMA_PATH);
+			URL xsdUrl = Thread.currentThread().getContextClassLoader().getResource(SCHEMA_PATH);
 
 			SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = sf.newSchema(xsdUrl);

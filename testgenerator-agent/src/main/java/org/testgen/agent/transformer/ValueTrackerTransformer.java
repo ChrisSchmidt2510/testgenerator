@@ -91,7 +91,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
-				LOGGER.error(e);
+				LOGGER.error("error while transforming class",e);
 
 				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
 			} finally {
@@ -216,7 +216,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				try {
 					signatureData = SignatureParser.parse(signature);
 				} catch (SignatureParserException e) {
-					LOGGER.error(e);
+					LOGGER.error("error while parsing signature "+ signature,e);
 				}
 
 				if (signatureData != null) {

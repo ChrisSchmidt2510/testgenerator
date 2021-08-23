@@ -50,7 +50,7 @@ public final class LoggerRepository {
 		return root;
 	}
 
-	public void loadConfiguration() {
+	private void loadConfiguration() {
 		List<Configuration> configurations = XmlConfigurationLoader.//
 				parseXMLConfiguration(config -> root = config);
 
@@ -59,7 +59,7 @@ public final class LoggerRepository {
 
 	}
 
-	private static Integer countEqualTokens(String packageName, String classPackage) {
+	 static Integer countEqualTokens(String packageName, String classPackage) {
 		StringTokenizer packageTokenizer = new StringTokenizer(packageName, DELIMETER_POINT);
 		StringTokenizer classTokenizer = new StringTokenizer(classPackage, DELIMETER_POINT);
 

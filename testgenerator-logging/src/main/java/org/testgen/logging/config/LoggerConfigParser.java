@@ -59,7 +59,6 @@ public class LoggerConfigParser extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		System.out.println("localName" + localName);
 
 		if (TAG_ROLLING_FILE_APPENDER.equals(qName)) {
 			currentHandler = new TempFileHandler(attributes.getValue(APPENDER_ATTRIBUTE_NAME),
@@ -101,7 +100,6 @@ public class LoggerConfigParser extends DefaultHandler {
 			try {
 				FileHandler handler = new FileHandler(currentHandler.filename, currentHandler.size, 100, true);
 				handler.setLevel(java.util.logging.Level.ALL);
-				// TODO change with custom implementation
 				handler.setFormatter(new PackageFormatter());
 
 				handlers.put(currentHandler.name, handler);
@@ -151,7 +149,7 @@ public class LoggerConfigParser extends DefaultHandler {
 			return Level.ERROR;
 		}
 
-		throw new IllegalArgumentException(String.format("invalied level: $s", unmappedLevel));
+		throw new IllegalArgumentException(String.format("invalid level: $s", unmappedLevel));
 	}
 
 	private class TempFileHandler {

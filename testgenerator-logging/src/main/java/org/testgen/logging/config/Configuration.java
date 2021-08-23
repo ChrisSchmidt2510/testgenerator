@@ -2,6 +2,7 @@ package org.testgen.logging.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.logging.Handler;
 
 public class Configuration {
@@ -29,6 +30,10 @@ public class Configuration {
 
 	public List<Handler> getHandlers() {
 		return handlers;
+	}
+	
+	public void forEachHandler(Consumer<Handler> action) {
+		handlers.forEach(action);
 	}
 
 }

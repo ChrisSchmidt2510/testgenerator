@@ -1,6 +1,7 @@
 package org.testgen.core;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -27,6 +28,19 @@ public final class ReflectionUtil {
 		} catch (NoSuchMethodException | SecurityException e) {
 			return null;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T getField(Class<?> caller, String fieldName, Object instance) {
+		Field field;
+		try {
+			field = caller.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return (T) field.get(instance);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException("no field found for name " + fieldName, e);
+		}
+
 	}
 
 	public static Method getMethod(Class<?> caller, String name, Class<?>... params) {

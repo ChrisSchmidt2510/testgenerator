@@ -84,7 +84,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
-				LOGGER.error(e);
+				LOGGER.error("error while transforming class",e);
 				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
 			} finally {
 				if (loadingClass != null)
@@ -163,7 +163,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					}
 
 				} catch (SignatureParserException e) {
-					LOGGER.error(e);
+					LOGGER.error("error while parsing signature "+ signature, e);
 				}
 
 				FieldData fieldData = new FieldData.Builder()
