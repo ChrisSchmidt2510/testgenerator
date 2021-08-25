@@ -35,7 +35,7 @@ public class LocalDateTimeObjectGeneration extends BasicSimpleObjectGeneration {
 		LOGGER.debug("create Inline SimpleBluePrint " + bluePrint);
 
 		if (!bluePrint.isNotBuild())
-			LOGGER.warning("you try to create a already builded SimpleBluePrint " + bluePrint);
+			LOGGER.warn("you try to create a already builded SimpleBluePrint " + bluePrint);
 
 		if (bluePrint instanceof LocalDateBluePrint) {
 			return mapLocalDate((DateBluePrint) bluePrint);

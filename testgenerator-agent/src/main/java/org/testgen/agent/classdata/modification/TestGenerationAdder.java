@@ -67,8 +67,7 @@ public class TestGenerationAdder {
 		List<Instruction> returnInstructions = instructions.stream()
 				.filter(inst -> RETURN_OPCODES.contains(inst.getOpcode())).collect(Collectors.toList());
 
-		LOGGER.debug("Method before manipulation",
-				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("Method before manipulation", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		for (int i = 0; i < returnInstructions.size(); i++) {
 			Instruction instruction = returnInstructions.get(i);
@@ -112,7 +111,7 @@ public class TestGenerationAdder {
 
 		codeAttribute.computeMaxStack();
 
-		LOGGER.debug("Method after manipulation", stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("Method after manipulation", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		StackMapTable stackMapTable = MapMaker.make(ClassPool.getDefault(), method);
 		codeAttribute.setAttribute(stackMapTable);

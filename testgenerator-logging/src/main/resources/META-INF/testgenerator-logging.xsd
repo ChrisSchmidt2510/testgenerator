@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.testgenerator.org/logging"
+	xmlns:tns="http://www.testgenerator.org/logging"
+	elementFormDefault="qualified">
+
+	<complexType name="Configuration">
+		<sequence>
+			<element name="Appenders" type="tns:AppendersType"
+				minOccurs="1" />
+			<element name="ConsoleAppender" type="tns:ConsoleAppender"
+				minOccurs="0" maxOccurs="1" />
+			<element name="Loggers" type="tns:LoggersType" minOccurs="1" />
+			<element name="Root" type="tns:RootLoggerType" minOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="AppendersType">
+		<sequence>
+			<element name="RollingFileAppender" type="tns:RollingFileAppender"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="LoggersType">
+		<sequence>
+			<element name="Logger" type="tns:LoggerType" minOccurs="1"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RollingFileAppender">
+		<sequence>
+			<element name="SizeBasedTriggeringPolicy"
+				type="tns:SizeBasedTriggeringPolicyType" minOccurs="0" />
+		</sequence>
+		<attribute name="name" type="string" use="required" />
+		<attribute name="fileName" type="string" use="required" />
+	</complexType>
+
+	<complexType name="ConsoleAppender">
+		<attribute name="name" type="string" use="required" />
+	</complexType>
+
+	<complexType name="SizeBasedTriggeringPolicyType">
+		<attribute name="size" type="string" use="required" />
+	</complexType>
+
+	<complexType name="BaseLoggerType">
+		<sequence>
+			<element name="AppenderRef" type="tns:AppenderRefType"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+		<attribute name="level" type="tns:LevelType" use="required" />
+	</complexType>
+
+	<complexType name="LoggerType">
+		<sequence>
+			<element name="AppenderRef" type="tns:AppenderRefType"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+		<attribute name="name" type="string" use="required" />
+		<attribute name="level" type="tns:LevelType" use="required" />
+	</complexType>
+
+	<complexType name="RootLoggerType">
+		<sequence>
+			<element name="AppenderRef" type="tns:AppenderRefType"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+		<attribute name="level" type="tns:LevelType" use="required" />
+	</complexType>
+
+	<simpleType name="LevelType">
+		<restriction base="string">
+			<enumeration value="TRACE" />
+			<enumeration value="DEBUG" />
+			<enumeration value="INFO" />
+			<enumeration value="WARN" />
+			<enumeration value="ERROR" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="AppenderRefType">
+		<attribute name="ref" type="string" use="required" />
+	</complexType>
+
+	<element name="Configuration" type="tns:Configuration" />
+
+</schema>

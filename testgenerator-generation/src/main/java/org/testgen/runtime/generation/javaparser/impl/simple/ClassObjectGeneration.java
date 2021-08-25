@@ -76,7 +76,7 @@ public class ClassObjectGeneration
 		LOGGER.debug("create Inline SimpleBluePrint " + bluePrint);
 
 		if (!bluePrint.isNotBuild())
-			LOGGER.warning("you try to create a already builded SimpleBluePrint " + bluePrint);
+			LOGGER.warn("you try to create a already builded SimpleBluePrint " + bluePrint);
 
 		importCallBackHandler.accept(bluePrint.getReferenceClass());
 

@@ -28,7 +28,7 @@ public class CalendarObjectGeneration extends BasicSimpleObjectGeneration {
 		LOGGER.debug("create Inline SimpleBluePrint " + bluePrint);
 
 		if (!bluePrint.isNotBuild())
-			LOGGER.warning("you try to create a already builded SimpleBluePrint " + bluePrint);
+			LOGGER.warn("you try to create a already builded SimpleBluePrint " + bluePrint);
 
 		if (GregorianCalendar.class.equals(bluePrint.getReferenceClass())) {
 			importCallBackHandler.accept(bluePrint.getReferenceClass());

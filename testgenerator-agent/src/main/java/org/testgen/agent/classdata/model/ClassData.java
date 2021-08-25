@@ -15,6 +15,8 @@ public class ClassData {
 	private ClassData superClass;
 	private boolean isEnum;
 
+	private boolean isInterface;
+
 	private final List<FieldData> fields = new ArrayList<>();
 
 	private ConstructorData constructor;
@@ -50,12 +52,20 @@ public class ClassData {
 		this.superClass = superClass;
 	}
 
-	public void setIsEnum(boolean isEnum) {
+	public void setEnum(boolean isEnum) {
 		this.isEnum = isEnum;
 	}
 
 	public boolean isEnum() {
 		return isEnum;
+	}
+
+	public boolean isInterface() {
+		return isInterface;
+	}
+
+	public void setInterface(boolean isInterface) {
+		this.isInterface = isInterface;
 	}
 
 	public void addFields(List<FieldData> fields) {

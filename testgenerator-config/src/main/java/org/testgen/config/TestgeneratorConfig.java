@@ -28,6 +28,7 @@ public final class TestgeneratorConfig {
 	private static final String PARAM_CUSTOM_NAMING_SERVICE_CLASS = "TestgeneratorCustomNamingServiceClass";
 	/* only for test cases public */
 	public static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
+	private static final String PARAM_CUSTOM_LOGGER_CONFIG = "TestgeneratorCustomLoggerConfiguration";
 
 	// Runtime-Properties
 	private static final String PARAM_RUNTIME_FIELD_TRACKING = "TestgeneratorRuntimeFieldTracking";
@@ -42,18 +43,15 @@ public final class TestgeneratorConfig {
 
 		String className = parser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME);
 		System.setProperty(PARAM_CLASS_NAME, className);
-
-		System.setProperty(PARAM_CLASS_NAMES, generateSystemPropertyArgument(isInnerClass(className)));
-
+		System.setProperty(PARAM_CLASS_NAMES, checkForEmptyArgumentList(isInnerClass(className)));
 		System.setProperty(PARAM_METHOD_NAME, parser.getArgumentValue(DefinedArguments.ARG_METHOD_NAME));
 
 		System.setProperty(PARAM_METHOD_DESC, parser.getArgumentValue(DefinedArguments.ARG_METHOD_DESC));
 
 		System.setProperty(PARAM_BL_PACKAGE,
-				generateSystemPropertyArgument(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE)));
-
+				checkForEmptyArgumentList(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE)));
 		System.setProperty(PARAM_BL_PACKAGE_JAR_DEST,
-				generateSystemPropertyArgument(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST)));
+				checkForEmptyArgumentList(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST)));
 
 		System.setProperty(PARAM_PATH_TO_TESTCLASS, parser.getArgumentValue(DefinedArguments.ARG_PATH_TO_TESTCLASS));
 
@@ -68,6 +66,8 @@ public final class TestgeneratorConfig {
 
 		System.setProperty(PARAM_TRACE_READ_FIELD_ACCESS,
 				Boolean.toString(parser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS)));
+		System.setProperty(PARAM_CUSTOM_LOGGER_CONFIG,
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_LOGGER_CONFIG)));
 
 		String booleanFalse = Boolean.toString(false);
 		System.setProperty(PARAM_RUNTIME_FIELD_TRACKING, booleanFalse);
@@ -131,6 +131,12 @@ public final class TestgeneratorConfig {
 
 	public static boolean traceReadFieldAccess() {
 		return Boolean.getBoolean(PARAM_TRACE_READ_FIELD_ACCESS);
+	}
+
+	public static String getCustomLoggerConfig() {
+		String property = System.getProperty(PARAM_CUSTOM_LOGGER_CONFIG);
+
+		return checkStringFilled(property) ? property : null;
 	}
 
 	public static boolean isFieldTrackingActivated() {
@@ -197,11 +203,8 @@ public final class TestgeneratorConfig {
 		return argument == null ? EMPTY_ARGUMENT : argument;
 	}
 
-	private static String generateSystemPropertyArgument(List<String> listArgument) {
-		if (listArgument == null) {
-			return EMPTY_ARGUMENT;
-		}
-		return String.join(LIST_ARGS_SEPARATUR, listArgument);
+	private static String checkForEmptyArgumentList(List<String> listArgument) {
+		return listArgument == null ? EMPTY_ARGUMENT : String.join(LIST_ARGS_SEPARATUR, listArgument);
 	}
 
 	private static List<String> convertArgumentToList(String property) {

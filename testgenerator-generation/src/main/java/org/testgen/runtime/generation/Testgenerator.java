@@ -65,7 +65,7 @@ public final class Testgenerator {
 		testGenerator.generateTestMethod(compilationUnit, method, withProxyObjects);
 
 		testGenerator.toFile(compilationUnit);
-
+		
 		ValueStorage.getInstance().popAndResetTestData();
 	}
 

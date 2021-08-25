@@ -224,7 +224,8 @@ public class InstructionFilter {
 									&& inst.getCodeArrayIndex() < branchEnd)
 							.collect(Collectors.toList());
 
-					LOGGER.debug("removedInstructions", stream -> removedInstructions.forEach(stream::println));
+					LOGGER.debug("removed Instructions");
+					removedInstructions.forEach(inst -> LOGGER.debug(inst.toString()));
 
 					modifiedInstructions.removeAll(removedInstructions);
 				}

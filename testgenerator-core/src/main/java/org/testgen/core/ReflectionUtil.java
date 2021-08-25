@@ -38,6 +38,19 @@ public final class ReflectionUtil {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> T getField(Class<?> caller, String fieldName, Object instance) {
+		Field field;
+		try {
+			field = caller.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return (T) field.get(instance);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException("no field found for name " + fieldName, e);
+		}
+
+	}
+
 	public static Method getMethod(Class<?> caller, String name, Class<?>... params) {
 		try {
 			return caller.getMethod(name, params);

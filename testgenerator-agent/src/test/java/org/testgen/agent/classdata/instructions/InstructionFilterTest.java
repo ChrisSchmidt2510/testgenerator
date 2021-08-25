@@ -22,7 +22,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallerWithSimplestSetter() throws NotFoundException, BadBytecode {
 		init(Adresse.class, "setStrasse", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -38,7 +38,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallerWithOpcodeDup() throws NotFoundException, BadBytecode {
 		init(FragmentDate.class, "addMonths", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -62,7 +62,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallWithOpcodeAconstNull() throws NotFoundException, BadBytecode {
 		init(FragmentDate.class, "setDate", "(Ljava/util/Date;)V", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -79,7 +79,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallWithOpcodeNew() throws NotFoundException, BadBytecode {
 		init(FragmentDate.class, "setDate", "(Ljava/util/Date;)V", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 		// for this test we need the put-field-instruction at index 54
 		Instruction searchInstruction = filteredInstructions.get(Opcode.PUTFIELD).stream()
 				.filter(inst -> inst.getCodeArrayIndex() == 54).findAny().orElse(null);
@@ -96,7 +96,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallWithObjectCreationForInterface() throws NotFoundException, BadBytecode {
 		init(Person.class, MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -114,7 +114,7 @@ public class InstructionFilterTest extends TestHelper {
 		init(Value.class, MethodInfo.nameInit, "(Ljava/lang/Integer;Ljava/util/Calendar;)V",
 				Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -131,7 +131,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallWithIfElseBranch() throws NotFoundException, BadBytecode {
 		init(Value.class, "setValue", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -148,7 +148,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterForInstructionCallWithIfBranch() throws NotFoundException, BadBytecode {
 		init(Value.class, "setValueID", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -165,7 +165,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterWithPrimitveCasts() throws NotFoundException, BadBytecode {
 		init(Value.class, "setSmallValue", Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -182,7 +182,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterWithArrayCreation() throws NotFoundException, BadBytecode {
 		init(Switch.class, MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 
@@ -197,7 +197,7 @@ public class InstructionFilterTest extends TestHelper {
 	public void testFilterWithArrayMultiMemberCreation() throws NotFoundException, BadBytecode {
 		init(Switch.class, MethodInfo.nameInit, Arrays.asList(Opcode.PUTFIELD));
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		InstructionFilter filter = createInstructionFilter();
 

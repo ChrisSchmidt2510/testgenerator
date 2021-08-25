@@ -28,7 +28,7 @@ public class DateObjectGeneration extends BasicSimpleObjectGeneration {
 		LOGGER.debug("create Inline SimpleBluePrint " + bluePrint);
 
 		if (!bluePrint.isNotBuild())
-			LOGGER.warning("you try to create a already builded SimpleBluePrint " + bluePrint);
+			LOGGER.warn("you try to create a already builded SimpleBluePrint " + bluePrint);
 
 		Class<?> type = bluePrint.getReferenceClass();
 
