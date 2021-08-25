@@ -6,15 +6,12 @@ import org.testgen.agent.transformer.ClassDataTransformer;
 import org.testgen.agent.transformer.ValueTrackerTransformer;
 import org.testgen.config.TestgeneratorConfig;
 import org.testgen.logging.LogManager;
-import org.testgen.logging.Logger;
 
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 
 public final class ClassTransformerAgent {
-
-	private static final Logger LOGGER = LogManager.getLogger(ClassTransformerAgent.class);
 
 	private ClassTransformerAgent() {
 	}
@@ -41,7 +38,7 @@ public final class ClassTransformerAgent {
 			try {
 				ClassPool.getDefault().appendClassPath(blJar + "\\*");
 			} catch (NotFoundException e) {
-				LOGGER.error("cant add BL-Jar " + blJar + "to Javassist-ClassPath", e);
+				LogManager.getRoot().error("cant add BL-Jar " + blJar + "to Javassist-ClassPath", e);
 			}
 		}
 	}

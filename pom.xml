@@ -67,7 +67,7 @@
 				<artifactId>testgenerator-core</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-config</artifactId>
@@ -91,7 +91,6 @@
 				<artifactId>testgenerator-generation</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-bootstrap</artifactId>
@@ -103,7 +102,7 @@
 				<artifactId>testgenerator-value-tracker</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.testgen</groupId>
 				<artifactId>testgenerator-logging</artifactId>

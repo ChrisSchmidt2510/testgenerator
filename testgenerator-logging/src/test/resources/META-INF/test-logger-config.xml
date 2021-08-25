@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration
+	xmlns="http://www.testgenerator.org/logging">
+
+	<Appenders>
+		<RollingFileAppender name="Agent"
+			fileName="%h/testgenerator/Agent%g.log">
+			<SizeBasedTriggeringPolicy size="1 GB" />
+		</RollingFileAppender>
+	</Appenders>
+
+	<ConsoleAppender name="Console"/>
+	
+	<Loggers>
+		<Logger name="org.testgen.agent" level="ERROR">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.modification"
+			level="TRACE">
+			<AppenderRef ref="Agent" />
+		</Logger>
+	</Loggers>
+	
+	<Root level="INFO">
+		<AppenderRef ref="Agent" />
+		<AppenderRef ref="Console" />
+	</Root>
+
+</Configuration>

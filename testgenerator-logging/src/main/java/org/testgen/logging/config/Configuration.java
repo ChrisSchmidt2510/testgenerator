@@ -1,28 +1,39 @@
 package org.testgen.logging.config;
 
-import org.testgen.logging.appender.Appender;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.logging.Handler;
 
 public class Configuration {
 	private final String packageName;
 	private final Level level;
-	private final Appender appender;
 
-	public Configuration(String packageName, Level level, Appender appender) {
+	private List<Handler> handlers = new ArrayList<>();
+
+	public Configuration(String packageName, Level level) {
 		this.packageName = packageName;
 		this.level = level;
-		this.appender = appender;
 	}
 
 	public Level getLevel() {
 		return level;
 	}
 
-	public Appender getAppender() {
-		return appender;
-	}
-
 	public String getPackageName() {
 		return packageName;
+	}
+
+	public void addHandler(Handler handler) {
+		handlers.add(handler);
+	}
+
+	public List<Handler> getHandlers() {
+		return handlers;
+	}
+	
+	public void forEachHandler(Consumer<Handler> action) {
+		handlers.forEach(action);
 	}
 
 }

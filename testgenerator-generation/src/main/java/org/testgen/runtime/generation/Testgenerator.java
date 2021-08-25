@@ -1,6 +1,5 @@
 package org.testgen.runtime.generation;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -76,13 +75,7 @@ public final class Testgenerator {
 
 		JavaFile file = JavaFile.builder(testClass.getPackage().getName(), classBuilder.build())
 				.skipJavaLangImports(true).build();
-		LOGGER.debug("generated Test", stream -> {
-			try {
-				file.writeTo(stream);
-			} catch (IOException e) {
-				LOGGER.error(e);
-			}
-		});
+		LOGGER.debug("generated Test", () -> file.toString());
 
 		ValueStorage.getInstance().popAndResetTestData();
 	}

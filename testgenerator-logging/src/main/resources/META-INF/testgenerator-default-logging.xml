@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration
+	xmlns="http://www.testgenerator.org/logging">
+
+	<Appenders>
+		<RollingFileAppender name="Agent"
+			fileName="%h/testgenerator/Agent%g.log">
+			<SizeBasedTriggeringPolicy size="5000 KB" />
+		</RollingFileAppender>
+		<RollingFileAppender name="Generation"
+			fileName="%h/testgenerator/Generation%g.log">
+			<SizeBasedTriggeringPolicy size="5000 KB" />
+		</RollingFileAppender>
+		<RollingFileAppender name="ValueTracker"
+			fileName="%h/testgenerator/ValueTracker%g.log">
+			<SizeBasedTriggeringPolicy size="5000 KB" />
+		</RollingFileAppender>
+	</Appenders>
+
+	<ConsoleAppender name="STDOUT"/>
+
+	<Loggers>
+		<Logger name="org.testgen.agent" level="ERROR">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.modification"
+			level="ERROR">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.analysis"
+			level="INFO">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.testgen.agent.transformer" level="INFO">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.testgen.agent.classdata.instructions"
+			level="INFO">
+			<AppenderRef ref="Agent" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.testgen.runtime.generation" level="DEBUG">
+			<AppenderRef ref="Generation" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.testgen.runtime.valuetracker" level="DEBUG">
+			<AppenderRef ref="ValueTracker" />
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+	</Loggers>
+
+	<Root level="INFO">
+		<AppenderRef ref="Agent" />
+		<AppenderRef ref="STDOUT" />
+	</Root>
+</Configuration>

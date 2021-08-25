@@ -1,6 +1,5 @@
 package org.testgen.agent.classdata.instructions;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -248,7 +247,9 @@ public final class Instructions {
 		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
 	}
 
-	public static void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
+	public static String printCodeArray(CodeIterator iterator, ConstPool constantPool) {
+		StringBuilder builder = new StringBuilder();
+
 		iterator.begin();
 
 		while (iterator.hasNext()) {
@@ -259,8 +260,11 @@ public final class Instructions {
 				throw new RuntimeException(e);
 			}
 
-			stream.println(pos + ": " + InstructionPrinter.instructionString(iterator, pos, constantPool));
+			builder.append(pos + ": " + InstructionPrinter.instructionString(iterator, pos, constantPool));
+			builder.append(System.lineSeparator());
 		}
+
+		return builder.toString();
 	}
 
 	public static boolean isAloadInstruction(Instruction instruction) {
@@ -361,7 +365,7 @@ public final class Instructions {
 		CodeAttribute ca = new CodeAttribute(code.getConstPool(), code.getMaxStack(), code.getMaxLocals(), code.get(),
 				code.getExceptionTable());
 
-		showCodeArray(System.out, ca.iterator(), code.getConstPool());
+		System.out.print(printCodeArray(ca.iterator(), code.getConstPool()));
 
 	}
 

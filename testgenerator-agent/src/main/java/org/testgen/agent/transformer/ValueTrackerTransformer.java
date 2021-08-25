@@ -91,9 +91,9 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
-				LOGGER.error(e);
+				LOGGER.error("error while transforming class",e);
 
-				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+				throw new AgentException("error while transforming class", e);
 			} finally {
 				if (loadingClass != null)
 					loadingClass.detach();
@@ -142,8 +142,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		LocalVariableTypeAttribute typeTable = (LocalVariableTypeAttribute) codeAttribute
 				.getAttribute(LocalVariableTypeAttribute.tag);
 
-		LOGGER.debug("Method before manipulation",
-				stream -> Instructions.showCodeArray(stream, iterator, constantPool));
+		LOGGER.debug("Method before manipulation", () -> Instructions.printCodeArray(iterator, constantPool));
 
 		int maxLocals = codeAttribute.getMaxLocals();
 		int valueTrackerLocalIndex = maxLocals++;
@@ -217,7 +216,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				try {
 					signatureData = SignatureParser.parse(signature);
 				} catch (SignatureParserException e) {
-					LOGGER.error(e);
+					LOGGER.error("error while parsing signature "+ signature,e);
 				}
 
 				if (signatureData != null) {
