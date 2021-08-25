@@ -35,14 +35,15 @@ public final class LoggerRepository {
 						countEqualTokens(config.getPackageName(), clazz.getPackage().getName())))
 				.max((entry1, entry2) -> entry1.getValue().compareTo(entry2.getValue()));
 
-		if (configOptional.isPresent()) {
+		if (configOptional.isPresent())
 			return configOptional.get().getKey();
-		} else if (root != null) {
+
+		else if (root != null)
 			return root;
-		} else {
+
+		else
 			throw new NoSuchElementException(
 					String.format("No matching Logger configuration found for class $s", clazz));
-		}
 
 	}
 
@@ -59,7 +60,7 @@ public final class LoggerRepository {
 
 	}
 
-	 static Integer countEqualTokens(String packageName, String classPackage) {
+	static Integer countEqualTokens(String packageName, String classPackage) {
 		StringTokenizer packageTokenizer = new StringTokenizer(packageName, DELIMETER_POINT);
 		StringTokenizer classTokenizer = new StringTokenizer(classPackage, DELIMETER_POINT);
 

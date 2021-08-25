@@ -85,7 +85,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 			} catch (Throwable e) {
 				LOGGER.error("error while transforming class",e);
-				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+				throw new AgentException("error while transforming class", e);
 			} finally {
 				if (loadingClass != null)
 					loadingClass.detach();
