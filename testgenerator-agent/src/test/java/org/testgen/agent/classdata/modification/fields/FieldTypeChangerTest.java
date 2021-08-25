@@ -287,7 +287,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		fieldTypeChanger.changeFieldInitialization(instructions, filteredInstructions.get(Opcode.PUTFIELD),
 				codeAttribute);
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.println(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		List<Instruction> modifiedInstructionSet = new ArrayList<>();
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(0).withOpcode(Opcode.ALOAD_0).build());
