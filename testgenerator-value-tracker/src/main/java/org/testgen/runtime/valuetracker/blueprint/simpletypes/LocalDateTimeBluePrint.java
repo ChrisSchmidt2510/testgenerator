@@ -63,7 +63,7 @@ public class LocalDateTimeBluePrint extends SimpleBluePrint<LocalDateTime> imple
 		return second;
 	}
 
-	public static class LocalDateTimeBluePrintFactory implements SimpleBluePrintFactory {
+	public static class LocalDateTimeBluePrintFactory implements SimpleBluePrintFactory<LocalDateTime> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -71,8 +71,8 @@ public class LocalDateTimeBluePrint extends SimpleBluePrint<LocalDateTime> imple
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new LocalDateTimeBluePrint(name, (LocalDateTime) value);
+		public SimpleBluePrint<LocalDateTime> createBluePrint(String name, LocalDateTime value) {
+			return new LocalDateTimeBluePrint(name, value);
 		}
 
 	}

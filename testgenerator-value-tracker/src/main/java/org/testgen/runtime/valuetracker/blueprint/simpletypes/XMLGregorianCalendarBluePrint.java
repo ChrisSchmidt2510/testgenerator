@@ -86,7 +86,7 @@ public class XMLGregorianCalendarBluePrint extends SimpleBluePrint<XMLGregorianC
 		return timezone;
 	}
 
-	public static class XMLGregorianCalendarBluePrintFactory implements SimpleBluePrintFactory {
+	public static class XMLGregorianCalendarBluePrintFactory implements SimpleBluePrintFactory<XMLGregorianCalendar> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -94,8 +94,8 @@ public class XMLGregorianCalendarBluePrint extends SimpleBluePrint<XMLGregorianC
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new XMLGregorianCalendarBluePrint(name, (XMLGregorianCalendar) value);
+		public SimpleBluePrint<XMLGregorianCalendar> createBluePrint(String name, XMLGregorianCalendar value) {
+			return new XMLGregorianCalendarBluePrint(name, value);
 		}
 
 	}

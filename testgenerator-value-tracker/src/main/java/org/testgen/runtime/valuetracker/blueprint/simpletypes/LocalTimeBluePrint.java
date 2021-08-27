@@ -41,7 +41,7 @@ public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements Ti
 		return second;
 	}
 
-	public static class LocalTimeBluePrintFactory implements SimpleBluePrintFactory {
+	public static class LocalTimeBluePrintFactory implements SimpleBluePrintFactory<LocalTime> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -49,8 +49,8 @@ public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements Ti
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new LocalTimeBluePrint(name, (LocalTime) value);
+		public SimpleBluePrint<LocalTime> createBluePrint(String name, LocalTime value) {
+			return new LocalTimeBluePrint(name, value);
 		}
 
 	}

@@ -14,7 +14,7 @@ public class NullBluePrint extends SimpleBluePrint<Object> {
 		return "null";
 	}
 
-	public static class NullBluePrintFactory implements SimpleBluePrintFactory {
+	public static class NullBluePrintFactory implements SimpleBluePrintFactory<Object> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -22,7 +22,7 @@ public class NullBluePrint extends SimpleBluePrint<Object> {
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
+		public SimpleBluePrint<Object> createBluePrint(String name, Object value) {
 			return new NullBluePrint(name);
 		}
 

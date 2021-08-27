@@ -39,7 +39,7 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 		return bigDecimalScale;
 	}
 
-	public static class NumberBluePrintFactory implements SimpleBluePrintFactory {
+	public static class NumberBluePrintFactory implements SimpleBluePrintFactory<Number> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -47,8 +47,8 @@ public class NumberBluePrint extends SimpleBluePrint<Number> {
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new NumberBluePrint(name, (Number) value);
+		public SimpleBluePrint<Number> createBluePrint(String name, Number value) {
+			return new NumberBluePrint(name, value);
 		}
 
 	}

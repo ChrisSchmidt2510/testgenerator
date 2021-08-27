@@ -63,7 +63,7 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements Date
 		return second;
 	}
 
-	public static class CalendarBluePrintFactory implements SimpleBluePrintFactory {
+	public static class CalendarBluePrintFactory implements SimpleBluePrintFactory<Calendar> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -71,8 +71,8 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements Date
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new CalendarBluePrint(name, (Calendar) value);
+		public SimpleBluePrint<Calendar> createBluePrint(String name, Calendar value) {
+			return new CalendarBluePrint(name, value);
 		}
 
 	}

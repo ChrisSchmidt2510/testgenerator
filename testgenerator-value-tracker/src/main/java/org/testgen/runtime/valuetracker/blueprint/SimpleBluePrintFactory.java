@@ -2,13 +2,14 @@ package org.testgen.runtime.valuetracker.blueprint;
 
 import java.util.function.BiFunction;
 
-public interface SimpleBluePrintFactory extends BluePrintFactory {
+public interface SimpleBluePrintFactory<T> extends BluePrintFactory {
 
-	SimpleBluePrint<?> createBluePrint(String name, Object value);
+	SimpleBluePrint<T> createBluePrint(String name, T value);
 
+	@SuppressWarnings("unchecked")
 	@Override
 	default BluePrint createBluePrint(String name, Object value, BiFunction<String, Object, BluePrint> childCallBack) {
-		return createBluePrint(name, value);
+		return createBluePrint(name, (T)value);
 	}
 
 	@Override

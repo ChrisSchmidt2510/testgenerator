@@ -96,9 +96,9 @@ public class MapGenerationTest {
 
 		BiFunction<String, Object, BluePrint> mapper = (name, value) -> {
 			if (strFactory.createBluePrintForType(value))
-				return strFactory.createBluePrint(name, value);
+				return strFactory.createBluePrint(name, (String) value);
 
-			return numFactory.createBluePrint(name, value);
+			return numFactory.createBluePrint(name, (Number) value);
 		};
 
 		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, mapper)
@@ -171,9 +171,9 @@ public class MapGenerationTest {
 
 		BiFunction<String, Object, BluePrint> mapper = (name, value) -> {
 			if (strFactory.createBluePrintForType(value))
-				return strFactory.createBluePrint(name, value);
+				return strFactory.createBluePrint(name, (String) value);
 
-			return numFactory.createBluePrint(name, value);
+			return numFactory.createBluePrint(name, (Number) value);
 		};
 
 		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, mapper)

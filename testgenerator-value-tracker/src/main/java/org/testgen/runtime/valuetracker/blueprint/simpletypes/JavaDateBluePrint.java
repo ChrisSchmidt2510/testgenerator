@@ -67,7 +67,7 @@ public class JavaDateBluePrint extends SimpleBluePrint<Date> implements DateBlue
 		return second;
 	}
 
-	public static class JavaDateBluePrintFactory implements SimpleBluePrintFactory {
+	public static class JavaDateBluePrintFactory implements SimpleBluePrintFactory<Date> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -75,8 +75,8 @@ public class JavaDateBluePrint extends SimpleBluePrint<Date> implements DateBlue
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new JavaDateBluePrint(name, (Date) value);
+		public SimpleBluePrint<Date> createBluePrint(String name, Date value) {
+			return new JavaDateBluePrint(name, value);
 		}
 
 	}

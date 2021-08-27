@@ -39,7 +39,7 @@ public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements Da
 		return year;
 	}
 
-	public static class LocalDateBluePrintFactory implements SimpleBluePrintFactory {
+	public static class LocalDateBluePrintFactory implements SimpleBluePrintFactory<LocalDate> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -47,8 +47,8 @@ public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements Da
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new LocalDateBluePrint(name, (LocalDate) value);
+		public SimpleBluePrint<LocalDate> createBluePrint(String name, LocalDate value) {
+			return new LocalDateBluePrint(name, value);
 		}
 
 	}

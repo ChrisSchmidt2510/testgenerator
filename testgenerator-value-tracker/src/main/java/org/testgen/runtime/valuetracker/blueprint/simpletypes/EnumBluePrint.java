@@ -14,7 +14,7 @@ public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 		return value.name();
 	}
 
-	public static class EnumBluePrintFactory implements SimpleBluePrintFactory {
+	public static class EnumBluePrintFactory implements SimpleBluePrintFactory<Enum<?>> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -22,8 +22,8 @@ public class EnumBluePrint extends SimpleBluePrint<Enum<?>> {
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new EnumBluePrint(name, (Enum<?>) value);
+		public SimpleBluePrint<Enum<?>> createBluePrint(String name, Enum<?> value) {
+			return new EnumBluePrint(name, value);
 		}
 
 	}

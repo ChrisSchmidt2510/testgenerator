@@ -90,7 +90,7 @@ public class JavaParserArrayGenerationTest {
 		NumberBluePrintFactory factory = new NumberBluePrintFactory();
 
 		ArrayBluePrint primitiveBluePrint = arrayFactory
-				.createBluePrint("array", new int[5], (name, value) -> factory.createBluePrint(name, value))
+				.createBluePrint("array", new int[5], (name, value) -> factory.createBluePrint(name, (Number) value))
 				.castToArrayBluePrint();
 
 		SignatureType primitiveSignature = new SignatureType(int[].class);
@@ -109,7 +109,7 @@ public class JavaParserArrayGenerationTest {
 		NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
 		ArrayBluePrint bluePrint = arrayFactory
-				.createBluePrint("value", array, (name, value) -> numFactory.createBluePrint(name, value))
+				.createBluePrint("value", array, (name, value) -> numFactory.createBluePrint(name, (Number) value))
 				.castToArrayBluePrint();
 
 		BlockStmt fieldWithSignature = new BlockStmt();
@@ -171,7 +171,7 @@ public class JavaParserArrayGenerationTest {
 		LocalTimeBluePrintFactory localTimeFactory = new LocalTimeBluePrintFactory();
 
 		ArrayBluePrint bluePrint = arrayFactory
-				.createBluePrint("value", array, (name, value) -> localTimeFactory.createBluePrint(name, value))
+				.createBluePrint("value", array, (name, value) -> localTimeFactory.createBluePrint(name, (LocalTime) value))
 				.castToArrayBluePrint();
 
 		NameExpr accessExpr = new NameExpr("object");
@@ -188,7 +188,7 @@ public class JavaParserArrayGenerationTest {
 		Assert.assertEquals("object.setArray(value);", block.getStatement(1).toString());
 
 		ArrayBluePrint arrayBluePrint = arrayFactory
-				.createBluePrint("array", array, (name, value) -> localTimeFactory.createBluePrint(name, value))
+				.createBluePrint("array", array, (name, value) -> localTimeFactory.createBluePrint(name, (LocalTime) value))
 				.castToArrayBluePrint();
 
 		BlockStmt getterBlock = new BlockStmt();

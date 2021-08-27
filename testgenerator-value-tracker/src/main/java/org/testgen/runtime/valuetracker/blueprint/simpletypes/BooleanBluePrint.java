@@ -14,7 +14,7 @@ public class BooleanBluePrint extends SimpleBluePrint<Boolean> {
 		return value.toString();
 	}
 
-	public static class BooleanBluePrintFactory implements SimpleBluePrintFactory {
+	public static class BooleanBluePrintFactory implements SimpleBluePrintFactory<Boolean> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -22,8 +22,8 @@ public class BooleanBluePrint extends SimpleBluePrint<Boolean> {
 		}
 
 		@Override
-		public SimpleBluePrint<?> createBluePrint(String name, Object value) {
-			return new BooleanBluePrint(name, (Boolean) value);
+		public SimpleBluePrint<Boolean> createBluePrint(String name, Boolean value) {
+			return new BooleanBluePrint(name,  value);
 		}
 
 	}

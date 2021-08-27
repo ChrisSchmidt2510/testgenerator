@@ -175,7 +175,7 @@ public class CollectionsGenerationTest {
 		StringBluePrintFactory factory = new StringBluePrintFactory();
 
 		AbstractBasicCollectionBluePrint<?> bluePrint = collectionFactory
-				.createBluePrint("list", list, (name, value) -> factory.createBluePrint(name, value))
+				.createBluePrint("list", list, (name, value) -> factory.createBluePrint(name,(String) value))
 				.castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
@@ -212,7 +212,7 @@ public class CollectionsGenerationTest {
 		StringBluePrintFactory stringFactory = new StringBluePrintFactory();
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", value, (name, childValue) -> stringFactory.createBluePrint(name, childValue))
+				.createBluePrint("value", value, (name, childValue) -> stringFactory.createBluePrint(name, (String) childValue))
 				.castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
@@ -255,7 +255,7 @@ public class CollectionsGenerationTest {
 		StringBluePrintFactory stringFactory = new StringBluePrintFactory();
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", value, (name, childValue) -> stringFactory.createBluePrint(name, childValue))
+				.createBluePrint("value", value, (name, childValue) -> stringFactory.createBluePrint(name, (String) childValue))
 				.castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
