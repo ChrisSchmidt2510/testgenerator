@@ -1,6 +1,7 @@
 package org.testgen.runtime.generation.javaparser.impl.collection;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -22,6 +24,7 @@ import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint.CollectionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint.MapBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
@@ -45,9 +48,18 @@ public class MapGenerationTest {
 
 	@Before
 	public void init() {
-		collectionGeneration.setImportCallBackHandler(imports::add);
-
-		collectionGeneration.setSimpleObjectGenerationFactory(new JavaParserSimpleObjectGenerationFactory());
+		Consumer<Class<?>> importCallBackHandler =imports::add;
+		
+		JavaParserSimpleObjectGenerationFactory simpleGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
+		simpleGenerationFactory.setImportCallBackHandler(importCallBackHandler);
+		
+		JavaParserCollectionGenerationFactory collectionGenerationFactory = new JavaParserCollectionGenerationFactory();
+		collectionGenerationFactory.setImportCallBackHandler(importCallBackHandler);
+		collectionGenerationFactory.setSimpleObjectGenerationFactory(simpleGenerationFactory);
+		
+		collectionGeneration.setImportCallBackHandler(importCallBackHandler);
+		collectionGeneration.setSimpleObjectGenerationFactory(simpleGenerationFactory);
+		collectionGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
 	}
 
 	@After
@@ -151,14 +163,101 @@ public class MapGenerationTest {
 
 		SignatureType nestedValueType = new SignatureType(String.class);
 
-		SignatureType value = new SignatureType(List.class);
-		value.addSubType(nestedValueType);
+		SignatureType mapValue = new SignatureType(List.class);
+		mapValue.addSubType(nestedValueType);
 
 		SignatureType signature = new SignatureType(Map.class);
 		signature.addSubType(key);
-		signature.addSubType(value);
+		signature.addSubType(mapValue);
 
-		// TODO implement completly after finishing complexObjectGenerator
+		Map<Set<Integer>, List<String>> map = new HashMap<>();
+		map.put(new HashSet<>(Arrays.asList(1, 2, 3)), Arrays.asList("aged", "like", "milk"));
+		map.put(new HashSet<>(Arrays.asList(9, 8, 7)), Arrays.asList("why", "i'm", "so", "stupid"));
+
+		StringBluePrintFactory strFactory = new StringBluePrintFactory();
+		NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
+		CollectionBluePrintFactory collectionFactory = new CollectionBluePrintFactory();
+
+		BiFunction<String, Object, BluePrint> valueMapper = (name, value) -> strFactory.createBluePrintForType(value)
+				? strFactory.createBluePrint(name, (String) value)
+				: numFactory.createBluePrint(name, (Number) value);
+
+		BiFunction<String, Object, BluePrint> collectionMapper = (name, value) -> collectionFactory
+				.createBluePrint(name, value, valueMapper);
+		
+		 AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("map", map, collectionMapper).castToCollectionBluePrint();
+		
+		BlockStmt block = new BlockStmt();
+		
+		String expected = "{\r\n"//
+				+"    Set<Integer> mapKey = new HashSet<>();\r\n"//
+				+"    mapKey.add(1);\r\n"//
+				+"    mapKey.add(2);\r\n"//
+				+"    mapKey.add(3);\r\n"//
+				+"\r\n"//
+				+"    Set<Integer> mapKey1 = new HashSet<>();\r\n"//
+				+"    mapKey1.add(7);\r\n"//
+				+"    mapKey1.add(8);\r\n"//
+				+"    mapKey1.add(9);\r\n"//
+				+"\r\n"//
+				+"    List<String> mapValue = new ArrayList<>();\r\n"
+				+"    mapValue.add(\"aged\");\r\n"//
+				+"    mapValue.add(\"like\");\r\n"//
+				+"    mapValue.add(\"milk\");\r\n"//
+				+"\r\n"
+				+"    List<String> mapValue1 = new ArrayList<>();\r\n"//
+				+"    mapValue1.add(\"why\");\r\n"//
+				+"    mapValue1.add(\"i'm\");\r\n"//
+				+"    mapValue1.add(\"so\");\r\n"//
+				+"    mapValue1.add(\"stupid\");\r\n"
+				+"\r\n"
+				+"    Map<Set<Integer>, List<String>> map = new HashMap<>();\r\n"//
+				+"    map.put(mapKey1, mapValue1);\r\n"//
+				+"    map.put(mapKey, mapValue);\r\n"//
+				+"\r\n"//
+				+"}";
+		
+		collectionGeneration.createCollection(block, bluePrint, signature, false);
+		
+		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
+				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+		
+		Assert.assertEquals(expected, block.toString(printerConfig));
+		
+		bluePrint.resetBuildState();
+		
+		expected = "{\r\n"//
+				+"    Set<Integer> mapKey = new HashSet<>();\r\n"//
+				+"    mapKey.add(1);\r\n"//
+				+"    mapKey.add(2);\r\n"//
+				+"    mapKey.add(3);\r\n"//
+				+"\r\n"//
+				+"    Set<Integer> mapKey1 = new HashSet<>();\r\n"//
+				+"    mapKey1.add(7);\r\n"//
+				+"    mapKey1.add(8);\r\n"//
+				+"    mapKey1.add(9);\r\n"//
+				+"\r\n"//
+				+"    List<String> mapValue = new ArrayList<>();\r\n"
+				+"    mapValue.add(\"aged\");\r\n"//
+				+"    mapValue.add(\"like\");\r\n"//
+				+"    mapValue.add(\"milk\");\r\n"//
+				+"\r\n"
+				+"    List<String> mapValue1 = new ArrayList<>();\r\n"//
+				+"    mapValue1.add(\"why\");\r\n"//
+				+"    mapValue1.add(\"i'm\");\r\n"//
+				+"    mapValue1.add(\"so\");\r\n"//
+				+"    mapValue1.add(\"stupid\");\r\n"
+				+"\r\n"
+				+"    this.map.put(mapKey1, mapValue1);\r\n"//
+				+"    this.map.put(mapKey, mapValue);\r\n"//
+				+"\r\n"//
+				+"}";
+		
+		BlockStmt newBlock = new BlockStmt();
+		
+		collectionGeneration.createCollection(newBlock, bluePrint, signature, true);
+		Assert.assertEquals(expected, newBlock.toString(printerConfig));
+		
 	}
 
 	@Test

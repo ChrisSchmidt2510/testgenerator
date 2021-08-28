@@ -1,6 +1,7 @@
 package org.testgen.runtime.generation.api;
 
 import java.lang.reflect.Proxy;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,10 @@ public interface TestClassGeneration<T, E, S> {
 	 * Creates the compilation unit where the unit-test method is added
 	 * 
 	 * @param testClass original class where the test is generated for.
+	 * @param the path on the filesystem where the test is generated into
 	 * @return
 	 */
-	T createTestClass(Class<?> testClass);
+	T createTestClass(Class<?> testClass, Path pathForTestclass);
 
 	/**
 	 * Create an abstract syntax tree for the testObject where the method to test is

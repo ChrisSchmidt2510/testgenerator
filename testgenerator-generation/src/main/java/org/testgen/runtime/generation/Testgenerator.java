@@ -1,5 +1,7 @@
 package org.testgen.runtime.generation;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,9 @@ public final class Testgenerator {
 
 		TestClassGeneration<T, E, S> testGenerator = getTestClassGenerationImplementation();
 
-		T compilationUnit = testGenerator.createTestClass(testClass);
+		Path path = Paths.get(TestgeneratorConfig.getPathToTestclass());
+		
+		T compilationUnit = testGenerator.createTestClass(testClass, path);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
 

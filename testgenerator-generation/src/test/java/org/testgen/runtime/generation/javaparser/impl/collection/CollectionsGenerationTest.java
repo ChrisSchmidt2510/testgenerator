@@ -201,7 +201,19 @@ public class CollectionsGenerationTest {
 
 		Assert.assertTrue(imports.contains(List.class) && imports.contains(ArrayList.class));
 
-		// TODO add Test with complexObject
+		bluePrint.resetBuildState();
+		
+		BlockStmt newBlock = new BlockStmt();
+		
+		expected ="{\r\n" //
+				+"    this.list.add(\"foo\");\r\n"//
+				+"    this.list.add(\"oof\");\r\n"//
+				+"    this.list.add(\"why\");\r\n"//
+				+"\r\n"//
+				+"}";
+		
+		collectionGeneration.createCollection(newBlock, bluePrint, genericType, true);
+		Assert.assertEquals(expected, newBlock.toString(printerConfig));
 	}
 
 	@Test

@@ -37,11 +37,10 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 
 	@Override
 	public List<BluePrint> getPreExecuteBluePrints() {
-		Predicate<BluePrint> checkComplexTypes = BluePrint::isComplexType;
 
-		List<BluePrint> complexTypes = keyBluePrints.stream().filter(checkComplexTypes).collect(Collectors.toList());
+		List<BluePrint> complexTypes = keyBluePrints.stream().filter(CHECK_COMPLEX_TYPES).collect(Collectors.toList());
 
-		valueBluePrints.stream().filter(checkComplexTypes).forEach(complexTypes::add);
+		valueBluePrints.stream().filter(CHECK_COMPLEX_TYPES).forEach(complexTypes::add);
 
 		return complexTypes;
 	}

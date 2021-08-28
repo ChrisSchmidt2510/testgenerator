@@ -7,7 +7,6 @@ import java.time.Month;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
 
 public class LocalDateTimeBluePrintTest {
 
@@ -23,8 +22,6 @@ public class LocalDateTimeBluePrintTest {
 		Assert.assertEquals(12, bluePrint.getHour());
 		Assert.assertEquals(55, bluePrint.getMinute());
 		Assert.assertEquals(3, bluePrint.getSecond());
-
-		System.out.println(bluePrint instanceof TimeBluePrint);
 
 		Assert.assertEquals(LocalDateTime.class, bluePrint.getReferenceClass());
 	}

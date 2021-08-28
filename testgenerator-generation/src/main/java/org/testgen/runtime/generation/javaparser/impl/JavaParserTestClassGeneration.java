@@ -114,18 +114,17 @@ public class JavaParserTestClassGeneration
 	}
 
 	@Override
-	public ClassOrInterfaceDeclaration createTestClass(Class<?> testClass) {
-		Path path = Paths.get(TestgeneratorConfig.getPathToTestclass());
+	public ClassOrInterfaceDeclaration createTestClass(Class<?> testClass, Path pathToTestclass) {
 
-		if (Files.exists(path)) {
+		if (Files.exists(pathToTestclass)) {
 			try {
-				CompilationUnit compilationUnit = StaticJavaParser.parse(path);
+				CompilationUnit compilationUnit = StaticJavaParser.parse(pathToTestclass);
 
 				cu = LexicalPreservingPrinter.setup(compilationUnit);
 
 				useLexicalPrinter = true;
 			} catch (IOException e) {
-				LOGGER.error("cant parse CompilationUnit at Path " + path);
+				LOGGER.error("cant parse CompilationUnit at Path " + pathToTestclass);
 			}
 
 			Optional<TypeDeclaration<?>> primaryType = cu.getPrimaryType();
@@ -138,10 +137,10 @@ public class JavaParserTestClassGeneration
 
 		} else {
 			try {
-				Files.createDirectories(path.getParent());
-				Files.createFile(path);
+				Files.createDirectories(pathToTestclass.getParent());
+				Files.createFile(pathToTestclass);
 			} catch (IOException e) {
-				LOGGER.error("cant create Path" + path, e);
+				LOGGER.error("cant create Path" + pathToTestclass, e);
 			}
 
 			cu = new CompilationUnit(testClass.getPackage().getName());
