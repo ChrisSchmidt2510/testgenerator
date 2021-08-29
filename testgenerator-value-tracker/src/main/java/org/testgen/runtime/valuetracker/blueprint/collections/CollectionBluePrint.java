@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
@@ -51,8 +53,8 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public BluePrint createBluePrint(String name, Object value, Predicate<Object> currentlyBuildedFilter,
+				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
 
 			CollectionBluePrint bluePrint;
 
@@ -74,9 +76,14 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 				bluePrint = new CollectionBluePrint(name, collection, Collection.class);
 
 			for (Object object : collection) {
-				BluePrint element = childCallBack.apply(name + "Element", object);
-
-				bluePrint.addBluePrint(element);
+				
+				if (currentlyBuildedFilter.test(object))
+					registration.register(object, bp -> bluePrint.addBluePrint(bp));
+				
+				else {
+					BluePrint element = childCallBack.apply(name + "Element", object);
+					bluePrint.addBluePrint(element);
+				}
 			}
 
 			return bluePrint;

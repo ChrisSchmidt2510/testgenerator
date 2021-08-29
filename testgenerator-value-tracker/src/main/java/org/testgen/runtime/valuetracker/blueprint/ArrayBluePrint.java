@@ -4,7 +4,10 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
 
 public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	private final BluePrint[] elements;
@@ -107,8 +110,8 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				BiFunction<String, Object, BluePrint> childCallBack) {
+		public BluePrint createBluePrint(String name, Object value, Predicate<Object> currentlyBuildedFilter,
+				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
 			int length = Array.getLength(value);
 
 			ArrayBluePrint arrayBluePrint = new ArrayBluePrint(name, value, length);
@@ -118,8 +121,14 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 
 				if (element != null) {
 
-					BluePrint bluePrint = childCallBack.apply(name + "Element", element);
-					arrayBluePrint.add(i, bluePrint);
+					if (currentlyBuildedFilter.test(element)) {
+						int index = i;
+						registration.register(element, bp -> arrayBluePrint.add(index, bp));
+
+					} else {
+						BluePrint bluePrint = childCallBack.apply(name + "Element", element);
+						arrayBluePrint.add(i, bluePrint);
+					}
 				}
 			}
 

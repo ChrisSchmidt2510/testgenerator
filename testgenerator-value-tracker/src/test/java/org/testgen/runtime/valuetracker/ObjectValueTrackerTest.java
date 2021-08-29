@@ -243,9 +243,9 @@ public class ObjectValueTrackerTest {
 		StringBluePrintFactory factory = new StringBluePrintFactory();
 
 		List<BluePrint> compareList = new ArrayList<>();
-		compareList.add(factory.createBluePrint("CollectionElement", "Christoph", null));
-		compareList.add(factory.createBluePrint("CollectionElement", "Schmidt", null));
-		compareList.add(factory.createBluePrint("CollectionElement", "Word", null));
+		compareList.add(factory.createBluePrint("CollectionElement", "Christoph"));
+		compareList.add(factory.createBluePrint("CollectionElement", "Schmidt"));
+		compareList.add(factory.createBluePrint("CollectionElement", "Word"));
 
 		Assert.assertEquals(compareList, collection.getBluePrints());
 	}
@@ -312,11 +312,11 @@ public class ObjectValueTrackerTest {
 		NumberBluePrintFactory numberFactory = new NumberBluePrintFactory();
 
 		BluePrint[] expected = new BluePrint[5];
-		expected[0] = numberFactory.createBluePrint("array1", 10, null);
-		expected[1] = numberFactory.createBluePrint("array2", 15, null);
-		expected[2] = numberFactory.createBluePrint("array3", 20, null);
-		expected[3] = numberFactory.createBluePrint("array4", 25, null);
-		expected[4] = numberFactory.createBluePrint("array5", 30, null);
+		expected[0] = numberFactory.createBluePrint("array1", 10);
+		expected[1] = numberFactory.createBluePrint("array2", 15);
+		expected[2] = numberFactory.createBluePrint("array3", 20);
+		expected[3] = numberFactory.createBluePrint("array4", 25);
+		expected[4] = numberFactory.createBluePrint("array5", 30);
 
 		Assert.assertArrayEquals(expected, elements);
 	}
@@ -339,17 +339,17 @@ public class ObjectValueTrackerTest {
 		NumberBluePrintFactory numberFactory = new NumberBluePrintFactory();
 
 		ArrayBluePrint firstRow = new ArrayBluePrint("array1", first, 4);
-		firstRow.add(0, numberFactory.createBluePrint("array11", 1, null));
-		firstRow.add(1, numberFactory.createBluePrint("array12", 2, null));
-		firstRow.add(2, numberFactory.createBluePrint("array13", 3, null));
-		firstRow.add(3, numberFactory.createBluePrint("array14", 4, null));
+		firstRow.add(0, numberFactory.createBluePrint("array11", 1));
+		firstRow.add(1, numberFactory.createBluePrint("array12", 2));
+		firstRow.add(2, numberFactory.createBluePrint("array13", 3));
+		firstRow.add(3, numberFactory.createBluePrint("array14", 4));
 
 		ArrayBluePrint secondRow = new ArrayBluePrint("array2", second, 5);
-		secondRow.add(0, numberFactory.createBluePrint("array21", 10, null));
-		secondRow.add(1, numberFactory.createBluePrint("array22", 9, null));
-		secondRow.add(2, numberFactory.createBluePrint("array23", 8, null));
-		secondRow.add(3, numberFactory.createBluePrint("array24", 7, null));
-		secondRow.add(4, numberFactory.createBluePrint("array25", 6, null));
+		secondRow.add(0, numberFactory.createBluePrint("array21", 10));
+		secondRow.add(1, numberFactory.createBluePrint("array22", 9));
+		secondRow.add(2, numberFactory.createBluePrint("array23", 8));
+		secondRow.add(3, numberFactory.createBluePrint("array24", 7));
+		secondRow.add(4, numberFactory.createBluePrint("array25", 6));
 
 		BluePrint[] expected = new BluePrint[] { firstRow, secondRow };
 

@@ -14,3 +14,4 @@ org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBlueP
 org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint$CollectionBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint$MapBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint$ArrayBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint$ComplexBluePrintFactory

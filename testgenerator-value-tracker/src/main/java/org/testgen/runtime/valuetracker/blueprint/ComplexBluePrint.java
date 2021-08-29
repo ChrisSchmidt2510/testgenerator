@@ -1,10 +1,21 @@
 package org.testgen.runtime.valuetracker.blueprint;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.testgen.core.TestgeneratorConstants;
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
+import org.testgen.runtime.valuetracker.ObjectValueTracker;
+import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 
 public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
@@ -24,7 +35,7 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 		NullBluePrintFactory nullFactory = new NullBluePrintFactory();
 
 		return bluePrints.stream().filter(bp -> fieldName.equals(bp.getName())).findAny()
-				.orElse(nullFactory.createBluePrint(fieldName, null, null));
+				.orElse(nullFactory.createBluePrint(fieldName, null));
 	}
 
 	public void addBluePrint(BluePrint bluePrint) {
@@ -51,5 +62,87 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 	@Override
 	public boolean isComplexType() {
 		return true;
+	}
+
+	public class ComplexBluePrintFactory implements BluePrintFactory {
+
+		private static final String OUTER_CLASS_FIELD_NAME = "this$0";
+
+		private final Logger LOGGER = LogManager.getLogger(ComplexBluePrintFactory.class);
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value != null ? true : false;
+		}
+
+		/**
+		 * giving this factory a lower priority than usual, because where is no real
+		 * condition for picking this factory.
+		 * This factory should only be taken, if no other factory can be picked.
+		 * -5 is chosen, that it can anyway overridden.
+		 */
+		@Override
+		public int getPriority() {
+			return -5;
+		}
+
+		@Override
+		public BluePrint createBluePrint(String name, Object value, Predicate<Object> currentlyBuildedFilter,
+				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
+			ComplexBluePrint bluePrint = new ComplexBluePrint(name, value);
+
+			trackValues(value, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+
+			while (!value.getClass().getSuperclass().equals(Object.class)) {
+				value = value.getClass().getSuperclass().cast(value);
+				trackValues(value, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+			}
+
+			return bluePrint;
+		}
+
+		private void trackValues(Object value, ComplexBluePrint bluePrint, Predicate<Object> currentlyBuildedFilter,
+				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
+			for (Field field : value.getClass().getDeclaredFields()) {
+				try {
+					field.setAccessible(true);
+
+					if (isConstant(field))
+						continue;
+
+					Object fieldValue = ObjectValueTracker.getProxyValue(field.get(value));
+
+					if (fieldValue == null || TestgeneratorConstants.isTestgeneratorField(field.getName())
+							|| Proxy.isProxyClass(fieldValue.getClass()) || fieldValue instanceof ObjectValueTracker)
+						continue;
+
+					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
+
+					if (currentlyBuildedFilter.test(fieldValue))
+						registration.register(fieldValue, bp -> bluePrint.addBluePrint(bp));
+
+					else {
+						String name = value.getClass().isMemberClass() && OUTER_CLASS_FIELD_NAME.equals(field.getName())
+								? "outerClass"
+								: field.getName();
+
+						BluePrint child = childCallBack.apply(name, fieldValue);
+						bluePrint.addBluePrint(child);
+					}
+
+				} catch (Exception e) {
+					LOGGER.error("error while creating BluePrints", e);
+					throw new TrackingException("error while creating BluePrints", e);
+				}
+
+			}
+		}
+
+		private boolean isConstant(Field field) {
+			int modifier = field.getModifiers();
+
+			return Modifier.isFinal(modifier) && Modifier.isStatic(modifier);
+		}
+
 	}
 }
