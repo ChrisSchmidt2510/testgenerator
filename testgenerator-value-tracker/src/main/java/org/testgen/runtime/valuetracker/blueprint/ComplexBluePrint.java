@@ -2,7 +2,6 @@ package org.testgen.runtime.valuetracker.blueprint;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +21,7 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 	private List<BluePrint> bluePrints = new ArrayList<>();
 
-	public ComplexBluePrint(String fieldName, Object value) {
+	ComplexBluePrint(String fieldName, Object value) {
 		super(fieldName, value);
 	}
 
@@ -64,11 +63,11 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 		return true;
 	}
 
-	public class ComplexBluePrintFactory implements BluePrintFactory {
+	public static class ComplexBluePrintFactory implements BluePrintFactory {
 
 		private static final String OUTER_CLASS_FIELD_NAME = "this$0";
 
-		private final Logger LOGGER = LogManager.getLogger(ComplexBluePrintFactory.class);
+		private static final Logger LOGGER = LogManager.getLogger(ComplexBluePrintFactory.class);
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -77,9 +76,8 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 		/**
 		 * giving this factory a lower priority than usual, because where is no real
-		 * condition for picking this factory.
-		 * This factory should only be taken, if no other factory can be picked.
-		 * -5 is chosen, that it can anyway overridden.
+		 * condition for picking this factory. This factory should only be taken, if no
+		 * other factory can be picked. -5 is chosen, that it can anyway overridden.
 		 */
 		@Override
 		public int getPriority() {
@@ -91,19 +89,22 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
 			ComplexBluePrint bluePrint = new ComplexBluePrint(name, value);
 
-			trackValues(value, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+			Class<?> valueClass = value.getClass();
 
-			while (!value.getClass().getSuperclass().equals(Object.class)) {
-				value = value.getClass().getSuperclass().cast(value);
-				trackValues(value, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+			trackValues(value, valueClass, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+
+			while (!valueClass.getSuperclass().equals(Object.class)) {
+				valueClass = valueClass.getSuperclass();
+				trackValues(value, valueClass, bluePrint, currentlyBuildedFilter, registration, childCallBack);
 			}
 
 			return bluePrint;
 		}
 
-		private void trackValues(Object value, ComplexBluePrint bluePrint, Predicate<Object> currentlyBuildedFilter,
-				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
-			for (Field field : value.getClass().getDeclaredFields()) {
+		private void trackValues(Object value, Class<?> valueClass, ComplexBluePrint bluePrint,
+				Predicate<Object> currentlyBuildedFilter, BluePrintUnderProcessRegistration registration,
+				BiFunction<String, Object, BluePrint> childCallBack) {
+			for (Field field : valueClass.getDeclaredFields()) {
 				try {
 					field.setAccessible(true);
 
@@ -113,7 +114,7 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 					Object fieldValue = ObjectValueTracker.getProxyValue(field.get(value));
 
 					if (fieldValue == null || TestgeneratorConstants.isTestgeneratorField(field.getName())
-							|| Proxy.isProxyClass(fieldValue.getClass()) || fieldValue instanceof ObjectValueTracker)
+							|| fieldValue instanceof ObjectValueTracker)
 						continue;
 
 					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);

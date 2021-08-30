@@ -69,8 +69,14 @@ public final class ObjectValueTracker {
 
 	public void trackProxyValues(Object value, String name, Class<?> interfaceClass, String proxyName) {
 		if (value != null) {
+			Optional<BluePrintFactory> factoryOpt = bluePrintsFactory.getBluePrintFactory(value);
+			
+			if(!factoryOpt.isPresent())
+				throw new IllegalArgumentException(value +" is no proxy");
+			
+			BluePrintFactory factory = factoryOpt.get();
 			ProxyBluePrint proxy = (ProxyBluePrint) getBluePrintForReference(interfaceClass, //
-					() -> new ProxyBluePrint(proxyName, interfaceClass));
+					() -> factory.createBluePrint(proxyName, value, null, registration, null));
 
 			ValueStorage.getInstance().addProxyBluePrint(proxy, trackValues(value, name));
 		}
@@ -108,9 +114,6 @@ public final class ObjectValueTracker {
 				bluePrint = getBluePrintForReference(proxyValue, () -> factory.createBluePrint(name, proxyValue,
 						currentlyBuildedFilter, registration, childCallBack));
 		}
-
-		if (bluePrint == null && Proxy.isProxyClass(proxyValue.getClass()))
-			bluePrint = getBluePrintForReference(proxyValue, () -> new ProxyBluePrint(name, proxyValue.getClass()));
 
 		List<Consumer<BluePrint>> valueAfterCreation = registration.getActions(proxyValue);
 

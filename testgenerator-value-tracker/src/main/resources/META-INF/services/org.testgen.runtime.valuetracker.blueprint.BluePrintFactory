@@ -15,3 +15,4 @@ org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint$Colle
 org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint$MapBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint$ArrayBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint$ComplexBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint$ProxyBluePrintFactory

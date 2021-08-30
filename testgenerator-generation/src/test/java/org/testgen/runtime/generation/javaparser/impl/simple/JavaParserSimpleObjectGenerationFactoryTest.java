@@ -33,7 +33,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationBoolean() {
 		BooleanBluePrintFactory booleanFactory = new BooleanBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = booleanFactory.createBluePrint("value", false, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = booleanFactory.createBluePrint("value", false).castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof BooleanObjectGeneration);
 	}
@@ -42,7 +42,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	public void testSimpleGenerationCalendar() {
 		CalendarBluePrintFactory bluePrintFactory = new CalendarBluePrintFactory();
 		SimpleBluePrint<?> bluePrint = bluePrintFactory
-				.createBluePrint("value", new GregorianCalendar(2021, 1 - 1, 2), null).castToSimpleBluePrint();
+				.createBluePrint("value", new GregorianCalendar(2021, 1 - 1, 2)).castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof CalendarObjectGeneration);
 	}
@@ -50,7 +50,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationCharacter() {
 		CharacterBluePrintFactory bluePrintFactory = new CharacterBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", 'C', null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", 'C').castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof CharacterObjectGeneration);
 	}
@@ -58,7 +58,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationClass() {
 		ClassBluePrintFactory bluePrintFactory = new ClassBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", String.class, null)
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", String.class)
 				.castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof ClassObjectGeneration);
@@ -68,7 +68,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	public void testSimpleGenerationDate() {
 		JavaDateBluePrintFactory bluePrintFactory = new JavaDateBluePrintFactory();
 		@SuppressWarnings("deprecation")
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", new Date(2021 - 1900, 1 - 1, 1), null)
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", new Date(2021 - 1900, 1 - 1, 1))
 				.castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof DateObjectGeneration);
@@ -77,7 +77,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationEnum() {
 		EnumBluePrintFactory bluePrintFactory = new EnumBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", Month.JANUARY, null)
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", Month.JANUARY)
 				.castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof EnumObjectGeneration);
@@ -86,7 +86,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationLocalDateTime() {
 		LocalTimeBluePrintFactory bluePrintFactory = new LocalTimeBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", LocalTime.of(12, 15), null)
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", LocalTime.of(12, 15))
 				.castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof LocalDateTimeObjectGeneration);
@@ -95,7 +95,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationNull() {
 		NullBluePrintFactory bluePrintFactory = new NullBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", null, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", null).castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof NullObjectGeneration);
 	}
@@ -103,7 +103,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationNumber() {
 		NumberBluePrintFactory bluePrintFactory = new NumberBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", 5, null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", 5).castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof NumberObjectGeneration);
 	}
@@ -111,7 +111,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 	@Test
 	public void testSimpleGenerationString() {
 		StringBluePrintFactory bluePrintFactory = new StringBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", "Test", null).castToSimpleBluePrint();
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", "Test").castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof StringObjectGeneration);
 	}
@@ -128,7 +128,7 @@ public class JavaParserSimpleObjectGenerationFactoryTest {
 		}
 
 		XMLGregorianCalendarBluePrintFactory bluePrintFactory = new XMLGregorianCalendarBluePrintFactory();
-		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", calendar, null)
+		SimpleBluePrint<?> bluePrint = bluePrintFactory.createBluePrint("value", calendar)
 				.castToSimpleBluePrint();
 
 		Assert.assertTrue(factory.of(bluePrint) instanceof XmlGregorianCalendarObjectGeneration);
