@@ -87,7 +87,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
 
-		ComplexBluePrint bluePrint = new ComplexBluePrint("value", new Object());
+		ComplexBluePrint bluePrint = new ComplexBluePrint("value", new Object());	
 
 		complexGeneration.createField(cu, bluePrint, null);
 		Assert.assertEquals("private Object value;", cu.getFields().get(0).toString());

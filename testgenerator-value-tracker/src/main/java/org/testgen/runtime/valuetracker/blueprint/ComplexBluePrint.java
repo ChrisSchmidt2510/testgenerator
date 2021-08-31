@@ -21,7 +21,7 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 	private List<BluePrint> bluePrints = new ArrayList<>();
 
-	ComplexBluePrint(String fieldName, Object value) {
+	public ComplexBluePrint(String fieldName, Object value) {
 		super(fieldName, value);
 	}
 

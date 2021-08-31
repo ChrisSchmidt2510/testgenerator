@@ -2,6 +2,7 @@ package org.testgen.runtime.generation.javaparser.impl.collection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,11 +14,13 @@ public class JavaParserCollectionGenerationFactoryTest {
 
 	private JavaParserCollectionGenerationFactory collectionFactory = new JavaParserCollectionGenerationFactory();
 
+	private Predicate<Object> check = obj -> false;
+	
 	@Test
 	public void testCollectionGenerationCollectionsGeneration() {
 		CollectionBluePrintFactory factory = new CollectionBluePrintFactory();
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = factory.createBluePrint("value", new ArrayList<String>(), null)
+		AbstractBasicCollectionBluePrint<?> bluePrint = factory.createBluePrint("value", new ArrayList<String>(),check, null, null)
 				.castToCollectionBluePrint();
 
 		Assert.assertTrue(collectionFactory.of(bluePrint) instanceof CollectionsGeneration);
@@ -26,7 +29,7 @@ public class JavaParserCollectionGenerationFactoryTest {
 	@Test
 	public void testCollectionGenerationMapGeneration() {
 		MapBluePrintFactory factory = new MapBluePrintFactory();
-		AbstractBasicCollectionBluePrint<?> bluePrint = factory.createBluePrint("value", new HashMap<>(), null)
+		AbstractBasicCollectionBluePrint<?> bluePrint = factory.createBluePrint("value", new HashMap<>(),check, null, null)
 				.castToCollectionBluePrint();
 
 		Assert.assertTrue(collectionFactory.of(bluePrint) instanceof MapGeneration);

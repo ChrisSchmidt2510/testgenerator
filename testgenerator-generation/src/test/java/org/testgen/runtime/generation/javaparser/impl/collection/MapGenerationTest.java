@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -46,17 +47,19 @@ public class MapGenerationTest {
 
 	private MapBluePrintFactory mapFactory = new MapBluePrintFactory();
 
+	private Predicate<Object> check = obj -> false;
+
 	@Before
 	public void init() {
-		Consumer<Class<?>> importCallBackHandler =imports::add;
-		
+		Consumer<Class<?>> importCallBackHandler = imports::add;
+
 		JavaParserSimpleObjectGenerationFactory simpleGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
 		simpleGenerationFactory.setImportCallBackHandler(importCallBackHandler);
-		
+
 		JavaParserCollectionGenerationFactory collectionGenerationFactory = new JavaParserCollectionGenerationFactory();
 		collectionGenerationFactory.setImportCallBackHandler(importCallBackHandler);
 		collectionGenerationFactory.setSimpleObjectGenerationFactory(simpleGenerationFactory);
-		
+
 		collectionGeneration.setImportCallBackHandler(importCallBackHandler);
 		collectionGeneration.setSimpleObjectGenerationFactory(simpleGenerationFactory);
 		collectionGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
@@ -74,8 +77,8 @@ public class MapGenerationTest {
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", new TreeMap<>(), null)
-				.castToCollectionBluePrint();
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
+				.createBluePrint("value", new TreeMap<>(), check, null, null).castToCollectionBluePrint();
 
 		SignatureType nestedValue = new SignatureType(LocalDate.class);
 		SignatureType value = new SignatureType(List.class);
@@ -113,7 +116,7 @@ public class MapGenerationTest {
 			return numFactory.createBluePrint(name, (Number) value);
 		};
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, mapper)
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, check, null, mapper)
 				.castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
@@ -183,81 +186,75 @@ public class MapGenerationTest {
 				: numFactory.createBluePrint(name, (Number) value);
 
 		BiFunction<String, Object, BluePrint> collectionMapper = (name, value) -> collectionFactory
-				.createBluePrint(name, value, valueMapper);
-		
-		 AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("map", map, collectionMapper).castToCollectionBluePrint();
-		
+				.createBluePrint(name, value, check, null, valueMapper);
+
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
+				.createBluePrint("map", map, check, null, collectionMapper).castToCollectionBluePrint();
+
 		BlockStmt block = new BlockStmt();
-		
+
 		String expected = "{\r\n"//
-				+"    Set<Integer> mapKey = new HashSet<>();\r\n"//
-				+"    mapKey.add(1);\r\n"//
-				+"    mapKey.add(2);\r\n"//
-				+"    mapKey.add(3);\r\n"//
-				+"\r\n"//
-				+"    Set<Integer> mapKey1 = new HashSet<>();\r\n"//
-				+"    mapKey1.add(7);\r\n"//
-				+"    mapKey1.add(8);\r\n"//
-				+"    mapKey1.add(9);\r\n"//
-				+"\r\n"//
-				+"    List<String> mapValue = new ArrayList<>();\r\n"
-				+"    mapValue.add(\"aged\");\r\n"//
-				+"    mapValue.add(\"like\");\r\n"//
-				+"    mapValue.add(\"milk\");\r\n"//
-				+"\r\n"
-				+"    List<String> mapValue1 = new ArrayList<>();\r\n"//
-				+"    mapValue1.add(\"why\");\r\n"//
-				+"    mapValue1.add(\"i'm\");\r\n"//
-				+"    mapValue1.add(\"so\");\r\n"//
-				+"    mapValue1.add(\"stupid\");\r\n"
-				+"\r\n"
-				+"    Map<Set<Integer>, List<String>> map = new HashMap<>();\r\n"//
-				+"    map.put(mapKey1, mapValue1);\r\n"//
-				+"    map.put(mapKey, mapValue);\r\n"//
-				+"\r\n"//
-				+"}";
-		
+				+ "    Set<Integer> mapKey = new HashSet<>();\r\n"//
+				+ "    mapKey.add(1);\r\n"//
+				+ "    mapKey.add(2);\r\n"//
+				+ "    mapKey.add(3);\r\n"//
+				+ "\r\n"//
+				+ "    Set<Integer> mapKey1 = new HashSet<>();\r\n"//
+				+ "    mapKey1.add(7);\r\n"//
+				+ "    mapKey1.add(8);\r\n"//
+				+ "    mapKey1.add(9);\r\n"//
+				+ "\r\n"//
+				+ "    List<String> mapValue = new ArrayList<>();\r\n" + "    mapValue.add(\"aged\");\r\n"//
+				+ "    mapValue.add(\"like\");\r\n"//
+				+ "    mapValue.add(\"milk\");\r\n"//
+				+ "\r\n" + "    List<String> mapValue1 = new ArrayList<>();\r\n"//
+				+ "    mapValue1.add(\"why\");\r\n"//
+				+ "    mapValue1.add(\"i'm\");\r\n"//
+				+ "    mapValue1.add(\"so\");\r\n"//
+				+ "    mapValue1.add(\"stupid\");\r\n" + "\r\n"
+				+ "    Map<Set<Integer>, List<String>> map = new HashMap<>();\r\n"//
+				+ "    map.put(mapKey1, mapValue1);\r\n"//
+				+ "    map.put(mapKey, mapValue);\r\n"//
+				+ "\r\n"//
+				+ "}";
+
 		collectionGeneration.createCollection(block, bluePrint, signature, false);
-		
+
 		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
 				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
-		
+
 		Assert.assertEquals(expected, block.toString(printerConfig));
-		
+
 		bluePrint.resetBuildState();
-		
+
 		expected = "{\r\n"//
-				+"    Set<Integer> mapKey = new HashSet<>();\r\n"//
-				+"    mapKey.add(1);\r\n"//
-				+"    mapKey.add(2);\r\n"//
-				+"    mapKey.add(3);\r\n"//
-				+"\r\n"//
-				+"    Set<Integer> mapKey1 = new HashSet<>();\r\n"//
-				+"    mapKey1.add(7);\r\n"//
-				+"    mapKey1.add(8);\r\n"//
-				+"    mapKey1.add(9);\r\n"//
-				+"\r\n"//
-				+"    List<String> mapValue = new ArrayList<>();\r\n"
-				+"    mapValue.add(\"aged\");\r\n"//
-				+"    mapValue.add(\"like\");\r\n"//
-				+"    mapValue.add(\"milk\");\r\n"//
-				+"\r\n"
-				+"    List<String> mapValue1 = new ArrayList<>();\r\n"//
-				+"    mapValue1.add(\"why\");\r\n"//
-				+"    mapValue1.add(\"i'm\");\r\n"//
-				+"    mapValue1.add(\"so\");\r\n"//
-				+"    mapValue1.add(\"stupid\");\r\n"
-				+"\r\n"
-				+"    this.map.put(mapKey1, mapValue1);\r\n"//
-				+"    this.map.put(mapKey, mapValue);\r\n"//
-				+"\r\n"//
-				+"}";
-		
+				+ "    Set<Integer> mapKey = new HashSet<>();\r\n"//
+				+ "    mapKey.add(1);\r\n"//
+				+ "    mapKey.add(2);\r\n"//
+				+ "    mapKey.add(3);\r\n"//
+				+ "\r\n"//
+				+ "    Set<Integer> mapKey1 = new HashSet<>();\r\n"//
+				+ "    mapKey1.add(7);\r\n"//
+				+ "    mapKey1.add(8);\r\n"//
+				+ "    mapKey1.add(9);\r\n"//
+				+ "\r\n"//
+				+ "    List<String> mapValue = new ArrayList<>();\r\n" + "    mapValue.add(\"aged\");\r\n"//
+				+ "    mapValue.add(\"like\");\r\n"//
+				+ "    mapValue.add(\"milk\");\r\n"//
+				+ "\r\n" + "    List<String> mapValue1 = new ArrayList<>();\r\n"//
+				+ "    mapValue1.add(\"why\");\r\n"//
+				+ "    mapValue1.add(\"i'm\");\r\n"//
+				+ "    mapValue1.add(\"so\");\r\n"//
+				+ "    mapValue1.add(\"stupid\");\r\n" + "\r\n" + "    this.map.put(mapKey1, mapValue1);\r\n"//
+				+ "    this.map.put(mapKey, mapValue);\r\n"//
+				+ "\r\n"//
+				+ "}";
+
 		BlockStmt newBlock = new BlockStmt();
-		
+
 		collectionGeneration.createCollection(newBlock, bluePrint, signature, true);
 		Assert.assertEquals(expected, newBlock.toString(printerConfig));
-		
+
 	}
 
 	@Test
@@ -275,7 +272,7 @@ public class MapGenerationTest {
 			return numFactory.createBluePrint(name, (Number) value);
 		};
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, mapper)
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, check, null, mapper)
 				.castToCollectionBluePrint();
 
 		NameExpr accessExpr = new NameExpr("object");
@@ -309,7 +306,7 @@ public class MapGenerationTest {
 	public void testAddCollectionToField() {
 		Map<Integer, String> map = new HashMap<>();
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, null)
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, check, null, null)
 				.castToCollectionBluePrint();
 
 		Expression accessExpr = new FieldAccessExpr(new ThisExpr(), "object");

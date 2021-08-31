@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.DelayQueue;
+import java.util.function.Predicate;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -45,6 +46,8 @@ public class CollectionsGenerationTest {
 
 	private CollectionBluePrintFactory collectionFactory = new CollectionBluePrintFactory();
 
+	private Predicate<Object> check = obj -> false;
+
 	@Before
 	public void init() {
 		collectionGeneration.setImportCallBackHandler(imports::add);
@@ -65,7 +68,7 @@ public class CollectionsGenerationTest {
 				false, "Test");
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", new HashSet<>(), null).castToCollectionBluePrint();
+				.createBluePrint("value", new HashSet<>(), check, null, null).castToCollectionBluePrint();
 
 		SignatureType nestedSignature = new SignatureType(Integer.class);
 		SignatureType signature = new SignatureType(Set.class);
@@ -86,7 +89,7 @@ public class CollectionsGenerationTest {
 				false, "Test");
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", new Vector<>(), null).castToCollectionBluePrint();
+				.createBluePrint("value", new Vector<>(), check, null, null).castToCollectionBluePrint();
 
 		SignatureType nestedSignature = new SignatureType(LocalDate.class);
 		SignatureType signature = new SignatureType(Collection.class);
@@ -107,7 +110,7 @@ public class CollectionsGenerationTest {
 				false, "Test");
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", new ArrayList<>(), null).castToCollectionBluePrint();
+				.createBluePrint("value", new ArrayList<>(), check, null, null).castToCollectionBluePrint();
 
 		SignatureType nestedSignature = new SignatureType(LocalDate.class);
 		SignatureType signature = new SignatureType(List.class);
@@ -128,7 +131,7 @@ public class CollectionsGenerationTest {
 				false, "Test");
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", new ArrayDeque<>(), null).castToCollectionBluePrint();
+				.createBluePrint("value", new ArrayDeque<>(), check, null, null).castToCollectionBluePrint();
 
 		SignatureType nestedSignature = new SignatureType(BigDecimal.class);
 		SignatureType signature = new SignatureType(Deque.class);
@@ -149,7 +152,7 @@ public class CollectionsGenerationTest {
 				false, "Test");
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", new DelayQueue<>(), null).castToCollectionBluePrint();
+				.createBluePrint("value", new DelayQueue<>(), check, null, null).castToCollectionBluePrint();
 
 		SignatureType nestedSignature = new SignatureType(String.class);
 		SignatureType signature = new SignatureType(Queue.class);
@@ -174,9 +177,8 @@ public class CollectionsGenerationTest {
 
 		StringBluePrintFactory factory = new StringBluePrintFactory();
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = collectionFactory
-				.createBluePrint("list", list, (name, value) -> factory.createBluePrint(name,(String) value))
-				.castToCollectionBluePrint();
+		AbstractBasicCollectionBluePrint<?> bluePrint = collectionFactory.createBluePrint("list", list, check, null,
+				(name, value) -> factory.createBluePrint(name, (String) value)).castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
 
@@ -202,16 +204,16 @@ public class CollectionsGenerationTest {
 		Assert.assertTrue(imports.contains(List.class) && imports.contains(ArrayList.class));
 
 		bluePrint.resetBuildState();
-		
+
 		BlockStmt newBlock = new BlockStmt();
-		
-		expected ="{\r\n" //
-				+"    this.list.add(\"foo\");\r\n"//
-				+"    this.list.add(\"oof\");\r\n"//
-				+"    this.list.add(\"why\");\r\n"//
-				+"\r\n"//
-				+"}";
-		
+
+		expected = "{\r\n" //
+				+ "    this.list.add(\"foo\");\r\n"//
+				+ "    this.list.add(\"oof\");\r\n"//
+				+ "    this.list.add(\"why\");\r\n"//
+				+ "\r\n"//
+				+ "}";
+
 		collectionGeneration.createCollection(newBlock, bluePrint, genericType, true);
 		Assert.assertEquals(expected, newBlock.toString(printerConfig));
 	}
@@ -224,7 +226,8 @@ public class CollectionsGenerationTest {
 		StringBluePrintFactory stringFactory = new StringBluePrintFactory();
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", value, (name, childValue) -> stringFactory.createBluePrint(name, (String) childValue))
+				.createBluePrint("value", value, check, null,
+						(name, childValue) -> stringFactory.createBluePrint(name, (String) childValue))
 				.castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
@@ -267,7 +270,8 @@ public class CollectionsGenerationTest {
 		StringBluePrintFactory stringFactory = new StringBluePrintFactory();
 
 		AbstractBasicCollectionBluePrint<?> collection = collectionFactory
-				.createBluePrint("value", value, (name, childValue) -> stringFactory.createBluePrint(name, (String) childValue))
+				.createBluePrint("value", value, check, null,
+						(name, childValue) -> stringFactory.createBluePrint(name, (String) childValue))
 				.castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
