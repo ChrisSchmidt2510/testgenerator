@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;

@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
 
 public class ProxyBluePrint extends AbstractBasicBluePrint<Object> {
 	private final Class<?> interfaceClass;

@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
+import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
 import org.testgen.runtime.valuetracker.ObjectValueTracker;
-import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 

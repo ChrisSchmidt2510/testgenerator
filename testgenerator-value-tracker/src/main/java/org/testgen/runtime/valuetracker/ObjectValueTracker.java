@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -115,15 +114,8 @@ public final class ObjectValueTracker {
 						currentlyBuildedFilter, registration, childCallBack));
 		}
 
-		List<Consumer<BluePrint>> valueAfterCreation = registration.getActions(proxyValue);
+		registration.executeActions(proxyValue, bluePrint);
 
-		if (valueAfterCreation != null) {
-			for (Consumer<BluePrint> action : valueAfterCreation) {
-				action.accept(bluePrint);
-			}
-		}
-
-		registration.remove(proxyValue);
 		currentlyBuiltBluePrints.pop();
 
 		return bluePrint;
@@ -192,27 +184,6 @@ public final class ObjectValueTracker {
 		}
 
 		return value;
-	}
-
-	public class BluePrintUnderProcessRegistration {
-		private final Map<Object, List<Consumer<BluePrint>>> register = new HashMap<>();
-
-		public void register(Object value, Consumer<BluePrint> action) {
-			if (register.containsKey(value))
-				register.get(value).add(action);
-
-			else
-				register.put(value, new ArrayList<>(Arrays.asList(action)));
-
-		}
-
-		List<Consumer<BluePrint>> getActions(Object value) {
-			return register.get(value);
-		}
-
-		void remove(Object value) {
-			register.remove(value);
-		}
 	}
 
 }

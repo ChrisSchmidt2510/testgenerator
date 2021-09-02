@@ -3,7 +3,7 @@ package org.testgen.runtime.valuetracker.blueprint;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-import org.testgen.runtime.valuetracker.ObjectValueTracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
 
 public interface BluePrintFactory {
 
