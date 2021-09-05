@@ -4,10 +4,9 @@ import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 
 public class ProxyBluePrint extends AbstractBasicBluePrint<Object> {
 	private final Class<?> interfaceClass;
@@ -49,8 +48,9 @@ public class ProxyBluePrint extends AbstractBasicBluePrint<Object> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value, Predicate<Object> currentlyBuildedFilter,
-				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
+		public BluePrint createBluePrint(String name, Object value,
+				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+				BiFunction<String, Object, BluePrint> childCallBack) {
 			Class<?> interfaceClass = Stream.of(value.getClass().getInterfaces())
 					.filter(cl -> !Serializable.class.isAssignableFrom(cl)).findAny()
 					.orElseThrow(() -> new IllegalArgumentException("proxies have to implement at least 1 interface"));

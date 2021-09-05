@@ -1,7 +1,6 @@
 package org.testgen.runtime.valuetracker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,20 +9,27 @@ import java.util.function.Consumer;
 
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
-public class BluePrintUnderProcessRegistration {
+public class CurrentlyBuildedBluePrints {
 	private final Map<Object, List<Consumer<BluePrint>>> register = new HashMap<>();
 	private final List<MapEntry> mapEntryRegister = new ArrayList<>();
 
-	public void register(Object value, Consumer<BluePrint> action) {
+	void register(Object value) {
+		register.put(value, new ArrayList<>());
+	}
+	
+	public boolean isCurrentlyBuilded(Object value) {
+		return register.containsKey(value);
+	}
+	
+	public void addFinishedListener(Object value, Consumer<BluePrint> action) {
 		if (register.containsKey(value))
 			register.get(value).add(action);
 
-		else
-			register.put(value, new ArrayList<>(Arrays.asList(action)));
+		throw new IllegalArgumentException("BluePrint isnt currently builded");
 
 	}
 	
-	public void register(Object key, Object value, BiConsumer<BluePrint, BluePrint> action) {
+	public void addFinishedListener(Object key, Object value, BiConsumer<BluePrint, BluePrint> action) {
 		MapEntry mapEntry = new MapEntry(key, value, action);
 		mapEntryRegister.add(mapEntry);
 	}

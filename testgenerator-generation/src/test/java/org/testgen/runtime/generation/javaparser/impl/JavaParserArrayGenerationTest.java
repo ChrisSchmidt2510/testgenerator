@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -19,6 +18,7 @@ import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.javaparser.impl.collection.JavaParserCollectionGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
+import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint.ArrayBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalTimeBluePrint.LocalTimeBluePrintFactory;
@@ -42,7 +42,7 @@ public class JavaParserArrayGenerationTest {
 
 	private ArrayBluePrintFactory arrayFactory = new ArrayBluePrintFactory();
 
-	private Predicate<Object> check = obj -> false;
+	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
 
 	@Before
 	public void init() {
@@ -74,8 +74,8 @@ public class JavaParserArrayGenerationTest {
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
 
-		ArrayBluePrint bluePrint = arrayFactory.createBluePrint("value", new List[10][], check, null, null)
-				.castToArrayBluePrint();
+		ArrayBluePrint bluePrint = arrayFactory
+				.createBluePrint("value", new List[10][], currentlyBuildedBluePrints, null).castToArrayBluePrint();
 
 		SignatureType nestedType = new SignatureType(LocalDate.class);
 		SignatureType signature = new SignatureType(List[][].class);
@@ -93,8 +93,9 @@ public class JavaParserArrayGenerationTest {
 
 		NumberBluePrintFactory factory = new NumberBluePrintFactory();
 
-		ArrayBluePrint primitiveBluePrint = arrayFactory.createBluePrint("array", new int[5], check, null,
-				(name, value) -> factory.createBluePrint(name, (Number) value)).castToArrayBluePrint();
+		ArrayBluePrint primitiveBluePrint = arrayFactory.createBluePrint("array", new int[5],
+				currentlyBuildedBluePrints, (name, value) -> factory.createBluePrint(name, (Number) value))
+				.castToArrayBluePrint();
 
 		SignatureType primitiveSignature = new SignatureType(int[].class);
 
@@ -111,7 +112,7 @@ public class JavaParserArrayGenerationTest {
 
 		NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
-		ArrayBluePrint bluePrint = arrayFactory.createBluePrint("value", array, check, null,
+		ArrayBluePrint bluePrint = arrayFactory.createBluePrint("value", array, currentlyBuildedBluePrints,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value)).castToArrayBluePrint();
 
 		BlockStmt fieldWithSignature = new BlockStmt();
@@ -173,7 +174,7 @@ public class JavaParserArrayGenerationTest {
 		LocalTimeBluePrintFactory localTimeFactory = new LocalTimeBluePrintFactory();
 
 		ArrayBluePrint bluePrint = arrayFactory
-				.createBluePrint("value", array, check, null,
+				.createBluePrint("value", array, currentlyBuildedBluePrints,
 						(name, value) -> localTimeFactory.createBluePrint(name, (LocalTime) value))
 				.castToArrayBluePrint();
 
@@ -191,7 +192,7 @@ public class JavaParserArrayGenerationTest {
 		Assert.assertEquals("object.setArray(value);", block.getStatement(1).toString());
 
 		ArrayBluePrint arrayBluePrint = arrayFactory
-				.createBluePrint("array", array, check, null,
+				.createBluePrint("array", array, currentlyBuildedBluePrints,
 						(name, value) -> localTimeFactory.createBluePrint(name, (LocalTime) value))
 				.castToArrayBluePrint();
 
@@ -224,8 +225,8 @@ public class JavaParserArrayGenerationTest {
 
 	@Test
 	public void testAddArrayToField() {
-		ArrayBluePrint bluePrint = arrayFactory.createBluePrint("value", new String[10], check, null, null)
-				.castToArrayBluePrint();
+		ArrayBluePrint bluePrint = arrayFactory
+				.createBluePrint("value", new String[10], currentlyBuildedBluePrints, null).castToArrayBluePrint();
 
 		BlockStmt codeBlock = new BlockStmt();
 

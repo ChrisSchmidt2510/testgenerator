@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -23,6 +22,7 @@ import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
+import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint.CollectionBluePrintFactory;
@@ -47,7 +47,7 @@ public class MapGenerationTest {
 
 	private MapBluePrintFactory mapFactory = new MapBluePrintFactory();
 
-	private Predicate<Object> check = obj -> false;
+	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
 
 	@Before
 	public void init() {
@@ -78,7 +78,8 @@ public class MapGenerationTest {
 				false, "Test");
 
 		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
-				.createBluePrint("value", new TreeMap<>(), check, null, null).castToCollectionBluePrint();
+				.createBluePrint("value", new TreeMap<>(), currentlyBuildedBluePrints, null)
+				.castToCollectionBluePrint();
 
 		SignatureType nestedValue = new SignatureType(LocalDate.class);
 		SignatureType value = new SignatureType(List.class);
@@ -116,8 +117,8 @@ public class MapGenerationTest {
 			return numFactory.createBluePrint(name, (Number) value);
 		};
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, check, null, mapper)
-				.castToCollectionBluePrint();
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
+				.createBluePrint("value", map, currentlyBuildedBluePrints, mapper).castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
 
@@ -186,10 +187,10 @@ public class MapGenerationTest {
 				: numFactory.createBluePrint(name, (Number) value);
 
 		BiFunction<String, Object, BluePrint> collectionMapper = (name, value) -> collectionFactory
-				.createBluePrint(name, value, check, null, valueMapper);
+				.createBluePrint(name, value, currentlyBuildedBluePrints, valueMapper);
 
 		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
-				.createBluePrint("map", map, check, null, collectionMapper).castToCollectionBluePrint();
+				.createBluePrint("map", map, currentlyBuildedBluePrints, collectionMapper).castToCollectionBluePrint();
 
 		BlockStmt block = new BlockStmt();
 
@@ -272,8 +273,8 @@ public class MapGenerationTest {
 			return numFactory.createBluePrint(name, (Number) value);
 		};
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, check, null, mapper)
-				.castToCollectionBluePrint();
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
+				.createBluePrint("value", map, currentlyBuildedBluePrints, mapper).castToCollectionBluePrint();
 
 		NameExpr accessExpr = new NameExpr("object");
 
@@ -306,8 +307,8 @@ public class MapGenerationTest {
 	public void testAddCollectionToField() {
 		Map<Integer, String> map = new HashMap<>();
 
-		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory.createBluePrint("value", map, check, null, null)
-				.castToCollectionBluePrint();
+		AbstractBasicCollectionBluePrint<?> bluePrint = mapFactory
+				.createBluePrint("value", map, currentlyBuildedBluePrints, null).castToCollectionBluePrint();
 
 		Expression accessExpr = new FieldAccessExpr(new ThisExpr(), "object");
 

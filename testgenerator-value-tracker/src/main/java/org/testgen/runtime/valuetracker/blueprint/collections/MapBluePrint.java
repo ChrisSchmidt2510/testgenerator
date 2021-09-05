@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
@@ -84,8 +84,8 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value, Predicate<Object> currentlyBuildedFilter,
-				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
+		public BluePrint createBluePrint(String name, Object value,
+				CurrentlyBuildedBluePrints currentlyBuildedBluePrints, BiFunction<String, Object, BluePrint> childCallBack) {
 			Map<?, ?> map = (Map<?, ?>) value;
 
 			MapBluePrint mapBluePrint = new MapBluePrint(name, map);
@@ -95,21 +95,21 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 				Object key = entry.getKey();
 				Object entryValue = entry.getValue();
 
-				boolean keyIsCurrentlyBuilded = currentlyBuildedFilter.test(key);
-				boolean valueIsCurrentlyBuilded = currentlyBuildedFilter.test(entryValue);
+				boolean keyIsCurrentlyBuilded = currentlyBuildedBluePrints.isCurrentlyBuilded(key);
+				boolean valueIsCurrentlyBuilded = currentlyBuildedBluePrints.isCurrentlyBuilded(entryValue);
 
 				if(keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
-					registration.register(key, value, (bpKey, bpValue) -> mapBluePrint.addKeyValuePair(bpKey, bpValue));
+					currentlyBuildedBluePrints.addFinishedListener(key, value, (bpKey, bpValue) -> mapBluePrint.addKeyValuePair(bpKey, bpValue));
 					
 				}else if (keyIsCurrentlyBuilded && !valueIsCurrentlyBuilded) {
 					BluePrint valueBluePrint = childCallBack.apply(name + "Value", entryValue);
 
-					registration.register(key, bp -> mapBluePrint.addKeyValuePair(bp, valueBluePrint));
+					currentlyBuildedBluePrints.addFinishedListener(key, bp -> mapBluePrint.addKeyValuePair(bp, valueBluePrint));
 
 				} else if (!keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
 					BluePrint keyBluePrint = childCallBack.apply(name + "Key", key);
 
-					registration.register(entryValue, bp -> mapBluePrint.addKeyValuePair(keyBluePrint, bp));
+					currentlyBuildedBluePrints.addFinishedListener(entryValue, bp -> mapBluePrint.addKeyValuePair(keyBluePrint, bp));
 
 				} else {
 					BluePrint keyBluePrint = childCallBack.apply(name + "Key", entry.getKey());

@@ -3,16 +3,16 @@ package org.testgen.runtime.valuetracker.blueprint;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.valuetracker.BluePrintUnderProcessRegistration;
+import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.ObjectValueTracker;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
@@ -65,13 +65,31 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 	public static class ComplexBluePrintFactory implements BluePrintFactory {
 
+		public static final List<String> JDK_PACKAGES = Collections
+				.unmodifiableList(Arrays.asList("com.oracle", "com.sun", "java", "javax", "jdk", "org", "sun"));
+
 		private static final String OUTER_CLASS_FIELD_NAME = "this$0";
 
 		private static final Logger LOGGER = LogManager.getLogger(ComplexBluePrintFactory.class);
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
-			return value != null ? true : false;
+			if (value != null) {
+				Class<? extends Object> valueClass = value.getClass();
+				String packageName = valueClass.getPackage().getName();
+
+				if (JDK_PACKAGES.stream().anyMatch(pkg -> packageName.startsWith(pkg))
+						// if the ClassLoader of a class is null, the class was loaded the bootstrap
+						// ClassLoader. Normally only JDK classes are loaded with the bootstrap
+						// ClassLoader.
+						&& valueClass.getClassLoader() == null)
+					throw new TrackingException(
+							"cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints");
+
+				return true;
+			}
+
+			return false;
 		}
 
 		/**
@@ -85,24 +103,25 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value, Predicate<Object> currentlyBuildedFilter,
-				BluePrintUnderProcessRegistration registration, BiFunction<String, Object, BluePrint> childCallBack) {
+		public BluePrint createBluePrint(String name, Object value,
+				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+				BiFunction<String, Object, BluePrint> childCallBack) {
 			ComplexBluePrint bluePrint = new ComplexBluePrint(name, value);
 
 			Class<?> valueClass = value.getClass();
 
-			trackValues(value, valueClass, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+			trackValues(value, valueClass, bluePrint, currentlyBuildedBluePrints, childCallBack);
 
 			while (!valueClass.getSuperclass().equals(Object.class)) {
 				valueClass = valueClass.getSuperclass();
-				trackValues(value, valueClass, bluePrint, currentlyBuildedFilter, registration, childCallBack);
+				trackValues(value, valueClass, bluePrint, currentlyBuildedBluePrints, childCallBack);
 			}
 
 			return bluePrint;
 		}
 
 		private void trackValues(Object value, Class<?> valueClass, ComplexBluePrint bluePrint,
-				Predicate<Object> currentlyBuildedFilter, BluePrintUnderProcessRegistration registration,
+				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 			for (Field field : valueClass.getDeclaredFields()) {
 				try {
@@ -119,8 +138,8 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
-					if (currentlyBuildedFilter.test(fieldValue))
-						registration.register(fieldValue, bp -> bluePrint.addBluePrint(bp));
+					if (currentlyBuildedBluePrints.isCurrentlyBuilded(value))
+						currentlyBuildedBluePrints.addFinishedListener(fieldValue, bp -> bluePrint.addBluePrint(bp));
 
 					else {
 						String name = value.getClass().isMemberClass() && OUTER_CLASS_FIELD_NAME.equals(field.getName())
