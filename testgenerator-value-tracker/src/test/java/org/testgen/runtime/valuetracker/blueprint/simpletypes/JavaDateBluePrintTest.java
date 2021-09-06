@@ -4,14 +4,28 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.testgen.runtime.valuetracker.blueprint.simpletypes.JavaDateBluePrint.JavaDateBluePrintFactory;
 
-public class DateBluePrintTest {
+public class JavaDateBluePrintTest {
+	
+private JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testBluePrintFactory() {
+		Assert.assertTrue(factory.createBluePrintForType(new Date()));
+		Assert.assertTrue(factory.createBluePrintForType(new java.sql.Date(2021-1900, 9-1, 5)));
+		Assert.assertFalse(factory.createBluePrintForType(5));
+		Assert.assertFalse(factory.createBluePrintForType(null));
+		Assert.assertTrue(factory.createsSimpleBluePrint());
+		Assert.assertEquals(1, factory.getPriority());
+	}
 
 	@Test
 	public void testJavaUtilDateValueCreation() {
 		@SuppressWarnings("deprecation")
 		Date date = new Date(2020 - 1900, 9, 25);
-		JavaDateBluePrint dateBp = new JavaDateBluePrint("date", date);
+		JavaDateBluePrint dateBp = (JavaDateBluePrint) factory.createBluePrint("date", date);
 
 		Assert.assertEquals(120, dateBp.getYear());
 		Assert.assertEquals(9, dateBp.getMonth());
@@ -28,7 +42,7 @@ public class DateBluePrintTest {
 	public void testJavaSqlDateValueCreation() {
 		@SuppressWarnings("deprecation")
 		java.sql.Date sqlDate = new java.sql.Date(2020 - 1900, 10 - 1, 25);
-		JavaDateBluePrint dateBp = new JavaDateBluePrint("date", sqlDate);
+		JavaDateBluePrint dateBp = (JavaDateBluePrint) factory.createBluePrint("sqlDate", sqlDate);
 
 		Assert.assertEquals(120, dateBp.getYear());
 		Assert.assertEquals(9, dateBp.getMonth());
@@ -45,7 +59,7 @@ public class DateBluePrintTest {
 	public void testImmutablityOfBluePrint() {
 		Date date = new Date(2020 - 1900, 9, 25);
 
-		JavaDateBluePrint dateBp = new JavaDateBluePrint("date", date);
+		JavaDateBluePrint dateBp = (JavaDateBluePrint) factory.createBluePrint("date", date);
 
 		Assert.assertEquals(120, dateBp.getYear());
 		Assert.assertEquals(9, dateBp.getMonth());
