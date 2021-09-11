@@ -3,6 +3,7 @@ package org.testgen.runtime.valuetracker.blueprint;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	private Class<?> arrayType;
 	private int dimensions;
 
-	public ArrayBluePrint(String name, Object value, int size) {
+	ArrayBluePrint(String name, Object value, int size) {
 		super(name, value);
 
 		elements = new BluePrint[size];
@@ -80,6 +81,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + name.hashCode();
 		result = prime * result + Arrays.hashCode(elements);
 		return result;
 	}
@@ -93,7 +95,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 			return false;
 		}
 		ArrayBluePrint other = (ArrayBluePrint) obj;
-		return Arrays.equals(elements, other.elements);
+		return Objects.equals(name, other.name) && Arrays.equals(elements, other.elements);
 	}
 
 	@Override
@@ -105,7 +107,7 @@ public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
-			return value.getClass().isArray();
+			return value != null &&value.getClass().isArray();
 		}
 
 		@Override

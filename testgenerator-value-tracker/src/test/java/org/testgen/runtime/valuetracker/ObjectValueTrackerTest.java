@@ -20,7 +20,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
@@ -31,7 +30,6 @@ import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.CalendarBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.JavaDateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateTimeBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBluePrint;
 import org.testgen.runtime.valuetracker.testobjects.Adresse;
@@ -296,64 +294,6 @@ public class ObjectValueTrackerTest {
 				Assert.assertEquals("Exel", value.valueCreation());
 			}
 		}
-	}
-
-	@Test
-	public void testTrackArrays() {
-		int[] array = new int[] { 10, 15, 20, 25, 30 };
-
-		BluePrint bluePrint = valueTracker.trackValues(array, "array");
-
-		Assert.assertTrue(bluePrint instanceof ArrayBluePrint);
-
-		ArrayBluePrint arrayBluePrint = (ArrayBluePrint) bluePrint;
-		BluePrint[] elements = arrayBluePrint.getElements();
-
-		NumberBluePrintFactory numberFactory = new NumberBluePrintFactory();
-
-		BluePrint[] expected = new BluePrint[5];
-		expected[0] = numberFactory.createBluePrint("array1", 10);
-		expected[1] = numberFactory.createBluePrint("array2", 15);
-		expected[2] = numberFactory.createBluePrint("array3", 20);
-		expected[3] = numberFactory.createBluePrint("array4", 25);
-		expected[4] = numberFactory.createBluePrint("array5", 30);
-
-		Assert.assertArrayEquals(expected, elements);
-	}
-
-	@Test
-	public void testTrackMultiDimArrays() {
-		int[][] array = new int[2][];
-		int[] first = new int[] { 1, 2, 3, 4 };
-		int[] second = new int[] { 10, 9, 8, 7, 6 };
-		array[0] = first;
-		array[1] = second;
-
-		BluePrint bluePrint = valueTracker.trackValues(array, "array");
-
-		Assert.assertTrue(bluePrint instanceof ArrayBluePrint);
-
-		ArrayBluePrint arrayBluePrint = (ArrayBluePrint) bluePrint;
-		BluePrint[] elements = arrayBluePrint.getElements();
-
-		NumberBluePrintFactory numberFactory = new NumberBluePrintFactory();
-
-		ArrayBluePrint firstRow = new ArrayBluePrint("array1", first, 4);
-		firstRow.add(0, numberFactory.createBluePrint("array11", 1));
-		firstRow.add(1, numberFactory.createBluePrint("array12", 2));
-		firstRow.add(2, numberFactory.createBluePrint("array13", 3));
-		firstRow.add(3, numberFactory.createBluePrint("array14", 4));
-
-		ArrayBluePrint secondRow = new ArrayBluePrint("array2", second, 5);
-		secondRow.add(0, numberFactory.createBluePrint("array21", 10));
-		secondRow.add(1, numberFactory.createBluePrint("array22", 9));
-		secondRow.add(2, numberFactory.createBluePrint("array23", 8));
-		secondRow.add(3, numberFactory.createBluePrint("array24", 7));
-		secondRow.add(4, numberFactory.createBluePrint("array25", 6));
-
-		BluePrint[] expected = new BluePrint[] { firstRow, secondRow };
-
-		Assert.assertArrayEquals(expected, elements);
 	}
 
 	@Test

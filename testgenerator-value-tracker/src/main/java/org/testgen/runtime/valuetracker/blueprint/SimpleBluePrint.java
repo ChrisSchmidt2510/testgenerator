@@ -34,7 +34,7 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdValue);
+		return Objects.hash(name, createdValue);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 		if (!(obj instanceof SimpleBluePrint))
 			return false;
 		SimpleBluePrint<?> other = (SimpleBluePrint<?>) obj;
-		return Objects.equals(value, other.value);
+		return Objects.equals(name, other.name) && Objects.equals(createdValue, other.createdValue);
 	}
 
 	@Override
