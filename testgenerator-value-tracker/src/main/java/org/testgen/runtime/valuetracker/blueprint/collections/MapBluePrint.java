@@ -3,7 +3,7 @@ package org.testgen.runtime.valuetracker.blueprint.collections;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,7 +64,7 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 	}
 
 	public Set<Entry<BluePrint, BluePrint>> getBluePrints() {
-		Set<Entry<BluePrint, BluePrint>> set = new HashSet<>();
+		Set<Entry<BluePrint, BluePrint>> set = new LinkedHashSet<>();
 
 		for (int i = 0; i < keyBluePrints.size(); i++) {
 			BluePrint key = keyBluePrints.get(i);
@@ -76,6 +76,22 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 		return Collections.unmodifiableSet(set);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, keyBluePrints, valueBluePrints);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof MapBluePrint))
+			return false;
+		MapBluePrint other = (MapBluePrint) obj;
+		return Objects.equals(name, other.name) && Objects.equals(keyBluePrints, other.keyBluePrints)
+				&& Objects.equals(valueBluePrints, other.valueBluePrints);
+	}
+
 	public static class MapBluePrintFactory implements BluePrintFactory {
 
 		@Override
@@ -85,7 +101,8 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 
 		@Override
 		public BluePrint createBluePrint(String name, Object value,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints, BiFunction<String, Object, BluePrint> childCallBack) {
+				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+				BiFunction<String, Object, BluePrint> childCallBack) {
 			Map<?, ?> map = (Map<?, ?>) value;
 
 			MapBluePrint mapBluePrint = new MapBluePrint(name, map);
@@ -98,18 +115,21 @@ public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 				boolean keyIsCurrentlyBuilded = currentlyBuildedBluePrints.isCurrentlyBuilded(key);
 				boolean valueIsCurrentlyBuilded = currentlyBuildedBluePrints.isCurrentlyBuilded(entryValue);
 
-				if(keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
-					currentlyBuildedBluePrints.addFinishedListener(key, value, (bpKey, bpValue) -> mapBluePrint.addKeyValuePair(bpKey, bpValue));
-					
-				}else if (keyIsCurrentlyBuilded && !valueIsCurrentlyBuilded) {
+				if (keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
+					currentlyBuildedBluePrints.addFinishedListener(key, value,
+							(bpKey, bpValue) -> mapBluePrint.addKeyValuePair(bpKey, bpValue));
+
+				} else if (keyIsCurrentlyBuilded && !valueIsCurrentlyBuilded) {
 					BluePrint valueBluePrint = childCallBack.apply(name + "Value", entryValue);
 
-					currentlyBuildedBluePrints.addFinishedListener(key, bp -> mapBluePrint.addKeyValuePair(bp, valueBluePrint));
+					currentlyBuildedBluePrints.addFinishedListener(key,
+							bp -> mapBluePrint.addKeyValuePair(bp, valueBluePrint));
 
 				} else if (!keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
 					BluePrint keyBluePrint = childCallBack.apply(name + "Key", key);
 
-					currentlyBuildedBluePrints.addFinishedListener(entryValue, bp -> mapBluePrint.addKeyValuePair(keyBluePrint, bp));
+					currentlyBuildedBluePrints.addFinishedListener(entryValue,
+							bp -> mapBluePrint.addKeyValuePair(keyBluePrint, bp));
 
 				} else {
 					BluePrint keyBluePrint = childCallBack.apply(name + "Key", entry.getKey());

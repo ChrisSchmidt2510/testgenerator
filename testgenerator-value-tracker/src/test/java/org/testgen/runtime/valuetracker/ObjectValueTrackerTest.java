@@ -5,14 +5,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -26,11 +21,9 @@ import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.CalendarBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.JavaDateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateTimeBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBluePrint;
 import org.testgen.runtime.valuetracker.testobjects.Adresse;
 import org.testgen.runtime.valuetracker.testobjects.Person;
@@ -225,76 +218,6 @@ public class ObjectValueTrackerTest {
 
 	}
 
-	@Test
-	public void testTrackCollections() {
-		List<String> list = new ArrayList<>(Arrays.asList("Christoph", "Schmidt", "Word"));
-
-		BluePrint bluePrint = valueTracker.trackValues(list, "Collection");
-
-		Assert.assertTrue(bluePrint.isCollectionBluePrint());
-
-		CollectionBluePrint collection = (CollectionBluePrint) bluePrint;
-		Assert.assertEquals("Collection", collection.getName());
-		Assert.assertEquals(List.class, collection.getInterfaceClass());
-		Assert.assertEquals(ArrayList.class, collection.getImplementationClass());
-
-		StringBluePrintFactory factory = new StringBluePrintFactory();
-
-		List<BluePrint> compareList = new ArrayList<>();
-		compareList.add(factory.createBluePrint("CollectionElement", "Christoph"));
-		compareList.add(factory.createBluePrint("CollectionElement", "Schmidt"));
-		compareList.add(factory.createBluePrint("CollectionElement", "Word"));
-
-		Assert.assertEquals(compareList, collection.getBluePrints());
-	}
-
-	@Test
-	public void testTrackMap() {
-		Map<Integer, String> map = new HashMap<>();
-		map.put(1, "Powerpoint");
-		map.put(2, "Word");
-		map.put(3, "Outlook");
-		map.put(4, "Exel");
-
-		BluePrint bluePrint = valueTracker.trackValues(map, "dictionary");
-
-		Assert.assertTrue(bluePrint.isCollectionBluePrint());
-
-		MapBluePrint mapBP = (MapBluePrint) bluePrint;
-
-		Assert.assertEquals("dictionary", mapBP.getName());
-		Assert.assertEquals(Map.class, mapBP.getInterfaceClass());
-		Assert.assertEquals(HashMap.class, mapBP.getImplementationClass());
-
-		Set<Entry<BluePrint, BluePrint>> childs = mapBP.getBluePrints();
-
-		for (Entry<BluePrint, BluePrint> entry : childs) {
-			SimpleBluePrint<?> key = entry.getKey().castToSimpleBluePrint();
-			SimpleBluePrint<?> value = entry.getValue().castToSimpleBluePrint();
-
-			if ("1".equals(key.valueCreation())) {
-				Assert.assertEquals("dictionaryKey", key.getName());
-
-				Assert.assertEquals("dictionaryValue", value.getName());
-				Assert.assertEquals("Powerpoint", value.valueCreation());
-			} else if ("2".equals(key.valueCreation())) {
-				Assert.assertEquals("dictionaryKey", key.getName());
-
-				Assert.assertEquals("dictionaryValue", value.getName());
-				Assert.assertEquals("Word", value.valueCreation());
-			} else if ("3".equals(key.valueCreation())) {
-				Assert.assertEquals("dictionaryKey", key.getName());
-
-				Assert.assertEquals("dictionaryValue", value.getName());
-				Assert.assertEquals("Outlook", value.valueCreation());
-			} else if ("4".equals(key.valueCreation())) {
-				Assert.assertEquals("dictionaryKey", key.getName());
-
-				Assert.assertEquals("dictionaryValue", value.getName());
-				Assert.assertEquals("Exel", value.valueCreation());
-			}
-		}
-	}
 
 	@Test
 	public void trackComplexType() {

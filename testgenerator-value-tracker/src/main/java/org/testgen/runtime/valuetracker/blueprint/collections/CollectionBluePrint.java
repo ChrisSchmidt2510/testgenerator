@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -43,6 +44,25 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 	public List<BluePrint> getBluePrints() {
 		return Collections.unmodifiableList(elementBluePrints);
 	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, elementBluePrints);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof CollectionBluePrint))
+			return false;
+		CollectionBluePrint other = (CollectionBluePrint) obj;
+		return Objects.equals(name, other.name) && Objects.equals(elementBluePrints, other.elementBluePrints);
+	}
+
+
 
 	public static class CollectionBluePrintFactory implements BluePrintFactory {
 
