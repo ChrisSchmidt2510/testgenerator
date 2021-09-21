@@ -1,6 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -37,6 +38,28 @@ public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements Da
 	@Override
 	public int getYear() {
 		return year;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, day, month, year);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof LocalDateBluePrint))
+			return false;
+		LocalDateBluePrint other = (LocalDateBluePrint) obj;
+		return Objects.equals(name, other.name) && day == other.day && month == other.month && year == other.year;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Field: %s Value: %d-%d-%d", name, day, month, year);
 	}
 
 	public static class LocalDateBluePrintFactory implements SimpleBluePrintFactory<LocalDate> {

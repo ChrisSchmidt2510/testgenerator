@@ -4,10 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -16,18 +14,13 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.CalendarBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.JavaDateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateTimeBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBluePrint;
-import org.testgen.runtime.valuetracker.testobjects.Adresse;
-import org.testgen.runtime.valuetracker.testobjects.Person;
-import org.testgen.runtime.valuetracker.testobjects.Person.Geschlecht;
 
 public class ObjectValueTrackerTest {
 
@@ -218,83 +211,4 @@ public class ObjectValueTrackerTest {
 
 	}
 
-
-	@Test
-	public void trackComplexType() {
-		Adresse adresse = new Adresse("Nuernberg", 90402);
-		adresse.setStrasse("Aeusere Nuernbergerstrasse");
-		adresse.setHausnummer((short) 10);
-
-		Person person = new Person("Schmidt", "Christoph", LocalDate.of(1993, Month.AUGUST, 17), Geschlecht.Maennlich);
-		person.addAdresse(adresse);
-
-		// set values of superclass
-		person.setAedat(LocalDate.of(2020, Month.DECEMBER, 20));
-		person.setErsb("Me");
-
-		BluePrint bluePrint = valueTracker.trackValues(person, "person");
-
-		Assert.assertTrue(bluePrint.isComplexBluePrint());
-
-		ComplexBluePrint complex = bluePrint.castToComplexBluePrint();
-
-		Assert.assertEquals("person", complex.getName());
-
-		for (BluePrint child : complex.getChildBluePrints()) {
-			if ("name".equals(child.getName())) {
-				Assert.assertEquals("Schmidt", child.castToSimpleBluePrint().valueCreation());
-			} else if ("firstName".equals(child.getName())) {
-				Assert.assertEquals("Christoph", child.castToSimpleBluePrint().valueCreation());
-			} else if ("dateOfBirth".equals(child.getName())) {
-				DateBluePrint date = (DateBluePrint) child;
-
-				Assert.assertEquals(1993, date.getYear());
-				Assert.assertEquals(8, date.getMonth());
-				Assert.assertEquals(17, date.getDay());
-			} else if ("geschlecht".equals(child.getName())) {
-				Assert.assertEquals("Maennlich", child.castToSimpleBluePrint().valueCreation());
-			} else if ("adressen".equals(child.getName())) {
-				Assert.assertTrue(child.isCollectionBluePrint());
-
-				CollectionBluePrint collection = (CollectionBluePrint) child;
-
-				Assert.assertEquals(List.class, collection.getInterfaceClass());
-				Assert.assertEquals(ArrayList.class, collection.getImplementationClass());
-
-				List<BluePrint> collectionChilds = collection.getBluePrints();
-
-				Assert.assertTrue(collectionChilds.size() == 1);
-				BluePrint element = collectionChilds.get(0);
-
-				Assert.assertTrue(element.isComplexBluePrint());
-
-				ComplexBluePrint complexBP = element.castToComplexBluePrint();
-
-				Assert.assertEquals("adressenElement", complexBP.getName());
-
-				for (BluePrint adresseChild : complexBP.getChildBluePrints()) {
-					if ("strasse".equals(adresseChild.getName())) {
-						Assert.assertEquals("Aeusere Nuernbergerstrasse",
-								adresseChild.castToSimpleBluePrint().valueCreation());
-
-					} else if ("hausnummer".equals(adresseChild.getName())) {
-						Assert.assertEquals("10", adresseChild.castToSimpleBluePrint().valueCreation());
-					} else if ("ort".equals(adresseChild.getName())) {
-						Assert.assertEquals("Nuernberg", adresseChild.castToSimpleBluePrint().valueCreation());
-					} else if ("plz".equals(adresseChild.getName())) {
-						Assert.assertEquals("90402", adresseChild.castToSimpleBluePrint().valueCreation());
-					}
-				}
-			} else if ("aedat".contentEquals(child.getName())) {
-				DateBluePrint date = (DateBluePrint) child;
-
-				Assert.assertEquals(2020, date.getYear());
-				Assert.assertEquals(12, date.getMonth());
-				Assert.assertEquals(20, date.getDay());
-			} else if ("ersb".equals(child.getName())) {
-				Assert.assertEquals("Me", child.castToSimpleBluePrint().valueCreation());
-			}
-		}
-
-	}
 }

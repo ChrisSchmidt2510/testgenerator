@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -54,8 +55,23 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(name, bluePrints);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof ComplexBluePrint))
+			return false;
+		ComplexBluePrint other = (ComplexBluePrint) obj;
+		return Objects.equals(name, other.name) && Objects.equals(bluePrints, other.bluePrints);
+	}
+
+	@Override
 	public String toString() {
-		return value.getClass().getName() + " " + name;
+		return value.getClass().getName() + " " + name +" childs: " +bluePrints.toString();
 	}
 
 	@Override
@@ -74,22 +90,7 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
-			if (value != null) {
-				Class<? extends Object> valueClass = value.getClass();
-				String packageName = valueClass.getPackage().getName();
-
-				if (JDK_PACKAGES.stream().anyMatch(pkg -> packageName.startsWith(pkg))
-						// if the ClassLoader of a class is null, the class was loaded the bootstrap
-						// ClassLoader. Normally only JDK classes are loaded with the bootstrap
-						// ClassLoader.
-						&& valueClass.getClassLoader() == null)
-					throw new TrackingException(
-							"cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints");
-
-				return true;
-			}
-
-			return false;
+			return value != null;
 		}
 
 		/**
@@ -106,9 +107,20 @@ public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
 		public BluePrint createBluePrint(String name, Object value,
 				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
 				BiFunction<String, Object, BluePrint> childCallBack) {
+			Class<? extends Object> valueClass = value.getClass();
+			String packageName = valueClass.getPackage().getName();
+
+			if (JDK_PACKAGES.stream().anyMatch(pkg -> packageName.startsWith(pkg))
+					// if the ClassLoader of a class is null, the class was loaded the bootstrap
+					// ClassLoader. Normally only JDK classes are loaded with the bootstrap
+					// ClassLoader.
+					&& valueClass.getClassLoader() == null)
+				throw new TrackingException(
+						"cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints");
+
+			
 			ComplexBluePrint bluePrint = new ComplexBluePrint(name, value);
 
-			Class<?> valueClass = value.getClass();
 
 			trackValues(value, valueClass, bluePrint, currentlyBuildedBluePrints, childCallBack);
 

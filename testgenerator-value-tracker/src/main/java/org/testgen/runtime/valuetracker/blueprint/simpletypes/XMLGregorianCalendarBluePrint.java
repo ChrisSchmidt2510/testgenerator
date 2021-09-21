@@ -1,5 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
+import java.util.Objects;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
@@ -84,6 +86,31 @@ public class XMLGregorianCalendarBluePrint extends SimpleBluePrint<XMLGregorianC
 
 	public int getTimezone() {
 		return timezone;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, day, hour, millis, minute, month, second, timezone, year);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof XMLGregorianCalendarBluePrint))
+			return false;
+		XMLGregorianCalendarBluePrint other = (XMLGregorianCalendarBluePrint) obj;
+		return Objects.equals(name, other.name) && day == other.day && hour == other.hour && millis == other.millis
+				&& minute == other.minute && month == other.month && second == other.second
+				&& timezone == other.timezone && year == other.year;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Field: %s Value: %d-%d-%d %d:%d:%d timezone %d", name, day, month, year, hour, minute,
+				second, timezone);
 	}
 
 	public static class XMLGregorianCalendarBluePrintFactory implements SimpleBluePrintFactory<XMLGregorianCalendar> {

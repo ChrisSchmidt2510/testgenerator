@@ -17,7 +17,7 @@ import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint.MapBl
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 
-public class MapBluePrinttest {
+public class MapBluePrintTest {
 
 	private MapBluePrintFactory factory = new MapBluePrintFactory();
 

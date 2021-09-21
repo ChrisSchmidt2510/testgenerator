@@ -1,6 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -61,6 +62,29 @@ public class CalendarBluePrint extends SimpleBluePrint<Calendar> implements Date
 	@Override
 	public int getSecond() {
 		return second;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, day, hour, minute, month, second, year);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof CalendarBluePrint))
+			return false;
+		CalendarBluePrint other = (CalendarBluePrint) obj;
+		return Objects.equals(name, other.name) && day == other.day && hour == other.hour && minute == other.minute
+				&& month == other.month && second == other.second && year == other.year;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Field: %s Value: %d-%d-%d %d:%d:%d", name, day, month, year, hour, minute, second);
 	}
 
 	public static class CalendarBluePrintFactory implements SimpleBluePrintFactory<Calendar> {

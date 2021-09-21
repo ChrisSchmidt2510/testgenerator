@@ -44,12 +44,10 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 	public List<BluePrint> getBluePrints() {
 		return Collections.unmodifiableList(elementBluePrints);
 	}
-	
-	
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, elementBluePrints);
+		return Objects.hash(name, interfaceClass, elementBluePrints);
 	}
 
 	@Override
@@ -59,10 +57,9 @@ public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collec
 		if (!(obj instanceof CollectionBluePrint))
 			return false;
 		CollectionBluePrint other = (CollectionBluePrint) obj;
-		return Objects.equals(name, other.name) && Objects.equals(elementBluePrints, other.elementBluePrints);
+		return Objects.equals(name, other.name) && Objects.equals(interfaceClass, other.interfaceClass)
+				&& Objects.equals(elementBluePrints, other.elementBluePrints);
 	}
-
-
 
 	public static class CollectionBluePrintFactory implements BluePrintFactory {
 

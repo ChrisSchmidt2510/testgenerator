@@ -1,6 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -65,6 +66,30 @@ public class JavaDateBluePrint extends SimpleBluePrint<Date> implements DateBlue
 	@Override
 	public int getSecond() {
 		return second;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, day, hour, minute, month, second, year);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof JavaDateBluePrint))
+			return false;
+		JavaDateBluePrint other = (JavaDateBluePrint) obj;
+		return Objects.equals(name, other.name) && day == other.day && hour == other.hour && minute == other.minute
+				&& month == other.month && second == other.second && year == other.year;
+	}
+
+	@Override
+	public String toString() {
+		return value instanceof java.sql.Date ? String.format("Field: %s Value: %d-%d-%d", name, day, month, year)
+				: String.format("Field: %s Value: %d-%d-%d %d:%d:%d", name, day, month, year, hour, minute, second);
 	}
 
 	public static class JavaDateBluePrintFactory implements SimpleBluePrintFactory<Date> {
