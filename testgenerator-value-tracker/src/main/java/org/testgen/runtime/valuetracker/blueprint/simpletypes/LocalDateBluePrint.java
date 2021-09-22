@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.factories.SimpleBluePrintFactory;
 
 public class LocalDateBluePrint extends SimpleBluePrint<LocalDate> implements DateBluePrint {
 	private int year;

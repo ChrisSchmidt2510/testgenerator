@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
 public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
 	private final BluePrint[] elements;

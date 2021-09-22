@@ -6,8 +6,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.factories.SimpleBluePrintFactory;
 
 public class XMLGregorianCalendarBluePrint extends SimpleBluePrint<XMLGregorianCalendar>
 		implements DateBluePrint, TimeBluePrint {

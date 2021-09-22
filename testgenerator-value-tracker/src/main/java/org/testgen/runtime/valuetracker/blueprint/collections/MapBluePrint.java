@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
 public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
 	private static final Predicate<BluePrint> CHECK_COMPLEX_TYPES = BluePrint::isComplexType;

@@ -4,8 +4,8 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.factories.SimpleBluePrintFactory;
 
 public class LocalTimeBluePrint extends SimpleBluePrint<LocalTime> implements TimeBluePrint {
 	private int hour;

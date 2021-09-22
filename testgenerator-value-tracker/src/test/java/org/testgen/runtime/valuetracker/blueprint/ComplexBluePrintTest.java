@@ -11,6 +11,7 @@ import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint.ComplexBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintsFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.EnumBluePrint.EnumBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateBluePrint.LocalDateBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;

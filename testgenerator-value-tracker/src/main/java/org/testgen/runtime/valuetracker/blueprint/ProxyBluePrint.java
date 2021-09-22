@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
 public class ProxyBluePrint extends AbstractBasicBluePrint<Object> {
 	private final Class<?> interfaceClass;

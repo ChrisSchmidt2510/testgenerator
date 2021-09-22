@@ -16,6 +16,7 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.ObjectValueTracker;
 import org.testgen.runtime.valuetracker.TrackingException;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 
 public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {

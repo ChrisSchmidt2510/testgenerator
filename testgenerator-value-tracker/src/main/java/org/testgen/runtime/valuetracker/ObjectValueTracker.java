@@ -23,10 +23,10 @@ import org.testgen.runtime.proxy.impl.IntegerProxy;
 import org.testgen.runtime.proxy.impl.LongProxy;
 import org.testgen.runtime.proxy.impl.ReferenceProxy;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintFactory;
-import org.testgen.runtime.valuetracker.blueprint.BluePrintsFactory;
 import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.Type;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintsFactory;
 import org.testgen.runtime.valuetracker.storage.ValueStorage;
 
 public final class ObjectValueTracker {

@@ -1,7 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.factories.SimpleBluePrintFactory;
 
 public class NullBluePrint extends SimpleBluePrint<Object> {
 

@@ -1,8 +1,9 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.factories;
 
 import java.util.function.BiFunction;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
 public interface BluePrintFactory {
 
