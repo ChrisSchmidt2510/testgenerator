@@ -16,3 +16,4 @@ org.testgen.runtime.valuetracker.blueprint.complextypes.collections.MapBluePrint
 org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint$ArrayBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint$ComplexBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint$ProxyBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.complextypes.FunctionalInterfaceBluePrintFactory
