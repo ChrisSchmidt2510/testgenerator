@@ -1,7 +1,6 @@
 package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +9,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import org.testgen.core.ReflectionUtil;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
@@ -142,7 +142,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 				try {
 					field.setAccessible(true);
 
-					if (isConstant(field))
+					if (ReflectionUtil.isModifierConstant(field.getModifiers()))
 						continue;
 
 					Object fieldValue = ObjectValueTracker.getProxyValue(field.get(value));
@@ -153,7 +153,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
-					if (currentlyBuildedBluePrints.isCurrentlyBuilded(value))
+					if (currentlyBuildedBluePrints.isCurrentlyBuilded(fieldValue))
 						currentlyBuildedBluePrints.addFinishedListener(fieldValue, bp -> bluePrint.addBluePrint(bp));
 
 					else {
@@ -171,12 +171,6 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 				}
 
 			}
-		}
-
-		private boolean isConstant(Field field) {
-			int modifier = field.getModifiers();
-
-			return Modifier.isFinal(modifier) && Modifier.isStatic(modifier);
 		}
 
 	}
