@@ -4,9 +4,9 @@ import java.util.Objects;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.datetime.DateBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.datetime.TimeBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.SimpleBluePrintFactory;
 
 public class XMLGregorianCalendarBluePrint extends SimpleBluePrint<XMLGregorianCalendar>

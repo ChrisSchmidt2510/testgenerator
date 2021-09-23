@@ -7,9 +7,9 @@ import java.time.Month;
 
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.valuetracker.blueprint.DateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.TimeBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.datetime.DateBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.datetime.TimeBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateTimeBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalTimeBluePrint;
