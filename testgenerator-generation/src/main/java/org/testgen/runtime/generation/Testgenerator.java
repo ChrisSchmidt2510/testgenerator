@@ -18,7 +18,7 @@ import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.TestClassGeneration;
 import org.testgen.runtime.generation.javaparser.impl.JavaParserTestClassGeneration;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
 import org.testgen.runtime.valuetracker.storage.ValueStorage;
 
 public final class Testgenerator {

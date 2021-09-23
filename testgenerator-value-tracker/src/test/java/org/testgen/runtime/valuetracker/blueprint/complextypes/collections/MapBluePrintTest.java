@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint.collections;
+package org.testgen.runtime.valuetracker.blueprint.complextypes.collections;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint.MapBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.MapBluePrint.MapBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 

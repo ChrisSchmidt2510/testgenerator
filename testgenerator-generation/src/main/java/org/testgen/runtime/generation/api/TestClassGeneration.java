@@ -15,7 +15,7 @@ import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
 
 /**
  * Interface that defines the steps to generate a unit-test.

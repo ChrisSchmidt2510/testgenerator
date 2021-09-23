@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -16,6 +16,8 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.ObjectValueTracker;
 import org.testgen.runtime.valuetracker.TrackingException;
+import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 

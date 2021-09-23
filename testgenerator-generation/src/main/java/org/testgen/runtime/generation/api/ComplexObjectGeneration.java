@@ -11,9 +11,9 @@ import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
 
 /**
  * Interface for generating a Object from a {@link ComplexBluePrint}.

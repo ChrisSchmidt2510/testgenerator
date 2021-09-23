@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -7,7 +7,8 @@ import java.lang.reflect.Proxy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint.ProxyBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint.ProxyBluePrintFactory;
 
 public class ProxyBluePrintTest {
 

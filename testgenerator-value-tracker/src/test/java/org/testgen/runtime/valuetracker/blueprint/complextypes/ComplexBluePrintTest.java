@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -9,8 +9,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.TrackingException;
-import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint.ComplexBluePrintFactory;
-import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint.ComplexBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintsFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.EnumBluePrint.EnumBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateBluePrint.LocalDateBluePrintFactory;

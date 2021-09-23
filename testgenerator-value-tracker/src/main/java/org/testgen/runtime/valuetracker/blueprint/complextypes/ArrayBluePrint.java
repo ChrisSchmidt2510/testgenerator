@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -8,6 +8,8 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
 public class ArrayBluePrint extends BasicBluePrint<Object> {

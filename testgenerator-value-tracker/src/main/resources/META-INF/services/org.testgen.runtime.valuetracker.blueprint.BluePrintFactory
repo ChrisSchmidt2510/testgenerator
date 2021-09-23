@@ -11,8 +11,8 @@ org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint$NullBluePri
 org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint$NumberBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint$StringBluePrintFactory
 org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalendarBluePrint$XMLGregorianCalendarBluePrintFactory
-org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint$CollectionBluePrintFactory
-org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint$MapBluePrintFactory
-org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint$ArrayBluePrintFactory
-org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint$ComplexBluePrintFactory
-org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint$ProxyBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint$CollectionBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.complextypes.collections.MapBluePrint$MapBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint$ArrayBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint$ComplexBluePrintFactory
+org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint$ProxyBluePrintFactory

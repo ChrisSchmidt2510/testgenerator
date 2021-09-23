@@ -2,6 +2,9 @@ package org.testgen.runtime.valuetracker.blueprint;
 
 import java.util.List;
 
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
+
 public interface BluePrint {
 
 	List<BluePrint> getPreExecuteBluePrints();

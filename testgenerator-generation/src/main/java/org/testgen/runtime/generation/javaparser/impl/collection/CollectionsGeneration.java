@@ -20,7 +20,7 @@ import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.javaparser.impl.JavaParserHelper;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint;
 
 import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.NodeList;

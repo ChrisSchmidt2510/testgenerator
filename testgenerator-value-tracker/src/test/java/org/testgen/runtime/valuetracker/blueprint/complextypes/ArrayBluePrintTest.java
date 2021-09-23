@@ -1,11 +1,12 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.util.function.BiFunction;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
-import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint.ArrayBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint.ArrayBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 
 public class ArrayBluePrintTest {

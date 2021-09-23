@@ -21,7 +21,7 @@ import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.javaparser.impl.collection.JavaParserCollectionGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
 import org.testgen.runtime.generation.testclasses.Adresse;
-import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.Type;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
 
 public final class ValueStorage {
 	private static final ValueStorage INSTANCE = new ValueStorage();

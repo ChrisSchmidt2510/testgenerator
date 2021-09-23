@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint.collections;
+package org.testgen.runtime.valuetracker.blueprint.complextypes.collections;
 
 import java.util.AbstractCollection;
 import java.util.ArrayDeque;
@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint.CollectionBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint.CollectionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.StringBluePrint.StringBluePrintFactory;
 

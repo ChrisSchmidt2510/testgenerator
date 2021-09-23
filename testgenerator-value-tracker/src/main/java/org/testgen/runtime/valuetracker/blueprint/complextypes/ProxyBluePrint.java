@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint;
+package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
@@ -7,6 +7,8 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
 public class ProxyBluePrint extends BasicBluePrint<Object> {

@@ -1,4 +1,4 @@
-package org.testgen.runtime.valuetracker.blueprint.collections;
+package org.testgen.runtime.valuetracker.blueprint.complextypes.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
