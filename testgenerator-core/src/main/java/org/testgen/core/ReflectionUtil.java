@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 public final class ReflectionUtil {
@@ -102,6 +103,10 @@ public final class ReflectionUtil {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException("cant invoke Field" + field);
 		}
+	}
+	
+	public static boolean isModifierConstant(int modifier) {
+		return Modifier.isFinal(modifier) && Modifier.isStatic(modifier);
 	}
 
 }
