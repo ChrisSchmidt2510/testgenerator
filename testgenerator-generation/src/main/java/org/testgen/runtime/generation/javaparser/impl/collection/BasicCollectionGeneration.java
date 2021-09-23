@@ -16,7 +16,7 @@ import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
 import com.github.javaparser.ast.NodeList;
@@ -75,7 +75,7 @@ public abstract class BasicCollectionGeneration
 	}
 
 	@Override
-	public void addCollectionToField(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void addCollectionToField(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			boolean isField, Expression accessExpr) {
 		String name = isField ? namingService.getFieldName(bluePrint)
 				: namingService.getLocalName(statementTree, bluePrint);
@@ -100,7 +100,7 @@ public abstract class BasicCollectionGeneration
 					calledFields);
 
 		} else if (child.isCollectionBluePrint() && child.isNotBuild()) {
-			AbstractBasicCollectionBluePrint<?> collection = child.castToCollectionBluePrint();
+			BasicCollectionBluePrint<?> collection = child.castToCollectionBluePrint();
 
 			collectionGenerationFactory.createCollection(statementTree, collection, signature, //
 					isField);

@@ -10,7 +10,7 @@ import org.testgen.runtime.generation.api.collections.CollectionGenerationFactor
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
@@ -44,7 +44,7 @@ public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, Com
 	 * 
 	 * ComplexTypes are: <br>
 	 * - {@link ArrayBluePrint} <br>
-	 * - {@link AbstractBasicCollectionBluePrint} and all his implementations <br>
+	 * - {@link BasicCollectionBluePrint} and all his implementations <br>
 	 * - {@link ComplexBluePrint} <br>
 	 * 
 	 * 

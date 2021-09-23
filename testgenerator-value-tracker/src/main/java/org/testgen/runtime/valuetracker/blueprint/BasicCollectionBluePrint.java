@@ -1,9 +1,9 @@
 package org.testgen.runtime.valuetracker.blueprint;
 
-public abstract class AbstractBasicCollectionBluePrint<E> extends AbstractBasicBluePrint<E> {
+public abstract class BasicCollectionBluePrint<E> extends BasicBluePrint<E> {
 	protected final Class<?> interfaceClass;
 
-	public AbstractBasicCollectionBluePrint(String name, E value, Class<?> interfaceClass) {
+	public BasicCollectionBluePrint(String name, E value, Class<?> interfaceClass) {
 		super(name, value);
 		this.interfaceClass = interfaceClass;
 	}

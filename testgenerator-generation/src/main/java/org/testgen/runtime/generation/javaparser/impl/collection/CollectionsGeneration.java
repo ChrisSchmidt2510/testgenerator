@@ -18,7 +18,7 @@ import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.javaparser.impl.JavaParserHelper;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.collections.CollectionBluePrint;
 
@@ -46,12 +46,12 @@ public class CollectionsGeneration extends BasicCollectionGeneration {
 			.unmodifiableList(Arrays.asList(List.class, Set.class, Queue.class, Deque.class, Collection.class));
 
 	@Override
-	public boolean canGenerateBluePrint(AbstractBasicCollectionBluePrint<?> bluePrint) {
+	public boolean canGenerateBluePrint(BasicCollectionBluePrint<?> bluePrint) {
 		return bluePrint instanceof CollectionBluePrint && SUPPORTED_TYPES.contains(bluePrint.getInterfaceClass());
 	}
 
 	@Override
-	public void createField(ClassOrInterfaceDeclaration compilationUnit, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createField(ClassOrInterfaceDeclaration compilationUnit, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature) {
 		String fieldName = namingService.getFieldName(bluePrint);
 
@@ -66,7 +66,7 @@ public class CollectionsGeneration extends BasicCollectionGeneration {
 	}
 
 	@Override
-	public void createCollection(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createCollection(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature, boolean isField) {
 		LOGGER.debug("starting generation of Collection:" + bluePrint);
 
@@ -109,7 +109,7 @@ public class CollectionsGeneration extends BasicCollectionGeneration {
 	}
 
 	@Override
-	public void createComplexElements(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createComplexElements(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature) {
 
 		SignatureType genericType = signature != null ? signature.getSubTypes().get(0) : null;
@@ -122,7 +122,7 @@ public class CollectionsGeneration extends BasicCollectionGeneration {
 	}
 
 	@Override
-	public void addCollectionToObject(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void addCollectionToObject(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			boolean isField, SetterMethodData setter, Expression accessExpr) {
 		String name = isField ? namingService.getFieldName(bluePrint)
 				: namingService.getLocalName(statementTree, bluePrint);

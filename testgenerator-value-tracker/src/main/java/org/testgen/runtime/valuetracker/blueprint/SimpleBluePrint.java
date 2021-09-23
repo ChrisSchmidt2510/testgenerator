@@ -3,7 +3,7 @@ package org.testgen.runtime.valuetracker.blueprint;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
+public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 	private final String createdValue;
 
 	protected SimpleBluePrint(String name, E value) {

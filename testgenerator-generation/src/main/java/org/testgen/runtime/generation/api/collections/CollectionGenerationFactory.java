@@ -10,7 +10,7 @@ import org.testgen.runtime.generation.api.ComplexObjectGeneration;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
@@ -18,7 +18,7 @@ import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 
 /**
  * Base interface that is used for generating Collections{@link Collection} for
- * a {@link AbstractBasicCollectionBluePrint}. If the user a want to implement a
+ * a {@link BasicCollectionBluePrint}. If the user a want to implement a
  * CollectionGeneration only for a single or a group of Types use
  * {@link CollectionGeneration}.
  * 
@@ -41,13 +41,13 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param signature of the {@link Collection}
 	 * @param isField   marks the that the collection is a Field of generated Class
 	 */
-	void createCollection(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, //
+	void createCollection(E codeBlock, BasicCollectionBluePrint<?> bluePrint, //
 			SignatureType signature, boolean isField);
 
 	/**
 	 * Generates only the complexTypes {@link BluePrint#isComplexType()} of
 	 * the @param bluePrint. ComplexTypes are: <br>
-	 * - {@link AbstractBasicCollectionBluePrint} and all his implementations <br>
+	 * - {@link BasicCollectionBluePrint} and all his implementations <br>
 	 * - {@link ArrayBluePrint} <br>
 	 * - {@link ComplexBluePrint} <br>
 	 * 
@@ -57,7 +57,7 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param bluePrint of the {@link Collection}
 	 * @param signature of the {@link Collection}
 	 */
-	void createComplexElements(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, SignatureType signature);
+	void createComplexElements(E codeBlock, BasicCollectionBluePrint<?> bluePrint, SignatureType signature);
 
 	/**
 	 * Add the collection to a Object dependent on the {@link SetterMethodData}
@@ -69,7 +69,7 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param accessExpr expression to access the object where to collection is
 	 *                   added to
 	 */
-	void addCollectionToObject(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
+	void addCollectionToObject(E codeBlock, BasicCollectionBluePrint<?> bluePrint, boolean isField,
 			SetterMethodData setter, S accessExpr);
 
 	/**
@@ -81,7 +81,7 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param accessExpr expression to access the object where to collection is
 	 *                   added to
 	 */
-	void addCollectionToField(E codeBlock, AbstractBasicCollectionBluePrint<?> bluePrint, boolean isField,
+	void addCollectionToField(E codeBlock, BasicCollectionBluePrint<?> bluePrint, boolean isField,
 			S accessExpr);
 
 	void setSimpleObjectGenerationFactory(SimpleObjectGenerationFactory<T, E, S> simpleGenerationFactory);

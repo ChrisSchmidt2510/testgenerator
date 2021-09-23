@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
-public class ArrayBluePrint extends AbstractBasicBluePrint<Object> {
+public class ArrayBluePrint extends BasicBluePrint<Object> {
 	private final BluePrint[] elements;
 	private Class<?> arrayType;
 	private int dimensions;

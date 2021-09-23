@@ -14,11 +14,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
-public class MapBluePrint extends AbstractBasicCollectionBluePrint<Map<?, ?>> {
+public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 	private static final Predicate<BluePrint> CHECK_COMPLEX_TYPES = BluePrint::isComplexType;
 
 	private List<BluePrint> keyBluePrints = new ArrayList<>();

@@ -18,7 +18,7 @@ import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
@@ -136,7 +136,7 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 						calledFields);
 
 			} else if (child.isCollectionBluePrint() && child.isNotBuild()) {
-				AbstractBasicCollectionBluePrint<?> collection = child.castToCollectionBluePrint();
+				BasicCollectionBluePrint<?> collection = child.castToCollectionBluePrint();
 
 				collectionGenerationFactory.createCollection(statementTree, collection, signature, //
 						isField);

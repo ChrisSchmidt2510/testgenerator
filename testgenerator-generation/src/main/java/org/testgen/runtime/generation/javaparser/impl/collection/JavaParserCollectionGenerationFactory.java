@@ -13,7 +13,7 @@ import org.testgen.runtime.generation.api.ComplexObjectGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
@@ -34,7 +34,7 @@ public class JavaParserCollectionGenerationFactory
 	}
 
 	CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> of(
-			AbstractBasicCollectionBluePrint<?> bluePrint) {
+			BasicCollectionBluePrint<?> bluePrint) {
 		Optional<CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression>> generatorOptional = generators
 				.stream().filter(gen -> gen.canGenerateBluePrint(bluePrint))
 				.max((gen1, gen2) -> Integer.compare(gen1.getPriority(), gen2.getPriority()));
@@ -47,7 +47,7 @@ public class JavaParserCollectionGenerationFactory
 	}
 
 	@Override
-	public void createCollection(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createCollection(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature, boolean isField) {
 		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
 
@@ -55,7 +55,7 @@ public class JavaParserCollectionGenerationFactory
 	}
 
 	@Override
-	public void createComplexElements(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createComplexElements(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature) {
 		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
 
@@ -63,7 +63,7 @@ public class JavaParserCollectionGenerationFactory
 	}
 
 	@Override
-	public void addCollectionToObject(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void addCollectionToObject(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			boolean isField, SetterMethodData setter, Expression accessExpr) {
 		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
 
@@ -71,7 +71,7 @@ public class JavaParserCollectionGenerationFactory
 	}
 
 	@Override
-	public void addCollectionToField(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void addCollectionToField(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			boolean isField, Expression accessExpr) {
 		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
 

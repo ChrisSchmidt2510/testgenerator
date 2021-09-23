@@ -35,7 +35,7 @@ import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.collection.JavaParserCollectionGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
@@ -289,7 +289,7 @@ public class JavaParserTestClassGeneration
 					calledFields);
 
 		} else if (bluePrint.isCollectionBluePrint()) {
-			AbstractBasicCollectionBluePrint<?> collection = bluePrint.castToCollectionBluePrint();
+			BasicCollectionBluePrint<?> collection = bluePrint.castToCollectionBluePrint();
 			collectionGenerationFactory.createCollection(codeBlock, collection, signature, false);
 
 		} else if (bluePrint.isArrayBluePrint()) {

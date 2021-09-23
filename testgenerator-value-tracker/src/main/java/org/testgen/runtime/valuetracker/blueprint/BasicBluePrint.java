@@ -1,11 +1,11 @@
 package org.testgen.runtime.valuetracker.blueprint;
 
-public abstract class AbstractBasicBluePrint<E> implements BluePrint {
+public abstract class BasicBluePrint<E> implements BluePrint {
 	protected final String name;
 	protected final E value;
 	protected boolean build;
 
-	protected AbstractBasicBluePrint(String name, E value) {
+	protected BasicBluePrint(String name, E value) {
 		this.name = name;
 		this.value = value;
 	}

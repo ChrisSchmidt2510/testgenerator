@@ -24,7 +24,7 @@ import org.testgen.runtime.generation.api.collections.CollectionGenerationFactor
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.ComplexBluePrint;
@@ -189,7 +189,7 @@ public class JavaParserComplexObjectGeneration
 					createComplexObject(codeBlock, bp);
 
 				} else if (bp.isCollectionBluePrint()) {
-					AbstractBasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
+					BasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
 
 					SignatureType signature = null;
 					SetterMethodData setter = null;

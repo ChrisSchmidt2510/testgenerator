@@ -11,7 +11,7 @@ import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.javaparser.impl.JavaParserHelper;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.collections.MapBluePrint;
 
@@ -36,12 +36,12 @@ public class MapGeneration extends BasicCollectionGeneration {
 	private static final Logger LOGGER = LogManager.getLogger(MapGeneration.class);
 
 	@Override
-	public boolean canGenerateBluePrint(AbstractBasicCollectionBluePrint<?> bluePrint) {
+	public boolean canGenerateBluePrint(BasicCollectionBluePrint<?> bluePrint) {
 		return bluePrint instanceof MapBluePrint && Map.class.equals(bluePrint.getInterfaceClass());
 	}
 
 	@Override
-	public void createField(ClassOrInterfaceDeclaration compilationUnit, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createField(ClassOrInterfaceDeclaration compilationUnit, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature) {
 
 		MapBluePrint map = (MapBluePrint) bluePrint;
@@ -56,7 +56,7 @@ public class MapGeneration extends BasicCollectionGeneration {
 	}
 
 	@Override
-	public void createCollection(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createCollection(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature, boolean isField) {
 		LOGGER.debug("starting generation of Map:" + bluePrint);
 
@@ -101,7 +101,7 @@ public class MapGeneration extends BasicCollectionGeneration {
 	}
 
 	@Override
-	public void createComplexElements(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void createComplexElements(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			SignatureType signature) {
 
 		SignatureType signatureKey = signature != null ? signature.getSubTypes().get(0) : null;
@@ -125,7 +125,7 @@ public class MapGeneration extends BasicCollectionGeneration {
 	}
 
 	@Override
-	public void addCollectionToObject(BlockStmt statementTree, AbstractBasicCollectionBluePrint<?> bluePrint,
+	public void addCollectionToObject(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
 			boolean isField, SetterMethodData setter, Expression accessExpr) {
 
 		String name = isField ? namingService.getFieldName(bluePrint)

@@ -12,11 +12,11 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
-import org.testgen.runtime.valuetracker.blueprint.AbstractBasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
-public class CollectionBluePrint extends AbstractBasicCollectionBluePrint<Collection<?>> {
+public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>> {
 
 	private List<BluePrint> elementBluePrints = new ArrayList<>();
 

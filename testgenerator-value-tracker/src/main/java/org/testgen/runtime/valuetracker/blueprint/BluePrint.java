@@ -27,12 +27,12 @@ public interface BluePrint {
 	void resetBuildState();
 
 	default boolean isCollectionBluePrint() {
-		return this instanceof AbstractBasicCollectionBluePrint<?>;
+		return this instanceof BasicCollectionBluePrint<?>;
 	}
 
-	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {
+	default BasicCollectionBluePrint<?> castToCollectionBluePrint() {
 		if (isCollectionBluePrint()) {
-			return (AbstractBasicCollectionBluePrint<?>) this;
+			return (BasicCollectionBluePrint<?>) this;
 		}
 
 		return null;

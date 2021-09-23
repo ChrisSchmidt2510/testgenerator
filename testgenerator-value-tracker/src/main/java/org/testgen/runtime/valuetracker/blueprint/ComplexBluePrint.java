@@ -19,7 +19,7 @@ import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 
-public class ComplexBluePrint extends AbstractBasicBluePrint<Object> {
+public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 	private List<BluePrint> bluePrints = new ArrayList<>();
 
