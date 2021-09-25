@@ -10,12 +10,12 @@ import org.junit.Test;
 import org.testgen.runtime.proxy.Proxified;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.complextypes.FunctionalInterfaceBluePrint.FunctionalInterfaceBluePrintFactory;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint.LambdaExpressionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 
-public class FunctionalInterfaceBluePrintTest {
+public class LambdaExpressionBluePrintTest {
 
-	private FunctionalInterfaceBluePrintFactory factory = new FunctionalInterfaceBluePrintFactory();
+	private LambdaExpressionBluePrintFactory factory = new LambdaExpressionBluePrintFactory();
 
 	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
 
@@ -49,9 +49,9 @@ public class FunctionalInterfaceBluePrintTest {
 		
 		BluePrint bluePrint = factory.createBluePrint("mapper", mapper, currentlyBuildedBluePrints, null);
 	
-		Assert.assertTrue(bluePrint instanceof FunctionalInterfaceBluePrint);
+		Assert.assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
 		
-		FunctionalInterfaceBluePrint fiBluePrint = (FunctionalInterfaceBluePrint) bluePrint;
+		LambdaExpressionBluePrint fiBluePrint = (LambdaExpressionBluePrint) bluePrint;
 		
 		Assert.assertEquals("mapper", fiBluePrint.getName());
 		Assert.assertTrue(fiBluePrint.isComplexType());
@@ -68,9 +68,9 @@ public class FunctionalInterfaceBluePrintTest {
 		BluePrint bluePrint = factory.createBluePrint("runnable", run, currentlyBuildedBluePrints,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
-		Assert.assertTrue(bluePrint instanceof FunctionalInterfaceBluePrint);
+		Assert.assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
 
-		FunctionalInterfaceBluePrint fiBluePrint = (FunctionalInterfaceBluePrint) bluePrint;
+		LambdaExpressionBluePrint fiBluePrint = (LambdaExpressionBluePrint) bluePrint;
 
 		Assert.assertEquals("runnable", fiBluePrint.getName());
 		Assert.assertTrue(fiBluePrint.isComplexType());

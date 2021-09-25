@@ -21,13 +21,13 @@ import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
-public class FunctionalInterfaceBluePrint extends BasicBluePrint<Object> {
+public class LambdaExpressionBluePrint extends BasicBluePrint<Object> {
 
 	private final Class<?> interfaceClass;
 	private final int numOfParams;
 	private final List<BluePrint> locals = new ArrayList<>();
 
-	FunctionalInterfaceBluePrint(String name, Object value, Class<?> interfaceClass, int numOfParams) {
+	LambdaExpressionBluePrint(String name, Object value, Class<?> interfaceClass, int numOfParams) {
 		super(name, value);
 		this.interfaceClass = interfaceClass;
 		this.numOfParams = numOfParams;
@@ -69,16 +69,16 @@ public class FunctionalInterfaceBluePrint extends BasicBluePrint<Object> {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!(obj instanceof FunctionalInterfaceBluePrint))
+		if (!(obj instanceof LambdaExpressionBluePrint))
 			return false;
-		FunctionalInterfaceBluePrint other = (FunctionalInterfaceBluePrint) obj;
+		LambdaExpressionBluePrint other = (LambdaExpressionBluePrint) obj;
 		return Objects.equals(name, other.name) && Objects.equals(interfaceClass, other.interfaceClass)
 				&& numOfParams == other.numOfParams && Objects.equals(locals, other.locals);
 	}
 
-	public static class FunctionalInterfaceBluePrintFactory implements BluePrintFactory {
+	public static class LambdaExpressionBluePrintFactory implements BluePrintFactory {
 
-		private static final Logger LOGGER = LogManager.getLogger(FunctionalInterfaceBluePrintFactory.class);
+		private static final Logger LOGGER = LogManager.getLogger(LambdaExpressionBluePrintFactory.class);
 
 		private static final Predicate<Method> FUNCTIONAL_INTERFACE_IDENTIFIER = m -> !m.isDefault()
 				&& !Modifier.isStatic(m.getModifiers());
@@ -105,7 +105,7 @@ public class FunctionalInterfaceBluePrint extends BasicBluePrint<Object> {
 			Method method = Stream.of(functionalInterface.getMethods()).filter(FUNCTIONAL_INTERFACE_IDENTIFIER)
 					.findAny().orElseThrow(() -> new IllegalArgumentException("isn't a FunctionalInterface"));
 
-			FunctionalInterfaceBluePrint bluePrint = new FunctionalInterfaceBluePrint(name, value, functionalInterface,
+			LambdaExpressionBluePrint bluePrint = new LambdaExpressionBluePrint(name, value, functionalInterface,
 					method.getParameterCount());
 
 			for (Field field : valueClass.getDeclaredFields()) {
