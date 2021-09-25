@@ -20,7 +20,7 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 	private List<BluePrint> elementBluePrints = new ArrayList<>();
 
-	public CollectionBluePrint(String name, Collection<?> value, Class<?> interfaceClass) {
+	CollectionBluePrint(String name, Collection<?> value, Class<?> interfaceClass) {
 		super(name, value, interfaceClass);
 	}
 

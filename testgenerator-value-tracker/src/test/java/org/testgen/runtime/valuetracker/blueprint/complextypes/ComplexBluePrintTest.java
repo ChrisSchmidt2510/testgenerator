@@ -12,6 +12,7 @@ import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint.ComplexBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint.CollectionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintsFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.EnumBluePrint.EnumBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateBluePrint.LocalDateBluePrintFactory;
@@ -30,6 +31,8 @@ public class ComplexBluePrintTest {
 	private NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
 	private EnumBluePrintFactory enumFactory = new EnumBluePrintFactory();
+
+	private CollectionBluePrintFactory collectionFactory = new CollectionBluePrintFactory();
 
 	private LocalDateBluePrintFactory localDateFactory = new LocalDateBluePrintFactory();
 
@@ -86,21 +89,22 @@ public class ComplexBluePrintTest {
 		complexBluePrint.addBluePrint(strFactory.createBluePrint("ort", "Nuernberg"));
 		complexBluePrint.addBluePrint(numFactory.createBluePrint("plz", 90402));
 
-		CollectionBluePrint collectionBluePrint = new CollectionBluePrint("adressen", new ArrayList<>(), List.class);
+		CollectionBluePrint collectionBluePrint = (CollectionBluePrint) collectionFactory.createBluePrint("adressen",
+				new ArrayList<>(), currentlyBuildedBluePrints, (name, value) -> createBluePrint(name, value));
 		collectionBluePrint.addBluePrint(complexBluePrint);
 
 		compareList.add(collectionBluePrint);
 		compareList.add(strFactory.createBluePrint("ersb", "Me"));
 		compareList.add(localDateFactory.createBluePrint("aedat", LocalDate.of(2020, Month.DECEMBER, 20)));
 
-
 		Assert.assertEquals(compareList, complex.getChildBluePrints());
 	}
-	
+
 	@Test
 	public void trackComplexTypeForJDKTypes() {
 		Assert.assertThrows("cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints",
-				TrackingException.class, () -> factory.createBluePrint("object", new Object(), currentlyBuildedBluePrints, (name, value)-> createBluePrint(name, value)));
+				TrackingException.class, () -> factory.createBluePrint("object", new Object(),
+						currentlyBuildedBluePrints, (name, value) -> createBluePrint(name, value)));
 	}
 
 }

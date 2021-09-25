@@ -24,7 +24,7 @@ public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 	private List<BluePrint> keyBluePrints = new ArrayList<>();
 	private List<BluePrint> valueBluePrints = new ArrayList<>();
 
-	public MapBluePrint(String name, Map<?, ?> value) {
+	MapBluePrint(String name, Map<?, ?> value) {
 		super(name, value, Map.class);
 	}
 
