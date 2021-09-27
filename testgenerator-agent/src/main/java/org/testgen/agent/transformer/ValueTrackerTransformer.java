@@ -49,8 +49,6 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String OBJECT_VALUE_TRACKER = "Lorg/testgen/runtime/valuetracker/ObjectValueTracker;";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK = "track";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC = "(Ljava/lang/Object;Ljava/lang/String;Lorg/testgen/runtime/valuetracker/blueprint/Type;)V";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING = "enableFieldTracking";
-	private static final String OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING = "enableProxyTracking";
 	private static final String OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC = "()" + OBJECT_VALUE_TRACKER;
 
 	private static final String VALUE_STORAGE_CLASSNAME = "org/testgen/runtime/valuetracker/storage/ValueStorage";
@@ -68,6 +66,11 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String TYPE = "Lorg/testgen/runtime/valuetracker/blueprint/Type;";
 	private static final String TYPE_FIELDNAME_TESTOBJECT = "TESTOBJECT";
 	private static final String TYPE_FIELDNAME_METHODPARAMETER = "METHOD_PARAMETER";
+
+	private static final String TESTGENERATOR_CONFIG_CLASSNAME = "org/testgen/config/TestgeneratorConfig";
+	private static final String TESTGENERATOR_CONFIG_METHOD_SET_PROXY_TRACKING = "setProxyTracking";
+	private static final String TESTGENERATOR_CONFIG_METHOD_SET_FIELD_TRACKING = "setFieldTracking";
+	private static final String TESTGENERATOR_CONFIG_METHOD_DESC = "(Z)V";
 
 	private CodeAttribute codeAttribute;
 	private CodeIterator iterator;
@@ -91,7 +94,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
-				LOGGER.error("error while transforming class",e);
+				LOGGER.error("error while transforming class", e);
 
 				throw new AgentException("error while transforming class", e);
 			} finally {
@@ -188,15 +191,14 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
 				OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
 
-		valueTracking.addAload(valueTrackerLocalIndex);
-		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
-				OBJECT_VALUE_TRACKER_METHOD_ENABLE_PROXY_TRACKING, //
-				METHOD_VOID_DESC);
+		valueTracking.addIconst(1);
+		valueTracking.addInvokestatic(TESTGENERATOR_CONFIG_CLASSNAME, TESTGENERATOR_CONFIG_METHOD_SET_PROXY_TRACKING,
+				TESTGENERATOR_CONFIG_METHOD_DESC);
 
 		if (TestgeneratorConfig.traceReadFieldAccess()) {
-			valueTracking.addAload(valueTrackerLocalIndex);
-			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME,
-					OBJECT_VALUE_TRACKER_METHOD_ENABLE_FIELD_TRACKING, METHOD_VOID_DESC);
+			valueTracking.addIconst(1);
+			valueTracking.addInvokestatic(TESTGENERATOR_CONFIG_CLASSNAME,
+					TESTGENERATOR_CONFIG_METHOD_SET_FIELD_TRACKING, TESTGENERATOR_CONFIG_METHOD_DESC);
 		}
 
 		iterator.insert(0, valueTracking.get());
@@ -216,7 +218,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				try {
 					signatureData = SignatureParser.parse(signature);
 				} catch (SignatureParserException e) {
-					LOGGER.error("error while parsing signature "+ signature,e);
+					LOGGER.error("error while parsing signature " + signature, e);
 				}
 
 				if (signatureData != null) {

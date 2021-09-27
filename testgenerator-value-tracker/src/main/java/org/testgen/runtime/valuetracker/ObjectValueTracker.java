@@ -1,6 +1,5 @@
 package org.testgen.runtime.valuetracker;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +10,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.testgen.config.TestgeneratorConfig;
 import org.testgen.core.MapBuilder;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
@@ -56,9 +54,7 @@ public final class ObjectValueTracker {
 	}
 
 	public void track(Object value, String name, Type type) {
-		if (value != null && !Proxy.isProxyClass(value.getClass())) {
-			ValueStorage.getInstance().addBluePrint(trackValues(value, name), type);
-		}
+		ValueStorage.getInstance().addBluePrint(trackValues(value, name), type);
 	}
 
 	public void trackProxyValues(Object value, String name, Class<?> interfaceClass, String proxyName) {
@@ -74,14 +70,6 @@ public final class ObjectValueTracker {
 
 			ValueStorage.getInstance().addProxyBluePrint(proxy, trackValues(value, name));
 		}
-	}
-
-	public void enableFieldTracking() {
-		TestgeneratorConfig.setFieldTracking(true);
-	}
-
-	public void enableProxyTracking() {
-		TestgeneratorConfig.setProxyTracking(true);
 	}
 
 	BluePrint trackValues(Object value, String name) {
@@ -100,12 +88,11 @@ public final class ObjectValueTracker {
 			BiFunction<String, Object, BluePrint> childCallBack = (newName, newValue) -> trackValues(newValue, newName);
 
 			if (factory.createsSimpleBluePrint())
-				bluePrint = factory.createBluePrint(name, proxyValue, registration,
-						childCallBack);
+				bluePrint = factory.createBluePrint(name, proxyValue, registration, childCallBack);
 			else
-				bluePrint = getBluePrintForReference(proxyValue, () -> factory.createBluePrint(name, proxyValue,
-						registration, childCallBack));
-			
+				bluePrint = getBluePrintForReference(proxyValue,
+						() -> factory.createBluePrint(name, proxyValue, registration, childCallBack));
+
 		} else
 			throw new TrackingException(String.format("no factory available for object %s", value));
 

@@ -1,4 +1,4 @@
-	package org.testgen.runtime.valuetracker.storage;
+package org.testgen.runtime.valuetracker.storage;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -25,11 +25,14 @@ public final class ValueStorage {
 	}
 
 	public void addBluePrint(BluePrint bluePrint, Type type) {
-		if (Type.TESTOBJECT == type) {
+		if (Type.TESTOBJECT == type)
 			testData.peek().testObjectBluePrint = bluePrint;
-		} else if (Type.METHOD_PARAMETER == type) {
+		
+		else if (Type.METHOD_PARAMETER == type)
 			testData.peek().methodParameters.add(bluePrint);
-		}
+		
+		else
+			throw new IllegalArgumentException("invalid Type: " + type);
 	}
 
 	public void addProxyBluePrint(ProxyBluePrint proxy, BluePrint bluePrint) {
@@ -51,7 +54,6 @@ public final class ValueStorage {
 		executedTestData.testObjectBluePrint.resetBuildState();
 		executedTestData.methodParameters.forEach(BluePrint::resetBuildState);
 		executedTestData.proxyObjects.values().forEach(list -> list.forEach(BluePrint::resetBuildState));
-
 	}
 
 	public List<BluePrint> getMethodParameters() {
