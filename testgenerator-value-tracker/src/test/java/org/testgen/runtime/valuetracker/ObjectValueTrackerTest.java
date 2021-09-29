@@ -1,5 +1,8 @@
 package org.testgen.runtime.valuetracker;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +15,8 @@ import org.testgen.runtime.proxy.impl.IntegerProxy;
 import org.testgen.runtime.proxy.impl.ReferenceProxy;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.Type;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrintTest.ProxyTest;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint;
 import org.testgen.runtime.valuetracker.storage.ValueStorage;
 
@@ -47,6 +52,31 @@ public class ObjectValueTrackerTest {
 
 		Assert.assertThrows("invalid Type: Proxy", IllegalArgumentException.class,
 				() -> valueTracker.track(10, "value", Type.PROXY));
+
+		ValueStorage.getInstance().popAndResetTestData();
+	}
+
+	@Test
+	public void testTrackProxy() {
+		ValueStorage.getInstance().pushNewTestData();
+
+		InvocationHandler handler = new InvocationHandler() {
+
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+				return null;
+			}
+		};
+
+		Object proxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+				new Class<?>[] { ProxyTest.class }, handler);
+
+		ProxyBluePrint proxyBluePrint = valueTracker.trackProxy(proxy, "proxy");
+		Assert.assertArrayEquals(new Class<?>[] { ProxyTest.class }, proxyBluePrint.getInterfaceClasses());
+		
+		List<ProxyBluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
+		Assert.assertEquals(1, proxyObjects.size());
+		Assert.assertTrue(proxyObjects.get(0) == proxyBluePrint);
 	}
 
 	@Test

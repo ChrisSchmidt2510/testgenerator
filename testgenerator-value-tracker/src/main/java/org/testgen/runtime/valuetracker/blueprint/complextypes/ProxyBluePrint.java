@@ -1,49 +1,70 @@
 package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
-import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
+import org.testgen.logging.LogManager;
+import org.testgen.logging.Logger;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 
 public class ProxyBluePrint extends BasicBluePrint<Object> {
-	private final Class<?> interfaceClass;
+	private final Class<?>[] interfaceClasses;
 
-	ProxyBluePrint(String name, Class<?> interfaceClass) {
-		super(name, null);
-		this.interfaceClass = interfaceClass;
+	private final CurrentlyBuildedBluePrints currentlyBuildedBluePrints;
+	private final BiFunction<String, Object, BluePrint> callBackHandler;
+	private final List<BluePrint> proxyResults = new ArrayList<>();
+
+	private InvocationHandler invocationHandler;
+
+	ProxyBluePrint(String name, Object proxy, CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+			BiFunction<String, Object, BluePrint> callBackHandler) {
+		super(name, proxy);
+		this.interfaceClasses = proxy.getClass().getInterfaces();
+		this.currentlyBuildedBluePrints = currentlyBuildedBluePrints;
+		this.callBackHandler = callBackHandler;
+	}
+
+	public void addProxyResult(String name, Object value) {
+		if (currentlyBuildedBluePrints.isCurrentlyBuilded(value))
+			currentlyBuildedBluePrints.addFinishedListener(value, proxyResults::add);
+		else
+			proxyResults.add(callBackHandler.apply(name, value));
 	}
 
 	@Override
 	public List<BluePrint> getPreExecuteBluePrints() {
-		throw new UnsupportedOperationException();
+		return proxyResults;
 	}
 
 	@Override
 	public boolean isComplexType() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public void resetBuildState() {
+		this.proxyResults.forEach(BluePrint::resetBuildState);
+		
 		this.build = false;
 	}
 
-	@Override
-	public Object getReference() {
-		return interfaceClass;
+	public Class<?>[] getInterfaceClasses() {
+		return interfaceClasses;
 	}
 
-	public Class<?> getInterfaceClass() {
-		return interfaceClass;
+	public InvocationHandler getInvocationHandler() {
+		return invocationHandler;
 	}
 
 	public static class ProxyBluePrintFactory implements BluePrintFactory {
+
+		private static final Logger LOGGER = LogManager.getLogger(ProxyBluePrintFactory.class);
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
@@ -54,11 +75,16 @@ public class ProxyBluePrint extends BasicBluePrint<Object> {
 		public BluePrint createBluePrint(String name, Object value,
 				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
 				BiFunction<String, Object, BluePrint> childCallBack) {
-			Class<?> interfaceClass = Stream.of(value.getClass().getInterfaces())
-					.filter(cl -> !Serializable.class.isAssignableFrom(cl)).findAny()
-					.orElseThrow(() -> new IllegalArgumentException("proxies have to implement at least 1 interface"));
 
-			return new ProxyBluePrint(name, interfaceClass);
+			ProxyBluePrint proxyBluePrint = new ProxyBluePrint(name, value, currentlyBuildedBluePrints, childCallBack);
+			
+			try {
+				proxyBluePrint.invocationHandler = Proxy.getInvocationHandler(value);
+			} catch (RuntimeException e) {
+				LOGGER.error("error getting invocationHandler from Proxy", e);
+			}
+
+			return proxyBluePrint;
 		}
 
 	}

@@ -1,5 +1,6 @@
 package org.testgen.runtime.valuetracker;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,19 +58,24 @@ public final class ObjectValueTracker {
 		ValueStorage.getInstance().addBluePrint(trackValues(value, name), type);
 	}
 
-	public void trackProxyValues(Object value, String name, Class<?> interfaceClass, String proxyName) {
-		if (value != null) {
-			Optional<BluePrintFactory> factoryOpt = bluePrintsFactory.getBluePrintFactory(value);
+	public ProxyBluePrint trackProxy(Object proxy, String name) {
+		if (!Proxy.isProxyClass(proxy.getClass()))
+			throw new IllegalArgumentException(proxy + "is no proxy");
 
-			if (!factoryOpt.isPresent())
-				throw new IllegalArgumentException(value + " is no proxy");
+		Optional<BluePrintFactory> factoryOpt = bluePrintsFactory.getBluePrintFactory(proxy);
 
-			BluePrintFactory factory = factoryOpt.get();
-			ProxyBluePrint proxy = (ProxyBluePrint) getBluePrintForReference(interfaceClass, //
-					() -> factory.createBluePrint(proxyName, value, registration, null));
+		if (!factoryOpt.isPresent())
+			throw new TrackingException("cant create a BluePrint for proxy " + proxy);
 
-			ValueStorage.getInstance().addProxyBluePrint(proxy, trackValues(value, name));
-		}
+		BluePrintFactory factory = factoryOpt.get();
+
+		ProxyBluePrint proxyBluePrint = (ProxyBluePrint) getBluePrintForReference(proxy,
+				() -> factory.createBluePrint(name, proxy, registration,
+						(childName, childValue) -> trackValues(childValue, childName)));
+		
+		ValueStorage.getInstance().addProxyBluePrint(proxyBluePrint);
+		
+		return proxyBluePrint;
 	}
 
 	BluePrint trackValues(Object value, String name) {
