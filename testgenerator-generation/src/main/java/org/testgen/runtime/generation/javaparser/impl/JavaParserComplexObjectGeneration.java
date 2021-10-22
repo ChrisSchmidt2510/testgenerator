@@ -22,7 +22,6 @@ import org.testgen.runtime.generation.api.ComplexObjectGeneration;
 import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
-import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -63,7 +62,7 @@ public class JavaParserComplexObjectGeneration
 
 	private Consumer<Class<?>> importCallBackHandler;
 
-	private NamingService<BlockStmt> namingService = NamingServiceProvider.getNamingService();
+	private NamingService<BlockStmt> namingService = getNamingService();
 
 	@Override
 	public void createField(ClassOrInterfaceDeclaration compilationUnit, ComplexBluePrint bluePrint,

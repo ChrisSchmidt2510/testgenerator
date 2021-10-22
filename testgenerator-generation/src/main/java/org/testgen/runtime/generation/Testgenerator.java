@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.testgen.config.TestgeneratorConfig;
@@ -59,7 +58,7 @@ public final class Testgenerator {
 		testGenerator.prepareMethodParameters(compilationUnit, ValueStorage.getInstance().getMethodParameters(),
 				methodParameterTypes);
 
-		Map<ProxyBluePrint, List<BluePrint>> proxyObjects = ValueStorage.getInstance().getProxyObjects();
+		List<ProxyBluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
 
 		boolean withProxyObjects = !proxyObjects.isEmpty();
 		if (withProxyObjects) {

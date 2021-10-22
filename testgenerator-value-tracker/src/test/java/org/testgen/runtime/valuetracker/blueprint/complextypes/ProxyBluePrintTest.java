@@ -3,6 +3,7 @@ package org.testgen.runtime.valuetracker.blueprint.complextypes;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -58,15 +59,23 @@ public class ProxyBluePrintTest {
 		ProxyBluePrint proxy = (ProxyBluePrint) bluePrint;
 		Assert.assertArrayEquals(new Class<?>[] { ProxyTest.class }, proxy.getInterfaceClasses());
 		Assert.assertTrue(proxy.isComplexType());
-		Assert.assertTrue(proxy.getPreExecuteBluePrints().isEmpty());
+		Assert.assertThrows(UnsupportedOperationException.class, () -> proxy.getPreExecuteBluePrints());
 		Assert.assertEquals(handler.getClass(), proxy.getInvocationHandler().getClass());
 
-		proxy.addProxyResult("value", 11);
-		Assert.assertEquals(Arrays.asList(numFactory.createBluePrint("value", 11)), proxy.getPreExecuteBluePrints());
+		Method method = null;
+		
+		try {
+			method = ProxyTest.class.getMethod("multiplier", Integer.TYPE, Integer.TYPE);
+		} catch (NoSuchMethodException | SecurityException e) {
+			Assert.fail(e.getMessage());
+		}
+		
+		proxy.addProxyResult(method, 11);
+		Assert.assertEquals(Arrays.asList(new SimpleEntry<>(method, numFactory.createBluePrint("multiplier", 11))), proxy.getProxyResults());
 	}
 
 	public interface ProxyTest {
 
-		public String greet(String name);
+		public int multiplier(int a, int b);
 	}
 }

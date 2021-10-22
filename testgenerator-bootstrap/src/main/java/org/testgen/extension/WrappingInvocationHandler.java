@@ -32,7 +32,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 				init(proxy);
 
 				TestgeneratorConfig.setProxyFieldTracking(true);
-				addProxyResult.invoke(method.getName(), result);
+				addProxyResult.invoke(method, result);
 				TestgeneratorConfig.setProxyFieldTracking(false);
 			}
 
@@ -55,7 +55,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 
 				proxyBluePrint = ReflectionUtil.invoke(trackProxy, valueTracker, proxy, PROXY_NAME);
 				
-				addProxyResult = ReflectionUtil.getMethod(proxyBluePrint.getClass(), PROXY_BLUE_PRINT_METHOD_ADD_PROXY_RESULT, String.class, Object.class);
+				addProxyResult = ReflectionUtil.getMethod(proxyBluePrint.getClass(), PROXY_BLUE_PRINT_METHOD_ADD_PROXY_RESULT, Method.class, Object.class);
 				
 			} catch (Exception e) {
 				throw new RuntimeException("error while creating WrappingInvocationHandler", e);

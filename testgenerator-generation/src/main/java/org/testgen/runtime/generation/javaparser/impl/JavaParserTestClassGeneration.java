@@ -201,7 +201,7 @@ public class JavaParserTestClassGeneration
 				LOGGER.debug("generate proxy child " + child);
 
 				if (child.isCollectionBluePrint() || child.isArrayBluePrint()) {
-					Method proxyMethod = Arrays.stream(proxy.getInterfaceClass().getMethods())
+					Method proxyMethod = Arrays.stream(proxy.getInterfaceClasses().getMethods())
 							.filter(method -> child.getName().equals(method.getName())).findAny().get();
 
 					SignatureType signature = GenerationHelper
@@ -306,12 +306,12 @@ public class JavaParserTestClassGeneration
 
 			if (bluePrint.isNotBuild()) {
 				ClassOrInterfaceType proxyType = new ClassOrInterfaceType(null,
-						proxy.getInterfaceClass().getSimpleName());
+						proxy.getInterfaceClasses().getSimpleName());
 
 				ExpressionStmt expression = new ExpressionStmt(new VariableDeclarationExpr(new VariableDeclarator(
 						proxyType, namingService.getLocalName(codeBlock, proxy), new NullLiteralExpr())));
 
-				expression.setLineComment("TODO add initalization for proxy " + proxy.getInterfaceClass());
+				expression.setLineComment("TODO add initalization for proxy " + proxy.getInterfaceClasses());
 
 				codeBlock.addStatement(expression);
 				codeBlock.addStatement(new EmptyStmt());

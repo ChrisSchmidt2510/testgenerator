@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
 
 public interface BluePrint {
 
@@ -75,6 +77,10 @@ public interface BluePrint {
 		}
 
 		return null;
+	}
+	
+	default boolean isSpezialBluePrint() {
+		return this instanceof ProxyBluePrint || this instanceof LambdaExpressionBluePrint;
 	}
 
 }

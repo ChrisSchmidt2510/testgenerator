@@ -25,6 +25,10 @@ public class GenerationHelperTest {
 	public <T> List<T> method3() {
 		return null;
 	}
+	
+	public int method4() {
+		return 0;
+	}
 
 	@Test
 	public void testMapGenericTypeToSignatureType() {
@@ -71,5 +75,19 @@ public class GenerationHelperTest {
 		} catch (NoSuchMethodException | SecurityException e) {
 			fail();
 		}
+	}
+	
+	@Test
+	public void testNonGenericTypeToSignature() {
+			try {
+				Method method = this.getClass().getMethod("method4");
+				
+				SignatureType signature = GenerationHelper.mapGenericTypeToSignature(method.getGenericReturnType());
+			
+				Assert.assertEquals(null, signature);
+			} catch (NoSuchMethodException | SecurityException e) {
+				fail();
+			}
+		
 	}
 }
