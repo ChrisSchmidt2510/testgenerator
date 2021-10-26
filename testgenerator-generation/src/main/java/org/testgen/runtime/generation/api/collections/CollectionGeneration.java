@@ -1,6 +1,5 @@
 package org.testgen.runtime.generation.api.collections;
 
-import org.testgen.runtime.generation.api.FieldGeneration;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 
 /**
@@ -13,7 +12,7 @@ import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
  * @param <S> Type of a single Expression
  */
 public interface CollectionGeneration<T, E, S>
-		extends FieldGeneration<T, BasicCollectionBluePrint<?>>, CollectionGenerationFactory<T, E, S> {
+		extends  CollectionGenerationFactory<T, E, S> {
 
 	/**
 	 * Checks if this implementation supports this

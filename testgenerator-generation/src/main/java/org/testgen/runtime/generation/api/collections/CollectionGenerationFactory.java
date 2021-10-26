@@ -7,6 +7,7 @@ import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
+import org.testgen.runtime.generation.api.FieldGeneration;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
@@ -30,7 +31,7 @@ import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
  * @param <E> Type of a CodeBlock
  * @param <S> Type of a single Expression
  */
-public interface CollectionGenerationFactory<T, E, S> {
+public interface CollectionGenerationFactory<T, E, S> extends FieldGeneration<T, BasicCollectionBluePrint<?>> {
 
 	/**
 	 * Generates the complete {@link Collection} inclusive the elements of the
@@ -81,8 +82,7 @@ public interface CollectionGenerationFactory<T, E, S> {
 	 * @param accessExpr expression to access the object where to collection is
 	 *                   added to
 	 */
-	void addCollectionToField(E codeBlock, BasicCollectionBluePrint<?> bluePrint, boolean isField,
-			S accessExpr);
+	void addCollectionToField(E codeBlock, BasicCollectionBluePrint<?> bluePrint, boolean isField, S accessExpr);
 
 	void setSimpleObjectGenerationFactory(SimpleObjectGenerationFactory<T, E, S> simpleGenerationFactory);
 

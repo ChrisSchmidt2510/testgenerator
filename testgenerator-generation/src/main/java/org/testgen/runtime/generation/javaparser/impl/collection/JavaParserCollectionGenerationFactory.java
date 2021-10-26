@@ -45,6 +45,14 @@ public class JavaParserCollectionGenerationFactory
 
 		throw new IllegalArgumentException("cant generate AbstractBasicCollectionBluePrint " + bluePrint);
 	}
+	
+	@Override
+	public void createField(ClassOrInterfaceDeclaration compilationUnit, BasicCollectionBluePrint<?> bluePrint,
+			SignatureType signature) {
+		CollectionGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> generator = of(bluePrint);
+		
+		generator.createField(compilationUnit, bluePrint, signature);
+	}
 
 	@Override
 	public void createCollection(BlockStmt statementTree, BasicCollectionBluePrint<?> bluePrint,
