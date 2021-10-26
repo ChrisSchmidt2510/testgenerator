@@ -84,6 +84,7 @@ public class LambdaExpressionSpezialObjectGeneration extends BasicSpezialObjectG
 		stmt.setLineComment("TODO add initialization");
 
 		codeBlock.addStatement(stmt);
+		codeBlock.addStatement(new EmptyStmt());
 		
 		bluePrint.setBuild();
 	}

@@ -109,7 +109,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 
 		expected = "// TODO add initialization\r\n" + //
 				"this.consumer = (Consumer & Serializable) null;";
-		Assert.assertEquals(expected, codeBlock.getStatements().get(1).toString());
+		Assert.assertEquals(expected, codeBlock.getStatements().get(2).toString());
 		Assert.assertTrue(imports.contains(Consumer.class)
 				&& imports.contains(Serializable.class));
 		Assert.assertTrue(bluePrint.isBuild());
@@ -121,7 +121,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		
 		expected = "// TODO add initialization\r\n" + //
 				"Consumer consumer = (Consumer & Serializable) null;";
-		Assert.assertEquals(expected, codeBlock.getStatements().get(2).toString());
+		Assert.assertEquals(expected, codeBlock.getStatements().get(4).toString());
 		Assert.assertTrue(imports.contains(Consumer.class)
 				&& imports.contains(Serializable.class));
 		Assert.assertTrue(bluePrint.isBuild());
@@ -147,6 +147,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		"\r\n"+//
 		"    // TODO add initialization\r\n"+//
 		"    Runnable runnable = null;\r\n"+//
+		"\r\n"+//
 		"}";
 		
 		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
@@ -168,6 +169,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 				"\r\n"+//
 				"    // TODO add initialization\r\n"+//
 				"    this.runnable = null;\r\n"+//
+				"\r\n"+//
 				"}";
 		Assert.assertEquals(expected, block.toString(printerConfig));
 		Assert.assertTrue(imports.isEmpty());
