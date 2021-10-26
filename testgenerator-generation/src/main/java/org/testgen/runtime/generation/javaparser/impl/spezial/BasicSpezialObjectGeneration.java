@@ -1,15 +1,22 @@
 package org.testgen.runtime.generation.javaparser.impl.spezial;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import org.testgen.config.TestgeneratorConfig;
+import org.testgen.runtime.classdata.model.ClassData;
+import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.generation.api.ArrayGeneration;
 import org.testgen.runtime.generation.api.ComplexObjectGeneration;
+import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.generation.api.spezial.SpezialObjectGeneration;
 import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
@@ -33,7 +40,21 @@ public abstract class BasicSpezialObjectGeneration<B extends BluePrint> implemen
 	protected NamingService<BlockStmt> namingService = getNamingService();
 	
 	protected ClassOrInterfaceType getType(Class<?> type) {
+		importCallBackHandler.accept(type);
+		
 		return new ClassOrInterfaceType(null, type.getSimpleName());
+	}
+	
+	protected void createComplexObject(BlockStmt codeBlock, ComplexBluePrint bluePrint) {
+		ClassData classData = GenerationHelper.getClassData(bluePrint.getReference());
+
+		Set<FieldData> calledFields = Collections.emptySet();
+		if (TestgeneratorConfig.traceReadFieldAccess()) {
+			calledFields = GenerationHelper.getCalledFields(bluePrint.getReference());
+		}
+
+		complexObjectGeneration.createObject(codeBlock, bluePrint.castToComplexBluePrint(), namingService.existsField(bluePrint), classData,
+				calledFields);
 	}
 	
 	@Override

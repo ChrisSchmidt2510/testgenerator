@@ -75,6 +75,16 @@ public class LambdaExpressionBluePrint extends BasicBluePrint<Object> {
 		return Objects.equals(name, other.name) && Objects.equals(interfaceClass, other.interfaceClass)
 				&& numOfParams == other.numOfParams && Objects.equals(locals, other.locals);
 	}
+	
+	
+
+	@Override
+	public String toString() {
+		return String.format("LambdaExpressionBluePrint [interfaceClass=%s, numOfParams=%s, locals=%s, name=%s]",
+				interfaceClass, numOfParams, locals, name);
+	}
+
+
 
 	public static class LambdaExpressionBluePrintFactory implements BluePrintFactory {
 
