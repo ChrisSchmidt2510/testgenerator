@@ -2,15 +2,10 @@ package org.testgen.runtime.generation.javaparser.impl.spezial;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Collections;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import org.testgen.config.TestgeneratorConfig;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.classdata.model.ClassData;
-import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.javaparser.impl.JavaParserHelper;
@@ -32,6 +27,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
@@ -54,14 +50,15 @@ public class ProxySpezialObjectGeneration extends BasicSpezialObjectGeneration<P
 	public void createField(ClassOrInterfaceDeclaration compilationUnit, ProxyBluePrint bluePrint,
 			SignatureType signature) {
 
+		String name = namingService.getFieldName(bluePrint);
+
 		if (signature != null) {
 			Type type = JavaParserHelper.generateSignature(signature, importCallBackHandler);
-			compilationUnit.addField(type, namingService.getFieldName(bluePrint), Keyword.PRIVATE);
-			
+			compilationUnit.addField(type, name, Keyword.PRIVATE);
+
 		} else {
 			Class<?> type = bluePrint.getType();
-
-			compilationUnit.addField(type, namingService.getFieldName(bluePrint), Keyword.PRIVATE);
+			compilationUnit.addField(type, name, Keyword.PRIVATE);
 
 			importCallBackHandler.accept(type);
 		}
@@ -87,9 +84,10 @@ public class ProxySpezialObjectGeneration extends BasicSpezialObjectGeneration<P
 							namingService.getLocalName(codeBlock, bluePrint), castExpr));
 
 			ExpressionStmt stmt = new ExpressionStmt(expr);
-			stmt.setLineComment("TODO add initalization for invocationHandler, name of invocationhandler was "
+			stmt.setLineComment("TODO add initialization of invocationHandler: "
 					+ bluePrint.getInvocationHandler().getClass().getSimpleName());
 			codeBlock.addStatement(stmt);
+			codeBlock.addStatement(new EmptyStmt());
 
 			bluePrint.setBuild();
 		}
@@ -107,41 +105,46 @@ public class ProxySpezialObjectGeneration extends BasicSpezialObjectGeneration<P
 
 			LOGGER.debug("create child " + child);
 
+			String comment = "return value of proxy operation " + entry.getKey().toGenericString();
+
 			EmptyStmt stmt = new EmptyStmt();
-			stmt.setLineComment("return value of proxy operation " + entry.getKey().toGenericString());
 			codeBlock.addStatement(stmt);
 
-			if (child.isComplexBluePrint() && notBuild) {
-				ClassData classData = GenerationHelper.getClassData(child.getReference());
+			if (notBuild) {
 
-				Set<FieldData> calledFields = Collections.emptySet();
-				if (TestgeneratorConfig.traceReadFieldAccess()) {
-					calledFields = GenerationHelper.getCalledFields(child.getReference());
-				}
+				if (child.isComplexBluePrint()) {
+					createComplexObject(codeBlock, child.castToComplexBluePrint());
 
-				complexObjectGeneration.createObject(codeBlock, child.castToComplexBluePrint(), isField, classData,
-						calledFields);
-			} else if (child.isCollectionBluePrint() && notBuild) {
-				SignatureType signature = GenerationHelper
-						.mapGenericTypeToSignature(entry.getKey().getGenericReturnType());
+				} else if (child.isCollectionBluePrint()) {
+					SignatureType signature = GenerationHelper
+							.mapGenericTypeToSignature(entry.getKey().getGenericReturnType());
 
-				collectionGenerationFactory.createCollection(codeBlock, child.castToCollectionBluePrint(), signature,
-						isField);
-			} else if (child.isArrayBluePrint() && notBuild) {
-				SignatureType signature = GenerationHelper
-						.mapGenericTypeToSignature(entry.getKey().getGenericReturnType());
+					collectionGenerationFactory.createCollection(codeBlock, child.castToCollectionBluePrint(),
+							signature, isField);
 
-				arrayGeneration.createArray(codeBlock, child.castToArrayBluePrint(), signature, isField);
-			} else if (child.isSpezialBluePrint() && notBuild) {
-				SignatureType signature = GenerationHelper
-						.mapGenericTypeToSignature(entry.getKey().getGenericReturnType());
+				} else if (child.isArrayBluePrint()) {
+					SignatureType signature = GenerationHelper
+							.mapGenericTypeToSignature(entry.getKey().getGenericReturnType());
 
-				spezialGenerationFactory.createObject(codeBlock, child, signature, isField);
-			} else if (child.isSimpleBluePrint()) {
-				simpleGenerationFactory.createObject(codeBlock, child.castToSimpleBluePrint(), isField);
-			} else
-				throw new IllegalArgumentException("cant generate BluePrint: " + child);
+					arrayGeneration.createArray(codeBlock, child.castToArrayBluePrint(), signature, isField);
 
+				} else if (child.isSpezialBluePrint()) {
+					SignatureType signature = GenerationHelper
+							.mapGenericTypeToSignature(entry.getKey().getGenericReturnType());
+
+					spezialGenerationFactory.createObject(codeBlock, child, signature, isField);
+
+				} else if (child.isSimpleBluePrint()) {
+					simpleGenerationFactory.createObject(codeBlock, child.castToSimpleBluePrint(), isField);
+				} else
+					throw new IllegalArgumentException("cant generate BluePrint: " + child);
+
+			} else {
+				comment +=" "+ (isField ? namingService.getFieldName(child) : namingService.getLocalName(codeBlock, child))
+						+ " already created";
+			}
+
+			stmt.setLineComment(comment);
 		}
 	}
 
@@ -149,6 +152,7 @@ public class ProxySpezialObjectGeneration extends BasicSpezialObjectGeneration<P
 
 		MethodCallExpr classLoaderExpr = new MethodCallExpr(new MethodCallExpr(new NameExpr("Thread"), "currentThread"),
 				"getContextClassLoader");
+		importCallBackHandler.accept(Thread.class);
 
 		ClassOrInterfaceType arrayType = getType(Class.class);
 		arrayType.setTypeArguments(new WildcardType());
@@ -165,7 +169,7 @@ public class ProxySpezialObjectGeneration extends BasicSpezialObjectGeneration<P
 				NodeList.nodeList(new ArrayCreationLevel()), new ArrayInitializerExpr(proxyInterfaces));
 
 		MethodCallExpr proxyCreationExpr = new MethodCallExpr(new NameExpr("Proxy"), "newProxyInstance",
-				NodeList.nodeList(classLoaderExpr, proxyInterfacesArray));
+				NodeList.nodeList(classLoaderExpr, proxyInterfacesArray, new NullLiteralExpr()));
 
 		importCallBackHandler.accept(Proxy.class);
 
