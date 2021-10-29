@@ -4,15 +4,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,8 +30,10 @@ import org.testgen.runtime.generation.api.TestClassGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.collection.JavaParserCollectionGenerationFactory;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.javaparser.impl.spezial.JavaParserSpezialGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -48,17 +47,13 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.NullLiteralExpr;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
 import com.github.javaparser.printer.PrettyPrinterConfiguration;
@@ -73,12 +68,13 @@ public class JavaParserTestClassGeneration
 
 	private ComplexObjectGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> complexObjectGeneration = new JavaParserComplexObjectGeneration();
 
+	private SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory = new JavaParserSpezialGenerationFactory();
+
 	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory = new JavaParserCollectionGenerationFactory();
 
 	private ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration = new JavaParserArrayGeneration();
 
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new JavaParserSimpleObjectGenerationFactory();
-
 	private NamingService<BlockStmt> namingService = getNamingService();
 
 	private CompilationUnit cu;
@@ -94,21 +90,26 @@ public class JavaParserTestClassGeneration
 	{
 		complexObjectGeneration.setSimpleObjectGenerationFactory(simpleObjectGeneration);
 		collectionGenerationFactory.setSimpleObjectGenerationFactory(simpleObjectGeneration);
+		spezialGenerationFactory.setSimpleObjectGenerationFactory(simpleObjectGeneration);
 		arrayGeneration.setSimpleObjectGenerationFactory(simpleObjectGeneration);
 
 		collectionGenerationFactory.setComplexObjectGeneration(complexObjectGeneration);
+		spezialGenerationFactory.setComplexObjectGeneration(complexObjectGeneration);
 		arrayGeneration.setComplexObjectGeneration(complexObjectGeneration);
 
 		complexObjectGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
+		spezialGenerationFactory.setCollectionGenerationFactory(collectionGenerationFactory);
 		arrayGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
 
 		complexObjectGeneration.setArrayGeneration(arrayGeneration);
 		collectionGenerationFactory.setArrayGeneration(arrayGeneration);
+		spezialGenerationFactory.setArrayGenerationFactory(arrayGeneration);
 
 		Consumer<Class<?>> importCallBackHandler = imports::add;
 
 		complexObjectGeneration.setImportCallBackHandler(importCallBackHandler);
 		collectionGenerationFactory.setImportCallBackHandler(importCallBackHandler);
+		spezialGenerationFactory.setImportCallBackHandler(importCallBackHandler);
 		arrayGeneration.setImportCallBackHandler(importCallBackHandler);
 		simpleObjectGeneration.setImportCallBackHandler(importCallBackHandler);
 	}
@@ -182,37 +183,11 @@ public class JavaParserTestClassGeneration
 	}
 
 	@Override
-	public void prepareProxyObjects(ClassOrInterfaceDeclaration compilationUnit,
-			Map<ProxyBluePrint, List<BluePrint>> proxyObjects) {
+	public void prepareProxyObjects(ClassOrInterfaceDeclaration compilationUnit, List<ProxyBluePrint> proxies) {
 		LOGGER.debug("start generating Proxies");
 
-		for (Entry<ProxyBluePrint, List<BluePrint>> proxyPair : proxyObjects.entrySet()) {
-
-			ProxyBluePrint proxy = proxyPair.getKey();
-
-			LOGGER.debug("generate ProxyBluePrint " + proxy);
-
-			generateBluePrint(proxy, null);
-
-			LOGGER.debug("start generating proxy childs");
-
-			for (BluePrint child : proxyPair.getValue()) {
-
-				LOGGER.debug("generate proxy child " + child);
-
-				if (child.isCollectionBluePrint() || child.isArrayBluePrint()) {
-					Method proxyMethod = Arrays.stream(proxy.getInterfaceClasses().getMethods())
-							.filter(method -> child.getName().equals(method.getName())).findAny().get();
-
-					SignatureType signature = GenerationHelper
-							.mapGenericTypeToSignature(proxyMethod.getGenericReturnType());
-
-					generateBluePrint(child, signature);
-
-				} else
-					generateBluePrint(child, null);
-
-			}
+		for (ProxyBluePrint proxy : proxies) {
+			spezialGenerationFactory.createObject(codeBlock, proxy, null, false);
 		}
 	}
 
@@ -301,21 +276,9 @@ public class JavaParserTestClassGeneration
 
 			simpleObjectGeneration.createObject(codeBlock, simpleBluePrint, false);
 
-		} else if (bluePrint instanceof ProxyBluePrint) {
-			ProxyBluePrint proxy = (ProxyBluePrint) bluePrint;
-
-			if (bluePrint.isNotBuild()) {
-				ClassOrInterfaceType proxyType = new ClassOrInterfaceType(null,
-						proxy.getInterfaceClasses().getSimpleName());
-
-				ExpressionStmt expression = new ExpressionStmt(new VariableDeclarationExpr(new VariableDeclarator(
-						proxyType, namingService.getLocalName(codeBlock, proxy), new NullLiteralExpr())));
-
-				expression.setLineComment("TODO add initalization for proxy " + proxy.getInterfaceClasses());
-
-				codeBlock.addStatement(expression);
-				codeBlock.addStatement(new EmptyStmt());
-			}
+		} else if (bluePrint.isSpezialBluePrint()) {
+			
+			spezialGenerationFactory.createObject(codeBlock, bluePrint, signature, false);
 		}
 	}
 

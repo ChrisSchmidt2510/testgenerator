@@ -4,7 +4,6 @@ import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.testgen.runtime.classdata.model.ClassData;
@@ -67,10 +66,9 @@ public interface TestClassGeneration<T, E, S> {
 	 * proxyObjects Map.
 	 * 
 	 * @param classDeclaration compilationUnit where the unit-test is added
-	 * @param proxyObjects     includes the used {@link Proxy} as keys and the
-	 *                         return values of the called methods as values
+	 * @param proxies     	   List with all created{@link ProxyBluePrint}
 	 */
-	void prepareProxyObjects(T classDeclaration, Map<ProxyBluePrint, List<BluePrint>> proxyObjects);
+	void prepareProxyObjects(T classDeclaration, List<ProxyBluePrint> proxies);
 
 	/**
 	 * Adds the new unit-test to the classDeclaration.
