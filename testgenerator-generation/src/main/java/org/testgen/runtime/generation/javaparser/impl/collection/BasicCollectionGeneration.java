@@ -16,6 +16,7 @@ import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
@@ -41,6 +42,8 @@ public abstract class BasicCollectionGeneration
 
 	protected CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory;
 
+	protected SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory;
+	
 	protected NamingService<BlockStmt> namingService = getNamingService();
 
 	protected Consumer<Class<?>> importCallbackHandler;
@@ -55,6 +58,12 @@ public abstract class BasicCollectionGeneration
 	public void setCollectionGenerationFactory(
 			CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory) {
 		this.collectionGenerationFactory = collectionGenerationFactory;
+	}
+	
+	@Override
+	public void setSpezialGenerationFactory(
+			SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory) {
+		this.spezialGenerationFactory = spezialGenerationFactory;
 	}
 
 	@Override
@@ -107,7 +116,10 @@ public abstract class BasicCollectionGeneration
 
 		} else if (child.isArrayBluePrint() && child.isNotBuild()) {
 			arrayGeneration.createArray(statementTree, child.castToArrayBluePrint(), signature, isField);
-
+		}
+		
+		else if(child.isSpezialBluePrint() && child.isNotBuild()) {
+			spezialGenerationFactory.createObject(statementTree, child, signature, isField);
 		}
 	}
 

@@ -13,7 +13,9 @@ import org.testgen.runtime.generation.api.ComplexObjectGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGeneration;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
@@ -109,6 +111,12 @@ public class JavaParserCollectionGenerationFactory
 			ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration) {
 		generators.forEach(gen -> gen.setArrayGeneration(arrayGeneration));
 
+	}
+
+	@Override
+	public void setSpezialGenerationFactory(
+			SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory) {
+		generators.forEach(gen -> gen.setSpezialGenerationFactory(spezialGenerationFactory));
 	}
 
 }

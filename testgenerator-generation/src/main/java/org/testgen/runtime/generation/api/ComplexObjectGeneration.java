@@ -10,6 +10,7 @@ import org.testgen.runtime.generation.api.collections.CollectionGenerationFactor
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint;
@@ -84,6 +85,8 @@ public interface ComplexObjectGeneration<T, E, S> extends FieldGeneration<T, Com
 
 	void setCollectionGenerationFactory(CollectionGenerationFactory<T, E, S> collectionGenerationFactory);
 
+	void setSpezialGenerationFactory(SpezialObjectGenerationFactory<T, E, S, BluePrint> spezialGenerationFactory);
+	
 	void setArrayGeneration(ArrayGeneration<T, E, S> arrayGeneration);
 
 	void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler);

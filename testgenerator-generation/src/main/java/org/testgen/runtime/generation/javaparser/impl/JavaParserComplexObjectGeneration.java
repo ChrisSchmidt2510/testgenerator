@@ -23,6 +23,7 @@ import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -57,6 +58,8 @@ public class JavaParserComplexObjectGeneration
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGenerationFactory;
 
 	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory;
+
+	private SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory;
 
 	private ArrayGeneration<ClassOrInterfaceDeclaration, BlockStmt, Expression> arrayGeneration;
 
@@ -188,22 +191,13 @@ public class JavaParserComplexObjectGeneration
 					createComplexObject(codeBlock, bp);
 
 				} else if (bp.isCollectionBluePrint()) {
+
+					FieldData field = getField(classData, calledField, bp, true);
+					
+					SignatureType signature = field.getSignature();
+					SetterMethodData setter = classData.getSetterInHierarchie(field);
+					
 					BasicCollectionBluePrint<?> collection = bp.castToCollectionBluePrint();
-
-					SignatureType signature = null;
-					SetterMethodData setter = null;
-					if (TestgeneratorConfig.traceReadFieldAccess()) {
-						FieldData field = classData.getFieldInHierarchie(calledField.get());
-						signature = field.getSignature();
-
-						setter = classData.getSetterInHierarchie(field);
-
-					} else {
-						FieldData field = classData.getCollectionFieldInHierarchie(collection.getName());
-						signature = field.getSignature();
-
-						setter = classData.getSetterInHierarchie(field);
-					}
 
 					if (SetterType.COLLECTION_SETTER == setter.getType())
 						collectionGenerationFactory.createComplexElements(codeBlock, collection, signature);
@@ -212,26 +206,22 @@ public class JavaParserComplexObjectGeneration
 						collectionGenerationFactory.createCollection(codeBlock, collection, signature, false);
 
 				} else if (bp.isArrayBluePrint()) {
+					FieldData field = getField(classData, calledField, bp, false);
+					
+					SignatureType signature = field.getSignature();
+					SetterMethodData setter = classData.getSetterInHierarchie(field);
+					
 					ArrayBluePrint arrayBluePrint = bp.castToArrayBluePrint();
-
-					SignatureType signature = null;
-					SetterMethodData setter = null;
-					if (TestgeneratorConfig.traceReadFieldAccess()) {
-						FieldData field = classData.getFieldInHierarchie(calledField.get());
-						signature = field.getSignature();
-
-						setter = classData.getSetterInHierarchie(field);
-
-					} else {
-						FieldData field = classData.getFieldInHierarchie(arrayBluePrint.getName(),
-								arrayBluePrint.getReferenceClass());
-						signature = field.getSignature();
-
-						setter = classData.getSetterInHierarchie(field);
-					}
 
 					if (SetterType.VALUE_SETTER == setter.getType())
 						arrayGeneration.createArray(codeBlock, arrayBluePrint, signature, false);
+
+				} else if (bp.isSpezialBluePrint()) {
+					FieldData field = getField(classData, calledField, bp, false);
+					
+					SignatureType signature = field.getSignature();
+					
+					spezialGenerationFactory.createObject(codeBlock, bluePrint, signature, false);
 				}
 			}
 		}
@@ -342,6 +332,16 @@ public class JavaParserComplexObjectGeneration
 		}
 	}
 
+	private FieldData getField(ClassData classData, Optional<FieldData> calledField, BluePrint bluePrint,
+			boolean isCollection) {
+		if (TestgeneratorConfig.traceReadFieldAccess())
+			return classData.getFieldInHierarchie(calledField.get());
+
+		else
+			return isCollection ? classData.getCollectionFieldInHierarchie(bluePrint.getName())
+					: classData.getFieldInHierarchie(bluePrint.getName(), bluePrint.getReferenceClass());
+	}
+
 	private void createComplexObject(BlockStmt code, BluePrint bluePrint) {
 		if (bluePrint.isNotBuild()) {
 			ClassData classData = GenerationHelper.getClassData(bluePrint.getReference());
@@ -391,6 +391,12 @@ public class JavaParserComplexObjectGeneration
 	@Override
 	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
 		this.importCallBackHandler = importCallBackHandler;
+	}
+
+	@Override
+	public void setSpezialGenerationFactory(
+			SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory) {
+		this.spezialGenerationFactory = spezialGenerationFactory;
 	}
 
 }

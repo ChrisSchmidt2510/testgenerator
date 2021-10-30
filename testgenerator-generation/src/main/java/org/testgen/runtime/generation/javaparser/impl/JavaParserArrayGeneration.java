@@ -18,6 +18,7 @@ import org.testgen.runtime.generation.api.GenerationHelper;
 import org.testgen.runtime.generation.api.collections.CollectionGenerationFactory;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint;
@@ -53,6 +54,8 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 
 	private CollectionGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> collectionGenerationFactory;
 
+	private SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory;
+	
 	private NamingService<BlockStmt> namingService = getNamingService();
 
 	private Consumer<Class<?>> importCallbackHandler;
@@ -143,6 +146,10 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 
 			} else if (child.isArrayBluePrint() && child.isNotBuild()) {
 				createArray(statementTree, child.castToArrayBluePrint(), signature, isField);
+			}
+			
+			else if(child.isSpezialBluePrint()&& child.isNotBuild()) {
+				spezialGenerationFactory.createObject(statementTree, child, signature, isField);
 			}
 		}
 
@@ -315,5 +322,11 @@ public class JavaParserArrayGeneration implements ArrayGeneration<ClassOrInterfa
 	@Override
 	public void setImportCallBackHandler(Consumer<Class<?>> importCallBackHandler) {
 		this.importCallbackHandler = importCallBackHandler;
+	}
+
+	@Override
+	public void setSpezialGenerationFactory(
+			SpezialObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression, BluePrint> spezialGenerationFactory) {
+		this.spezialGenerationFactory = spezialGenerationFactory;
 	}
 }

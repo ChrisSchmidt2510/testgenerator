@@ -11,6 +11,7 @@ import org.testgen.runtime.generation.api.FieldGeneration;
 import org.testgen.runtime.generation.api.naming.NamingService;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
+import org.testgen.runtime.generation.api.spezial.SpezialObjectGenerationFactory;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -87,6 +88,8 @@ public interface CollectionGenerationFactory<T, E, S> extends FieldGeneration<T,
 	void setSimpleObjectGenerationFactory(SimpleObjectGenerationFactory<T, E, S> simpleGenerationFactory);
 
 	void setComplexObjectGeneration(ComplexObjectGeneration<T, E, S> complexObjectGeneration);
+	
+	void setSpezialGenerationFactory(SpezialObjectGenerationFactory<T, E, S, BluePrint> spezialGenerationFactory);
 
 	void setArrayGeneration(ArrayGeneration<T, E, S> arrayGeneration);
 
