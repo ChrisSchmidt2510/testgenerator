@@ -41,7 +41,7 @@ public interface CollectionGenerationFactory<T, E, S> extends FieldGeneration<T,
 	 * @param codeBlock codeBlock where the generated code is added
 	 * @param bluePrint of the {@link Collection}
 	 * @param signature of the {@link Collection}
-	 * @param isField   marks the that the collection is a Field of generated Class
+	 * @param isField   marks that the collection is a Field of generated Class
 	 */
 	void createCollection(E codeBlock, BasicCollectionBluePrint<?> bluePrint, //
 			SignatureType signature, boolean isField);
