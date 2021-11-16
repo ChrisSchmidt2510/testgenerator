@@ -27,5 +27,9 @@ public abstract class AbstractProxy {
 	public Class<?> getDataType() {
 		return field.getDescriptor();
 	}
+	
+	public static boolean isProxy(Object value) {
+		return value instanceof AbstractProxy;
+	}
 
 }

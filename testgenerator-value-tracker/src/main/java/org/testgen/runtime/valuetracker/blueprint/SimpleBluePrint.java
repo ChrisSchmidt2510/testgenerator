@@ -1,10 +1,9 @@
 package org.testgen.runtime.valuetracker.blueprint;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
+public abstract class SimpleBluePrint<E> extends BasicBluePrint<E> {
 	private final String createdValue;
 
 	protected SimpleBluePrint(String name, E value) {
@@ -23,10 +22,6 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 		return createdValue;
 	}
 
-	public List<Class<?>> getReferenceClasses() {
-		return Collections.emptyList();
-	}
-
 	@Override
 	public boolean isComplexType() {
 		return false;
@@ -39,7 +34,7 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdValue);
+		return Objects.hash(name, createdValue);
 	}
 
 	@Override
@@ -49,7 +44,7 @@ public abstract class SimpleBluePrint<E> extends AbstractBasicBluePrint<E> {
 		if (!(obj instanceof SimpleBluePrint))
 			return false;
 		SimpleBluePrint<?> other = (SimpleBluePrint<?>) obj;
-		return Objects.equals(value, other.value);
+		return Objects.equals(name, other.name) && Objects.equals(createdValue, other.createdValue);
 	}
 
 	@Override

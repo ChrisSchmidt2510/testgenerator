@@ -129,6 +129,7 @@ public class ClassData {
 
 		if (fieldSetterPairs.containsKey(field)) {
 			return fieldSetterPairs.get(field);
+
 		} else if (superClass != null) {
 			return superClass.get().getSetterInHierarchie(field);
 		}

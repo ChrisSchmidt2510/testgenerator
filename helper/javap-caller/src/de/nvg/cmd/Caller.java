@@ -4,28 +4,26 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Caller
-{
+public class Caller {
 
-  public static void main(String[] args)
-    throws IOException
-  {
-    // D:\\workspace\\javaagent-sample-app\\target\\classes\\de\\nvg\\bl\\partner\\Person.class
-    // D:\\git\\testgenerator\\testgenerator-agent\\target\\test-classes\\de\\nvg\\javaagent\\classdata\\modify\\testclasses\\Adresse.class
-    ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c",
-        "%JAVA_HOME%\\bin\\javap.exe -c -v -p D:\\Schaden.class");
-    Process p = builder.start();
-    BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-    String line;
-    while (true)
-    {
-      line = r.readLine();
-      if (line == null)
-      {
-        break;
-      }
-      System.out.println(line);
-    }
-  }
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c",
+				// D:\\git\\testgenerator\\helper\\javaagent-sample-app\\DUMP_CLASS_FILES\\java\\lang\\invoke\\LambdaForm$MH036.class
+				"D:\\JDK\\jdk-13.0.2+8\\bin\\javap.exe -c -v -s -p D:\\git\\testgenerator\\testgenerator-agent\\target\\test-classes\\org\\testgen\\agent\\classdata\\testclasses\\Adresse.class");
+		Process p = builder.start();
+		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		String line;
+		while (true) {
+			line = r.readLine();
+			if (line == null) {
+				break;
+			}
+			System.out.println(line);
+		}
+	}
 
 }

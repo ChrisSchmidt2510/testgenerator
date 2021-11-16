@@ -10,5 +10,9 @@ public class TrackingException extends RuntimeException {
 	public TrackingException(String message, Throwable cause) {
 		super(message, cause);
 	}
+	
+	public TrackingException(String message) {
+		super(message);
+	}
 
 }

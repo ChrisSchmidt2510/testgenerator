@@ -4,16 +4,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.core.IConfigurationElementConstants;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -41,13 +47,14 @@ import org.testgen.testgenerator.ui.plugin.dialogs.model.BlProject;
 import org.testgen.testgenerator.ui.plugin.dialogs.model.Dependency;
 import org.testgen.testgenerator.ui.plugin.dialogs.model.Model;
 import org.testgen.testgenerator.ui.plugin.helper.Descriptor;
+import org.testgen.testgenerator.ui.plugin.helper.JDTUtil;
 import org.testgen.testgenerator.ui.plugin.helper.Utils;
 import org.testgen.testgenerator.ui.plugin.preference.TestgeneratorPreferencePage;
 
 @SuppressWarnings("restriction")
 public class TestgeneratorConfigurationController {
 
-	private static final String JAVAAGENT = "javaagent:";
+	private static final String JAVAAGENT = "-javaagent:";
 
 	private static final String BOOT_CLASSPATH = "-Xbootclasspath/p:";
 	private static final String ARG_CLASS_NAME = "ClassName";
@@ -57,6 +64,8 @@ public class TestgeneratorConfigurationController {
 	private static final String ARG_BL_PACKGE_JAR_DEST = "BlPackageJarDestination";
 	private static final String ARG_TRACE_READ_FIELD_ACCESS = "TraceReadFieldAccess";
 	private static final String ARG_COSTUM_TESTGENERATOR_CLASS = "CostumTestgeneratorClass";
+
+	private static final String ARG_PATH_TO_TESTCLASS = "PathToTestclass";
 
 	private static final String GENERALL_ARG_SEPARATUR = "-";
 	private static final String LIST_ARG_SEPARATUR = ",";
@@ -70,7 +79,7 @@ public class TestgeneratorConfigurationController {
 
 	private TestgeneratorConfigurationDialog dialog;
 
-	private IType selectedSourceType;
+	private IType selectedType;
 	private IType customTestgeneratorType;
 	private Map<String, IMethod> methods = new HashMap<>();
 
@@ -86,34 +95,45 @@ public class TestgeneratorConfigurationController {
 	}
 
 	public void createDialog(IMethod selectedMethod) {
-		selectedSourceType = selectedMethod.getDeclaringType();
+		selectedType = selectedMethod.getDeclaringType();
 
-		try {
-			updateModel(selectedSourceType.getMethods(), selectedMethod);
-		} catch (JavaModelException e) {
-			TestgeneratorActivator.log(e);
+		if (getTestFragmentRoot(selectedType) != null) {
+			try {
+				updateModel(selectedType.getMethods(), selectedMethod);
+			} catch (JavaModelException e) {
+				TestgeneratorActivator.log(e);
+			}
+
+			dialog = new TestgeneratorConfigurationDialog(activeShell, //
+					this, model);
+			dialog.create();
+			dialog.updateComponents();
+			dialog.open();
+		} else {
+			MessageDialog.openError(activeShell, "Error initalizing Testgenerator-Plugin",
+					"Pls add a Test sourcefolder to project " + selectedType.getJavaProject().getElementName());
 		}
-
-		dialog = new TestgeneratorConfigurationDialog(activeShell, //
-				this, model);
-		dialog.create();
-		dialog.updateComponents();
-		dialog.open();
 	}
 
 	public void updateTestclassType() {
 		IType testClassType = openTypeSelection();
 
-		selectedSourceType = testClassType;
-		methods.clear();
+		if (JDTUtil.validateType(testClassType)) {
 
-		try {
-			updateModel(testClassType.getMethods(), null);
-		} catch (JavaModelException e) {
-			TestgeneratorActivator.log(e);
+			selectedType = testClassType;
+			methods.clear();
+
+			try {
+				updateModel(testClassType.getMethods(), null);
+			} catch (JavaModelException e) {
+				TestgeneratorActivator.log(e);
+			}
+
+			dialog.updateComponents();
+		} else {
+			MessageDialog.openError(activeShell, "Cant use selected type",
+					"The type you selected no Test can be generated");
 		}
-
-		dialog.updateComponents();
 	}
 
 	public void updateCustomTestgeneratorClass() {
@@ -148,7 +168,7 @@ public class TestgeneratorConfigurationController {
 	}
 
 	private IType openTypeSelection() {
-		SelectionDialog dialog = new OpenTypeSelectionDialog(activeShell, true,
+		SelectionDialog dialog = new OpenTypeSelectionDialog(activeShell, false,
 				PlatformUI.getWorkbench().getProgressService(), null, IJavaSearchConstants.TYPE);
 		dialog.setTitle(JavaUIMessages.OpenTypeAction_dialogTitle);
 		dialog.setMessage(JavaUIMessages.OpenTypeAction_dialogMessage);
@@ -303,15 +323,18 @@ public class TestgeneratorConfigurationController {
 	private void updateModel(IMethod[] methods, IMethod selectedMethod) {
 		this.methods.clear();
 		for (IMethod method : methods) {
-			this.methods.put(createMethodString(method), method);
+			if (JDTUtil.validateMethod(method)) {
+				this.methods.put(createMethodString(method), method);
+			}
 		}
 
 		model.setMethods(this.methods.keySet());
 
-		if (selectedMethod != null)
+		if (selectedMethod != null) {
 			model.setSelectedMethod(createMethodString(selectedMethod));
+		}
 
-		model.setClassName(selectedSourceType.getTypeQualifiedName());
+		model.setClassName(selectedType.getTypeQualifiedName());
 
 	}
 
@@ -319,7 +342,7 @@ public class TestgeneratorConfigurationController {
 		StringBuilder argument = new StringBuilder();
 
 		try {
-			argument.append(GENERALL_ARG_SEPARATUR + JAVAAGENT);
+			argument.append(JAVAAGENT);
 
 			IPreferenceStore store = TestgeneratorActivator.getDefault().getPreferenceStore();
 
@@ -339,7 +362,7 @@ public class TestgeneratorConfigurationController {
 			}
 
 			argument.append(GENERALL_ARG_SEPARATUR + ARG_CLASS_NAME + EQUAL
-					+ selectedSourceType.getFullyQualifiedName().replace(".", "/"));
+					+ selectedType.getFullyQualifiedName().replace('.', '/'));
 
 			String selectedMethodStr = model.getSelectedMethod();
 
@@ -347,7 +370,7 @@ public class TestgeneratorConfigurationController {
 
 			argument.append(GENERALL_ARG_SEPARATUR + ARG_METHOD_NAME + EQUAL + method.getElementName());
 
-			Descriptor descriptor = Descriptor.getInstance(selectedSourceType.getJavaProject());
+			Descriptor descriptor = Descriptor.getInstance(selectedType.getJavaProject());
 
 			argument.append(GENERALL_ARG_SEPARATUR + ARG_METHOD_DESC + EQUAL + "(");
 
@@ -364,31 +387,9 @@ public class TestgeneratorConfigurationController {
 			}
 
 			if (!model.getProjects().isEmpty()) {
-				Set<String> packages = new HashSet<>();
-				Set<String> jarDest = new HashSet<>();
+				String packageArguments = generateBlPackageArgument();
 
-				for (BlProject blProject : model.getProjects()) {
-					if (!blProject.getSelectedPackages().isEmpty()) {
-						jarDest.add(blProject.getOutputLocation().toPortableString());
-
-						for (Dependency dependency : blProject.getDependencies()) {
-							jarDest.add(dependency.getPackageFragmentPath());
-
-							for (IPackageFragment pkg : dependency.getSelectedPackages()) {
-								packages.add(pkg.getElementName());
-							}
-						}
-
-						for (IPackageFragment pkg : blProject.getSelectedPackages()) {
-							packages.add(pkg.getElementName());
-						}
-					}
-				}
-
-				argument.append(
-						GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL + String.join(LIST_ARG_SEPARATUR, packages));
-				argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKGE_JAR_DEST + EQUAL
-						+ String.join(LIST_ARG_SEPARATUR, jarDest));
+				argument.append(packageArguments);
 			}
 
 			if (model.getCostumTestgeneratorClassName() != null) {
@@ -396,11 +397,105 @@ public class TestgeneratorConfigurationController {
 						GENERALL_ARG_SEPARATUR + ARG_COSTUM_TESTGENERATOR_CLASS + EQUAL + customTestgeneratorType);
 			}
 
+			argument.append(generatePathToTestclassArgument());
+
 		} catch (JavaModelException e) {
 			TestgeneratorActivator.log(e);
 		}
 
 		return argument.toString();
+	}
+
+	private String generateBlPackageArgument() {
+		Set<String> packages = new HashSet<>();
+		Set<String> jarDest = new HashSet<>();
+
+		StringBuilder argument = new StringBuilder();
+
+		for (BlProject blProject : model.getProjects()) {
+			if (!blProject.getSelectedPackages().isEmpty()) {
+				jarDest.add(blProject.getOutputLocation().toPortableString());
+
+				for (Dependency dependency : blProject.getDependencies()) {
+					jarDest.add(dependency.getPackageFragmentPath());
+
+					for (IPackageFragment pkg : dependency.getSelectedPackages()) {
+						packages.add(pkg.getElementName().replace('.', '/'));
+					}
+				}
+
+				for (IPackageFragment pkg : blProject.getSelectedPackages()) {
+					packages.add(pkg.getElementName().replace('.', '/'));
+				}
+			}
+		}
+
+		argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL + String.join(LIST_ARG_SEPARATUR, packages));
+		argument.append(
+				GENERALL_ARG_SEPARATUR + ARG_BL_PACKGE_JAR_DEST + EQUAL + String.join(LIST_ARG_SEPARATUR, jarDest));
+
+		return argument.toString();
+
+	}
+
+	private String generatePathToTestclassArgument() {
+		if (JDTUtil.validateType(selectedType)) {
+			IPackageFragmentRoot testFragmentRoot = getTestFragmentRoot(selectedType);
+
+			IPath testClassLocation = selectedType.getJavaProject().getProject().getRawLocation();
+			testClassLocation = testClassLocation.append(testFragmentRoot.getPath().removeFirstSegments(1));
+
+			boolean testClassExists = false;
+
+			try {
+				for (IJavaElement element : testFragmentRoot.getChildren()) {
+					IPackageFragment packageFragment = (IPackageFragment) element;
+
+					Optional<ICompilationUnit> testClassOptional = Arrays.stream(packageFragment.getCompilationUnits())
+							.filter(cu -> cu.getElementName().contains(selectedType.getElementName())).findAny();
+
+					if (testClassOptional.isPresent()) {
+						testClassExists = true;
+						testClassLocation = testClassLocation
+								.append(packageFragment.getElementName().replace('.', '/'));
+						testClassLocation = testClassLocation.append(testClassOptional.get().getElementName());
+						break;
+					}
+				}
+
+			} catch (JavaModelException e) {
+				TestgeneratorActivator.log(e);
+			}
+
+			if (!testClassExists) {
+				testClassLocation.append(selectedType.getPackageFragment().getElementName().replace('.', '/'));
+				testClassLocation.append(selectedType.getFullyQualifiedName('/') + "Test.java");
+			}
+
+			return GENERALL_ARG_SEPARATUR + ARG_PATH_TO_TESTCLASS + EQUAL + testClassLocation.toPortableString();
+		}
+
+		return "";
+	}
+
+	private IPackageFragmentRoot getTestFragmentRoot(IType selectedType) {
+		IJavaProject javaProject = selectedType.getJavaProject();
+
+		if (javaProject != null && javaProject.exists()) {
+			try {
+				for (IPackageFragmentRoot root : javaProject.getPackageFragmentRoots()) {
+
+					if (root.getKind() == IPackageFragmentRoot.K_SOURCE && root.getResolvedClasspathEntry().isTest()) {
+						return root;
+					}
+
+				}
+			} catch (JavaModelException e) {
+				TestgeneratorActivator.log(e);
+			}
+		}
+
+		return null;
 	}
 
 	private String generateTestgeneratorBootstrap() {
