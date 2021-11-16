@@ -74,7 +74,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 	@Override
 	public String toString() {
-		return value.getClass().getName() + " " + name +" childs: " +bluePrints.toString();
+		return value.getClass().getName() + " " + name + " childs: " + bluePrints.toString();
 	}
 
 	@Override
@@ -88,6 +88,12 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 				.unmodifiableList(Arrays.asList("com.oracle", "com.sun", "java", "javax", "jdk", "org", "sun"));
 
 		private static final String OUTER_CLASS_FIELD_NAME = "this$0";
+
+		/**
+		 * jacoco generates for coverage cases new fields into classes. Tracking these
+		 * fields is useless for test generation, so we ignore these fields.
+		 */
+		private static final String JACOCO = "jacoco";
 
 		private static final Logger LOGGER = LogManager.getLogger(ComplexBluePrintFactory.class);
 
@@ -121,9 +127,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 				throw new TrackingException(
 						"cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints");
 
-			
 			ComplexBluePrint bluePrint = new ComplexBluePrint(name, value);
-
 
 			trackValues(value, valueClass, bluePrint, currentlyBuildedBluePrints, childCallBack);
 
@@ -148,7 +152,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 					Object fieldValue = ObjectValueTracker.getProxyValue(field.get(value));
 
 					if (fieldValue == null || TestgeneratorConstants.isTestgeneratorField(field.getName())
-							|| fieldValue instanceof ObjectValueTracker)
+							|| fieldValue instanceof ObjectValueTracker || field.getName().contains(JACOCO))
 						continue;
 
 					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);

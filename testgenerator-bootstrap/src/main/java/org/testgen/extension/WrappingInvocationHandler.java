@@ -32,7 +32,7 @@ public class WrappingInvocationHandler implements InvocationHandler {
 				init(proxy);
 
 				TestgeneratorConfig.setProxyFieldTracking(true);
-				addProxyResult.invoke(method, result);
+				addProxyResult.invoke(proxyBluePrint, method, result);
 				TestgeneratorConfig.setProxyFieldTracking(false);
 			}
 

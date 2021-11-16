@@ -84,7 +84,7 @@ public class GenerationHelperTest {
 				
 				SignatureType signature = GenerationHelper.mapGenericTypeToSignature(method.getGenericReturnType());
 			
-				Assert.assertEquals(null, signature);
+				Assert.assertEquals(new SignatureType(int.class), signature);
 			} catch (NoSuchMethodException | SecurityException e) {
 				fail();
 			}

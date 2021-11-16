@@ -125,7 +125,7 @@ public class ArrayBluePrint extends BasicBluePrint<Object> {
 
 				if (element != null) {
 
-					if (currentlyBuildedBluePrints.isCurrentlyBuilded(value)) {
+					if (currentlyBuildedBluePrints.isCurrentlyBuilded(element)) {
 						int index = i;
 						currentlyBuildedBluePrints.addFinishedListener(element, bp -> arrayBluePrint.add(index, bp));
 

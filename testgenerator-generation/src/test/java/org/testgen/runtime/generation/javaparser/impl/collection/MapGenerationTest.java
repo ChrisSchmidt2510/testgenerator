@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -174,7 +175,7 @@ public class MapGenerationTest {
 		signature.addSubType(key);
 		signature.addSubType(mapValue);
 
-		Map<Set<Integer>, List<String>> map = new HashMap<>();
+		Map<Set<Integer>, List<String>> map = new LinkedHashMap<>();
 		map.put(new HashSet<>(Arrays.asList(1, 2, 3)), Arrays.asList("aged", "like", "milk"));
 		map.put(new HashSet<>(Arrays.asList(9, 8, 7)), Arrays.asList("why", "i'm", "so", "stupid"));
 
@@ -205,17 +206,20 @@ public class MapGenerationTest {
 				+ "    mapKey1.add(8);\r\n"//
 				+ "    mapKey1.add(9);\r\n"//
 				+ "\r\n"//
-				+ "    List<String> mapValue = new ArrayList<>();\r\n" + "    mapValue.add(\"aged\");\r\n"//
+				+ "    List<String> mapValue = new ArrayList<>();\r\n" //
+				+"    mapValue.add(\"aged\");\r\n"//
 				+ "    mapValue.add(\"like\");\r\n"//
 				+ "    mapValue.add(\"milk\");\r\n"//
-				+ "\r\n" + "    List<String> mapValue1 = new ArrayList<>();\r\n"//
+				+ "\r\n"//
+				+ "    List<String> mapValue1 = new ArrayList<>();\r\n"//
 				+ "    mapValue1.add(\"why\");\r\n"//
 				+ "    mapValue1.add(\"i'm\");\r\n"//
 				+ "    mapValue1.add(\"so\");\r\n"//
-				+ "    mapValue1.add(\"stupid\");\r\n" + "\r\n"
-				+ "    Map<Set<Integer>, List<String>> map = new HashMap<>();\r\n"//
-				+ "    map.put(mapKey1, mapValue1);\r\n"//
+				+ "    mapValue1.add(\"stupid\");\r\n"//
+				+ "\r\n"//
+				+ "    Map<Set<Integer>, List<String>> map = new LinkedHashMap<>();\r\n"//
 				+ "    map.put(mapKey, mapValue);\r\n"//
+				+ "    map.put(mapKey1, mapValue1);\r\n"//
 				+ "\r\n"//
 				+ "}";
 
@@ -239,15 +243,19 @@ public class MapGenerationTest {
 				+ "    mapKey1.add(8);\r\n"//
 				+ "    mapKey1.add(9);\r\n"//
 				+ "\r\n"//
-				+ "    List<String> mapValue = new ArrayList<>();\r\n" + "    mapValue.add(\"aged\");\r\n"//
+				+ "    List<String> mapValue = new ArrayList<>();\r\n" //
+				+ "    mapValue.add(\"aged\");\r\n"//
 				+ "    mapValue.add(\"like\");\r\n"//
 				+ "    mapValue.add(\"milk\");\r\n"//
-				+ "\r\n" + "    List<String> mapValue1 = new ArrayList<>();\r\n"//
+				+ "\r\n" //
+				+ "    List<String> mapValue1 = new ArrayList<>();\r\n"//
 				+ "    mapValue1.add(\"why\");\r\n"//
 				+ "    mapValue1.add(\"i'm\");\r\n"//
 				+ "    mapValue1.add(\"so\");\r\n"//
-				+ "    mapValue1.add(\"stupid\");\r\n" + "\r\n" + "    this.map.put(mapKey1, mapValue1);\r\n"//
-				+ "    this.map.put(mapKey, mapValue);\r\n"//
+				+ "    mapValue1.add(\"stupid\");\r\n" //
+				+"\r\n" //
+				+"    this.map.put(mapKey, mapValue);\r\n"//
+				+ "    this.map.put(mapKey1, mapValue1);\r\n"//
 				+ "\r\n"//
 				+ "}";
 

@@ -75,6 +75,9 @@ public class ComplexBluePrintTest {
 
 		Assert.assertEquals("person", complex.getName());
 		Assert.assertTrue(complex.isComplexBluePrint());
+		
+		System.out.println(complex.getPreExecuteBluePrints());
+		
 		Assert.assertEquals(1, complex.getPreExecuteBluePrints().size());
 
 		List<BluePrint> compareList = new ArrayList<>();
