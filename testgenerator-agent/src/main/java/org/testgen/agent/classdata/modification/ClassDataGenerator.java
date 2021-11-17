@@ -60,8 +60,7 @@ public class ClassDataGenerator {
 	private static final String SETTER_TYPE_FIELDNAME_COLLECTION_SETTER = "COLLECTION_SETTER";
 
 	private static final String SETTER_METHOD_DATA_CLASSNAME = "org/testgen/runtime/classdata/model/SetterMethodData";
-	private static final String SETTER_METHOD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;Z)V";
-	private static final String SETTER_METHOD_DATA_CONSTRUCTOR_WITH_SETTER_TYPE = "(Ljava/lang/String;Ljava/lang/String;ZLorg/testgen/runtime/classdata/model/SetterType;)V";
+	private static final String SETTER_METHOD_DATA_CONSTRUCTOR = "(Ljava/lang/String;Ljava/lang/String;ZLorg/testgen/runtime/classdata/model/SetterType;)V";
 
 	private static final String INDY_SUPPLIER_TYPED_RETURN_TYPE = "()Lorg/testgen/runtime/classdata/model/ClassData;";
 	private static final String INDY_METHOD_NAME = "testgenerator$";
@@ -258,14 +257,9 @@ public class ClassDataGenerator {
 					code.addLdc(method.getDescriptor());
 					code.addIconst(method.isStatic() ? 1 : 0);
 
-					if (JavaTypes.COLLECTION_LIST.contains(dataType) || JavaTypes.isArray(dataType)) {
-						code.addGetstatic(SETTER_TYPE_CLASSNAME, getSetterType(type), SETTER_TYPE);
-						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
-								SETTER_METHOD_DATA_CONSTRUCTOR_WITH_SETTER_TYPE);
-					} else {
-						code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
-								SETTER_METHOD_DATA_CONSTRUCTOR);
-					}
+					code.addGetstatic(SETTER_TYPE_CLASSNAME, getSetterType(type), SETTER_TYPE);
+					code.addInvokespecial(SETTER_METHOD_DATA_CLASSNAME, MethodInfo.nameInit,
+							SETTER_METHOD_DATA_CONSTRUCTOR);
 
 					code.addInvokevirtual(CLASS_DATA_CLASSNAME, CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR,
 							CLASS_DATA_METHOD_ADD_FIELD_SETTER_PAIR_DESC);

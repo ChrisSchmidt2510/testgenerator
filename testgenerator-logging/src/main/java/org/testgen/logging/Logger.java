@@ -1,143 +1,120 @@
 package org.testgen.logging;
 
-import java.io.PrintStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.function.Consumer;
+import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.logging.LogRecord;
 
 import org.testgen.logging.config.Configuration;
 import org.testgen.logging.config.Level;
 
-public class Logger {
+public class Logger{
 	private final Configuration config;
+	private final String name;
 
-	Logger(Configuration config) {
+	Logger(Configuration config, Class<?> loggerClass) {
 		this.config = config;
+		this.name = loggerClass.getSimpleName();
+	}
+
+	Logger(Configuration config, String name) {
+		this.config = config;
+		this.name = name;
 	}
 
 	public void error(String message) {
 		log(Level.ERROR, message);
 	}
 
-	public void error(Throwable exception) {
-		log(Level.ERROR, exception);
-	}
-
 	public void error(String message, Throwable exception) {
-		log(Level.ERROR, message);
-		log(Level.ERROR, exception);
+		log(Level.ERROR, message, exception);
+	}
+	
+	public void error(String message, Supplier<String> expensiveMessage) {
+		log(Level.ERROR, message, expensiveMessage);
 	}
 
-	public void error(Supplier<String> message) {
-		log(Level.ERROR, message);
+	public void warn(String message) {
+		log(Level.WARN, message);	
 	}
 
-	public void error(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.ERROR, message, messagePrinter);
+	public void warn(String message, Throwable exception) {
+		log(Level.WARN, message, exception);
 	}
 
-	public void debug(String message) {
-		log(Level.DEBUG, message);
-	}
-
-	public void debug(Supplier<String> message) {
-		log(Level.DEBUG, message);
-	}
-
-	public void debug(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.DEBUG, message, messagePrinter);
-	}
-
-	public void debug(Throwable exception) {
-		log(Level.DEBUG, exception);
+	public void warn(String message, Supplier<String> expensiveMessage) {
+		log(Level.WARN, message, expensiveMessage);
 	}
 
 	public void info(String message) {
 		log(Level.INFO, message);
 	}
 
-	public void info(Supplier<String> message) {
-		log(Level.INFO, message);
+	public void info(String message, Throwable exception) {
+		log(Level.INFO, message, exception);
 	}
 
-	public void info(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.INFO, message, messagePrinter);
+	public void info(String message, Supplier<String> expensiveMessage) {
+		log(Level.INFO, message, expensiveMessage);
+	}
+	
+	public void debug(String message) {
+		log(Level.DEBUG, message);
 	}
 
-	public void info(Throwable exception) {
-		log(Level.INFO, exception);
+	public void debug(String message, Throwable exception) {
+		log(Level.DEBUG, message, exception);
 	}
-
-	public void warning(String message) {
-		log(Level.WARNING, message);
-	}
-
-	public void warning(Supplier<String> message) {
-		log(Level.WARNING, message);
-	}
-
-	public void warning(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.WARNING, message, messagePrinter);
-	}
-
-	public void warning(Exception exception) {
-		log(Level.WARNING, exception);
+	
+	public void debug(String message, Supplier<String> expensiveMessage) {
+		log(Level.DEBUG, message, expensiveMessage);
 	}
 
 	public void trace(String message) {
 		log(Level.TRACE, message);
 	}
-
-	public void trace(Supplier<String> message) {
-		log(Level.TRACE, message);
+	
+	public void trace(String message, Throwable exception) {
+		log(Level.TRACE, message, exception);
 	}
 
-	public void trace(String message, Consumer<PrintStream> messagePrinter) {
-		log(Level.TRACE, message, messagePrinter);
+	public void trace(String message, Supplier<String> expensiveMessage) {
+		log(Level.TRACE, message, expensiveMessage);
 	}
 
-	public void trace(Throwable exception) {
-		log(Level.TRACE, exception);
-	}
-
-	public void log(Level level, String message) {
-		if (isLevelActive(level)) {
-			printMessage(level, message);
-		}
-	}
-
-	public void log(Level level, Throwable exception) {
-		if (isLevelActive(level)) {
-			config.getAppender().write(exception);
-		}
-	}
-
-	public void log(Level level, String message, Consumer<PrintStream> messagePrinter) {
-		if (isLevelActive(level)) {
-			printMessage(level, message);
-			config.getAppender().write(messagePrinter);
-		}
-	}
-
-	public void log(Level level, Supplier<String> message) {
-		if (isLevelActive(level)) {
-			printMessage(level, message.get());
-		}
-	}
-
-	public boolean isLevelActive(Level level) {
+	private boolean isLoggable(Level level) {
 		return this.config.getLevel().ordinal() >= level.ordinal();
 	}
 
-	private void printMessage(Level messageLevel, String message) {
-		config.getAppender().write((startLogMessage(messageLevel) + message + "\n"));
+	private void log(Level level, String message) {
+		if (isLoggable(level)) {
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, message);
+			record.setParameters(new Object[] { level, name });
+
+			config.forEachHandler(handler -> handler.publish(record));
+		}
 	}
 
-	private String startLogMessage(Level messageLevel) {
-		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + //
-				" [" + config.getPackageName() + "] [" + Thread.currentThread().getName() + "] "//
-				+ messageLevel + " ";
+	private void log(Level level, String message, Supplier<String> expensiveMessage) {
+		Objects.requireNonNull(expensiveMessage, "expeniveMessage is required");
+		
+		if (isLoggable(level)) {
+			String completeMessage = message == null ||message.isEmpty() ? expensiveMessage.get() : message + System.lineSeparator() + expensiveMessage.get();
+
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, completeMessage);
+			record.setParameters(new Object[] { level, name });
+
+			config.forEachHandler(handler -> handler.publish(record));
+		}
 	}
 
+	private void log(Level level, String message, Throwable exception) {
+		Objects.requireNonNull(exception, "exception is required");
+		
+		if (isLoggable(level)) {
+			LogRecord record = new LogRecord(java.util.logging.Level.ALL, message == null || message.isEmpty() ? "": message);
+			record.setParameters(new Object[] { level, name });
+			record.setThrown(exception);
+			config.forEachHandler(handler -> handler.publish(record));
+		}
+	}
 }

@@ -823,7 +823,7 @@ public class Proxy implements java.io.Serializable {
         }
 
         final Proxy p = (Proxy) proxy;
-        final InvocationHandler ih = p.h;
+        final InvocationHandler ih = (p.h instanceof WrappingInvocationHandler) ? ((WrappingInvocationHandler) p.h).getOriginalInvoker() : p.h;
         if (System.getSecurityManager() != null) {
             Class<?> ihClass = ih.getClass();
             Class<?> caller = Reflection.getCallerClass();

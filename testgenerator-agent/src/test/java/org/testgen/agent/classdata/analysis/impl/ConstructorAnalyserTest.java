@@ -58,7 +58,7 @@ public class ConstructorAnalyserTest extends TestHelper {
 		analyser.setClassData(classData);
 		analyser.setClassFile(classFile);
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));

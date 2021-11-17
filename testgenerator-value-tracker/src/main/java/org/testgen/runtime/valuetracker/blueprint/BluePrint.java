@@ -2,17 +2,28 @@ package org.testgen.runtime.valuetracker.blueprint;
 
 import java.util.List;
 
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
+
 public interface BluePrint {
 
 	List<BluePrint> getPreExecuteBluePrints();
 
 	Object getReference();
 
+	Class<?> getReferenceClass();
+
+	String getSimpleClassName();
+
 	String getClassNameOfReference();
 
 	String getName();
 
 	boolean isComplexType();
+
+	boolean isBuild();
 
 	boolean isNotBuild();
 
@@ -21,16 +32,12 @@ public interface BluePrint {
 	void resetBuildState();
 
 	default boolean isCollectionBluePrint() {
-		return this instanceof AbstractBasicCollectionBluePrint<?>;
+		return this instanceof BasicCollectionBluePrint<?>;
 	}
 
-	default boolean isContainerBluePrint() {
-		return this instanceof AbstractBasicCollectionBluePrint<?> || this instanceof ArrayBluePrint;
-	}
-
-	default AbstractBasicCollectionBluePrint<?> castToCollectionBluePrint() {
-		if (isContainerBluePrint()) {
-			return (AbstractBasicCollectionBluePrint<?>) this;
+	default BasicCollectionBluePrint<?> castToCollectionBluePrint() {
+		if (isCollectionBluePrint()) {
+			return (BasicCollectionBluePrint<?>) this;
 		}
 
 		return null;
@@ -70,6 +77,10 @@ public interface BluePrint {
 		}
 
 		return null;
+	}
+	
+	default boolean isSpezialBluePrint() {
+		return this instanceof ProxyBluePrint || this instanceof LambdaExpressionBluePrint;
 	}
 
 }

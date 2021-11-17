@@ -9,14 +9,16 @@ import org.testgen.core.ReflectionUtil;
 public class WrappingInvocationHandler implements InvocationHandler {
 	private static final String OBJECT_VALUE_TRACKER = "org.testgen.runtime.valuetracker.ObjectValueTracker";
 	private static final String METHOD_GET_INSTANCE = "getInstance";
-	private static final String METHOD_TRACK_PROXY_VALUES = "trackProxyValues";
+	private static final String METHOD_TRACK_PROXY_VALUES = "trackProxy";
 
+	private static final String PROXY_BLUE_PRINT_METHOD_ADD_PROXY_RESULT ="addProxyResult";
+	
 	private static final String PROXY_NAME = "proxy";
 
 	private final InvocationHandler originalInvoker;
 
-	private Method track;
-	private Object valueTracker;
+	private Object proxyBluePrint;
+	private Method addProxyResult;
 
 	public WrappingInvocationHandler(InvocationHandler originalInvoker) {
 		this.originalInvoker = originalInvoker;
@@ -26,27 +28,35 @@ public class WrappingInvocationHandler implements InvocationHandler {
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Object result = originalInvoker.invoke(proxy, method, args);
 
-		if (TestgeneratorConfig.isProxyTrackingActivated()) {
-			init();
+			if (!Void.TYPE.equals(method.getReturnType())&& TestgeneratorConfig.isProxyTrackingActivated()) {
+				init(proxy);
 
-			TestgeneratorConfig.setProxyFieldTracking(true);
-			track.invoke(valueTracker, result, method.getName(), method.getDeclaringClass(), PROXY_NAME);
-			TestgeneratorConfig.setProxyFieldTracking(false);
-		}
+				TestgeneratorConfig.setProxyFieldTracking(true);
+				addProxyResult.invoke(proxyBluePrint, method, result);
+				TestgeneratorConfig.setProxyFieldTracking(false);
+			}
 
 		return result;
 	}
 
-	private void init() {
-		if (valueTracker == null) {
+	public InvocationHandler getOriginalInvoker() {
+		return originalInvoker;
+	}
+
+	private void init(Object proxy) {
+		if (proxyBluePrint == null) {
 			try {
 				Class<?> valueTrackerClass = ReflectionUtil.forName(OBJECT_VALUE_TRACKER);
-				this.track = ReflectionUtil.getMethod(valueTrackerClass, METHOD_TRACK_PROXY_VALUES, Object.class,
-						String.class, Class.class, String.class);
+				Method trackProxy = ReflectionUtil.getMethod(valueTrackerClass, METHOD_TRACK_PROXY_VALUES, Object.class,
+						String.class);
 
-				this.valueTracker = ReflectionUtil
+				Object valueTracker = ReflectionUtil
 						.invoke(ReflectionUtil.getMethod(valueTrackerClass, METHOD_GET_INSTANCE), null);
 
+				proxyBluePrint = ReflectionUtil.invoke(trackProxy, valueTracker, proxy, PROXY_NAME);
+				
+				addProxyResult = ReflectionUtil.getMethod(proxyBluePrint.getClass(), PROXY_BLUE_PRINT_METHOD_ADD_PROXY_RESULT, Method.class, Object.class);
+				
 			} catch (Exception e) {
 				throw new RuntimeException("error while creating WrappingInvocationHandler", e);
 			}

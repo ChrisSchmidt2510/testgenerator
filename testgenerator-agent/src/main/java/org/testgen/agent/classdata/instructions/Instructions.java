@@ -1,6 +1,5 @@
 package org.testgen.agent.classdata.instructions;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
@@ -23,6 +23,7 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.InstructionPrinter;
 import javassist.bytecode.MethodInfo;
+import javassist.bytecode.Mnemonic;
 import javassist.bytecode.Opcode;
 
 public final class Instructions {
@@ -295,7 +296,24 @@ public final class Instructions {
 						Collectors.toList()));
 	}
 
-	public static void showCodeArray(PrintStream stream, CodeIterator iterator, ConstPool constantPool) {
+	public static List<Instruction> getFilteredInstructions(List<Instruction> instructions, int opcode) {
+		return instructions.stream().filter(inst -> inst.getOpcode() == opcode).collect(Collectors.toList());
+	}
+
+	public static Instruction filterOpcode(List<Instruction> instructions, int maxIndex, int opcode) {
+		for (int i = maxIndex; i >= 0; i--) {
+			Instruction instruction = instructions.get(i);
+
+			if (opcode == instruction.getOpcode()) {
+				return instruction;
+			}
+		}
+		throw new NoSuchElementException("The opcode " + Mnemonic.OPCODE[opcode] + " is not in codearray");
+	}
+
+	public static String printCodeArray(CodeIterator iterator, ConstPool constantPool) {
+		StringBuilder builder = new StringBuilder();
+
 		iterator.begin();
 
 		while (iterator.hasNext()) {
@@ -306,8 +324,11 @@ public final class Instructions {
 				throw new RuntimeException(e);
 			}
 
-			stream.println(pos + ": " + InstructionPrinter.instructionString(iterator, pos, constantPool));
+			builder.append(pos + ": " + InstructionPrinter.instructionString(iterator, pos, constantPool));
+			builder.append(System.lineSeparator());
 		}
+
+		return builder.toString();
 	}
 
 	public static boolean isInvokeInstruction(Instruction instruction) {
@@ -405,7 +426,7 @@ public final class Instructions {
 		CodeAttribute ca = new CodeAttribute(code.getConstPool(), code.getMaxStack(), code.getMaxLocals(), code.get(),
 				code.getExceptionTable());
 
-		showCodeArray(System.out, ca.iterator(), code.getConstPool());
+		System.out.print(printCodeArray(ca.iterator(), code.getConstPool()));
 
 	}
 

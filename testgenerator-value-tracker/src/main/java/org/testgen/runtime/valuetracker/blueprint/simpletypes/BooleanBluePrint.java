@@ -1,6 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.factories.SimpleBluePrintFactory;
 
 public class BooleanBluePrint extends SimpleBluePrint<Boolean> {
 
@@ -11,6 +12,20 @@ public class BooleanBluePrint extends SimpleBluePrint<Boolean> {
 	@Override
 	protected String createValue(Boolean value) {
 		return value.toString();
+	}
+
+	public static class BooleanBluePrintFactory implements SimpleBluePrintFactory<Boolean> {
+
+		@Override
+		public boolean createBluePrintForType(Object value) {
+			return value instanceof Boolean;
+		}
+
+		@Override
+		public SimpleBluePrint<Boolean> createBluePrint(String name, Boolean value) {
+			return new BooleanBluePrint(name,  value);
+		}
+
 	}
 
 }

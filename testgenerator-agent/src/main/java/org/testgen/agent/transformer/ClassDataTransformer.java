@@ -74,7 +74,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				ClassData classData = collectClassData(loadingClass);
 				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
-				if (!classData.isEnum() || !classData.isInterface()) {
+				if (!classData.isEnum() && !classData.isInterface()) {
 					ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
 					classDataGenerator.generate(loadingClass);
 				}
@@ -82,8 +82,8 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
-				LOGGER.error(e);
-				throw new AgentException("Es ist ein Fehler bei der Transfomation aufgetreten", e);
+				LOGGER.error("error while transforming class",e);
+				throw new AgentException("error while transforming class", e);
 			} finally {
 				if (loadingClass != null) {
 					loadingClass.detach();
@@ -168,7 +168,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					}
 
 				} catch (SignatureParserException e) {
-					LOGGER.error(e);
+					LOGGER.error("error while parsing signature "+ signature, e);
 				}
 
 				FieldData fieldData = new FieldData.Builder()

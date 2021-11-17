@@ -1,12 +1,9 @@
 package org.testgen.runtime.generation;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.testgen.config.TestgeneratorConfig;
@@ -16,14 +13,12 @@ import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
 import org.testgen.runtime.classdata.model.FieldData;
 import org.testgen.runtime.classdata.model.descriptor.DescriptorType;
-import org.testgen.runtime.generation.impl.DefaultTestClassGeneration;
-import org.testgen.runtime.generation.impl.TestGenerationHelper;
+import org.testgen.runtime.generation.api.GenerationHelper;
+import org.testgen.runtime.generation.api.TestClassGeneration;
+import org.testgen.runtime.generation.javaparser.impl.JavaParserTestClassGeneration;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
-import org.testgen.runtime.valuetracker.blueprint.ProxyBluePrint;
+import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
 import org.testgen.runtime.valuetracker.storage.ValueStorage;
-
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec.Builder;
 
 public final class Testgenerator {
 
@@ -39,74 +34,62 @@ public final class Testgenerator {
 	 * 
 	 * @Param Name der Methode fuer die ein Testfall erstellt wird
 	 */
-	public static void generate(Class<?> testClass, String method, List<DescriptorType> methodParameterTypes) {
+	public static <T, E, S> void generate(Class<?> testClass, String method,
+			List<DescriptorType> methodParameterTypes) {
 		LOGGER.info("Starting test-generation");
 		TestgeneratorConfig.setFieldTracking(false);
 		TestgeneratorConfig.setProxyTracking(false);
 		boolean trackingActivated = TestgeneratorConfig.traceReadFieldAccess();
 
-		TestClassGeneration testGenerator = getTestClassGenerationImplementation();
+		TestClassGeneration<T, E, S> testGenerator = getTestClassGenerationImplementation();
 
-		Builder classBuilder = testGenerator.createTestClass(testClass);
+		Path path = Paths.get(TestgeneratorConfig.getPathToTestclass());
+		
+		T compilationUnit = testGenerator.createTestClass(testClass, path);
 
 		BluePrint testObject = ValueStorage.getInstance().getTestObject();
 
-		ClassData classData = TestGenerationHelper.getClassData(testObject.getReference());
-		Set<FieldData> calledFields = trackingActivated
-				? TestGenerationHelper.getCalledFields(testObject.getReference())
+		ClassData classData = GenerationHelper.getClassData(testObject.getReference());
+		Set<FieldData> calledFields = trackingActivated ? GenerationHelper.getCalledFields(testObject.getReference())
 				: Collections.emptySet();
 
-		testGenerator.prepareTestObject(classBuilder, testObject, classData, calledFields);
+		testGenerator.prepareTestObject(compilationUnit, testObject, classData, calledFields);
 
-		testGenerator.prepareMethodParameters(classBuilder, ValueStorage.getInstance().getMethodParameters(),
+		testGenerator.prepareMethodParameters(compilationUnit, ValueStorage.getInstance().getMethodParameters(),
 				methodParameterTypes);
 
-		Map<ProxyBluePrint, List<BluePrint>> proxyObjects = ValueStorage.getInstance().getProxyObjects();
+		List<ProxyBluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
 
 		boolean withProxyObjects = !proxyObjects.isEmpty();
 		if (withProxyObjects) {
-			testGenerator.prepareProxyObjects(classBuilder, proxyObjects);
+			testGenerator.prepareProxyObjects(compilationUnit, proxyObjects);
 		}
 
-		testGenerator.generateTestMethod(classBuilder, method, withProxyObjects);
+		testGenerator.generateTestMethod(compilationUnit, method, withProxyObjects);
 
-		classBuilder.addJavadoc(
-				"Test generated at " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
-						+ " with Testgenerator-" + Testgenerator.class.getPackage().getImplementationVersion());
-
-		JavaFile file = JavaFile.builder(testClass.getPackage().getName(), classBuilder.build())
-				.skipJavaLangImports(true).build();
-		LOGGER.debug("generated Test", stream -> {
-			try {
-				file.writeTo(stream);
-			} catch (IOException e) {
-				LOGGER.error(e);
-			}
-		});
-
+		testGenerator.toFile(compilationUnit);
+		
 		ValueStorage.getInstance().popAndResetTestData();
 	}
 
-	private static TestClassGeneration getTestClassGenerationImplementation() {
+	@SuppressWarnings("unchecked")
+	private static <T, E, S> TestClassGeneration<T, E, S> getTestClassGenerationImplementation() {
 		String costumTestgeneratorClass = TestgeneratorConfig.getCustomTestgeneratorClass();
 
 		if (costumTestgeneratorClass != null) {
 			Class<?> costumTestgenerator = ReflectionUtil.forName(costumTestgeneratorClass);
-			if (!Arrays.stream(costumTestgenerator.getInterfaces())
-					.anyMatch(i -> TestClassGeneration.class.isAssignableFrom(i))) {
-				throw new IllegalArgumentException(
-						costumTestgenerator + "is a invalid implementation for " + TestClassGeneration.class);
-			}
+
+			ReflectionUtil.checkForInterface(costumTestgenerator, TestClassGeneration.class);
 
 			if (ReflectionUtil.getConstructor(costumTestgenerator) == null) {
 				throw new IllegalArgumentException(
 						costumTestgeneratorClass + "is a invalid implementation. Defaultconstructor is needed");
 			}
 
-			return (TestClassGeneration) ReflectionUtil.newInstance(costumTestgenerator);
+			return (TestClassGeneration<T, E, S>) ReflectionUtil.newInstance(costumTestgenerator);
 		}
 
-		return new DefaultTestClassGeneration();
+		return (TestClassGeneration<T, E, S>) new JavaParserTestClassGeneration();
 	}
 
 }

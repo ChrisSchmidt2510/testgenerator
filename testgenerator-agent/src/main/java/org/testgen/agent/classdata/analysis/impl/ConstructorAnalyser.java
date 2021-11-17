@@ -135,7 +135,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 			try {
 				hasAnalysisMatched(superConstructorMethod, Instructions.getAllInstructions(superConstructorMethod));
 			} catch (BadBytecode e) {
-				LOGGER.error(e);
+				LOGGER.error("analysis of constructor failed", e);
 			}
 
 			List<Instruction> calledLoadInstructions = instructionFilter

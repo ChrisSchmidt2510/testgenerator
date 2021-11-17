@@ -107,7 +107,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
 		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, codeAttribute);
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		List<Instruction> modifiedInstructionSet = new ArrayList<>();
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(0)//
@@ -139,7 +139,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
 		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, codeAttribute);
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		List<Instruction> modifiedInstructionSet = new ArrayList<>();
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(0)//
@@ -175,7 +175,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		fieldTypeChanger.changeFieldInitialization(instructions, filteredInstructions.get(Opcode.PUTFIELD),
 				codeAttribute);
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		List<Instruction> modifiedInstructionSet = new ArrayList<>();
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(0)//
@@ -287,7 +287,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		fieldTypeChanger.changeFieldInitialization(instructions, filteredInstructions.get(Opcode.PUTFIELD),
 				codeAttribute);
 
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.println(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		List<Instruction> modifiedInstructionSet = new ArrayList<>();
 		modifiedInstructionSet.add(new Instruction.Builder().withCodeArrayIndex(0).withOpcode(Opcode.ALOAD_0).build());
@@ -334,13 +334,13 @@ public class FieldTypeChangerTest extends TestHelper {
 		classData.addFields(Arrays.asList(constants, list));
 
 		System.out.println("Before");
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 
 		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, ctClass);
 		fieldTypeChanger.overrideFieldAccess(filteredInstructions, instructions, codeAttribute);
 
 		System.out.println("After");
-		Instructions.showCodeArray(System.out, codeAttribute.iterator(), constantPool);
+		System.out.print(Instructions.printCodeArray(codeAttribute.iterator(), constantPool));
 	}
 
 	@Test

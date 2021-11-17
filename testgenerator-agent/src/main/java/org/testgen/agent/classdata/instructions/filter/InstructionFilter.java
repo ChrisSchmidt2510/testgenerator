@@ -39,7 +39,7 @@ public abstract class InstructionFilter {
 
 	protected final List<Instruction> calledLoadInstructions = new ArrayList<>();
 
-	protected Logger logger = LogManager.getLogger(this.getClass());
+	protected final Logger logger = LogManager.getLogger(this.getClass());
 
 	public InstructionFilter(ClassFile classFile, List<Instruction> instructions) {
 		this.classFile = classFile;
@@ -93,8 +93,9 @@ public abstract class InstructionFilter {
 								&& inst.getCodeArrayIndex() < endIfElseCascade)
 						.collect(Collectors.toList());
 
-				logger.debug("removedInstructions", stream -> removedInstructions.forEach(stream::println));
-
+				logger.debug("removed Instructions");
+				removedInstructions.forEach(inst -> logger.debug(inst.toString()));
+				
 				modifiedInstructions.removeAll(removedInstructions);
 
 			}
