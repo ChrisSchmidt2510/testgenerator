@@ -1,6 +1,7 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.GregorianCalendar;
@@ -11,10 +12,9 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
@@ -34,12 +34,12 @@ public class XmlGregorianCalendarGenerationTest {
 
 	private XMLGregorianCalendarBluePrintFactory factory = new XMLGregorianCalendarBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -57,8 +57,7 @@ public class XmlGregorianCalendarGenerationTest {
 		try {
 			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(2020, 12 - 1, 31));
 		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
+			fail(e);
 		}
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", calendar);
@@ -72,7 +71,7 @@ public class XmlGregorianCalendarGenerationTest {
 				+ "}";
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals(expectedValueField, block.getStatement(0).toString(config));
+		assertEquals(expectedValueField, block.getStatement(0).toString(config));
 
 		BlockStmt newBlock = new BlockStmt();
 
@@ -87,6 +86,6 @@ public class XmlGregorianCalendarGenerationTest {
 				+ "}";
 
 		simpleObjectGeneration.createObject(newBlock, bluePrint, false);
-		Assert.assertEquals(expectedValueLocal, newBlock.toString(config));
+		assertEquals(expectedValueLocal, newBlock.toString(config));
 	}
 }

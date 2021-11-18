@@ -1,12 +1,13 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -27,12 +28,12 @@ public class NullObjectGenerationTest {
 
 	private NullBluePrintFactory factory = new NullBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -55,7 +56,7 @@ public class NullObjectGenerationTest {
 				"private Object value = null;";
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals(expectedValueWithInit, cu.getFields().get(0).toString(config));
+		assertEquals(expectedValueWithInit, cu.getFields().get(0).toString(config));
 
 		String expectedValueWithoutInit = "/**\r\n" + //
 				" * TODO set correct Type for value\r\n" + //
@@ -63,7 +64,7 @@ public class NullObjectGenerationTest {
 				"private Object value;";
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals(expectedValueWithoutInit, cu.getFields().get(1).toString(config));
+		assertEquals(expectedValueWithoutInit, cu.getFields().get(1).toString(config));
 	}
 
 	@Test
@@ -77,20 +78,20 @@ public class NullObjectGenerationTest {
 		String expectedField = "// TODO set correct Type for value\r\n" //
 				+ "this.value = null;";
 
-		Assert.assertEquals(expectedField, block.getStatement(0).toString());
+		assertEquals(expectedField, block.getStatement(0).toString());
 
 		String expectedLocal = "// TODO set correct Type for value\r\n" //
 				+ "Object value = null;";
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals(expectedLocal, block.getStatement(2).toString());
+		assertEquals(expectedLocal, block.getStatement(2).toString());
 	}
 
 	@Test
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
-		Assert.assertEquals("null", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		assertEquals("null", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 }

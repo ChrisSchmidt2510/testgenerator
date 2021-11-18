@@ -1,15 +1,17 @@
 package org.testgen.runtime.generation.javaparser.impl.spezial;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
@@ -39,7 +41,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		spezialGeneration.setImportCallBackHandler(imports::add);
 		simpleGenerationFactory.setImportCallBackHandler(imports::add);
@@ -47,7 +49,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		spezialGeneration.setSimpleObjectGenerationFactory(simpleGenerationFactory);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -70,15 +72,15 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		signature.addSubType(new SignatureType(String.class));
 
 		spezialGeneration.createField(cu, bluePrint, signature);
-		Assert.assertEquals("private Function<Integer, String> mapper;", cu.getFields().get(0).toString());
-		Assert.assertTrue(
+		assertEquals("private Function<Integer, String> mapper;", cu.getFields().get(0).toString());
+		assertTrue(
 				imports.contains(Function.class) && imports.contains(Integer.class) && imports.contains(String.class));
 
 		imports.clear();
 
 		spezialGeneration.createField(cu, bluePrint, null);
-		Assert.assertEquals("private Function mapper;", cu.getFields().get(1).toString());
-		Assert.assertTrue(imports.contains(Function.class));
+		assertEquals("private Function mapper;", cu.getFields().get(1).toString());
+		assertTrue(imports.contains(Function.class));
 	}
 
 	@Test
@@ -97,10 +99,10 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 
 		String expected = "// TODO add initialization\r\n" + //
 				"Consumer<String> consumer = (Consumer & Serializable) null;";
-		Assert.assertEquals(expected, codeBlock.getStatements().get(0).toString());
-		Assert.assertTrue(imports.contains(Consumer.class) && imports.contains(String.class)
+		assertEquals(expected, codeBlock.getStatements().get(0).toString());
+		assertTrue(imports.contains(Consumer.class) && imports.contains(String.class)
 				&& imports.contains(Serializable.class));
-		Assert.assertTrue(bluePrint.isBuild());
+		assertTrue(bluePrint.isBuild());
 		
 		imports.clear();
 		bluePrint.resetBuildState();
@@ -109,10 +111,10 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 
 		expected = "// TODO add initialization\r\n" + //
 				"this.consumer = (Consumer & Serializable) null;";
-		Assert.assertEquals(expected, codeBlock.getStatements().get(2).toString());
-		Assert.assertTrue(imports.contains(Consumer.class)
+		assertEquals(expected, codeBlock.getStatements().get(2).toString());
+		assertTrue(imports.contains(Consumer.class)
 				&& imports.contains(Serializable.class));
-		Assert.assertTrue(bluePrint.isBuild());
+		assertTrue(bluePrint.isBuild());
 		
 		imports.clear();
 		bluePrint.resetBuildState();
@@ -121,10 +123,10 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		
 		expected = "// TODO add initialization\r\n" + //
 				"Consumer consumer = (Consumer & Serializable) null;";
-		Assert.assertEquals(expected, codeBlock.getStatements().get(4).toString());
-		Assert.assertTrue(imports.contains(Consumer.class)
+		assertEquals(expected, codeBlock.getStatements().get(4).toString());
+		assertTrue(imports.contains(Consumer.class)
 				&& imports.contains(Serializable.class));
-		Assert.assertTrue(bluePrint.isBuild());
+		assertTrue(bluePrint.isBuild());
 	}
 	
 	@Test
@@ -153,9 +155,9 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
 				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 		
-		Assert.assertEquals(expected, codeBlock.toString(printerConfig));
-		Assert.assertTrue(imports.contains(Runnable.class));
-		Assert.assertTrue(bluePrint.isBuild());
+		assertEquals(expected, codeBlock.toString(printerConfig));
+		assertTrue(imports.contains(Runnable.class));
+		assertTrue(bluePrint.isBuild());
 		
 		bluePrint.resetBuildState();
 		imports.clear();
@@ -171,8 +173,8 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 				"    this.runnable = null;\r\n"+//
 				"\r\n"+//
 				"}";
-		Assert.assertEquals(expected, block.toString(printerConfig));
-		Assert.assertTrue(imports.isEmpty());
-		Assert.assertTrue(bluePrint.isBuild());
+		assertEquals(expected, block.toString(printerConfig));
+		assertTrue(imports.isEmpty());
+		assertTrue(bluePrint.isBuild());
 	}
 }

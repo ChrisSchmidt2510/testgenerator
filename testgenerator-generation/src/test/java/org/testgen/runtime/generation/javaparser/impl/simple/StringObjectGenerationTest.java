@@ -1,12 +1,13 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -26,12 +27,12 @@ public class StringObjectGenerationTest {
 
 	private StringBluePrintFactory factory = new StringBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -46,10 +47,10 @@ public class StringObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private String value = \"Word\";", cu.getFields().get(0).toString());
+		assertEquals("private String value = \"Word\";", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private String value;", cu.getFields().get(1).toString());
+		assertEquals("private String value;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -59,16 +60,16 @@ public class StringObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals("this.value = \"foo\";", block.getStatement(0).toString());
+		assertEquals("this.value = \"foo\";", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("String value = \"foo\";", block.getStatement(2).toString());
+		assertEquals("String value = \"foo\";", block.getStatement(2).toString());
 	}
 
 	@Test
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", "This is a test");
 
-		Assert.assertEquals("\"This is a test\"", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		assertEquals("\"This is a test\"", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 }

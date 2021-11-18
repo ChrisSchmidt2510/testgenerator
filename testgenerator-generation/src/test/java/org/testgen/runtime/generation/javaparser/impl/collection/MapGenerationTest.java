@@ -1,5 +1,8 @@
 package org.testgen.runtime.generation.javaparser.impl.collection;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,10 +15,9 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
@@ -50,7 +52,7 @@ public class MapGenerationTest {
 
 	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		Consumer<Class<?>> importCallBackHandler = imports::add;
 
@@ -66,7 +68,7 @@ public class MapGenerationTest {
 		collectionGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -93,13 +95,13 @@ public class MapGenerationTest {
 		signature.addSubType(value);
 
 		collectionGeneration.createField(cu, bluePrint, signature);
-		Assert.assertEquals("private Map<String, List<LocalDate>> value = new TreeMap<>();",
+		assertEquals("private Map<String, List<LocalDate>> value = new TreeMap<>();",
 				cu.getFields().get(0).toString());
 
-		Assert.assertTrue(imports.contains(Map.class));
-		Assert.assertTrue(imports.contains(String.class));
-		Assert.assertTrue(imports.contains(List.class));
-		Assert.assertTrue(imports.contains(LocalDate.class));
+		assertTrue(imports.contains(Map.class));
+		assertTrue(imports.contains(String.class));
+		assertTrue(imports.contains(List.class));
+		assertTrue(imports.contains(LocalDate.class));
 	}
 
 	@Test
@@ -141,7 +143,7 @@ public class MapGenerationTest {
 				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
 		collectionGeneration.createCollection(block, bluePrint, signature, true);
-		Assert.assertEquals(expectedField, block.toString(printerConfig));
+		assertEquals(expectedField, block.toString(printerConfig));
 
 		bluePrint.resetBuildState();
 
@@ -155,7 +157,7 @@ public class MapGenerationTest {
 				+ "}";
 
 		collectionGeneration.createCollection(newBlock, bluePrint, signature, false);
-		Assert.assertEquals(expectedLocal, newBlock.toString(printerConfig));
+		assertEquals(expectedLocal, newBlock.toString(printerConfig));
 
 	}
 
@@ -228,7 +230,7 @@ public class MapGenerationTest {
 		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
 				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
-		Assert.assertEquals(expected, block.toString(printerConfig));
+		assertEquals(expected, block.toString(printerConfig));
 
 		bluePrint.resetBuildState();
 
@@ -262,7 +264,7 @@ public class MapGenerationTest {
 		BlockStmt newBlock = new BlockStmt();
 
 		collectionGeneration.createCollection(newBlock, bluePrint, signature, true);
-		Assert.assertEquals(expected, newBlock.toString(printerConfig));
+		assertEquals(expected, newBlock.toString(printerConfig));
 
 	}
 
@@ -291,24 +293,24 @@ public class MapGenerationTest {
 		SetterMethodData setter = new SetterMethodData("setMap", "(Ljava/util/Map;)V", false, SetterType.VALUE_SETTER);
 
 		collectionGeneration.addCollectionToObject(block, bluePrint, true, setter, accessExpr);
-		Assert.assertEquals("object.setMap(this.value);", block.getStatement(0).toString());
+		assertEquals("object.setMap(this.value);", block.getStatement(0).toString());
 
 		collectionGeneration.addCollectionToObject(block, bluePrint, false, setter, accessExpr);
-		Assert.assertEquals("object.setMap(value);", block.getStatement(1).toString());
+		assertEquals("object.setMap(value);", block.getStatement(1).toString());
 
 		SetterMethodData getter = new SetterMethodData("getMap", "()Ljava/util/Map;", false, SetterType.VALUE_GETTER);
 
 		collectionGeneration.addCollectionToObject(block, bluePrint, true, getter, accessExpr);
-		Assert.assertEquals("object.getMap().putAll(this.value);", block.getStatement(2).toString());
+		assertEquals("object.getMap().putAll(this.value);", block.getStatement(2).toString());
 
 		collectionGeneration.addCollectionToObject(block, bluePrint, false, getter, accessExpr);
-		Assert.assertEquals("object.getMap().putAll(value);", block.getStatement(3).toString());
+		assertEquals("object.getMap().putAll(value);", block.getStatement(3).toString());
 
 		SetterMethodData collectionSetter = new SetterMethodData("addEntry", "(Ljava/lang/Integer;Ljava/lang/String;)V",
 				false, SetterType.COLLECTION_SETTER);
 
 		collectionGeneration.addCollectionToObject(block, bluePrint, false, collectionSetter, accessExpr);
-		Assert.assertEquals("object.addEntry(10, \"exel\");", block.getStatement(4).toString());
+		assertEquals("object.addEntry(10, \"exel\");", block.getStatement(4).toString());
 	}
 
 	@Test
@@ -323,10 +325,10 @@ public class MapGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		collectionGeneration.addCollectionToField(block, bluePrint, true, accessExpr);
-		Assert.assertEquals("this.object = this.value;", block.getStatement(0).toString());
+		assertEquals("this.object = this.value;", block.getStatement(0).toString());
 
 		collectionGeneration.addCollectionToField(block, bluePrint, false, accessExpr);
-		Assert.assertEquals("this.object = value;", block.getStatement(1).toString());
+		assertEquals("this.object = value;", block.getStatement(1).toString());
 
 	}
 
