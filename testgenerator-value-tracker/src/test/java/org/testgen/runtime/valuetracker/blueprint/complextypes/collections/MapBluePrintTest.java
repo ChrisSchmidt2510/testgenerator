@@ -1,5 +1,9 @@
 package org.testgen.runtime.valuetracker.blueprint.complextypes.collections;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -9,8 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.MapBluePrint.MapBluePrintFactory;
@@ -29,11 +32,11 @@ public class MapBluePrintTest {
 
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(new HashMap<>()));
-		Assert.assertFalse(factory.createBluePrintForType(5));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertFalse(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(new HashMap<>()));
+		assertFalse(factory.createBluePrintForType(5));
+		assertFalse(factory.createBluePrintForType(null));
+		assertFalse(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 
 	@Test
@@ -50,16 +53,16 @@ public class MapBluePrintTest {
 
 		BluePrint bluePrint = factory.createBluePrint("dictionary", map, currentlyBuildedBluePrints, mapper);
 
-		Assert.assertTrue(bluePrint.isCollectionBluePrint());
+		assertTrue(bluePrint.isCollectionBluePrint());
 
 		MapBluePrint mapBP = (MapBluePrint) bluePrint;
 
-		Assert.assertEquals("dictionary", mapBP.getName());
-		Assert.assertEquals(Map.class, mapBP.getInterfaceClass());
-		Assert.assertEquals(LinkedHashMap.class, mapBP.getImplementationClass());
-		Assert.assertTrue(mapBP.getPreExecuteBluePrints().isEmpty());
-		Assert.assertTrue(mapBP.getComplexKeys().isEmpty());
-		Assert.assertTrue(mapBP.getComplexValues().isEmpty());
+		assertEquals("dictionary", mapBP.getName());
+		assertEquals(Map.class, mapBP.getInterfaceClass());
+		assertEquals(LinkedHashMap.class, mapBP.getImplementationClass());
+		assertTrue(mapBP.getPreExecuteBluePrints().isEmpty());
+		assertTrue(mapBP.getComplexKeys().isEmpty());
+		assertTrue(mapBP.getComplexValues().isEmpty());
 
 		Set<Entry<BluePrint, BluePrint>> compareSet = new LinkedHashSet<>();
 
@@ -72,6 +75,6 @@ public class MapBluePrintTest {
 		compareSet.add(new SimpleImmutableEntry<>(numFactory.createBluePrint("dictionaryKey", 4),
 				strFactory.createBluePrint("dictionaryValue", "Exel")));
 
-		Assert.assertEquals(compareSet, mapBP.getBluePrints());
+		assertEquals(compareSet, mapBP.getBluePrints());
 	}
 }

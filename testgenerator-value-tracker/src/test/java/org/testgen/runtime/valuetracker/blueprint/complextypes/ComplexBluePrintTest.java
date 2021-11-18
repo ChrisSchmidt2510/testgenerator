@@ -1,12 +1,16 @@
 package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -42,10 +46,10 @@ public class ComplexBluePrintTest {
 
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(new Adresse("", 5)));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertFalse(factory.createsSimpleBluePrint());
-		Assert.assertEquals(-5, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(new Adresse("", 5)));
+		assertFalse(factory.createBluePrintForType(null));
+		assertFalse(factory.createsSimpleBluePrint());
+		assertEquals(-5, factory.getPriority());
 	}
 
 	private BluePrint createBluePrint(String name, Object value) {
@@ -69,14 +73,14 @@ public class ComplexBluePrintTest {
 		BluePrint bluePrint = factory.createBluePrint("person", person, currentlyBuildedBluePrints,
 				(name, value) -> createBluePrint(name, value));
 
-		Assert.assertTrue(bluePrint.isComplexBluePrint());
+		assertTrue(bluePrint.isComplexBluePrint());
 
 		ComplexBluePrint complex = bluePrint.castToComplexBluePrint();
 
-		Assert.assertEquals("person", complex.getName());
-		Assert.assertTrue(complex.isComplexBluePrint());
-		
-		Assert.assertEquals(1, complex.getPreExecuteBluePrints().size());
+		assertEquals("person", complex.getName());
+		assertTrue(complex.isComplexBluePrint());
+
+		assertEquals(1, complex.getPreExecuteBluePrints().size());
 
 		List<BluePrint> compareList = new ArrayList<>();
 		compareList.add(strFactory.createBluePrint("name", "Schmidt"));
@@ -98,14 +102,15 @@ public class ComplexBluePrintTest {
 		compareList.add(strFactory.createBluePrint("ersb", "Me"));
 		compareList.add(localDateFactory.createBluePrint("aedat", LocalDate.of(2020, Month.DECEMBER, 20)));
 
-		Assert.assertEquals(compareList, complex.getChildBluePrints());
+		assertEquals(compareList, complex.getChildBluePrints());
 	}
 
 	@Test
 	public void trackComplexTypeForJDKTypes() {
-		Assert.assertThrows("cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints",
-				TrackingException.class, () -> factory.createBluePrint("object", new Object(),
-						currentlyBuildedBluePrints, (name, value) -> createBluePrint(name, value)));
+		assertThrows(TrackingException.class,
+				() -> factory.createBluePrint("object", new Object(), currentlyBuildedBluePrints,
+						(name, value) -> createBluePrint(name, value)),
+				"cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints");
 	}
 
 }

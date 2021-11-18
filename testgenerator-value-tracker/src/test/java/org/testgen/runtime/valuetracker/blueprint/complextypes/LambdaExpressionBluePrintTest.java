@@ -1,12 +1,15 @@
 package org.testgen.runtime.valuetracker.blueprint.complextypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.proxy.Proxified;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -28,19 +31,19 @@ public class LambdaExpressionBluePrintTest {
 
 		Function<Integer, String> mapper = i -> i.toString();
 
-		Assert.assertTrue(factory.createBluePrintForType(run));
-		Assert.assertFalse(factory.createBluePrintForType(new Runnable() {
+		assertTrue(factory.createBluePrintForType(run));
+		assertFalse(factory.createBluePrintForType(new Runnable() {
 			
 			@Override
 			public void run() {
 				System.out.println(a);
 			}
 		}));
-		Assert.assertTrue(factory.createBluePrintForType(mapper));
-		Assert.assertFalse(factory.createBluePrintForType(5));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertFalse(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(mapper));
+		assertFalse(factory.createBluePrintForType(5));
+		assertFalse(factory.createBluePrintForType(null));
+		assertFalse(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 	
 	@Test
@@ -49,15 +52,15 @@ public class LambdaExpressionBluePrintTest {
 		
 		BluePrint bluePrint = factory.createBluePrint("mapper", mapper, currentlyBuildedBluePrints, null);
 	
-		Assert.assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
+		assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
 		
 		LambdaExpressionBluePrint fiBluePrint = (LambdaExpressionBluePrint) bluePrint;
 		
-		Assert.assertEquals("mapper", fiBluePrint.getName());
-		Assert.assertTrue(fiBluePrint.isComplexType());
-		Assert.assertEquals(Function.class, fiBluePrint.getInterfaceClass());
-		Assert.assertEquals(1, fiBluePrint.numberOfParameters());
-		Assert.assertTrue(fiBluePrint.getPreExecuteBluePrints().isEmpty());
+		assertEquals("mapper", fiBluePrint.getName());
+		assertTrue(fiBluePrint.isComplexType());
+		assertEquals(Function.class, fiBluePrint.getInterfaceClass());
+		assertEquals(1, fiBluePrint.numberOfParameters());
+		assertTrue(fiBluePrint.getPreExecuteBluePrints().isEmpty());
 	}
 
 	@Test
@@ -68,18 +71,18 @@ public class LambdaExpressionBluePrintTest {
 		BluePrint bluePrint = factory.createBluePrint("runnable", run, currentlyBuildedBluePrints,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
-		Assert.assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
+		assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
 
 		LambdaExpressionBluePrint fiBluePrint = (LambdaExpressionBluePrint) bluePrint;
 
-		Assert.assertEquals("runnable", fiBluePrint.getName());
-		Assert.assertTrue(fiBluePrint.isComplexType());
-		Assert.assertEquals(Runnable.class, fiBluePrint.getInterfaceClass());
-		Assert.assertEquals(0, fiBluePrint.numberOfParameters());
-		Assert.assertEquals(1, fiBluePrint.getPreExecuteBluePrints().size());
+		assertEquals("runnable", fiBluePrint.getName());
+		assertTrue(fiBluePrint.isComplexType());
+		assertEquals(Runnable.class, fiBluePrint.getInterfaceClass());
+		assertEquals(0, fiBluePrint.numberOfParameters());
+		assertEquals(1, fiBluePrint.getPreExecuteBluePrints().size());
 
 		List<BluePrint> expectedList = Arrays.asList(numFactory.createBluePrint("arg$1", 5));
-		Assert.assertEquals(expectedList, fiBluePrint.getPreExecuteBluePrints());
+		assertEquals(expectedList, fiBluePrint.getPreExecuteBluePrints());
 	}
 	
 }

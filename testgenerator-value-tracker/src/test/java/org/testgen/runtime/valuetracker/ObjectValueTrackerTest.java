@@ -1,5 +1,10 @@
 package org.testgen.runtime.valuetracker;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -7,8 +12,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.proxy.impl.DoubleProxy;
 import org.testgen.runtime.proxy.impl.FloatProxy;
 import org.testgen.runtime.proxy.impl.IntegerProxy;
@@ -32,8 +36,8 @@ public class ObjectValueTrackerTest {
 
 		BluePrint copyBluePrint = valueTracker.trackValues(list, "sameList");
 
-		Assert.assertEquals(bluePrint.getName(), copyBluePrint.getName());
-		Assert.assertTrue(bluePrint == copyBluePrint);
+		assertEquals(bluePrint.getName(), copyBluePrint.getName());
+		assertTrue(bluePrint == copyBluePrint);
 	}
 
 	@Test
@@ -43,15 +47,15 @@ public class ObjectValueTrackerTest {
 		valueTracker.track(5, "value", Type.METHOD_PARAMETER);
 		List<BluePrint> methodParameters = ValueStorage.getInstance().getMethodParameters();
 
-		Assert.assertEquals(1, methodParameters.size());
-		Assert.assertEquals("5", ((NumberBluePrint) methodParameters.get(0)).valueCreation());
+		assertEquals(1, methodParameters.size());
+		assertEquals("5", ((NumberBluePrint) methodParameters.get(0)).valueCreation());
 
 		valueTracker.track("hello", "value", Type.TESTOBJECT);
-		Assert.assertEquals("hello",
+		assertEquals("hello",
 				ValueStorage.getInstance().getTestObject().castToSimpleBluePrint().valueCreation());
 
-		Assert.assertThrows("invalid Type: Proxy", IllegalArgumentException.class,
-				() -> valueTracker.track(10, "value", Type.PROXY));
+		assertThrows(IllegalArgumentException.class,
+				() -> valueTracker.track(10, "value", Type.PROXY),"invalid Type: Proxy");
 
 		ValueStorage.getInstance().popAndResetTestData();
 	}
@@ -72,38 +76,38 @@ public class ObjectValueTrackerTest {
 				new Class<?>[] { ProxyTest.class }, handler);
 
 		ProxyBluePrint proxyBluePrint = valueTracker.trackProxy(proxy, "proxy");
-		Assert.assertArrayEquals(new Class<?>[] { ProxyTest.class }, proxyBluePrint.getInterfaceClasses());
+		assertArrayEquals(new Class<?>[] { ProxyTest.class }, proxyBluePrint.getInterfaceClasses());
 		
 		List<ProxyBluePrint> proxyObjects = ValueStorage.getInstance().getProxyObjects();
-		Assert.assertEquals(1, proxyObjects.size());
-		Assert.assertTrue(proxyObjects.get(0) == proxyBluePrint);
+		assertEquals(1, proxyObjects.size());
+		assertTrue(proxyObjects.get(0) == proxyBluePrint);
 	}
 
 	@Test
 	public void testGetProxyValue() {
 		IntegerProxy intProxy = new IntegerProxy(5, this, "value", Integer.TYPE);
-		Assert.assertEquals(5, ObjectValueTracker.getProxyValue(intProxy));
+		assertEquals(5, ObjectValueTracker.getProxyValue(intProxy));
 
 		IntegerProxy byteProxy = new IntegerProxy(10, this, "value", Byte.TYPE);
-		Assert.assertEquals((byte) 10, ObjectValueTracker.getProxyValue(byteProxy));
+		assertEquals((byte) 10, ObjectValueTracker.getProxyValue(byteProxy));
 
 		IntegerProxy charProxy = new IntegerProxy('C', this, "value", Character.TYPE);
-		Assert.assertEquals('C', ObjectValueTracker.getProxyValue(charProxy));
+		assertEquals('C', ObjectValueTracker.getProxyValue(charProxy));
 
 		IntegerProxy shortProxy = new IntegerProxy(255, this, "value", Short.TYPE);
-		Assert.assertEquals((short) 255, ObjectValueTracker.getProxyValue(shortProxy));
+		assertEquals((short) 255, ObjectValueTracker.getProxyValue(shortProxy));
 
 		ReferenceProxy<String> referenceProxy = new ReferenceProxy<String>("hello", this, "value", String.class);
-		Assert.assertEquals("hello", ObjectValueTracker.getProxyValue(referenceProxy));
+		assertEquals("hello", ObjectValueTracker.getProxyValue(referenceProxy));
 
 		DoubleProxy doubleProxy = new DoubleProxy(3.1415, this, "value");
-		Assert.assertEquals(3.1415, ObjectValueTracker.getProxyValue(doubleProxy));
+		assertEquals(3.1415, ObjectValueTracker.getProxyValue(doubleProxy));
 
 		FloatProxy floatProxy = new FloatProxy(3.4f, this, "value");
-		Assert.assertEquals(3.4f, ObjectValueTracker.getProxyValue(floatProxy));
+		assertEquals(3.4f, ObjectValueTracker.getProxyValue(floatProxy));
 
 		LocalDate date = LocalDate.now();
-		Assert.assertEquals(date, ObjectValueTracker.getProxyValue(date));
+		assertEquals(date, ObjectValueTracker.getProxyValue(date));
 	}
 
 }

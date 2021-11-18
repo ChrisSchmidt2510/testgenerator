@@ -1,12 +1,13 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
 
@@ -16,17 +17,17 @@ public class NumberBluePrintTest {
 
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(5));
-		Assert.assertTrue(factory.createBluePrintForType((byte)12));
-		Assert.assertTrue(factory.createBluePrintForType((short) 187));
-		Assert.assertTrue(factory.createBluePrintForType(17.6f));
-		Assert.assertTrue(factory.createBluePrintForType(3.1467));
-		Assert.assertTrue(factory.createBluePrintForType(100L));
-		Assert.assertTrue(factory.createBluePrintForType(BigDecimal.ONE));
-		Assert.assertFalse(factory.createBluePrintForType(LocalDate.now()));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertTrue(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(5));
+		assertTrue(factory.createBluePrintForType((byte)12));
+		assertTrue(factory.createBluePrintForType((short) 187));
+		assertTrue(factory.createBluePrintForType(17.6f));
+		assertTrue(factory.createBluePrintForType(3.1467));
+		assertTrue(factory.createBluePrintForType(100L));
+		assertTrue(factory.createBluePrintForType(BigDecimal.ONE));
+		assertFalse(factory.createBluePrintForType(LocalDate.now()));
+		assertFalse(factory.createBluePrintForType(null));
+		assertTrue(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 	
 	@Test

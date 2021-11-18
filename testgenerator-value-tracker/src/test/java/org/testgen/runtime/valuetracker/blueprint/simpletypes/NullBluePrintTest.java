@@ -1,7 +1,10 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NullBluePrint.NullBluePrintFactory;
 
@@ -11,18 +14,18 @@ public class NullBluePrintTest {
 
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(null));
-		Assert.assertFalse(factory.createBluePrintForType(5));
-		Assert.assertTrue(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(null));
+		assertFalse(factory.createBluePrintForType(5));
+		assertTrue(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 
 	@Test
 	public void testValueCreation() {
 		SimpleBluePrint<Object> bluePrint = factory.createBluePrint("value", null);
 
-		Assert.assertEquals("null", bluePrint.valueCreation());
-		Assert.assertTrue(bluePrint.getReferenceClass() == null);
+		assertEquals("null", bluePrint.valueCreation());
+		assertTrue(bluePrint.getReferenceClass() == null);
 	}
 
 }

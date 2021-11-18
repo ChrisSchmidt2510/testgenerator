@@ -1,12 +1,15 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalDateTimeBluePrint.LocalDateTimeBluePrintFactory;
 
 public class LocalDateTimeBluePrintTest {
@@ -15,11 +18,11 @@ public class LocalDateTimeBluePrintTest {
 
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(LocalDateTime.now()));
-		Assert.assertFalse(factory.createBluePrintForType(5));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertTrue(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(LocalDateTime.now()));
+		assertFalse(factory.createBluePrintForType(5));
+		assertFalse(factory.createBluePrintForType(null));
+		assertTrue(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 
 	@Test
@@ -28,14 +31,14 @@ public class LocalDateTimeBluePrintTest {
 		LocalDateTimeBluePrint bluePrint = (LocalDateTimeBluePrint) factory.createBluePrint("localDateTime",
 				LocalDateTime.of(LocalDate.of(2020, Month.OCTOBER, 25), LocalTime.of(12, 55, 3)));
 
-		Assert.assertEquals(2020, bluePrint.getYear());
-		Assert.assertEquals(10, bluePrint.getMonth());
-		Assert.assertEquals(25, bluePrint.getDay());
+		assertEquals(2020, bluePrint.getYear());
+		assertEquals(10, bluePrint.getMonth());
+		assertEquals(25, bluePrint.getDay());
 
-		Assert.assertEquals(12, bluePrint.getHour());
-		Assert.assertEquals(55, bluePrint.getMinute());
-		Assert.assertEquals(3, bluePrint.getSecond());
+		assertEquals(12, bluePrint.getHour());
+		assertEquals(55, bluePrint.getMinute());
+		assertEquals(3, bluePrint.getSecond());
 
-		Assert.assertEquals(LocalDateTime.class, bluePrint.getReferenceClass());
+		assertEquals(LocalDateTime.class, bluePrint.getReferenceClass());
 	}
 }
