@@ -1,14 +1,16 @@
 package org.testgen.logging.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.core.ReflectionUtil;
 import org.testgen.logging.handler.ConsoleHandler;
 
@@ -16,7 +18,7 @@ public class XmlConfigurationLoaderTest {
 
 	private Configuration rootLogger;
 
-	@After
+	@AfterEach
 	public void reset() {
 		rootLogger = null;
 	}
@@ -37,37 +39,37 @@ public class XmlConfigurationLoaderTest {
 	}
 
 	private void compareConfigOrgTestgenAgent(Configuration config) {
-		Assert.assertEquals(Level.ERROR, config.getLevel());
-		Assert.assertEquals(2, config.getHandlers().size());
-		Assert.assertTrue(config.getHandlers().stream().anyMatch(h -> h instanceof ConsoleHandler));
+		assertEquals(Level.ERROR, config.getLevel());
+		assertEquals(2, config.getHandlers().size());
+		assertTrue(config.getHandlers().stream().anyMatch(h -> h instanceof ConsoleHandler));
 
 
 		compareFileHandler(getFileHandler(config.getHandlers()));
 	}
 	
 	private void compareConfigModification(Configuration config) {
-		Assert.assertEquals(Level.TRACE, config.getLevel());
-		Assert.assertEquals(1, config.getHandlers().size());
+		assertEquals(Level.TRACE, config.getLevel());
+		assertEquals(1, config.getHandlers().size());
 		
 		compareFileHandler(getFileHandler(config.getHandlers()));
 	}
 	
 	private void compareRootConfig(Configuration rootConfig) {
-		Assert.assertEquals(Level.INFO, rootConfig.getLevel());
-		Assert.assertEquals(2, rootConfig.getHandlers().size());
+		assertEquals(Level.INFO, rootConfig.getLevel());
+		assertEquals(2, rootConfig.getHandlers().size());
 		
-		Assert.assertTrue(rootConfig.getHandlers().stream().anyMatch(h -> h instanceof ConsoleHandler));
+		assertTrue(rootConfig.getHandlers().stream().anyMatch(h -> h instanceof ConsoleHandler));
 		
 		compareFileHandler(getFileHandler(rootConfig.getHandlers()));
 	}
 
 	private void compareFileHandler(FileHandler fileHandler) {
-		Assert.assertEquals("%h/testgenerator/Agent%g.log",
+		assertEquals("%h/testgenerator/Agent%g.log",
 				ReflectionUtil.getField(FileHandler.class, "pattern", fileHandler));
-		Assert.assertEquals((int) 1024 * 1024 * 1024,
+		assertEquals((int) 1024 * 1024 * 1024,
 				(int) ReflectionUtil.getField(FileHandler.class, "limit", fileHandler));
-		Assert.assertEquals((int) 100, (int) ReflectionUtil.getField(FileHandler.class, "count", fileHandler));
-		Assert.assertTrue(ReflectionUtil.getField(FileHandler.class, "append", fileHandler));
+		assertEquals((int) 100, (int) ReflectionUtil.getField(FileHandler.class, "count", fileHandler));
+		assertTrue(ReflectionUtil.getField(FileHandler.class, "append", fileHandler));
 	}
 	
 	private Configuration getConfig(List<Configuration> configs, String packageName) {
