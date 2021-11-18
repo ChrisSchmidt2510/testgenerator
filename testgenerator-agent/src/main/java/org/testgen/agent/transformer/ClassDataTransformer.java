@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.AgentException;
+import org.testgen.agent.classdata.analysis.Analyser;
 import org.testgen.agent.classdata.analysis.MethodAnalyser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
@@ -27,6 +28,7 @@ import org.testgen.agent.classdata.model.SignatureData;
 import org.testgen.agent.classdata.modification.ClassDataGenerator;
 import org.testgen.agent.classdata.modification.fields.FieldTypeChanger;
 import org.testgen.config.TestgeneratorConfig;
+import org.testgen.core.ReflectionUtil;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
@@ -82,7 +84,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 				return loadingClass.toBytecode();
 
 			} catch (Throwable e) {
-				LOGGER.error("error while transforming class",e);
+				LOGGER.error("error while transforming class", e);
 				throw new AgentException("error while transforming class", e);
 			} finally {
 				if (loadingClass != null) {
@@ -132,7 +134,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 							&& !AccessFlag.isPublic(field.getModifiers())
 							&& !Modifiers.isSynthetic(field.getModifiers())
 							&& !TestgeneratorConstants.isTestgeneratorField(field.getName()))
-						
+
 						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
 
 				}
@@ -168,7 +170,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					}
 
 				} catch (SignatureParserException e) {
-					LOGGER.error("error while parsing signature "+ signature, e);
+					LOGGER.error("error while parsing signature " + signature, e);
 				}
 
 				FieldData fieldData = new FieldData.Builder()
@@ -191,7 +193,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	private void analyseAndManipulateMethods(ClassFile classFile, ClassData classData,
 			FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
-		MethodAnalyser methodAnalyser = new MethodAnalyser(classData, classFile);
+		Analyser methodAnalyser =getAnalyserImplementation(classData, classFile);
 
 		List<MethodInfo> methods = classFile.getMethods();
 		for (MethodInfo method : methods) {
@@ -254,8 +256,28 @@ public class ClassDataTransformer implements ClassFileTransformer {
 		return classData;
 	}
 
+	private Analyser getAnalyserImplementation(ClassData classData, ClassFile classFile) {
+		String customAnalysisClass = TestgeneratorConfig.getCustomAnalysisClass();
+
+		if (customAnalysisClass != null) {
+			Class<?> customAnalysis = ReflectionUtil.forName(customAnalysisClass);
+
+			if (Analyser.class.isAssignableFrom(customAnalysis))
+				throw new IllegalArgumentException(customAnalysisClass + "need to extend Analyser.class");
+
+			if (ReflectionUtil.getConstructor(customAnalysis, ClassData.class, ClassFile.class) == null)
+				throw new IllegalArgumentException(
+						customAnalysisClass + "is a invalid implementation. Constructorargs: ClassData, ClassFile");
+
+			return (Analyser) ReflectionUtil.newInstance(customAnalysis,
+					new Class<?>[] { ClassData.class, ClassFile.class }, classData, classFile);
+		}
+
+		return new MethodAnalyser(classData, classFile);
+	}
+
 	private void analyseMethod(MethodInfo method, List<Instruction> instructions, ClassData classData,
-			MethodAnalyser methodAnalyser) {
+			Analyser methodAnalyser) {
 
 		if (!JavaTypes.OBJECT_STANDARD_METHODS.contains(method.getName())) {
 
