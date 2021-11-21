@@ -69,7 +69,7 @@ public class XmlConfigurationLoaderTest {
 		assertEquals((int) 1024 * 1024 * 1024,
 				(int) ReflectionUtil.getField(FileHandler.class, "limit", fileHandler));
 		assertEquals((int) 100, (int) ReflectionUtil.getField(FileHandler.class, "count", fileHandler));
-		assertTrue(ReflectionUtil.getField(FileHandler.class, "append", fileHandler));
+		assertTrue((boolean) ReflectionUtil.getField(FileHandler.class, "append", fileHandler));
 	}
 	
 	private Configuration getConfig(List<Configuration> configs, String packageName) {

@@ -92,16 +92,22 @@ public final class Instruction {
 
 	@Override
 	public String toString() {
-		if (Opcode.PUTFIELD == opcode || Opcode.GETFIELD == opcode || Instructions.isInvokeInstruction(this)) {
+		if (Opcode.PUTFIELD == opcode || Opcode.GETFIELD == opcode || Instructions.isInvokeInstruction(this)
+				|| Opcode.GETSTATIC == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + classRef + "." + name + "(" + type + ")";
+
 		} else if (Opcode.ALOAD == opcode || Opcode.ILOAD == opcode || Opcode.DLOAD == opcode || Opcode.FLOAD == opcode
 				|| Opcode.LLOAD == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + localVariableIndex;
+
 		} else if (Opcode.NEW == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " Class: " + classRef;
+
 		} else if (Opcode.IFNULL == opcode || Opcode.GOTO == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + offset;
-		}
+
+		} else if (Opcode.LDC == opcode)
+			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + type + " " + constantValue;
 
 		return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode];
 	}
