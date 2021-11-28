@@ -1,6 +1,5 @@
 package org.testgen.runtime.proxy.impl;
 
-import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 import org.testgen.runtime.proxy.AbstractProxy;
@@ -18,7 +17,7 @@ public class ReferenceProxy<E> extends AbstractProxy {
 	}
 
 	public E getValue() {
-		if (value != null && !Proxy.isProxyClass(value.getClass()))
+		if (value != null)
 			trackReadFieldCalls();
 
 		return value;

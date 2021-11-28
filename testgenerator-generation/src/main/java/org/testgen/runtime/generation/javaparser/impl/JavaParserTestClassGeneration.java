@@ -105,6 +105,10 @@ public class JavaParserTestClassGeneration
 		collectionGenerationFactory.setArrayGeneration(arrayGeneration);
 		spezialGenerationFactory.setArrayGenerationFactory(arrayGeneration);
 
+		complexObjectGeneration.setSpezialGenerationFactory(spezialGenerationFactory);
+		collectionGenerationFactory.setSpezialGenerationFactory(spezialGenerationFactory);
+		arrayGeneration.setSpezialGenerationFactory(spezialGenerationFactory);
+
 		Consumer<Class<?>> importCallBackHandler = imports::add;
 
 		complexObjectGeneration.setImportCallBackHandler(importCallBackHandler);
@@ -224,7 +228,8 @@ public class JavaParserTestClassGeneration
 			field.setAccessible(true);
 
 			Map<Class<?>, CsmElement> concreteSyntaxModel = ReflectionUtil.accessStaticField(field);
-			concreteSyntaxModel.replace(EmptyStmt.class, CsmElement.sequence(CsmElement.comment()));
+			concreteSyntaxModel.replace(EmptyStmt.class,
+					CsmElement.sequence(CsmElement.orphanCommentsBeforeThis(), CsmElement.comment()));
 
 			try (FileOutputStream outputStream = new FileOutputStream(path.toFile());
 					OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream)) {
@@ -277,7 +282,7 @@ public class JavaParserTestClassGeneration
 			simpleObjectGeneration.createObject(codeBlock, simpleBluePrint, false);
 
 		} else if (bluePrint.isSpezialBluePrint()) {
-			
+
 			spezialGenerationFactory.createObject(codeBlock, bluePrint, signature, false);
 		}
 	}

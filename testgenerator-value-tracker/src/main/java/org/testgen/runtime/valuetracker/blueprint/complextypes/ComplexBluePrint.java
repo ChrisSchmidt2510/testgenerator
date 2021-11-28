@@ -149,13 +149,13 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 					if (ReflectionUtil.isModifierConstant(field.getModifiers()))
 						continue;
 
-					Object fieldValue = ObjectValueTracker.getProxyValue(field.get(value));
+					Object fieldValue = ObjectValueTracker.getTestgeneratorProxyValue(field.get(value));
 
 					if (fieldValue == null || TestgeneratorConstants.isTestgeneratorField(field.getName())
 							|| fieldValue instanceof ObjectValueTracker || field.getName().contains(JACOCO))
 						continue;
 
-					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
+					LOGGER.debug("Tracking Value for Field: " + field.getName() + " from Class: " + fieldValue.getClass());
 
 					if (currentlyBuildedBluePrints.isCurrentlyBuilded(fieldValue))
 						currentlyBuildedBluePrints.addFinishedListener(fieldValue, bp -> bluePrint.addBluePrint(bp));

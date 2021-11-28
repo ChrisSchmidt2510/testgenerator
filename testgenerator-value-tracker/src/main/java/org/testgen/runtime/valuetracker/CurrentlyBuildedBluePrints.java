@@ -1,5 +1,6 @@
 package org.testgen.runtime.valuetracker;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,11 @@ public class CurrentlyBuildedBluePrints {
 	}
 
 	public boolean isCurrentlyBuilded(Object value) {
+		// Proxies normally have no implementation of hashcode and they have no object
+		// hierarchy that they could currently build, so we exclude them
+		if (Proxy.isProxyClass(value.getClass()))
+			return false;
+
 		return register.containsKey(value);
 	}
 
