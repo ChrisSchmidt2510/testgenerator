@@ -29,7 +29,8 @@ import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class ProxySpezialObjectGenerationTest {
 
@@ -41,6 +42,9 @@ public class ProxySpezialObjectGenerationTest {
 
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
 
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
+	
 	@BeforeEach
 	public void init() {
 		spezialGeneration.setImportCallBackHandler(imports::add);
@@ -135,10 +139,7 @@ public class ProxySpezialObjectGenerationTest {
 		"\r\n"+//
 		"}";
 		
-		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
-		
-		assertEquals(expected, codeBlock.toString(printerConfig));
+		assertEquals(expected, printer.print(codeBlock));
 		assertTrue(bluePrint.isBuild());
 		assertTrue(imports.contains(Greeter.class) && imports.contains(Serializable.class)
 				&& imports.contains(Proxy.class) && imports.contains(Thread.class) && imports.contains(Class.class));
@@ -158,7 +159,7 @@ public class ProxySpezialObjectGenerationTest {
 				"    this.proxy = (Greeter) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { Greeter.class, Serializable.class }, null);\r\n"+//
 				"\r\n"+//
 				"}";
-		assertEquals(expected, block.toString(printerConfig));
+		assertEquals(expected, printer.print(block));
 		assertTrue(bluePrint.isBuild());
 		assertTrue(imports.contains(Greeter.class) && imports.contains(Serializable.class)
 				&& imports.contains(Proxy.class) && imports.contains(Thread.class) && imports.contains(Class.class));
@@ -178,7 +179,7 @@ public class ProxySpezialObjectGenerationTest {
 			"    Greeter proxy = (Greeter) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class<?>[] { Greeter.class, Serializable.class }, null);\r\n" + 
 			"\r\n" + 
 			"}";
-	assertEquals(expected, codeBlock2.toString(printerConfig));
+	assertEquals(expected, printer.print(codeBlock2));
 	assertTrue(bluePrint.isBuild());
 	assertTrue(imports.contains(Greeter.class) && imports.contains(Serializable.class)
 			&& imports.contains(Proxy.class) && imports.contains(Thread.class) && imports.contains(Class.class));

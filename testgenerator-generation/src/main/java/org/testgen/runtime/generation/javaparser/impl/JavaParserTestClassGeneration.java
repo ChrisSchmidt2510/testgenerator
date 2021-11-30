@@ -56,8 +56,9 @@ import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.printer.ConcreteSyntaxModel;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
 import com.github.javaparser.printer.concretesyntaxmodel.CsmElement;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 
 public class JavaParserTestClassGeneration
@@ -77,6 +78,7 @@ public class JavaParserTestClassGeneration
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleObjectGeneration = new JavaParserSimpleObjectGenerationFactory();
 	private NamingService<BlockStmt> namingService = getNamingService();
 
+	
 	private CompilationUnit cu;
 
 	private BlockStmt codeBlock = new BlockStmt();
@@ -241,15 +243,15 @@ public class JavaParserTestClassGeneration
 			}
 
 		} else {
-			PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-					.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+			 DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+					(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
 
 			try {
-				Files.write(path, cu.toString(printerConfig).getBytes());
+				Files.write(path, printer.print(cu).getBytes());
 			} catch (IOException e) {
 				LOGGER.error("cant write modified Class to File", e);
 				LOGGER.error("generated Test:");
-				LOGGER.error(cu.toString(printerConfig));
+				LOGGER.error(printer.print(cu));
 			}
 		}
 

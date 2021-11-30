@@ -18,7 +18,6 @@ import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
 public class NullObjectGenerationTest {
 
@@ -42,9 +41,6 @@ public class NullObjectGenerationTest {
 
 	@Test
 	public void testCreateField() {
-		PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
-		config.setPrintJavadoc(true);
-
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", null);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
@@ -56,7 +52,7 @@ public class NullObjectGenerationTest {
 				"private Object value = null;";
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		assertEquals(expectedValueWithInit, cu.getFields().get(0).toString(config));
+		assertEquals(expectedValueWithInit, cu.getFields().get(0).toString());
 
 		String expectedValueWithoutInit = "/**\r\n" + //
 				" * TODO set correct Type for value\r\n" + //
@@ -64,7 +60,7 @@ public class NullObjectGenerationTest {
 				"private Object value;";
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		assertEquals(expectedValueWithoutInit, cu.getFields().get(1).toString(config));
+		assertEquals(expectedValueWithoutInit, cu.getFields().get(1).toString());
 	}
 
 	@Test

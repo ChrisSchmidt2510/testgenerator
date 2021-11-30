@@ -28,7 +28,8 @@ import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class LambdaExpressionSpezialObjectGenerationTest {
 
@@ -41,6 +42,9 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
 
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
+	
 	@BeforeEach
 	public void init() {
 		spezialGeneration.setImportCallBackHandler(imports::add);
@@ -152,10 +156,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		"\r\n"+//
 		"}";
 		
-		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
-		
-		assertEquals(expected, codeBlock.toString(printerConfig));
+		assertEquals(expected, printer.print(codeBlock));
 		assertTrue(imports.contains(Runnable.class));
 		assertTrue(bluePrint.isBuild());
 		
@@ -173,7 +174,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 				"    this.runnable = null;\r\n"+//
 				"\r\n"+//
 				"}";
-		assertEquals(expected, block.toString(printerConfig));
+		assertEquals(expected, printer.print(block));
 		assertTrue(imports.isEmpty());
 		assertTrue(bluePrint.isBuild());
 	}

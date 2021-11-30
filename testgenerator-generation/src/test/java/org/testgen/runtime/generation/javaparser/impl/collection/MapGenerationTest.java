@@ -41,7 +41,8 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class MapGenerationTest {
 
@@ -51,6 +52,9 @@ public class MapGenerationTest {
 	private MapBluePrintFactory mapFactory = new MapBluePrintFactory();
 
 	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
 
 	@BeforeEach
 	public void init() {
@@ -139,11 +143,8 @@ public class MapGenerationTest {
 				+ "\r\n"//
 				+ "}";
 
-		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
-
 		collectionGeneration.createCollection(block, bluePrint, signature, true);
-		assertEquals(expectedField, block.toString(printerConfig));
+		assertEquals(expectedField, printer.print(block));
 
 		bluePrint.resetBuildState();
 
@@ -157,7 +158,7 @@ public class MapGenerationTest {
 				+ "}";
 
 		collectionGeneration.createCollection(newBlock, bluePrint, signature, false);
-		assertEquals(expectedLocal, newBlock.toString(printerConfig));
+		assertEquals(expectedLocal, printer.print(newBlock));
 
 	}
 
@@ -227,10 +228,7 @@ public class MapGenerationTest {
 
 		collectionGeneration.createCollection(block, bluePrint, signature, false);
 
-		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
-
-		assertEquals(expected, block.toString(printerConfig));
+		assertEquals(expected, printer.print(block));
 
 		bluePrint.resetBuildState();
 
@@ -264,7 +262,7 @@ public class MapGenerationTest {
 		BlockStmt newBlock = new BlockStmt();
 
 		collectionGeneration.createCollection(newBlock, bluePrint, signature, true);
-		assertEquals(expected, newBlock.toString(printerConfig));
+		assertEquals(expected, printer.print(newBlock));
 
 	}
 

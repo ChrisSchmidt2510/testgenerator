@@ -32,7 +32,8 @@ import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
@@ -45,8 +46,8 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 	FieldData hausnummer = new FieldData("hausnummer", short.class);
 	FieldData plz = new FieldData("plz", int.class);
 
-	private PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-			.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
 
 	@BeforeEach
 	public void init() {
@@ -113,7 +114,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		assertEquals(expectedLocalValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedLocalValue, printer.print(codeBlock));
 		assertTrue(imports.contains(Adresse.class));
 
 		String expectedFieldValue = "{\r\n" + //
@@ -131,7 +132,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 		assertTrue(imports.contains(Adresse.class));
 	}
 
@@ -155,7 +156,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		String expectedFieldValue = "{\r\n" + //
 				"    // TODO add initalization for class: Adresse\r\n" + //
@@ -173,7 +174,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	@Test
@@ -197,7 +198,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		bluePrint.resetBuildState();
 
@@ -211,7 +212,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, calledFields);
 
-		assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	public class InnerClass {
@@ -237,7 +238,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(codeBlock, bluePrint, false, classData, Collections.emptySet());
 
-		assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		String expectedFieldValue = "{\r\n" + //
 				"    JavaParserComplexObjectGenerationTest outerClass = new JavaParserComplexObjectGenerationTest();\r\n"
@@ -252,7 +253,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	@Test
@@ -286,7 +287,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		bluePrint.resetBuildState();
 
@@ -301,7 +302,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	private ClassData getClassDataAdresse(boolean withDefaultConstructor) {

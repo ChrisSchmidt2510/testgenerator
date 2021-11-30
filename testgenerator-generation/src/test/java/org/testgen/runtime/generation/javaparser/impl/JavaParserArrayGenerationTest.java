@@ -35,7 +35,8 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class JavaParserArrayGenerationTest {
 
@@ -45,6 +46,9 @@ public class JavaParserArrayGenerationTest {
 	private ArrayBluePrintFactory arrayFactory = new ArrayBluePrintFactory();
 
 	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
 
 	@BeforeEach
 	public void init() {
@@ -131,17 +135,16 @@ public class JavaParserArrayGenerationTest {
 				+ "\r\n"//
 				+ "}";
 
-		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
-		assertEquals(expected, fieldWithSignature.toString(printerConfig));
+
+		assertEquals(expected, printer.print(fieldWithSignature));
 
 		bluePrint.resetBuildState();
 
 		BlockStmt fieldWithoutSignature = new BlockStmt();
 
 		arrayGeneration.createArray(fieldWithoutSignature, bluePrint, null, true);
-		assertEquals(expected, fieldWithoutSignature.toString(printerConfig));
+		assertEquals(expected, printer.print(fieldWithoutSignature));
 
 		bluePrint.resetBuildState();
 
@@ -157,14 +160,14 @@ public class JavaParserArrayGenerationTest {
 				+ "    value[3] = 8;\r\n"//
 				+ "\r\n"//
 				+ "}";
-		assertEquals(expectedLocal, localWithSignature.toString(printerConfig));
+		assertEquals(expectedLocal, printer.print(localWithSignature));
 
 		bluePrint.resetBuildState();
 
 		BlockStmt localWithoutSignature = new BlockStmt();
 
 		arrayGeneration.createArray(localWithoutSignature, bluePrint, null, false);
-		assertEquals(expectedLocal, localWithoutSignature.toString(printerConfig));
+		assertEquals(expectedLocal, printer.print(localWithoutSignature));
 	}
 
 	@Test

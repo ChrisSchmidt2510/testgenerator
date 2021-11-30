@@ -24,7 +24,8 @@ import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalend
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class XmlGregorianCalendarGenerationTest {
 
@@ -34,6 +35,9 @@ public class XmlGregorianCalendarGenerationTest {
 
 	private XMLGregorianCalendarBluePrintFactory factory = new XMLGregorianCalendarBluePrintFactory();
 
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
+	
 	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
@@ -48,9 +52,6 @@ public class XmlGregorianCalendarGenerationTest {
 
 	@Test
 	public void testCreateObject() throws IOException {
-		PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
-		config.setPrintComments(false);
-		config.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
 		XMLGregorianCalendar calendar = null;
 
@@ -67,11 +68,12 @@ public class XmlGregorianCalendarGenerationTest {
 		String expectedValueField = "try {\r\n"//
 				+ "    this.value = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2020, 12, 31, 60);\r\n"//
 				+ "} catch (DatatypeConfigurationException e) {\r\n" //
+				+ "    // TODO Auto-generated catch block\r\n"//
 				+ "    e.printStackTrace();\r\n"//
 				+ "}";
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		assertEquals(expectedValueField, block.getStatement(0).toString(config));
+		assertEquals(expectedValueField, printer.print(block.getStatement(0)));
 
 		BlockStmt newBlock = new BlockStmt();
 
@@ -80,12 +82,13 @@ public class XmlGregorianCalendarGenerationTest {
 				+ "    try {\r\n"//
 				+ "        value = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2020, 12, 31, 60);\r\n"//
 				+ "    } catch (DatatypeConfigurationException e) {\r\n" //
+				+ "        // TODO Auto-generated catch block\r\n"//
 				+ "        e.printStackTrace();\r\n"//
 				+ "    }\r\n"//
 				+ "\r\n"//
 				+ "}";
 
 		simpleObjectGeneration.createObject(newBlock, bluePrint, false);
-		assertEquals(expectedValueLocal, newBlock.toString(config));
+		assertEquals(expectedValueLocal, printer.print(newBlock));
 	}
 }
