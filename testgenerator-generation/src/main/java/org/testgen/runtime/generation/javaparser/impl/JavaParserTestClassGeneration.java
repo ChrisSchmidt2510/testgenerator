@@ -239,8 +239,6 @@ public class JavaParserTestClassGeneration
 			// cant use LexicalPreservingPrinter for that, because he wont write comments
 			// for empty-statements
 			try {
-				
-
 				List<String> methodLines = new ArrayList<>(
 						Arrays.asList(printer.print(testMethod).split(System.lineSeparator())));
 				for (int i = 0; i < methodLines.size(); i++) {
