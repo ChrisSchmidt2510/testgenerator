@@ -4,7 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
@@ -28,13 +29,13 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		OperandStack operandStack = new OperandStack();
 		operandStack.push(JavaTypes.OBJECT, null);
 
-		Function<OperandStack, Boolean> breakCondition = stack -> !stack.contains(instruction.getType(), instruction);
+		Predicate<OperandStack> breakCondition = stack -> !stack.contains(instruction.getType(), instruction);
 
 		return filterForInstructionCallerIntern(instruction, operandStack, breakCondition);
 	}
 
 	private Instruction filterForInstructionCallerIntern(Instruction instruction, OperandStack operandStack,
-			Function<OperandStack, Boolean> breakCondition) {
+			Predicate<OperandStack> breakCondition) {
 		ListIterator<Instruction> iterator = instructions.listIterator(instructions.indexOf(instruction) + 1);
 
 		// implNote:
@@ -180,7 +181,7 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		else if (Opcode.INVOKEDYNAMIC == opcode)
 			filterForInvokeDynamicInstruction(instruction, operandStack);
 
-		if (operandStack.isEmpty() || Boolean.TRUE.equals(breakCondition.apply(operandStack)))
+		if (operandStack.isEmpty() || breakCondition.test(operandStack))
 			return instruction;
 
 		else if (iterator.hasNext())
@@ -227,7 +228,7 @@ public class ForwardInstructionFilter extends InstructionFilter {
 			logger.error("can't process invokedynamic instruction " + instruction);
 	}
 
-	private void pushLoadInstructionOnStack(Instruction instruction, OperandStack operandStack) {
+	static void pushLoadInstructionOnStack(Instruction instruction, OperandStack operandStack) {
 
 		switch (instruction.getOpcode()) {
 		case Opcode.ALOAD:
@@ -290,7 +291,7 @@ public class ForwardInstructionFilter extends InstructionFilter {
 
 	}
 
-	private String getArrayComponentType(int opcode) {
+	static String getArrayComponentType(int opcode) {
 		switch (opcode) {
 		case Opcode.IALOAD:
 			return Primitives.JAVA_INT;
@@ -320,12 +321,12 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		}
 	}
 
-	private boolean isDoubleOrLong(String type) {
+	static boolean isDoubleOrLong(String type) {
 		return Primitives.JAVA_DOUBLE.equals(type) || Primitives.JVM_DOUBLE.equals(type)
 				|| Primitives.JAVA_LONG.equals(type) || Primitives.JVM_LONG.equals(type);
 	}
 
-	private class OperandStack {
+	static class OperandStack {
 		private LinkedList<StackEntry> stack = new LinkedList<>();
 
 		public void push(String type, Instruction instruction) {
@@ -353,17 +354,38 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		}
 
 		public boolean contains(String type, Instruction instruction) {
-			return stack.stream().anyMatch(el -> el.type.equals(type) && el.instruction.equals(instruction));
+			StackEntry testEntry = new StackEntry(type, instruction);
+
+			return stack.stream().anyMatch(el -> el.equals(testEntry));
 		}
 	}
 
-	private class StackEntry {
+	private static class StackEntry {
 		public final String type;
 		public final Instruction instruction;
 
 		StackEntry(String type, Instruction instruction) {
 			this.type = type;
 			this.instruction = instruction;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Objects.hash(instruction, type);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!(obj instanceof StackEntry))
+				return false;
+			StackEntry other = (StackEntry) obj;
+
+			return Objects.equals(instruction, other.instruction) && Objects.equals(type, other.type);
 		}
 
 	}
