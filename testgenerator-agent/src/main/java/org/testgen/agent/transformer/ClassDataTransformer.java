@@ -133,7 +133,9 @@ public class ClassDataTransformer implements ClassFileTransformer {
 					if (!Modifiers.isConstant(field.getModifiers()) //
 							&& !AccessFlag.isPublic(field.getModifiers())
 							&& !Modifiers.isSynthetic(field.getModifiers())
-							&& !TestgeneratorConstants.isTestgeneratorField(field.getName()))
+							&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
+							//temp. fix exclude static fields, maybe they are supported in a later version
+							&& !Modifier.isStatic(field.getModifiers()))
 
 						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
 
