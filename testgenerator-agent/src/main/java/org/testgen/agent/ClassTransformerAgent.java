@@ -2,14 +2,9 @@ package org.testgen.agent;
 
 import java.lang.instrument.Instrumentation;
 
-import org.testgen.agent.transformer.ClassDataTransformer;
-import org.testgen.agent.transformer.ValueTrackerTransformer;
 import org.testgen.config.TestgeneratorConfig;
-import org.testgen.logging.LogManager;
 
-import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.NotFoundException;
 
 public final class ClassTransformerAgent {
 
@@ -20,27 +15,9 @@ public final class ClassTransformerAgent {
 
 		TestgeneratorConfig.initConfiguration(agentArgs);
 
-		registerAdditionalClassPaths();
-
 		dumpModifiedClassFiles();
-
-		ValueTrackerTransformer valueTrackerTransformer = new ValueTrackerTransformer();
-
-		ClassDataTransformer metaDataTransformer = new ClassDataTransformer();
-
-		instrumentation.addTransformer(valueTrackerTransformer);
-		instrumentation.addTransformer(metaDataTransformer);
-	}
-
-	private static void registerAdditionalClassPaths() {
-
-		for (String blJar : TestgeneratorConfig.getBlPackageJarDest()) {
-			try {
-				ClassPool.getDefault().appendClassPath(blJar + "\\*");
-			} catch (NotFoundException e) {
-				LogManager.getRoot().error("cant add BL-Jar " + blJar + "to Javassist-ClassPath", e);
-			}
-		}
+		
+		instrumentation.addTransformer(new StartingTransformer());
 	}
 
 	private static void dumpModifiedClassFiles() {

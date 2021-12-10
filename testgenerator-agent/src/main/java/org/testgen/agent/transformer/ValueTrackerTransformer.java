@@ -1,11 +1,5 @@
 package org.testgen.agent.transformer;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-
 import org.testgen.agent.AgentException;
 import org.testgen.agent.classdata.analysis.signature.SignatureParser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
@@ -22,11 +16,8 @@ import org.testgen.core.Wrapper;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Modifier;
-import javassist.NotFoundException;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
@@ -41,7 +32,7 @@ import javassist.bytecode.LocalVariableTypeAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
-public class ValueTrackerTransformer implements ClassFileTransformer {
+public class ValueTrackerTransformer implements ClassTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ValueTrackerTransformer.class);
 
@@ -77,61 +68,43 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private ConstPool constantPool;
 
 	private SignatureAdder signatureAdder;
-
+	
 	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-
-		if (TestgeneratorConfig.getClassName().equals(className)) {
-			final ClassPool pool = ClassPool.getDefault();
-
-			CtClass loadingClass = null;
-			try (ByteArrayInputStream stream = new ByteArrayInputStream(classfileBuffer)) {
-				loadingClass = pool.makeClass(stream);
-
-				reTransformMethodForObservObjectData(loadingClass);
-
-				return loadingClass.toBytecode();
-
-			} catch (Throwable e) {
-				LOGGER.error("error while transforming class", e);
-
-				throw new AgentException("error while transforming class", e);
-			} finally {
-				if (loadingClass != null)
-					loadingClass.detach();
-			}
-
-		}
-		return classfileBuffer;
+	public boolean modifyClassFile(String className) {
+		return TestgeneratorConfig.getClassName().equals(className);
 	}
 
-	private void reTransformMethodForObservObjectData(CtClass classToLoad)
-			throws IOException, CannotCompileException, NotFoundException, BadBytecode {
+	@Override
+	public void transformClassFile(String className, CtClass ctClass) {
+		try {
+			MethodInfo methodInfo = ctClass
+					.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
+					.getMethodInfo();
 
-		MethodInfo methodInfo = classToLoad
-				.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
-				.getMethodInfo();
+			codeAttribute = methodInfo.getCodeAttribute();
+			constantPool = codeAttribute.getConstPool();
+			iterator = codeAttribute.iterator();
+			signatureAdder = new SignatureAdder(constantPool);
 
-		codeAttribute = methodInfo.getCodeAttribute();
-		constantPool = codeAttribute.getConstPool();
-		iterator = codeAttribute.iterator();
-		signatureAdder = new SignatureAdder(constantPool);
+			ClassFile classFile = ctClass.getClassFile();
 
-		ClassFile classFile = classToLoad.getClassFile();
+			if (!classFile.getFields().stream().anyMatch(
+					field -> TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE.equals(field.getName()))) {
+				FieldInfo methodTypeTable = new FieldInfo(constantPool,
+						TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
+				methodTypeTable.setAccessFlags(AccessFlag.PRIVATE | AccessFlag.STATIC);
+				classFile.addField(methodTypeTable);
+			}
 
-		if (!classFile.getFields().stream()
-				.anyMatch(field -> TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE.equals(field.getName()))) {
-			FieldInfo methodTypeTable = new FieldInfo(constantPool,
-					TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
-			methodTypeTable.setAccessFlags(AccessFlag.PRIVATE | AccessFlag.STATIC);
-			classFile.addField(methodTypeTable);
+			addValueTrackingToMethod(ctClass, methodInfo);
+
+			TestGenerationAdder testGeneration = new TestGenerationAdder(ctClass, codeAttribute);
+			testGeneration.addTestgenerationToMethod(methodInfo);
+		} catch (Exception e) {
+			LOGGER.error("error while transforming class", e);
+			throw new AgentException("error while transforming class", e);
 		}
 
-		addValueTrackingToMethod(classToLoad, methodInfo);
-
-		TestGenerationAdder testGeneration = new TestGenerationAdder(classToLoad, codeAttribute);
-		testGeneration.addTestgenerationToMethod(methodInfo);
 	}
 
 	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {

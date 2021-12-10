@@ -1,10 +1,6 @@
 package org.testgen.agent.transformer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,52 +46,37 @@ import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 import javassist.bytecode.SignatureAttribute;
 
-public class ClassDataTransformer implements ClassFileTransformer {
+public class ClassDataTransformer implements ClassTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ClassDataTransformer.class);
 
 	private static final String PROXIFIED = "org/testgen/runtime/proxy/Proxified";
 
 	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-
-		if (TestgeneratorConfig.getBlPackages().stream().anyMatch(className::startsWith)
+	public boolean modifyClassFile(String className) {
+		return TestgeneratorConfig.getBlPackages().stream().anyMatch(className::startsWith)
 				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
-				|| TestgeneratorConfig.getClassNames().contains(className)) {
-
-			ClassDataStorage.getInstance().removeSuperclassToLoad(Descriptor.toJavaName(className));
-
-			final ClassPool pool = ClassPool.getDefault();
-
-			CtClass loadingClass = null;
-
-			try (ByteArrayInputStream stream = new ByteArrayInputStream(classfileBuffer)) {
-				loadingClass = pool.makeClass(stream);
-
-				ClassData classData = collectClassData(loadingClass);
-				ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
-
-				if (!classData.isEnum() && !classData.isInterface()) {
-					ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
-					classDataGenerator.generate(loadingClass);
-				}
-
-				return loadingClass.toBytecode();
-
-			} catch (Throwable e) {
-				LOGGER.error("error while transforming class", e);
-				throw new AgentException("error while transforming class", e);
-			} finally {
-				if (loadingClass != null) {
-					loadingClass.detach();
-				}
-			}
-		}
-
-		return classfileBuffer;
+				|| TestgeneratorConfig.getClassNames().contains(className);
 	}
 
+	@Override
+	public void transformClassFile(String className, CtClass ctClass) {
+		ClassDataStorage.getInstance().removeSuperclassToLoad(Descriptor.toJavaName(className));
+
+		try {
+			ClassData classData = collectClassData(ctClass);
+			ClassDataStorage.getInstance().addClassData(ctClass.getName(), classData);
+
+			if (!classData.isEnum() && !classData.isInterface()) {
+				ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
+				classDataGenerator.generate(ctClass);
+			}
+		} catch (Exception e) {
+			LOGGER.error("error while transforming class", e);
+			throw new AgentException("error while transforming class", e);
+		}
+	}
+	
 	private ClassData collectClassData(CtClass loadingClass)
 			throws NotFoundException, CannotCompileException, BadBytecode, IOException {
 		ClassData classData;
@@ -134,7 +115,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 							&& !AccessFlag.isPublic(field.getModifiers())
 							&& !Modifiers.isSynthetic(field.getModifiers())
 							&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
-							//temp. fix exclude static fields, maybe they are supported in a later version
+							// temp. fix exclude static fields, maybe they are supported in a later version
 							&& !Modifier.isStatic(field.getModifiers()))
 
 						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
@@ -195,7 +176,7 @@ public class ClassDataTransformer implements ClassFileTransformer {
 	private void analyseAndManipulateMethods(ClassFile classFile, ClassData classData,
 			FieldTypeChanger fieldTypeChanger) throws BadBytecode {
 
-		Analyser methodAnalyser =getAnalyserImplementation(classData, classFile);
+		Analyser methodAnalyser = getAnalyserImplementation(classData, classFile);
 
 		List<MethodInfo> methods = classFile.getMethods();
 		for (MethodInfo method : methods) {
@@ -326,4 +307,5 @@ public class ClassDataTransformer implements ClassFileTransformer {
 
 		}
 	}
+
 }
