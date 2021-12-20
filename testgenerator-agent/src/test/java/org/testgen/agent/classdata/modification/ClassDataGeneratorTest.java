@@ -1,12 +1,14 @@
 package org.testgen.agent.classdata.modification;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testgen.agent.classdata.TestHelper;
 import org.testgen.agent.classdata.model.ClassData;
@@ -46,7 +48,7 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 			compareClassDataAdresse(runtimeClassData);
 		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
-			Assertions.fail();
+			fail(e);
 		}
 	}
 
@@ -66,7 +68,7 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 			compareClassDataPerson(runtimeClassData);
 		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
-			Assertions.fail(e.getMessage());
+			fail(e);
 		}
 	}
 
@@ -261,28 +263,28 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 	private void compareClasses(org.testgen.runtime.classdata.model.ClassData expected,
 			org.testgen.runtime.classdata.model.ClassData actual) {
-		Assertions.assertEquals(expected.getName(), actual.getName());
-		Assertions.assertEquals(expected.getSuperclass(), actual.getSuperclass());
+		assertEquals(expected.getName(), actual.getName());
+		assertEquals(expected.getSuperclass(), actual.getSuperclass());
 	}
 
 	private void compareConstructors(org.testgen.runtime.classdata.model.ConstructorData expected,
 			org.testgen.runtime.classdata.model.ConstructorData actual) {
-		Assertions.assertEquals(expected.hasDefaultConstructor(), actual.hasDefaultConstructor());
-		Assertions.assertEquals(expected.getConstructorFields(), actual.getConstructorFields());
+		assertEquals(expected.hasDefaultConstructor(), actual.hasDefaultConstructor());
+		assertEquals(expected.getConstructorFields(), actual.getConstructorFields());
 	}
 
 	private void compareFields(org.testgen.runtime.classdata.model.FieldData expected,
 			org.testgen.runtime.classdata.model.FieldData actual) {
-		Assertions.assertEquals(expected, actual);
-		Assertions.assertEquals(expected.getSignature(), actual.getSignature());
+		assertEquals(expected, actual);
+		assertEquals(expected.getSignature(), actual.getSignature());
 	}
 
 	private void compareSetterMethods(org.testgen.runtime.classdata.model.SetterMethodData expected,
 			org.testgen.runtime.classdata.model.SetterMethodData actual) {
-		Assertions.assertEquals(expected.getName(), actual.getName());
-		Assertions.assertEquals(expected.getDescriptor(), actual.getDescriptor());
-		Assertions.assertEquals(expected.getType(), actual.getType());
-		Assertions.assertEquals(expected.isStatic(), actual.isStatic());
+		assertEquals(expected.getName(), actual.getName());
+		assertEquals(expected.getDescriptor(), actual.getDescriptor());
+		assertEquals(expected.getType(), actual.getType());
+		assertEquals(expected.isStatic(), actual.isStatic());
 	}
 
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.testgen.agent.classdata.analysis.BasicMethodAnalysis;
 import org.testgen.agent.classdata.constants.JVMTypes;
@@ -49,12 +49,12 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 
 	private static final Logger LOGGER = LogManager.getLogger(ConstructorAnalyser.class);
 
-	private static final Function<String, Boolean> REFERENCE_CHECK = type -> JVMTypes.isArrayType(type)
+	private static final Predicate<String> REFERENCE_CHECK = type -> JVMTypes.isArrayType(type)
 			|| JVMTypes.isReferenceType(type);
-	private static final Function<String, Boolean> ILOAD_CHECK = type -> Primitives.isILoadPrimitive(type);
-	private static final Function<String, Boolean> FLOAD_CHECK = type -> Primitives.JVM_FLOAT.equals(type);
-	private static final Function<String, Boolean> DLOAD_CHECK = type -> Primitives.JVM_DOUBLE.equals(type);
-	private static final Function<String, Boolean> LLOAD_CHECK = type -> Primitives.JVM_LONG.equals(type);
+	private static final Predicate<String> ILOAD_CHECK = type -> Primitives.isILoadPrimitive(type);
+	private static final Predicate<String> FLOAD_CHECK = type -> Primitives.JVM_FLOAT.equals(type);
+	private static final Predicate<String> DLOAD_CHECK = type -> Primitives.JVM_DOUBLE.equals(type);
+	private static final Predicate<String> LLOAD_CHECK = type -> Primitives.JVM_LONG.equals(type);
 
 	private Map<MethodInfo, ConstructorData> analysisResults = new HashMap<>();
 
@@ -279,10 +279,10 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 	}
 
 	private Optional<Integer> checkType(int methodParameterIndex, List<String> methodParameters,
-			Function<String, Boolean> typeCheck) {
+			Predicate<String> typeCheck) {
 		String type = methodParameters.get(methodParameterIndex);
 
-		return typeCheck.apply(type) ? Optional.of(methodParameterIndex) : Optional.empty();
+		return typeCheck.test(type) ? Optional.of(methodParameterIndex) : Optional.empty();
 	}
 
 }

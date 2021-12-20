@@ -9,8 +9,8 @@ import javassist.bytecode.ClassFile;
 import javassist.bytecode.MethodInfo;
 
 /**
- * Interface for applying an Analysis for a single method(constructors
- * excluded).For the execution of the analysis is some extra data stored in the
+ * Interface for applying an Analysis for a single method. 
+ * For the execution of the analysis is some extra data stored in the
  * objects {@link ClassData} and {@link ClassFile} necessary. To initialize an
  * analyzer properly call{@link MethodAnalysis#setClassData(ClassData)} and
  * {@link MethodAnalysis#setClassFile(ClassFile)}.

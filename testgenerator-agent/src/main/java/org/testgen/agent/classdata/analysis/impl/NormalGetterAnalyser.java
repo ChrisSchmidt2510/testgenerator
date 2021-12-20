@@ -49,7 +49,6 @@ public class NormalGetterAnalyser extends BasicMethodAnalysis {
 
 					FieldData field = getField(instruction);
 
-					// TODO CS maybe reworken
 					MethodType methodType = field.isMutable()
 							|| (!field.isMutable() && JavaTypes.COLLECTION_LIST.contains(field.getDataType()))
 									? MethodType.REFERENCE_VALUE_GETTER

@@ -1,8 +1,10 @@
 package org.testgen.agent.classdata.instructions.filter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testgen.agent.classdata.TestHelper;
 import org.testgen.agent.classdata.instructions.Instruction;
@@ -32,8 +34,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this method has only 1 putField-instruction so-> get(0)
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(0, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(0, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -55,8 +57,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 		// becomes 10
 		// if the test-gets compiled with the eclipse-java-compiler the codeArrayIndex
 		// is 11
-		Assertions.assertTrue(aloadInstruction.getCodeArrayIndex() == 11 || aloadInstruction.getCodeArrayIndex() == 10);
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertTrue(aloadInstruction.getCodeArrayIndex() == 11 || aloadInstruction.getCodeArrayIndex() == 10);
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 
 	}
 
@@ -73,8 +75,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(4, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(4, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -90,8 +92,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 
 		Instruction aloadInstruction = filter.filterForAloadInstruction(searchInstruction);
 
-		Assertions.assertEquals(41, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(41, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -107,8 +109,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(4, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(4, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -125,8 +127,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(8, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(8, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -142,8 +144,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(0, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(0, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -159,8 +161,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(4, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(4, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -176,8 +178,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 				// this test interesting
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(0, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(0, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -191,8 +193,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 		Instruction aloadInstruction = filter
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(1));
 
-		Assertions.assertEquals(27, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(27, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	@Test
@@ -206,8 +208,8 @@ public class ReverseInstructionFilterTest extends TestHelper {
 		Instruction aloadInstruction = filter
 				.filterForAloadInstruction(filteredInstructions.get(Opcode.PUTFIELD).get(0));
 
-		Assertions.assertEquals(4, aloadInstruction.getCodeArrayIndex());
-		Assertions.assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
+		assertEquals(4, aloadInstruction.getCodeArrayIndex());
+		assertEquals(Opcode.ALOAD_0, aloadInstruction.getOpcode());
 	}
 
 	private ReverseInstructionFilter createInstructionFilter() {

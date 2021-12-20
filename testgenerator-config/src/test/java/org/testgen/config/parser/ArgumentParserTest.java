@@ -1,8 +1,10 @@
 package org.testgen.config.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Arrays;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testgen.config.DefinedArguments;
 
@@ -19,17 +21,17 @@ public class ArgumentParserTest {
 				+ "-PrintClassFilesDir=D:\\";
 
 		ArgumentParser argParser = new ArgumentParser(args, DefinedArguments.getArguments());
-		Assertions.assertEquals("de/nvg/app/BusinessLogik",
+		assertEquals("de/nvg/app/BusinessLogik",
 				argParser.getArgumentValue(DefinedArguments.ARG_CLASS_NAME));
-		Assertions.assertEquals("changePassword", argParser.getArgumentValue(DefinedArguments.ARG_METHOD_NAME));
-		Assertions.assertEquals("(Lde/nvg/bl/Account;Ljava/lang/String;)Ljava/lang/String;",
+		assertEquals("changePassword", argParser.getArgumentValue(DefinedArguments.ARG_METHOD_NAME));
+		assertEquals("(Lde/nvg/bl/Account;Ljava/lang/String;)Ljava/lang/String;",
 				argParser.getArgumentValue(DefinedArguments.ARG_METHOD_DESC));
-		Assertions.assertEquals(Arrays.asList("de/nvg/bl", "de/nvg/logic"),
+		assertEquals(Arrays.asList("de/nvg/bl", "de/nvg/logic"),
 				argParser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE));
-		Assertions.assertEquals(Arrays.asList("D:\\git\\testgenerator\\javaagent-sample-app\\target"),
+		assertEquals(Arrays.asList("D:\\git\\testgenerator\\javaagent-sample-app\\target"),
 				argParser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST));
-		Assertions.assertTrue(argParser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS));
-		Assertions.assertEquals("D:\\", argParser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR));
+		assertTrue(argParser.hasArgument(DefinedArguments.ARG_TRACE_READ_FIELD_ACCESS));
+		assertEquals("D:\\", argParser.getArgumentValue(DefinedArguments.ARG_PRINT_CLASSFILES_DIR));
 	}
 
 }

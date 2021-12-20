@@ -24,7 +24,7 @@ public class MethodAnalyser extends Analyser {
 		super(classData, classFile);
 	}
 
-	
+	@Override
 	public void analyseMethod(MethodInfo method, List<Instruction> instructions) {
 		LOGGER.info("Starting Analysis of Method: " +method);
 		

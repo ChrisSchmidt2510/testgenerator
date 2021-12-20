@@ -37,6 +37,11 @@ public final class Primitives {
 		return PRIMTIVE_JVM_TYPES.contains(dataType);
 	}
 
+	/**
+	 * Load Instruction for loading an Integer
+	 * @param type
+	 * @return
+	 */
 	public static boolean isILoadPrimitive(String type) {
 		return JVM_BOOLEAN.equals(type) || JVM_BYTE.equals(type) || JVM_CHAR.equals(type)//
 				|| JVM_SHORT.equals(type) || JVM_INT.equals(type);
