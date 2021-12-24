@@ -16,12 +16,34 @@ import javassist.bytecode.BootstrapMethodsAttribute.BootstrapMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.Opcode;
 
+/**
+ * Filter throw the instructions of a single method, in a forward direction.
+ * Simulate each opcode that change the depth of the operand stack. all other
+ * opcodes are ignored e.g. all cast opcodes {@link Opcode#CHECKCAST}.
+ * 
+ * Branch opcodes that require a stackmaptable to follow the instructions are
+ * ignored aswell. This class can be used to filter for a single code statement,
+ * not for filtering threw an entire method.
+ *
+ */
 public class ForwardInstructionFilter extends InstructionFilter {
 
 	public ForwardInstructionFilter(ClassFile classFile, List<Instruction> instructions) {
 		super(classFile, instructions);
 	}
 
+	/**
+	 * Filtering throw the instructions of a method, looking for the instruction
+	 * that use the delivered {@link Opcode#GETFIELD} instruction.
+	 * 
+	 * If the delivered instruction is no {@link Opcode#GETFIELD} instruction a
+	 * {@link IllegalArgumentException} will be thrown.
+	 * 
+	 * If no caller instruction is found a {@link NoSuchElementException} is thrown.
+	 * 
+	 * @param instruction
+	 * @return
+	 */
 	public Instruction filterForUseOfGetFieldInstruction(Instruction instruction) {
 		if (Opcode.GETFIELD != instruction.getOpcode())
 			throw new IllegalArgumentException(String.format("Instruction %s has no Opcode GETFIELD", instruction));
@@ -38,18 +60,6 @@ public class ForwardInstructionFilter extends InstructionFilter {
 			Predicate<OperandStack> breakCondition) {
 		ListIterator<Instruction> iterator = instructions.listIterator(instructions.indexOf(instruction) + 1);
 
-		// implNote:
-		// - all opcodes that don't change the depth of the operand stack are ignored
-		// e.g all cast opcodes
-
-		// problems to solve:
-		// - how to solve problems with branch opcodes for e.g all if-opcodes or
-		// -> all if-opcodes arent supported, only short if will be supported
-		// to filter these stackmaptable is needed
-		// switch-opcodes
-		// - how to solve problems with catch-clauses or finally blocks
-		// - how to merge the result of multiple codepaths?
-		// -> multiple codepaths are not supported, only 1 one statement can be filtered
 		int opcode = instruction.getOpcode();
 
 		if (Instructions.isLoadInstruction(instruction)) {

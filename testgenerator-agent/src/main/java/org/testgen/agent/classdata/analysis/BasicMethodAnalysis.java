@@ -43,10 +43,18 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		this.classFile = classFile;
 	}
 
+	/**
+	 * Checks the accessFlag of the method isn't private or synthetic.
+	 * @param accessFlags
+	 */
 	protected boolean isMethodAccessible(int accessFlags) {
 		return !Modifier.isPrivate(accessFlags) && !Modifiers.isSynthetic(accessFlags);
 	}
 
+	/**
+	 * Checks if the given descriptor is from the collection framework
+	 * @param descriptor 
+	 */
 	protected boolean isTypeCollection(String descriptor) {
 		try {
 			CtClass clazz = Descriptor.toCtClass(descriptor, ClassPool.getDefault());
