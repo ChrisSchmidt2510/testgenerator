@@ -1,13 +1,14 @@
 package org.testgen.agent.classdata.instructions.filter;
 
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
@@ -22,7 +23,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 
 	private static final List<Integer> POP_OPCODES = Collections.unmodifiableList(Arrays.asList(
 			// remove the first entry in the operand-stack for aconst_null instruction
-			Opcode.ACONST_NULL, Opcode.NEW, Opcode.GETSTATIC, //
+			Opcode.ACONST_NULL, Opcode.NEW, Opcode.GETSTATIC, Opcode.PUTSTATIC, //
 			// pop the element, before the dup instruction the first and second-instructions
 			// should be of the same type
 			// TODO add putstatic opcode to filter For InstructionCallerIntern
@@ -37,17 +38,17 @@ public class ReverseInstructionFilter extends InstructionFilter {
 
 		calledLoadInstructions.clear();
 
-		Deque<String> operandStack = new ArrayDeque<>();
+		LinkedList<String> operandStack = new LinkedList<>();
 
 		return filterForInstructionCallerIntern(instruction, operandStack);
 	}
-	
+
 	public List<Instruction> filterForCalledLoadInstructions(Instruction instruction) {
 		logger.debug("searching for arguments of invoke instruction " + instruction);
-		
+
 		calledLoadInstructions.clear();
 
-		Deque<String> operandStack = new ArrayDeque<>();
+		LinkedList<String> operandStack = new LinkedList<>();
 
 		if (Instructions.isInvokeInstruction(instruction)) {
 			String returnType = Instructions.getReturnType(instruction.getType());
@@ -70,22 +71,24 @@ public class ReverseInstructionFilter extends InstructionFilter {
 	 * @param numberOfParameters
 	 * @return the caller-instruction of the searchInstruction
 	 */
-	private Instruction filterForInstructionCallerIntern(Instruction instruction, Deque<String> operandStack) {
+	private Instruction filterForInstructionCallerIntern(Instruction instruction, LinkedList<String> operandStack) {
 		logger.debug("current-instruction " + instruction + "\n" + //
 				"current operandStack: " + operandStack + "\n");
+
+		int opcode = instruction.getOpcode();
 
 		if (Instructions.isLoadInstruction(instruction)) {
 			operandStack.pop();
 			calledLoadInstructions.add(instruction);
 
-		} else if (POP_OPCODES.contains(instruction.getOpcode())) {
+		} else if (POP_OPCODES.contains(opcode)) {
 			operandStack.pop();
 
-		} else if (Opcode.GETFIELD == instruction.getOpcode()) {
+		} else if (Opcode.GETFIELD == opcode) {
 			operandStack.pop();
 			operandStack.push(instruction.getClassRef());
 
-		} else if (Opcode.PUTFIELD == instruction.getOpcode()) {
+		} else if (Opcode.PUTFIELD == opcode) {
 			operandStack.push(instruction.getClassRef());
 			operandStack.push(Descriptor.toClassName(instruction.getType()));
 
@@ -93,7 +96,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			// update the instruction to the instruction, who starts the invoke-instruction
 			instruction = filterForInstructionBeforeInvokeInstruction(instruction, operandStack);
 
-		} else if (Opcode.INVOKEDYNAMIC == instruction.getOpcode()) {
+		} else if (Opcode.INVOKEDYNAMIC == opcode) {
 
 			instruction = filterForInstructionBeforeInvokeDynamicInstruction(instruction, operandStack);
 
@@ -104,7 +107,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			operandStack.push(type);
 
 		} else if (Instructions.isOneItemComparison(instruction)) {
-			if (Opcode.IFNULL == instruction.getOpcode() || Opcode.IFNONNULL == instruction.getOpcode()) {
+			if (Opcode.IFNULL == opcode || Opcode.IFNONNULL == opcode) {
 				// can't know which type gets popped, so the most common type is pushed
 				operandStack.push(JavaTypes.OBJECT);
 			} else {
@@ -113,7 +116,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			}
 
 		} else if (Instructions.isTwoItemComparison(instruction)) {
-			if (Opcode.IF_ACMPEQ == instruction.getOpcode() || Opcode.IF_ACMPNE == instruction.getOpcode()) {
+			if (Opcode.IF_ACMPEQ == opcode || Opcode.IF_ACMPNE == opcode) {
 				// can't know which types gets popped, so the most common types are pushed
 				operandStack.push(JavaTypes.OBJECT);
 				operandStack.push(JavaTypes.OBJECT);
@@ -143,11 +146,73 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			// can't know which type the array has, so the most common type is pushed
 			operandStack.push(JavaTypes.OBJECT_ARRAY);
 
-		} else if (Opcode.ANEWARRAY == instruction.getOpcode()) {
+		} else if (Opcode.ANEWARRAY == opcode || Opcode.NEWARRAY == opcode) {
 			// remove the type of the array from the stack
 			operandStack.pop();
 			// length of the array
 			operandStack.push(Primitives.JAVA_INT);
+
+		} else if (Opcode.MULTIANEWARRAY == opcode) {
+			// remove arrayref
+			operandStack.pop();
+
+			for (int i = 0; i < instruction.getArrayDimensions(); i++) {
+				operandStack.push(Primitives.JAVA_INT);
+			}
+
+		} else if (Opcode.DUP_X1 == opcode) {
+			operandStack.remove(2);
+
+		} else if (Opcode.DUP_X2 == opcode) {
+			String type = operandStack.peek();
+			operandStack.remove(isDoubleOrLong(type) ? 2 : 3);
+
+		} else if (Opcode.DUP2 == opcode) {
+			String type = operandStack.peek();
+
+			if (isDoubleOrLong(type)) {
+				operandStack.pop();
+
+			} else {
+				operandStack.remove(2);
+				operandStack.remove(3);
+			}
+
+		} else if (Opcode.DUP2_X1 == opcode) {
+			String type = operandStack.peek();
+
+			if (isDoubleOrLong(type)) {
+				operandStack.remove(2);
+
+			} else {
+				operandStack.remove(3);
+				operandStack.remove(4);
+			}
+
+		} else if (Opcode.DUP2_X2 == opcode) {
+			// Form 4
+			if (isDoubleOrLong(operandStack.peek()) && isDoubleOrLong(operandStack.get(1))) {
+				operandStack.remove(2);
+
+				// Form 3
+			} else if (isDoubleOrLong(operandStack.get(2))) {
+				operandStack.remove(3);
+				operandStack.remove(4);
+
+				// Form 2
+			} else if (isDoubleOrLong(operandStack.peek())) {
+				operandStack.remove(3);
+
+				// Form 1
+			} else {
+				operandStack.remove(4);
+				operandStack.remove(5);
+			}
+
+		} else if (Opcode.INSTANCEOF == opcode) {
+			operandStack.pop();
+			operandStack.push(JVMTypes.OBJECT);
+
 		}
 
 		Instruction beforeInstruction = Instructions.getBeforeInstruction(instructions, instruction);
@@ -190,7 +255,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			return invokeInstruction;
 		}
 
-		Deque<String> methodOperandStack = new ArrayDeque<>();
+		LinkedList<String> methodOperandStack = new LinkedList<>();
 
 		if (Opcode.INVOKESTATIC != invokeInstruction.getOpcode()) {
 			methodOperandStack.add(invokeInstruction.getClassRef());
@@ -228,7 +293,7 @@ public class ReverseInstructionFilter extends InstructionFilter {
 			List<String> additionalParams = lambdaImplParameters.stream()
 					.filter(param -> !lambdaOriginalParameters.contains(param)).collect(Collectors.toList());
 
-			Deque<String> invokeDynamicOperandStack = new ArrayDeque<>();
+			LinkedList<String> invokeDynamicOperandStack = new LinkedList<>();
 			additionalParams.forEach(invokeDynamicOperandStack::push);
 
 			return filterForInstructionCallerIntern(

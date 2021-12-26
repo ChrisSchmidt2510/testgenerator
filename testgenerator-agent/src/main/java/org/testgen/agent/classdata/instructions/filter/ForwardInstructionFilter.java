@@ -331,11 +331,6 @@ public class ForwardInstructionFilter extends InstructionFilter {
 		}
 	}
 
-	static boolean isDoubleOrLong(String type) {
-		return Primitives.JAVA_DOUBLE.equals(type) || Primitives.JVM_DOUBLE.equals(type)
-				|| Primitives.JAVA_LONG.equals(type) || Primitives.JVM_LONG.equals(type);
-	}
-
 	static class OperandStack {
 		private LinkedList<StackEntry> stack = new LinkedList<>();
 

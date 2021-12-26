@@ -95,7 +95,7 @@ public abstract class InstructionFilter {
 
 				logger.debug("removed Instructions");
 				removedInstructions.forEach(inst -> logger.debug(inst.toString()));
-				
+
 				modifiedInstructions.removeAll(removedInstructions);
 
 			}
@@ -103,6 +103,11 @@ public abstract class InstructionFilter {
 		}
 
 		return modifiedInstructions;
+	}
+
+	protected static boolean isDoubleOrLong(String type) {
+		return Primitives.JAVA_DOUBLE.equals(type) || Primitives.JVM_DOUBLE.equals(type)
+				|| Primitives.JAVA_LONG.equals(type) || Primitives.JVM_LONG.equals(type);
 	}
 
 	protected boolean putsItemOnOperandStack(Instruction instruction) {
