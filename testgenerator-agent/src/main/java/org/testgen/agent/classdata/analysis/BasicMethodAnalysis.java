@@ -45,6 +45,7 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 
 	/**
 	 * Checks the accessFlag of the method isn't private or synthetic.
+	 * 
 	 * @param accessFlags
 	 */
 	protected boolean isMethodAccessible(int accessFlags) {
@@ -53,7 +54,8 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 
 	/**
 	 * Checks if the given descriptor is from the collection framework
-	 * @param descriptor 
+	 * 
+	 * @param descriptor
 	 */
 	protected boolean isTypeCollection(String descriptor) {
 		try {
@@ -82,6 +84,12 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		return false;
 	}
 
+	/**
+	 * get the implementation of the collection interface
+	 * 
+	 * @param descriptor
+	 * @return
+	 */
 	protected Set<String> getImplementedCollections(String descriptor) {
 		try {
 			CtClass clazz = Descriptor.toCtClass(descriptor, ClassPool.getDefault());
@@ -112,6 +120,15 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		return implementedCollections;
 	}
 
+	/**
+	 * Returning the field from {@link ClassData} if its a {@link Opcode#GETFIELD}
+	 * or {@link Opcode#PUTFIELD} instruction.<br>
+	 * Otherwise a {@link IllegalArgumentException} is thrown.
+	 *
+	 * @param instruction
+	 * 
+	 * @return
+	 */
 	protected FieldData getField(Instruction instruction) {
 		if (Opcode.GETFIELD != instruction.getOpcode() && Opcode.PUTFIELD != instruction.getOpcode())
 			throw new IllegalArgumentException(
@@ -120,6 +137,14 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		return classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType()));
 	}
 
+	/**
+	 * Returning the method from {@link ClassData} if its a invoke instruction e.g.
+	 * {@link Opcode#INVOKEVIRTUAL}.<br>
+	 * Otherwise a {@link IllegalArgumentException} is thrown.
+	 * 
+	 * @param instruction
+	 * @return
+	 */
 	protected Entry<MethodData, FieldData> getMethod(Instruction instruction) {
 		if (!Instructions.isInvokeInstruction(instruction))
 			throw new IllegalArgumentException(String.format("invalid invoke instruction %s", instruction));
@@ -127,6 +152,14 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		return classData.getMethod(instruction.getName(), instruction.getType());
 	}
 
+	/**
+	 * Checks if all parameters of a method are used for a Setter.
+	 * 
+	 * @param calledLoadInstructions
+	 * @param methodParameters
+	 * @param isStaticMethod
+	 * @return
+	 */
 	protected boolean areAllMethodParametersUsed(List<Instruction> calledLoadInstructions,
 			List<String> methodParameters, boolean isStaticMethod) {
 		// if its a static method local variable index starts with 0
@@ -164,8 +197,8 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 
 			if (calledLoadInstructions.stream().noneMatch(filter))
 				return false;
-			
-			//increase the counter of the methodParameterIndex pro methodparameter
+
+			// increase the counter of the methodParameterIndex pro methodparameter
 			methodVariableIndex++;
 		}
 
@@ -267,6 +300,13 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 		}
 	}
 
+	/**
+	 * Add the result of the analysis to {@link ClassData}
+	 * 
+	 * @param method
+	 * @param methodType
+	 * @param fieldData
+	 */
 	protected void addAnalysisResult(MethodInfo method, MethodType methodType, FieldData fieldData) {
 		MethodData methodData = new MethodData(method.getName(), method.getDescriptor(), methodType,
 				Modifier.isStatic(method.getAccessFlags()));
