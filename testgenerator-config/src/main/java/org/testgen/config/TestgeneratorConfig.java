@@ -20,7 +20,6 @@ public final class TestgeneratorConfig {
 	private static final String PARAM_METHOD_NAME = "TestgeneratorMethodName";
 	private static final String PARAM_METHOD_DESC = "TestgeneratorMethodDesc";
 	private static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
-	private static final String PARAM_BL_PACKAGE_JAR_DEST = "TestgeneratorBlPackageJarDest";
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
 	private static final String PARAM_PATH_TO_TESTCLASS = "TestgeneratorPathToTestClass";
 
@@ -52,8 +51,6 @@ public final class TestgeneratorConfig {
 
 		System.setProperty(PARAM_BL_PACKAGE,
 				checkForEmptyArgumentList(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE)));
-		System.setProperty(PARAM_BL_PACKAGE_JAR_DEST,
-				checkForEmptyArgumentList(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST)));
 
 		System.setProperty(PARAM_PATH_TO_TESTCLASS, parser.getArgumentValue(DefinedArguments.ARG_PATH_TO_TESTCLASS));
 
@@ -99,11 +96,6 @@ public final class TestgeneratorConfig {
 
 	public static List<String> getBlPackages() {
 		return getPropertyList(PARAM_BL_PACKAGE);
-	}
-
-	public static List<String> getBlPackageJarDest() {
-		return getPropertyList(PARAM_BL_PACKAGE_JAR_DEST);
-
 	}
 
 	public static String getPrintClassFileDirectory() {
@@ -174,8 +166,6 @@ public final class TestgeneratorConfig {
 		builder.append(PARAM_METHOD_NAME + "=" + getMethodName() + System.lineSeparator());
 		builder.append(PARAM_METHOD_DESC + "=" + getMethodDescriptor() + System.lineSeparator());
 		builder.append(PARAM_BL_PACKAGE + "=" + System.getProperty(PARAM_BL_PACKAGE) + System.lineSeparator());
-		builder.append(PARAM_BL_PACKAGE_JAR_DEST + "=" + System.getProperty(PARAM_BL_PACKAGE_JAR_DEST)
-				+ System.lineSeparator());
 		builder.append(PARAM_PRINT_CLASS_FILE_DIR + "=" + getPrintClassFileDirectory() + System.lineSeparator());
 		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomTestgeneratorClass() + System.lineSeparator());
 		builder.append(PARAM_CUSTOM_ANALYSIS_CLASS + "=" + getCustomAnalysisClass() + System.lineSeparator());
