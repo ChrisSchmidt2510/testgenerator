@@ -16,7 +16,10 @@ public class MethodAnalyser extends Analyser {
 	private static final Logger LOGGER = LogManager.getLogger(MethodAnalyser.class);
 
 	static {
-		ServiceLoader<MethodAnalysis> serviceLoader = ServiceLoader.load(MethodAnalysis.class);
+		// need to use the classloader of this class, because in App. Servers
+		// ThreadContextClassloader can be another ClassLoader
+		ServiceLoader<MethodAnalysis> serviceLoader = ServiceLoader.load(MethodAnalysis.class,
+				MethodAnalyser.class.getClassLoader());
 		serviceLoader.forEach(ANALYSER::add);
 	}
 
@@ -26,19 +29,19 @@ public class MethodAnalyser extends Analyser {
 
 	@Override
 	public void analyseMethod(MethodInfo method, List<Instruction> instructions) {
-		LOGGER.info("Starting Analysis of Method: " +method);
-		
+		LOGGER.info("Starting Analysis of Method: " + method);
+
 		for (MethodAnalysis analyser : ANALYSER) {
 			String analyserName = analyser.getClass().getName();
-			
+
 			LOGGER.debug(String.format("use %s for analysis", analyserName));
-			
-			if(!analyser.canAnalysisBeApplied(method)) {
+
+			if (!analyser.canAnalysisBeApplied(method)) {
 				LOGGER.debug(String.format("requirements for analyser %s arent fulfilled", analyserName));
 				continue;
 			}
-			
-			if(analyser.hasAnalysisMatched(method, instructions)) {
+
+			if (analyser.hasAnalysisMatched(method, instructions)) {
 				LOGGER.debug(String.format("analysis found a result with analyser %s", analyserName));
 				break;
 			}
