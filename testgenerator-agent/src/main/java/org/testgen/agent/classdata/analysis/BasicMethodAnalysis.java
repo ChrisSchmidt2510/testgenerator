@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -69,17 +70,20 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 	}
 
 	private boolean isCollection(CtClass ctClass) throws NotFoundException {
-		if (ctClass.isInterface())
+		if (ctClass.isInterface()) {
 			return JavaTypes.COLLECTION_LIST.contains(ctClass.getName());
+		}
 
 		if (Arrays.stream(ctClass.getInterfaces())
-				.anyMatch(inter -> JavaTypes.COLLECTION_LIST.contains(inter.getName())))
+				.anyMatch(inter -> JavaTypes.COLLECTION_LIST.contains(inter.getName()))) {
 			return true;
+		}
 
 		CtClass superClass = ctClass.getSuperclass();
 
-		if (superClass != null && !JavaTypes.OBJECT.equals(superClass.getName()))
+		if (superClass != null && !JavaTypes.OBJECT.equals(superClass.getName())) {
 			return isCollection(superClass);
+		}
 
 		return false;
 	}
@@ -91,6 +95,8 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 	 * @return
 	 */
 	protected Set<String> getImplementedCollections(String descriptor) {
+		Objects.requireNonNull(descriptor);
+
 		try {
 			CtClass clazz = Descriptor.toCtClass(descriptor, ClassPool.getDefault());
 
@@ -130,9 +136,10 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 	 * @return
 	 */
 	protected FieldData getField(Instruction instruction) {
-		if (Opcode.GETFIELD != instruction.getOpcode() && Opcode.PUTFIELD != instruction.getOpcode())
+		if (Opcode.GETFIELD != instruction.getOpcode() && Opcode.PUTFIELD != instruction.getOpcode()) {
 			throw new IllegalArgumentException(
 					String.format("invalid Opcode for method getField %s", Mnemonic.OPCODE[instruction.getOpcode()]));
+		}
 
 		return classData.getField(instruction.getName(), Descriptor.toClassName(instruction.getType()));
 	}
@@ -146,8 +153,9 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 	 * @return
 	 */
 	protected Entry<MethodData, FieldData> getMethod(Instruction instruction) {
-		if (!Instructions.isInvokeInstruction(instruction))
+		if (!Instructions.isInvokeInstruction(instruction)) {
 			throw new IllegalArgumentException(String.format("invalid invoke instruction %s", instruction));
+		}
 
 		return classData.getMethod(instruction.getName(), instruction.getType());
 	}
@@ -195,8 +203,9 @@ public abstract class BasicMethodAnalysis implements MethodAnalysis {
 				break;
 			}
 
-			if (calledLoadInstructions.stream().noneMatch(filter))
+			if (calledLoadInstructions.stream().noneMatch(filter)) {
 				return false;
+			}
 
 			// increase the counter of the methodParameterIndex pro methodparameter
 			methodVariableIndex++;

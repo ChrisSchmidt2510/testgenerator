@@ -41,6 +41,9 @@ public class CollectionSetterAnalyser extends BasicMethodAnalysis {
 			Instruction collectionInstruction = instructionFilter
 					.filterForUseOfGetFieldInstruction(getFieldInstruction);
 
+			if(collectionInstruction.getClassRef() == null)
+				continue;
+			
 			Set<String> implementedCollections = getImplementedCollections(collectionInstruction.getClassRef());
 
 			if (implementedCollections.stream().noneMatch(
