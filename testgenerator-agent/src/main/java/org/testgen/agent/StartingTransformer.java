@@ -44,15 +44,12 @@ public class StartingTransformer implements ClassFileTransformer {
 			classPool.appendClassPath(new LoaderClassPath(loader));
 		}
 
-		CtClass loadingClass = null;
+		CtClass loadingClass = makeClass(classfileBuffer);
 		for (ClassTransformer transformer : classTransformers) {
 
-			if (transformer.modifyClassFile(className)) {
-				if (loadingClass == null)
-					loadingClass = makeClass(classfileBuffer);
-
+			if (transformer.modifyClassFile(className, loadingClass)) 
 				transformer.transformClassFile(className, loadingClass);
-			}
+			
 		}
 
 		try {

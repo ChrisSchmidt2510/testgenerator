@@ -13,9 +13,6 @@ public class ClassData {
 	private final String name;
 	private String outerClassName;
 	private ClassData superClass;
-	private boolean isEnum;
-
-	private boolean isInterface;
 
 	private final List<FieldData> fields = new ArrayList<>();
 
@@ -50,22 +47,6 @@ public class ClassData {
 
 	public void setSuperClass(ClassData superClass) {
 		this.superClass = superClass;
-	}
-
-	public void setEnum(boolean isEnum) {
-		this.isEnum = isEnum;
-	}
-
-	public boolean isEnum() {
-		return isEnum;
-	}
-
-	public boolean isInterface() {
-		return isInterface;
-	}
-
-	public void setInterface(boolean isInterface) {
-		this.isInterface = isInterface;
 	}
 
 	public void addFields(List<FieldData> fields) {

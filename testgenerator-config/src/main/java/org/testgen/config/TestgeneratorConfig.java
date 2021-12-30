@@ -16,10 +16,12 @@ public final class TestgeneratorConfig {
 
 	// Agent-Properties
 	private static final String PARAM_CLASS_NAME = "TestgeneratorClassName";
-	private static final String PARAM_CLASS_NAMES = "TestgeneratorClassNames";
+	/* only for test cases public */
+	public static final String PARAM_CLASS_NAMES = "TestgeneratorClassNames";
 	private static final String PARAM_METHOD_NAME = "TestgeneratorMethodName";
 	private static final String PARAM_METHOD_DESC = "TestgeneratorMethodDesc";
-	private static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
+	/* only for test cases public */
+	public static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
 	private static final String PARAM_PATH_TO_TESTCLASS = "TestgeneratorPathToTestClass";
 

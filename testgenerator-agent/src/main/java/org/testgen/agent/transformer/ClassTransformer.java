@@ -11,7 +11,7 @@ public interface ClassTransformer {
 	 * @param className
 	 * @return
 	 */
-	public boolean modifyClassFile(String className);
+	public boolean modifyClassFile(String className, CtClass ctClass);
 	/**
 	 * The implementation of this method may transform the supplied class file and
      * return a new replacement class file.

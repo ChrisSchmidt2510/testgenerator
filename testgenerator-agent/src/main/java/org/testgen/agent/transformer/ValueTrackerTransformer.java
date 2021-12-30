@@ -68,9 +68,9 @@ public class ValueTrackerTransformer implements ClassTransformer {
 	private ConstPool constantPool;
 
 	private SignatureAdder signatureAdder;
-	
+
 	@Override
-	public boolean modifyClassFile(String className) {
+	public boolean modifyClassFile(String className, CtClass ctClass) {
 		return TestgeneratorConfig.getClassName().equals(className);
 	}
 
@@ -148,8 +148,9 @@ public class ValueTrackerTransformer implements ClassTransformer {
 
 			valueTracking.addAload(valueTrackerLocalIndex);
 			BytecodeUtils.addLoad(valueTracking, i, descriptor);
-			if (Primitives.isPrimitiveJVMDataType(descriptor))
+			if (Primitives.isPrimitiveJVMDataType(descriptor)) {
 				BytecodeUtils.addBoxingForPrimitiveDataType(valueTracking, descriptor);
+			}
 
 			valueTracking.addLdc(variableName);
 			valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_METHODPARAMETER, TYPE);

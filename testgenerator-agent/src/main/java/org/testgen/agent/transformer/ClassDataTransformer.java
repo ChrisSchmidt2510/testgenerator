@@ -52,11 +52,33 @@ public class ClassDataTransformer implements ClassTransformer {
 
 	private static final String PROXIFIED = "org/testgen/runtime/proxy/Proxified";
 
+	private static final String INVOCATION_HANDLER = "Ljava/lang/reflect/InvocationHandler;";
+
 	@Override
-	public boolean modifyClassFile(String className) {
-		return TestgeneratorConfig.getBlPackages().stream().anyMatch(className::startsWith)
-				|| ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
-				|| TestgeneratorConfig.getClassNames().contains(className);
+	public boolean modifyClassFile(String className, CtClass ctClass) {
+		if (TestgeneratorConfig.getBlPackages().stream().noneMatch(className::startsWith)
+				&& !ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
+				&& !TestgeneratorConfig.getClassNames().contains(className))
+			return false;
+
+		if (ctClass.isEnum()) {
+			LOGGER.info(className + " is an Enum");
+			return false;
+
+		} else if (ctClass.isInterface()) {
+			LOGGER.info(className + " is an Interface");
+			return false;
+
+		} else if (isProxyImplementation(ctClass.getClassFile())) {
+			LOGGER.info(className + " is a proxy implementation");
+			return false;
+		} else if (isException(ctClass)) {
+			LOGGER.info(className + " is an Exception");
+			return false;
+		}
+
+		return true;
+
 	}
 
 	@Override
@@ -67,16 +89,15 @@ public class ClassDataTransformer implements ClassTransformer {
 			ClassData classData = collectClassData(ctClass);
 			ClassDataStorage.getInstance().addClassData(ctClass.getName(), classData);
 
-			if (!classData.isEnum() && !classData.isInterface()) {
-				ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
-				classDataGenerator.generate(ctClass);
-			}
-		} catch (Exception e) {
+			ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
+			classDataGenerator.generate(ctClass);
+
+		} catch (Throwable e) {
 			LOGGER.error("error while transforming class", e);
 			throw new AgentException("error while transforming class", e);
 		}
 	}
-	
+
 	private ClassData collectClassData(CtClass loadingClass)
 			throws NotFoundException, CannotCompileException, BadBytecode, IOException {
 		ClassData classData;
@@ -84,57 +105,65 @@ public class ClassDataTransformer implements ClassTransformer {
 		ClassFile classFile = loadingClass.getClassFile();
 		ConstPool constantPool = classFile.getConstPool();
 
-		if (Modifier.isEnum(loadingClass.getModifiers())) {
-			LOGGER.info("isEnum: true");
-			classData = new ClassData(loadingClass.getName());
-			classData.setEnum(true);
+		LOGGER.info("create ClassHierachie for " + classFile.getName());
+		classData = createClassHierachie(loadingClass);
 
-		} else if (Modifier.isInterface(loadingClass.getModifiers())) {
-			LOGGER.info(loadingClass.getName() + " isInterface: true");
+		checkIsInnerClass(classFile, classData);
 
-			classData = new ClassData(loadingClass.getName());
-			classData.setInterface(true);
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
+				loadingClass);
 
-		} else {
-			LOGGER.info("create ClassHierachie for " + classFile.getName());
-			classData = createClassHierachie(loadingClass);
+		// only add the calledFields Set if the Flag is set
+		if (TestgeneratorConfig.traceReadFieldAccess()) {
 
-			checkIsInnerClass(classFile, classData);
+			classFile.addInterface(PROXIFIED);
 
-			FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
-					loadingClass);
+			for (CtField field : loadingClass.getDeclaredFields()) {
 
-			// only add the calledFields Set if the Flag is set
-			if (TestgeneratorConfig.traceReadFieldAccess()) {
-
-				classFile.addInterface(PROXIFIED);
-
-				for (CtField field : loadingClass.getDeclaredFields()) {
-
-					if (!Modifiers.isConstant(field.getModifiers()) //
-							&& !AccessFlag.isPublic(field.getModifiers())
-							&& !Modifiers.isSynthetic(field.getModifiers())
-							&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
-							// temp. fix exclude static fields, maybe they are supported in a later version
-							&& !Modifier.isStatic(field.getModifiers()))
-
-						FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
-
+				if (!Modifiers.isConstant(field.getModifiers()) //
+						&& !AccessFlag.isPublic(field.getModifiers()) && Modifier.isPackage(field.getModifiers())
+						&& !Modifiers.isSynthetic(field.getModifiers())
+						&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
+						// temp. fix exclude static fields, maybe they are supported in a later version
+						&& !Modifier.isStatic(field.getModifiers())) {
+					FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
 				}
 
-				fieldTypeChanger.addFieldCalledField();
 			}
 
-			long start = System.currentTimeMillis();
-
-			analyseAndManipulateMethods(classFile, classData, fieldTypeChanger);
-
-			long end = System.currentTimeMillis();
-
-			LOGGER.info("Processing of manipulation for class " + classData + " :" + (end - start));
+			fieldTypeChanger.addFieldCalledField();
 		}
 
+		long start = System.currentTimeMillis();
+
+		analyseAndManipulateMethods(classFile, classData, fieldTypeChanger);
+
+		long end = System.currentTimeMillis();
+
+		LOGGER.info("Processing of manipulation for class " + classData + " :" + (end - start));
+
 		return classData;
+	}
+
+	private boolean isProxyImplementation(ClassFile classFile) {
+		return classFile.getFields().stream().anyMatch(f -> INVOCATION_HANDLER.equals(f.getDescriptor()));
+	}
+
+	private boolean isException(CtClass ctClass) {
+		CtClass superclass = null;
+		try {
+			superclass = ctClass.getSuperclass();
+		} catch (NotFoundException e) {
+			LOGGER.error("superclass not found", e);
+		}
+
+		if (JavaTypes.OBJECT.equals(superclass.getName())) {
+			return false;
+		} else if (JavaTypes.EXCEPTION.equals(superclass.getName())) {
+			return true;
+		}
+
+		return isException(superclass);
 	}
 
 	private List<FieldData> analyseFields(ClassFile loadedClass) {
@@ -245,12 +274,14 @@ public class ClassDataTransformer implements ClassTransformer {
 		if (customAnalysisClass != null) {
 			Class<?> customAnalysis = ReflectionUtil.forName(customAnalysisClass);
 
-			if (Analyser.class.isAssignableFrom(customAnalysis))
+			if (Analyser.class.isAssignableFrom(customAnalysis)) {
 				throw new IllegalArgumentException(customAnalysisClass + "need to extend Analyser.class");
+			}
 
-			if (ReflectionUtil.getConstructor(customAnalysis, ClassData.class, ClassFile.class) == null)
+			if (ReflectionUtil.getConstructor(customAnalysis, ClassData.class, ClassFile.class) == null) {
 				throw new IllegalArgumentException(
 						customAnalysisClass + "is a invalid implementation. Constructorargs: ClassData, ClassFile");
+			}
 
 			return (Analyser) ReflectionUtil.newInstance(customAnalysis,
 					new Class<?>[] { ClassData.class, ClassFile.class }, classData, classFile);
