@@ -101,13 +101,12 @@ public class ClassDataTransformer implements ClassTransformer {
 
 	private ClassData collectClassData(CtClass loadingClass)
 			throws NotFoundException, CannotCompileException, BadBytecode, IOException {
-		ClassData classData;
 
 		ClassFile classFile = loadingClass.getClassFile();
 		ConstPool constantPool = classFile.getConstPool();
 
 		LOGGER.info("create ClassHierachie for " + classFile.getName());
-		classData = createClassHierachie(loadingClass);
+		ClassData classData = createClassHierachie(loadingClass);
 
 		checkIsInnerClass(classFile, classData);
 
@@ -122,7 +121,7 @@ public class ClassDataTransformer implements ClassTransformer {
 			for (CtField field : loadingClass.getDeclaredFields()) {
 
 				if (!Modifiers.isConstant(field.getModifiers()) //
-						&& !AccessFlag.isPublic(field.getModifiers()) && Modifier.isPackage(field.getModifiers())
+						&& !AccessFlag.isPublic(field.getModifiers()) && !Modifier.isPackage(field.getModifiers())
 						&& !Modifiers.isSynthetic(field.getModifiers())
 						&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
 						// temp. fix exclude static fields, maybe they are supported in a later version
