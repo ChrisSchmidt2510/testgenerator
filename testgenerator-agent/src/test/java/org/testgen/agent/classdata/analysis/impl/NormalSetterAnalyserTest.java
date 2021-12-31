@@ -7,7 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testgen.agent.classdata.TestHelper;
 import org.testgen.agent.classdata.analysis.MethodAnalysis;
-import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.MethodData;
@@ -18,9 +17,9 @@ import org.testgen.agent.classdata.testclasses.Person;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
 
-public class NormalGetterAnalysisTest extends TestHelper {
+public class NormalSetterAnalyserTest extends TestHelper {
 
-	private MethodAnalysis analyser = new NormalGetterAnalyser();
+	private MethodAnalysis analyser = new NormalSetterAnalyser();
 
 	@ParameterizedTest
 	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
@@ -29,20 +28,8 @@ public class NormalGetterAnalysisTest extends TestHelper {
 
 		analyser.setClassData(classData);
 
-		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
-		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
-
-		Entry<MethodData, FieldData> methodEntry = classData.getMethod("getStrasse", "()Ljava/lang/String;");
-		Assertions.assertNotNull(methodEntry);
-
-		MethodData method = methodEntry.getKey();
-		Assertions.assertEquals(MethodType.REFERENCE_VALUE_GETTER, method.getMethodType());
-		Assertions.assertFalse(method.isStatic());
-
-		FieldData fieldData = methodEntry.getValue();
-
-		Assertions.assertEquals("strasse", fieldData.getName());
-		Assertions.assertEquals("java.lang.String", fieldData.getDataType());
+		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));
 	}
 
 	@ParameterizedTest
@@ -52,19 +39,9 @@ public class NormalGetterAnalysisTest extends TestHelper {
 
 		analyser.setClassData(classData);
 
-		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
-		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));
 
-		Entry<MethodData, FieldData> methodEntry = classData.getMethod("getHausnummer", "()S");
-		Assertions.assertNotNull(methodEntry);
-
-		MethodData method = methodEntry.getKey();
-		Assertions.assertEquals(MethodType.IMMUTABLE_GETTER, method.getMethodType());
-		Assertions.assertFalse(method.isStatic());
-
-		FieldData fieldData = methodEntry.getValue();
-		Assertions.assertEquals("hausnummer", fieldData.getName());
-		Assertions.assertEquals(Primitives.JAVA_SHORT, fieldData.getDataType());
 	}
 
 	@ParameterizedTest
@@ -73,9 +50,23 @@ public class NormalGetterAnalysisTest extends TestHelper {
 		init(Adresse.class, "setStrasse");
 
 		analyser.setClassData(classData);
+		analyser.setClassFile(classFile);
 
-		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
-		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
+
+		Entry<MethodData, FieldData> methodEntry = classData.getMethod("setStrasse", "(Ljava/lang/String;)V");
+		Assertions.assertNotNull(methodEntry);
+
+		MethodData method = methodEntry.getKey();
+		Assertions.assertEquals(MethodType.REFERENCE_VALUE_SETTER, method.getMethodType());
+		Assertions.assertFalse(method.isStatic());
+
+		FieldData fieldData = methodEntry.getValue();
+
+		Assertions.assertEquals("strasse", fieldData.getName());
+		Assertions.assertEquals("java.lang.String", fieldData.getDataType());
+
 	}
 
 	@ParameterizedTest
@@ -85,7 +76,7 @@ public class NormalGetterAnalysisTest extends TestHelper {
 
 		analyser.setClassData(classData);
 
-		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));
 	}
 
@@ -96,7 +87,7 @@ public class NormalGetterAnalysisTest extends TestHelper {
 
 		analyser.setClassData(classData);
 
-		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
+		Assertions.assertFalse(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertFalse(analyser.hasAnalysisMatched(methodInfo, instructions));
 	}
 

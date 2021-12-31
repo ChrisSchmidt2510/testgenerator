@@ -1,7 +1,8 @@
 package org.testgen.agent.classdata.modification.fields;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +40,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		init(Value.class, "getValueID", Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
 
 		FieldData valueID = new FieldData.Builder().withName("valueID")//
-				.withDataType("java.lang.Integer").build();
+				.withDataType("java.lang.Integer").withModifier(Modifier.PRIVATE).build();
 
 		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Value");
 		classData.addFields(Collections.singletonList(valueID));
@@ -70,7 +71,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		init(Value.class, "setCalendar", Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
 
 		FieldData valueID = new FieldData.Builder().withName("calendar")//
-				.withDataType("java.util.Calendar").build();
+				.withDataType("java.util.Calendar").withModifier(Modifier.PRIVATE).build();
 
 		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Value");
 		classData.addFields(Collections.singletonList(valueID));
@@ -100,7 +101,7 @@ public class FieldTypeChangerTest extends TestHelper {
 		init(Value.class, "setValueID", Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
 
 		FieldData valueID = new FieldData.Builder().withName("valueID")//
-				.withDataType("java.lang.Integer").build();
+				.withDataType("java.lang.Integer").withModifier(Modifier.PRIVATE).build();
 
 		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Value");
 		classData.addFields(Collections.singletonList(valueID));
@@ -164,10 +165,14 @@ public class FieldTypeChangerTest extends TestHelper {
 		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;I)V",
 				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
 
-		FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String").build();
-		FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short").build();
-		FieldData fieldOrt = new FieldData.Builder().withName("ort").withDataType("java.lang.String").build();
-		FieldData fieldPlz = new FieldData.Builder().withName("plz").withDataType("int").build();
+		FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String")
+				.withModifier(Modifier.PRIVATE).build();
+		FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short")
+				.withModifier(Modifier.PRIVATE).build();
+		FieldData fieldOrt = new FieldData.Builder().withName("ort").withDataType("java.lang.String")
+				.withModifier(Modifier.PRIVATE).build();
+		FieldData fieldPlz = new FieldData.Builder().withName("plz").withDataType("int").withModifier(Modifier.PRIVATE)
+				.build();
 
 		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Adresse");
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
@@ -277,10 +282,14 @@ public class FieldTypeChangerTest extends TestHelper {
 		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;ILjava/lang/String;)V",
 				Arrays.asList(Opcode.GETFIELD, Opcode.PUTFIELD));
 
-		FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String").build();
-		FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short").build();
-		FieldData fieldOrt = new FieldData.Builder().withName("ort").withDataType("java.lang.String").build();
-		FieldData fieldPlz = new FieldData.Builder().withName("plz").withDataType("int").build();
+		FieldData fieldStrasse = new FieldData.Builder().withName("strasse").withDataType("java.lang.String")
+				.withModifier(Modifier.PRIVATE).build();
+		FieldData fieldHausnummer = new FieldData.Builder().withName("hausnummer").withDataType("short")
+				.withModifier(Modifier.PRIVATE).build();
+		FieldData fieldOrt = new FieldData.Builder().withName("ort").withDataType("java.lang.String")
+				.withModifier(Modifier.PRIVATE).build();
+		FieldData fieldPlz = new FieldData.Builder().withName("plz").withDataType("int").withModifier(Modifier.PRIVATE)
+				.build();
 
 		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Adresse");
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));

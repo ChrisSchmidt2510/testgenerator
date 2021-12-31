@@ -58,8 +58,9 @@ public class ClassDataTransformer implements ClassTransformer {
 	public boolean modifyClassFile(String className, CtClass ctClass) {
 		if (TestgeneratorConfig.getBlPackages().stream().noneMatch(className::startsWith)
 				&& !ClassDataStorage.getInstance().containsSuperclassToLoad(Descriptor.toJavaName(className))
-				&& !TestgeneratorConfig.getClassNames().contains(className))
+				&& !TestgeneratorConfig.getClassNames().contains(className)) {
 			return false;
+		}
 
 		if (ctClass.isEnum()) {
 			LOGGER.info(className + " is an Enum");
@@ -187,11 +188,7 @@ public class ClassDataTransformer implements ClassTransformer {
 
 				FieldData fieldData = new FieldData.Builder()
 						.withDataType(Descriptor.toClassName(field.getDescriptor())).withName(field.getName())
-						.isMutable(!Modifier.isFinal(field.getAccessFlags()))
-						.isStatic(Modifier.isStatic(field.getAccessFlags()))
-						.isPublic(Modifier.isPublic(field.getAccessFlags()))
-						.isSynthetic(Modifiers.isSynthetic(field.getAccessFlags())).withSignature(signatureData)
-						.build();
+						.withModifier(field.getAccessFlags()).withSignature(signatureData).build();
 
 				LOGGER.info("added Field: " + fieldData);
 

@@ -228,8 +228,12 @@ public class FieldTypeChanger {
 
 		// if super constructor call is another constructor from this class all fields
 		// are already initialized
-		if (!classData.getName().equals(superConstructorCall.getClassRef()))
-			initalizeUnitalizedFields(initalizedFields, superConstructorCall.getCodeArrayIndex() + 3, iterator);
+		if (!classData.getName().equals(superConstructorCall.getClassRef())) {
+			initalizeUnitalizedFields(initalizedFields,
+					superConstructorCall.getCodeArrayIndex()
+							+ codeArrayModificator.getModificator(superConstructorCall.getCodeArrayIndex()) + 3,
+					iterator);
+		}
 
 		LOGGER.debug("after manipulation: ", () -> Instructions.printCodeArray(iterator, constantPool));
 
@@ -336,9 +340,7 @@ public class FieldTypeChanger {
 
 		for (Instruction instruction : putFieldInstructions) {
 
-			if (classData.getName().equals(instruction.getClassRef()) && classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
-					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
+			if (overrideFieldAccess(instruction)) {
 
 				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
 
@@ -382,9 +384,7 @@ public class FieldTypeChanger {
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
 		for (Instruction instruction : getFieldInstructions) {
 
-			if (classData.getName().equals(instruction.getClassRef()) && classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
-					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
+			if (overrideFieldAccess(instruction)) {
 
 				String dataType = instruction.getType();
 				String proxy = getProxyClassname(dataType);
@@ -476,7 +476,7 @@ public class FieldTypeChanger {
 		List<FieldData> unitalizedFields = new ArrayList<>();
 
 		for (FieldData fieldData : classData.getFields()) {
-			if (!initalizedFields.contains(fieldData) && fieldData.isModifiable()
+			if (!initalizedFields.contains(fieldData) && fieldData.isModifiable() && !fieldData.isStatic()
 					&& !TestgeneratorConstants.isTestgeneratorField(fieldData.getName())) {
 				unitalizedFields.add(fieldData);
 			}
@@ -490,6 +490,19 @@ public class FieldTypeChanger {
 		return classData.getName().equals(inst.getClassRef())
 				|| (classData.getSuperClass() != null ? classData.getSuperClass().getName().equals(inst.getClassRef())
 						: JavaTypes.OBJECT.equals(inst.getClassRef()));
+	}
+
+	private boolean overrideFieldAccess(Instruction instruction) {
+		String instName = instruction.getName();
+
+		if (!classData.getName().equals(instruction.getClassRef())
+				&& TestgeneratorConstants.isTestgeneratorField(instName)) {
+			return false;
+		}
+
+		FieldData field = classData.getField(instName, Descriptor.toClassName(instruction.getType()));
+
+		return field.isModifiable();
 	}
 
 }

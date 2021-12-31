@@ -1,5 +1,6 @@
 package org.testgen.agent.classdata.analysis;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -13,16 +14,16 @@ public class AnalysisTestDataFactory {
 	static Stream<ClassData> getAdresseClassData() {
 		ClassData classData = new ClassData("org.testgen.agent.classdata.testclasses.Adresse");
 
-		FieldData fieldStrasse = new FieldData.Builder().isMutable(true).withName("strasse")
+		FieldData fieldStrasse = new FieldData.Builder().withModifier(Modifier.PRIVATE).withName("strasse")
 				.withDataType("java.lang.String").build();
 
-		FieldData fieldHausnummer = new FieldData.Builder().isMutable(false).withName("hausnummer")
-				.withDataType(Primitives.JAVA_SHORT).build();
-		
-		FieldData fieldOrt = new FieldData.Builder().isMutable(true).withName("ort")
+		FieldData fieldHausnummer = new FieldData.Builder().withModifier(Modifier.PRIVATE | Modifier.FINAL)
+				.withName("hausnummer").withDataType(Primitives.JAVA_SHORT).build();
+
+		FieldData fieldOrt = new FieldData.Builder().withModifier(Modifier.PRIVATE).withName("ort")
 				.withDataType("java.lang.String").build();
 
-		FieldData fieldPlz = new FieldData.Builder().isMutable(true).withName("plz")
+		FieldData fieldPlz = new FieldData.Builder().withModifier(Modifier.PRIVATE).withName("plz")
 				.withDataType(Primitives.JAVA_INT).build();
 
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
