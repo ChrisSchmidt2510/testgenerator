@@ -62,8 +62,11 @@ public class ForwardInstructionFilter extends InstructionFilter {
 
 		int opcode = instruction.getOpcode();
 
-		if (Instructions.isLoadInstruction(instruction)) {
-			calledLoadInstructions.add(instruction);
+		boolean isLoadInstruction = Instructions.isLoadInstruction(instruction);
+
+		if (isLoadInstruction || Instructions.isPrimitiveConstantInstruction(instruction)) {
+			if (isLoadInstruction)
+				calledLoadInstructions.add(instruction);
 
 			pushLoadInstructionOnStack(instruction, operandStack);
 

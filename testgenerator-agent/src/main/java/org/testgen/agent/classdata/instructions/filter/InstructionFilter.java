@@ -113,8 +113,9 @@ public abstract class InstructionFilter {
 	protected boolean putsItemOnOperandStack(Instruction instruction) {
 		int opcode = instruction.getOpcode();
 
-		return Instructions.isLoadInstruction(instruction) || Instructions.isArrayLoadInstruction(instruction)
-				|| Instructions.isPrimitiveCast(instruction) || Opcode.CHECKCAST == opcode
+		return Instructions.isLoadInstruction(instruction) || Instructions.isPrimitiveConstantInstruction(instruction)
+				|| Instructions.isArrayLoadInstruction(instruction) || Instructions.isPrimitiveCast(instruction)
+				|| Opcode.CHECKCAST == opcode
 				|| (Instructions.isInvokeInstruction(instruction)
 						&& !Primitives.JVM_VOID.equals(Instructions.getReturnType(instruction.getType())))
 				|| Opcode.INVOKEDYNAMIC == opcode || Opcode.GETFIELD == opcode || Opcode.GETSTATIC == opcode

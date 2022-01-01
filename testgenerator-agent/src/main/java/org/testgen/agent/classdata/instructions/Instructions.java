@@ -40,15 +40,18 @@ public final class Instructions {
 			Opcode.BASTORE, Opcode.CASTORE, Opcode.SASTORE));
 
 	private static final List<Integer> PRIMITIVE_LOAD_OPCODES = Collections.unmodifiableList(Arrays.asList(//
-			Opcode.ILOAD, Opcode.ILOAD_0, Opcode.ILOAD_1, Opcode.ILOAD_2, Opcode.ILOAD_3, Opcode.ICONST_0,
-			Opcode.ICONST_1, Opcode.ICONST_2, Opcode.ICONST_3, Opcode.ICONST_4, Opcode.ICONST_5, Opcode.ICONST_M1,
-			Opcode.BIPUSH, Opcode.SIPUSH, //
-			Opcode.FLOAD, Opcode.FLOAD_0, Opcode.FLOAD_1, Opcode.FLOAD_2, Opcode.FLOAD_3, Opcode.FCONST_0,
-			Opcode.FCONST_1, Opcode.FCONST_2, //
+			Opcode.ILOAD, Opcode.ILOAD_0, Opcode.ILOAD_1, Opcode.ILOAD_2, Opcode.ILOAD_3, Opcode.BIPUSH, Opcode.SIPUSH, //
+			Opcode.FLOAD, Opcode.FLOAD_0, Opcode.FLOAD_1, Opcode.FLOAD_2, Opcode.FLOAD_3, //
 			Opcode.DLOAD, Opcode.DLOAD_0, Opcode.DLOAD_1, Opcode.DLOAD_2, Opcode.DLOAD_3, //
-			Opcode.DCONST_0, Opcode.DCONST_1, //
-			Opcode.LLOAD, Opcode.LLOAD_0, Opcode.LLOAD_1, Opcode.LLOAD_2, Opcode.LLOAD_3, Opcode.LCONST_0,
-			Opcode.LCONST_1));
+
+			Opcode.LLOAD, Opcode.LLOAD_0, Opcode.LLOAD_1, Opcode.LLOAD_2, Opcode.LLOAD_3));
+
+	private static final List<Integer> PRIMITVE_CONSTANT_OPCODES = Collections
+			.unmodifiableList(Arrays.asList(Opcode.ICONST_0, Opcode.ICONST_1, Opcode.ICONST_2, Opcode.ICONST_3,
+					Opcode.ICONST_4, Opcode.ICONST_5, Opcode.ICONST_M1, //
+					Opcode.FCONST_0, Opcode.FCONST_1, Opcode.FCONST_2, //
+					Opcode.DCONST_0, Opcode.DCONST_1, //
+					Opcode.LCONST_0, Opcode.LCONST_1));
 
 	private static final List<Integer> ONE_ITEM_COMPARISONS = Collections
 			.unmodifiableList(Arrays.asList(Opcode.IFNULL, Opcode.IFNONNULL, //
@@ -410,6 +413,10 @@ public final class Instructions {
 	public static boolean isLoadInstruction(Instruction instruction) {
 		return ALOAD_OPCODES.contains(instruction.getOpcode())
 				|| PRIMITIVE_LOAD_OPCODES.contains(instruction.getOpcode());
+	}
+
+	public static boolean isPrimitiveConstantInstruction(Instruction instruction) {
+		return PRIMITVE_CONSTANT_OPCODES.contains(instruction.getOpcode());
 	}
 
 	public static boolean isOneItemComparison(Instruction instruction) {

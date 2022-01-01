@@ -77,9 +77,13 @@ public class ReverseInstructionFilter extends InstructionFilter {
 
 		int opcode = instruction.getOpcode();
 
-		if (Instructions.isLoadInstruction(instruction)) {
+		boolean isLoadInstruction = Instructions.isLoadInstruction(instruction);
+
+		if (isLoadInstruction || Instructions.isPrimitiveConstantInstruction(instruction)) {
 			operandStack.pop();
-			calledLoadInstructions.add(instruction);
+
+			if (isLoadInstruction)
+				calledLoadInstructions.add(instruction);
 
 		} else if (POP_OPCODES.contains(opcode)) {
 			operandStack.pop();
