@@ -60,7 +60,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 
 	@Override
 	public boolean canAnalysisBeApplied(MethodInfo method) {
-		return MethodInfo.nameInit.equals(method.getName()) && AccessFlag.isPublic(method.getAccessFlags())
+		return method.isConstructor() && AccessFlag.isPublic(method.getAccessFlags())
 				&& (!classData.hasDefaultConstructor()
 						|| (classData.getConstructor() != null && classData.getConstructor().getConstructorElements()
 								.size() > Descriptor.numOfParameters(method.getDescriptor())));
@@ -127,8 +127,7 @@ public class ConstructorAnalyser extends BasicMethodAnalysis {
 		if (classData.getName().equals(superConstructorInst.getClassRef())
 				&& Descriptor.numOfParameters(superConstructorInst.getType()) > 0) {
 			MethodInfo superConstructorMethod = classFile.getMethods().stream()
-					.filter(meth -> MethodInfo.nameInit.equals(meth.getName())
-							&& meth.getDescriptor().equals(superConstructorInst.getType()))
+					.filter(meth -> meth.isConstructor() && meth.getDescriptor().equals(superConstructorInst.getType()))
 					.findAny().orElseThrow(() -> new IllegalArgumentException(
 							String.format("constructor with signature %s must exist", superConstructorInst.getType())));
 

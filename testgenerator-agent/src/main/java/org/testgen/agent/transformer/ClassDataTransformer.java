@@ -205,7 +205,7 @@ public class ClassDataTransformer implements ClassTransformer {
 
 		List<MethodInfo> methods = classFile.getMethods();
 		for (MethodInfo method : methods) {
-			if (!isMethodClInitOrConstructor(method) && !Modifier.isAbstract(method.getAccessFlags())) {
+			if (method.isMethod() && !Modifier.isAbstract(method.getAccessFlags())) {
 
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 				analyseMethod(method, instructions, classData, methodAnalyser);
@@ -216,8 +216,7 @@ public class ClassDataTransformer implements ClassTransformer {
 			}
 		}
 
-		List<MethodInfo> constructors = methods.stream().filter(method -> MethodInfo.nameInit.equals(//
-				method.getName())).collect(Collectors.toList());
+		List<MethodInfo> constructors = methods.stream().filter(MethodInfo::isConstructor).collect(Collectors.toList());
 
 		for (MethodInfo constructor : constructors) {
 
@@ -231,10 +230,6 @@ public class ClassDataTransformer implements ClassTransformer {
 
 		methodAnalyser.resetMethodAnalyser();
 
-	}
-
-	private boolean isMethodClInitOrConstructor(MethodInfo method) {
-		return MethodInfo.nameClinit.equals(method.getName()) || MethodInfo.nameInit.equals(method.getName());
 	}
 
 	private ClassData createClassHierachie(CtClass loadingClass) throws NotFoundException {
