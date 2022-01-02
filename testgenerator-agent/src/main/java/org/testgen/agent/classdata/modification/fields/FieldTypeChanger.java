@@ -299,7 +299,7 @@ public class FieldTypeChanger {
 		return REFERENCE_PROXY.substring(0, REFERENCE_PROXY.length() - 1) + "<" + dataType + ">;";
 	}
 
-	public void addFieldCalledField() throws CannotCompileException {
+	public static void addFieldCalledField(CtClass loadingClass) throws CannotCompileException {
 		loadingClass.addField(CtField.make("private java.util.Set " + TestgeneratorConstants.FIELDNAME_CALLED_FIELDS
 				+ "= new java.util.HashSet();", loadingClass));
 	}

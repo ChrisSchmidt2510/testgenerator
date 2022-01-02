@@ -19,6 +19,8 @@ public final class JVMTypes {
 	public static final String DEQUE = "Ljava/util/Deque;";
 	public static final String MAP = "Ljava/util/Map;";
 
+	public static final String INVOCATION_HANDLER = "Ljava/lang/reflect/InvocationHandler;";
+
 	public static final String BOOLEAN_CLASSNAME = "java/lang/Boolean";
 	public static final String BYTE_CLASSNAME = "java/lang/Byte";
 	public static final String CHAR_CLASSNAME = "java/lang/Character";
@@ -50,11 +52,11 @@ public final class JVMTypes {
 
 	private JVMTypes() {
 	}
-	
+
 	public static boolean isArrayType(String type) {
 		return type.startsWith("[");
 	}
-	
+
 	public static boolean isReferenceType(String type) {
 		return type.startsWith("L") && type.endsWith(";");
 	}

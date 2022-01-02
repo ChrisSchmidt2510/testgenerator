@@ -1,6 +1,5 @@
 package org.testgen.agent.transformer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +12,7 @@ import org.testgen.agent.classdata.analysis.Analyser;
 import org.testgen.agent.classdata.analysis.MethodAnalyser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
+import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Modifiers;
 import org.testgen.agent.classdata.instructions.Instruction;
@@ -32,13 +32,11 @@ import org.testgen.logging.Logger;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.ClassFile;
-import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.FieldInfo;
 import javassist.bytecode.InnerClassesAttribute;
@@ -49,10 +47,6 @@ import javassist.bytecode.SignatureAttribute;
 public class ClassDataTransformer implements ClassTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ClassDataTransformer.class);
-
-	private static final String PROXIFIED = "org/testgen/runtime/proxy/Proxified";
-
-	private static final String INVOCATION_HANDLER = "Ljava/lang/reflect/InvocationHandler;";
 
 	@Override
 	public boolean modifyClassFile(String className, CtClass ctClass) {
@@ -83,15 +77,28 @@ public class ClassDataTransformer implements ClassTransformer {
 	}
 
 	@Override
-	public void transformClassFile(String className, CtClass ctClass) {
+	public void transformClassFile(String className, CtClass loadingClass) {
 		ClassDataStorage.getInstance().removeSuperclassToLoad(Descriptor.toJavaName(className));
 
 		try {
-			ClassData classData = collectClassData(ctClass);
-			ClassDataStorage.getInstance().addClassData(ctClass.getName(), classData);
+
+			LOGGER.info("create ClassHierachie for " + loadingClass.getName());
+			ClassData classData = analyseClassHierachie(loadingClass);
+
+			manipulateFields(loadingClass);
+
+			long start = System.currentTimeMillis();
+
+			analyseAndManipulateMethods(loadingClass, classData);
+
+			long end = System.currentTimeMillis();
+
+			LOGGER.info("Processing of manipulation for class " + classData + " :" + (end - start));
+
+			ClassDataStorage.getInstance().addClassData(loadingClass.getName(), classData);
 
 			ClassDataGenerator classDataGenerator = new ClassDataGenerator(classData);
-			classDataGenerator.generate(ctClass);
+			classDataGenerator.generate(loadingClass);
 
 		} catch (Throwable e) {
 			LOGGER.error("error while transforming class", e);
@@ -99,54 +106,8 @@ public class ClassDataTransformer implements ClassTransformer {
 		}
 	}
 
-	private ClassData collectClassData(CtClass loadingClass)
-			throws NotFoundException, CannotCompileException, BadBytecode, IOException {
-
-		ClassFile classFile = loadingClass.getClassFile();
-		ConstPool constantPool = classFile.getConstPool();
-
-		LOGGER.info("create ClassHierachie for " + classFile.getName());
-		ClassData classData = createClassHierachie(loadingClass);
-
-		checkIsInnerClass(classFile, classData);
-
-		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, constantPool, //
-				loadingClass);
-
-		// only add the calledFields Set if the Flag is set
-		if (TestgeneratorConfig.traceReadFieldAccess()) {
-
-			classFile.addInterface(PROXIFIED);
-
-			for (CtField field : loadingClass.getDeclaredFields()) {
-
-				if (!Modifiers.isConstant(field.getModifiers()) //
-						&& !AccessFlag.isPublic(field.getModifiers()) && !Modifier.isPackage(field.getModifiers())
-						&& !Modifiers.isSynthetic(field.getModifiers())
-						&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
-						// temp. fix exclude static fields, maybe they are supported in a later version
-						&& !Modifier.isStatic(field.getModifiers())) {
-					FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field.getFieldInfo());
-				}
-
-			}
-
-			fieldTypeChanger.addFieldCalledField();
-		}
-
-		long start = System.currentTimeMillis();
-
-		analyseAndManipulateMethods(classFile, classData, fieldTypeChanger);
-
-		long end = System.currentTimeMillis();
-
-		LOGGER.info("Processing of manipulation for class " + classData + " :" + (end - start));
-
-		return classData;
-	}
-
 	private boolean isProxyImplementation(ClassFile classFile) {
-		return classFile.getFields().stream().anyMatch(f -> INVOCATION_HANDLER.equals(f.getDescriptor()));
+		return classFile.getFields().stream().anyMatch(f -> JVMTypes.INVOCATION_HANDLER.equals(f.getDescriptor()));
 	}
 
 	private boolean isException(CtClass ctClass) {
@@ -198,10 +159,44 @@ public class ClassDataTransformer implements ClassTransformer {
 		return fieldsFromClass;
 	}
 
-	private void analyseAndManipulateMethods(ClassFile classFile, ClassData classData,
-			FieldTypeChanger fieldTypeChanger) throws BadBytecode {
+	private void manipulateFields(CtClass loadingClass) throws CannotCompileException {
+		// only add the calledFields Set if the Flag is set
+		if (!TestgeneratorConfig.traceReadFieldAccess())
+			return;
+
+		ClassFile classFile = loadingClass.getClassFile();
+
+		classFile.addInterface(TestgeneratorConstants.PROXIFIED_CLASSNAME);
+
+		// necessary because otherwise the indexes of the list get overriden
+		List<FieldInfo> fields = new ArrayList<>(classFile.getFields());
+		int size = fields.size();
+
+		for (int i = 0; i < size; i++) {
+			FieldInfo field = fields.get(i);
+
+			if (!Modifiers.isConstant(field.getAccessFlags()) //
+					&& !AccessFlag.isPublic(field.getAccessFlags()) && !Modifier.isPackage(field.getAccessFlags())
+					&& !Modifiers.isSynthetic(field.getAccessFlags())
+					&& !TestgeneratorConstants.isTestgeneratorField(field.getName())
+					// temp. fix exclude static fields, maybe they are supported in a later version
+					&& !Modifier.isStatic(field.getAccessFlags())) {
+				FieldTypeChanger.changeFieldDataTypeToProxy(classFile, field);
+			}
+
+		}
+
+		FieldTypeChanger.addFieldCalledField(loadingClass);
+
+	}
+
+	private void analyseAndManipulateMethods(CtClass loadingClass, ClassData classData) throws BadBytecode {
+
+		ClassFile classFile = loadingClass.getClassFile();
 
 		Analyser methodAnalyser = getAnalyserImplementation(classData, classFile);
+
+		FieldTypeChanger fieldTypeChanger = new FieldTypeChanger(classData, classFile.getConstPool(), loadingClass);
 
 		List<MethodInfo> methods = classFile.getMethods();
 		for (MethodInfo method : methods) {
@@ -232,7 +227,7 @@ public class ClassDataTransformer implements ClassTransformer {
 
 	}
 
-	private ClassData createClassHierachie(CtClass loadingClass) throws NotFoundException {
+	ClassData analyseClassHierachie(CtClass loadingClass) throws NotFoundException {
 		String className = loadingClass.getName();
 
 		ClassData classData = ClassDataStorage.getInstance().getClassData(className);
@@ -243,13 +238,17 @@ public class ClassDataTransformer implements ClassTransformer {
 			LOGGER.info("ClassName: " + className);
 			newClassData.addFields(analyseFields(loadingClass.getClassFile()));
 
-			if (loadingClass.getSuperclass() != null
-					&& !JavaTypes.OBJECT.equals(loadingClass.getSuperclass().getName())) {
+			String superClassName = loadingClass.getSuperclass() != null ? loadingClass.getSuperclass().getName()
+					: null;
+
+			if (!JavaTypes.OBJECT.equals(superClassName) && !JavaTypes.ENUM.equals(superClassName)) {
 				LOGGER.info("SuperClass: " + loadingClass.getSuperclass().getName());
 
 				ClassDataStorage.getInstance().addSuperclassToLoad(loadingClass.getSuperclass().getName());
-				newClassData.setSuperClass(createClassHierachie(loadingClass.getSuperclass()));
+				newClassData.setSuperClass(analyseClassHierachie(loadingClass.getSuperclass()));
 			}
+
+			analyseInnerClasses(loadingClass, newClassData);
 
 			ClassDataStorage.getInstance().addClassData(className, newClassData);
 
@@ -257,6 +256,44 @@ public class ClassDataTransformer implements ClassTransformer {
 		}
 
 		return classData;
+	}
+
+	private void analyseInnerClasses(CtClass loadingClass, ClassData newClassData) throws NotFoundException {
+		ClassFile classFile = loadingClass.getClassFile();
+
+		InnerClassesAttribute innerClassesAtt = (InnerClassesAttribute) classFile
+				.getAttribute(InnerClassesAttribute.tag);
+
+		if (innerClassesAtt != null) {
+			int index = innerClassesAtt.find(classFile.getName());
+
+			if (index != -1)
+				newClassData.setOuterClass(innerClassesAtt.outerClass(index));
+
+			List<String> innerClasses = getInnerClasses(innerClassesAtt, loadingClass.getName());
+
+			ClassPool classPool = ClassPool.getDefault();
+
+			for (String innerClass : innerClasses) {
+				LOGGER.info("InnerClass: " + innerClass);
+				newClassData.addInnerClass(analyseClassHierachie(classPool.get(innerClass)));
+			}
+
+		}
+	}
+
+	private List<String> getInnerClasses(InnerClassesAttribute innerClassesAtt, String outerClassName) {
+		int length = innerClassesAtt.tableLength();
+
+		List<String> innerClasses = new ArrayList<>();
+
+		for (int i = 0; i < length; i++) {
+			if (outerClassName.equals(innerClassesAtt.outerClass(i)))
+				innerClasses.add(innerClassesAtt.innerClass(i));
+
+		}
+
+		return innerClasses;
 	}
 
 	private Analyser getAnalyserImplementation(ClassData classData, ClassFile classFile) {
@@ -315,19 +352,6 @@ public class ClassDataTransformer implements ClassTransformer {
 		fieldTypeChanger.changeFieldInitialization(instructions, putFieldInstructions, method.getCodeAttribute());
 
 		method.rebuildStackMap(ClassPool.getDefault());
-	}
-
-	private static void checkIsInnerClass(ClassFile classFile, ClassData classData) {
-		InnerClassesAttribute innerClasses = (InnerClassesAttribute) classFile.getAttribute(InnerClassesAttribute.tag);
-
-		if (innerClasses != null) {
-			int index = innerClasses.find(classFile.getName());
-
-			if (index != -1) {
-				classData.setOuterClass(innerClasses.outerClass(index));
-			}
-
-		}
 	}
 
 }

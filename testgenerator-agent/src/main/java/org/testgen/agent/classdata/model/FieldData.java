@@ -28,6 +28,14 @@ public final class FieldData {
 		return name;
 	}
 
+	public int getModifier() {
+		return modifier;
+	}
+
+	public SignatureData getSignature() {
+		return signature;
+	}
+
 	public boolean isMutable() {
 		return !Modifier.isFinal(modifier);
 	}
@@ -46,10 +54,6 @@ public final class FieldData {
 
 	public boolean isSynthetic() {
 		return Modifiers.isSynthetic(modifier);
-	}
-
-	public SignatureData getSignature() {
-		return signature;
 	}
 
 	public boolean isPackage() {
@@ -79,8 +83,8 @@ public final class FieldData {
 
 	@Override
 	public String toString() {
-		return "FieldData [dataType=" + dataType + ", name=" + name + ", modifier=" + modifier + ", signature="
-				+ signature + "]";
+		return "FieldData [dataType=" + dataType + ", name=" + name + ", modifier=" + Modifier.toString(modifier)
+				+ ", signature=" + signature + "]";
 	}
 
 	public static class Builder {

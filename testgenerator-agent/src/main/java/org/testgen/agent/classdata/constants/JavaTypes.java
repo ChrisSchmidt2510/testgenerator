@@ -27,6 +27,8 @@ public final class JavaTypes {
 					OBJECT_METHOD_TO_STRING, OBJECT_METHOD_GET_CLASS, OBJECT_METHOD_CLONE, OBJECT_METHOD_NOTIFY,
 					OBJECT_METHOD_NOTIFY_ALL, OBJECT_METHOD_WAIT));
 
+	public static final String ENUM = "java.lang.Enum";
+
 	public static final String EXCEPTION = "java.lang.Exception";
 
 	public static final String COLLECTION = "java.util.Collection";
