@@ -7,7 +7,6 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,8 +29,6 @@ import javassist.CtClass;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.AccessFlag;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.InnerClassesAttribute;
 
 public class ClassDataTransformerTest {
 
@@ -181,24 +178,6 @@ public class ClassDataTransformerTest {
 
 		for (int i = 0; i < expected.getInnerClasses().size(); i++) {
 			compareClassData(expected.getInnerClasses().get(i), result.getInnerClasses().get(i));
-		}
-
-	}
-
-	@Test
-	public void testInnerClassAttribut() throws NotFoundException {
-		ClassPool classPool = ClassPool.getDefault();
-		CtClass ctClass = classPool.get(CodeArrayModificator.class.getName());
-
-		ClassFile classFile = ctClass.getClassFile();
-		InnerClassesAttribute innerClasses = (InnerClassesAttribute) classFile.getAttribute(InnerClassesAttribute.tag);
-
-		for (int i = 0; i < innerClasses.tableLength(); i++) {
-			System.out.println("Innerclass " + innerClasses.innerClass(i));
-			System.out.println("Outerclass " + innerClasses.outerClass(i));
-			System.out.println("Name " + innerClasses.innerName(i));
-			System.out.println("AccessFlag " + Modifier.toString(innerClasses.accessFlags(i)));
-			System.out.println("");
 		}
 
 	}
