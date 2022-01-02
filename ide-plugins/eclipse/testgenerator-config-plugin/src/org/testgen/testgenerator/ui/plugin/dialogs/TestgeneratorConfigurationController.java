@@ -249,12 +249,11 @@ public class TestgeneratorConfigurationController {
 
 			ILaunchConfiguration launchConfig = model.getLaunchConfiguration();
 
-			String arguments = launchConfig.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
-					(String) null);
+			String arguments = launchConfig.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
 
 			ILaunchConfigurationWorkingCopy copy = launchConfig.getWorkingCopy();
 
-			if (arguments.contains(JAVAAGENT) || arguments.contains(BOOT_CLASSPATH)) {
+			if (arguments != null && (arguments.contains(JAVAAGENT) || arguments.contains(BOOT_CLASSPATH))) {
 
 				String message = null;
 
