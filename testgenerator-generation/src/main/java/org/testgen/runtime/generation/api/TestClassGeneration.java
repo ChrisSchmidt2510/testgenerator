@@ -29,7 +29,7 @@ public interface TestClassGeneration<T, E, S> {
 	 * Creates the compilation unit where the unit-test method is added
 	 * 
 	 * @param testClass original class where the test is generated for.
-	 * @param the path on the filesystem where the test is generated into
+	 * @param the       path on the filesystem where the test is generated into
 	 * @return
 	 */
 	T createTestClass(Class<?> testClass, Path pathForTestclass);
@@ -44,6 +44,13 @@ public interface TestClassGeneration<T, E, S> {
 	 * @param calledFields     all used fields from this Object
 	 */
 	void prepareTestObject(T classDeclaration, BluePrint testObject, ClassData classData, Set<FieldData> calledFields);
+
+	/**
+	 * Create an expression where the static test method can be called.
+	 * 
+	 * @param testClass original class where the test is generated for.
+	 */
+	void prepareTestClass(Class<?> testClass);
 
 	/**
 	 * Creates an abstract syntax tree for each method parameter.
@@ -66,7 +73,7 @@ public interface TestClassGeneration<T, E, S> {
 	 * proxyObjects Map.
 	 * 
 	 * @param classDeclaration compilationUnit where the unit-test is added
-	 * @param proxies     	   List with all created{@link ProxyBluePrint}
+	 * @param proxies          List with all created{@link ProxyBluePrint}
 	 */
 	void prepareProxyObjects(T classDeclaration, List<ProxyBluePrint> proxies);
 
@@ -75,9 +82,10 @@ public interface TestClassGeneration<T, E, S> {
 	 * 
 	 * @param classDeclaration compilationUnit where the unit-test is added
 	 * @param methodName       name of the testMethod
+	 * @param isStatic         mark that the testMethod is static
 	 * @param withProxyObjects {@link Proxy} is used during the method execution
 	 */
-	void generateTestMethod(T classDeclaration, String methodName, boolean withProxyObjects);
+	void generateTestMethod(T classDeclaration, String methodName, boolean isStatic, boolean withProxyObjects);
 
 	/**
 	 * Writes the created or modified test class back to the filesystem.

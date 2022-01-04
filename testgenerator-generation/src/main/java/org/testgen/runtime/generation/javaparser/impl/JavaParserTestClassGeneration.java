@@ -165,7 +165,15 @@ public class JavaParserTestClassGeneration
 				calledFields);
 
 		testObjectAccess = new NameExpr(namingService.getLocalName(codeBlock, testObject));
+	}
 
+	@Override
+	public void prepareTestClass(Class<?> testClass) {
+		LOGGER.debug("generate TestobjectAccess" + testClass);
+
+		testObjectAccess = new NameExpr(testClass.getSimpleName());
+
+		imports.add(testClass);
 	}
 
 	@Override
@@ -197,7 +205,7 @@ public class JavaParserTestClassGeneration
 	}
 
 	@Override
-	public void generateTestMethod(ClassOrInterfaceDeclaration compilationUnit, String methodName,
+	public void generateTestMethod(ClassOrInterfaceDeclaration compilationUnit, String methodName, boolean isStatic,
 			boolean withProxyObjects) {
 
 		ExpressionStmt statement = new ExpressionStmt(
@@ -246,7 +254,7 @@ public class JavaParserTestClassGeneration
 					line = "\t" + line;
 					methodLines.set(i, line);
 				}
-				
+
 				List<String> lines = Files.readAllLines(path);
 
 				for (int i = lines.size() - 1; i >= 0; i--) {
