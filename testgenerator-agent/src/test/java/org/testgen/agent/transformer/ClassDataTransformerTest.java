@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
@@ -54,15 +56,17 @@ public class ClassDataTransformerTest {
 	@ParameterizedTest
 	@MethodSource
 	public void testModifyClassFile(String className, CtClass ctClass, boolean result) {
-		ClassDataTransformer transformer = new ClassDataTransformer();
+		try (MockedStatic<TestgeneratorConfig> mock = Mockito.mockStatic(TestgeneratorConfig.class)) {
+			mock.when(TestgeneratorConfig::getClassNames)
+					.thenReturn(Arrays.asList(Adresse.class.getName().replace(".", "/")));
+			mock.when(TestgeneratorConfig::getBlPackages)
+					.thenReturn(Arrays.asList("org/testgen/agent/transformer", "java/time", "java/lang"));
 
-		String blPackageProperty = "org/testgen/agent/transformer,java/time,java/lang";
+			ClassDataStorage.getInstance().addSuperclassToLoad(BlObject.class.getName());
 
-		System.setProperty(TestgeneratorConfig.PARAM_BL_PACKAGE, blPackageProperty);
-		System.setProperty(TestgeneratorConfig.PARAM_CLASS_NAMES, Adresse.class.getName().replace(".", "/"));
-		ClassDataStorage.getInstance().addSuperclassToLoad(BlObject.class.getName());
-
-		assertEquals(result, transformer.modifyClassFile(className, ctClass));
+			ClassDataTransformer transformer = new ClassDataTransformer();
+			assertEquals(result, transformer.modifyClassFile(className, ctClass));
+		}
 	}
 
 	private static Stream<Arguments> testAnalyseClassHierarchie() throws NotFoundException {

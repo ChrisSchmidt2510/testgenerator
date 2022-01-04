@@ -16,21 +16,16 @@ public final class TestgeneratorConfig {
 
 	// Agent-Properties
 	private static final String PARAM_CLASS_NAME = "TestgeneratorClassName";
-	/* only for test cases public */
-	public static final String PARAM_CLASS_NAMES = "TestgeneratorClassNames";
+	private static final String PARAM_CLASS_NAMES = "TestgeneratorClassNames";
 	private static final String PARAM_METHOD_NAME = "TestgeneratorMethodName";
 	private static final String PARAM_METHOD_DESC = "TestgeneratorMethodDesc";
-	/* only for test cases public */
-	public static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
+	private static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
 	private static final String PARAM_PATH_TO_TESTCLASS = "TestgeneratorPathToTestClass";
-
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
 	private static final String PARAM_CUSTOM_ANALYSIS_CLASS = "TestgeneratorCustomAnalysisClass";
-
 	private static final String PARAM_CUSTOM_NAMING_SERVICE_CLASS = "TestgeneratorCustomNamingServiceClass";
-	/* only for test cases public */
-	public static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
+	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
 	private static final String PARAM_CUSTOM_LOGGER_CONFIG = "TestgeneratorCustomLoggerConfiguration";
 
 	// Runtime-Properties
