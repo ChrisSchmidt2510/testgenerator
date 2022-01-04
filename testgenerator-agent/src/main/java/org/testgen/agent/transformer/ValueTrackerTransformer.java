@@ -98,7 +98,8 @@ public class ValueTrackerTransformer implements ClassTransformer {
 
 			addValueTrackingToMethod(ctClass, methodInfo);
 
-			TestGenerationAdder testGeneration = new TestGenerationAdder(ctClass, codeAttribute);
+			TestGenerationAdder testGeneration = new TestGenerationAdder(ctClass, codeAttribute,
+					Modifier.isStatic(methodInfo.getAccessFlags()));
 			testGeneration.addTestgenerationToMethod(methodInfo);
 		} catch (Exception e) {
 			LOGGER.error("error while transforming class", e);
@@ -108,8 +109,10 @@ public class ValueTrackerTransformer implements ClassTransformer {
 	}
 
 	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
+		boolean isStatic = Modifier.isStatic(methodInfo.getAccessFlags());
+
 		// if a method is not static the first argument to a method is this
-		int lowestParameterIndex = Modifier.isStatic(methodInfo.getAccessFlags()) ? 0 : 1;
+		int lowestParameterIndex = isStatic ? 0 : 1;
 
 		int parameterCount = Descriptor.numOfParameters(methodInfo.getDescriptor());
 
@@ -140,7 +143,13 @@ public class ValueTrackerTransformer implements ClassTransformer {
 				OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC);
 		valueTracking.addAstore(valueTrackerLocalIndex);
 
-		for (int i = lowestParameterIndex; i <= parameterCount; i++) {
+		if (!isStatic) {
+			// if the method is not static methodparameters start at index 1 and so the
+			// parametercount need to be extended by 1
+			++parameterCount;
+		}
+
+		for (int i = lowestParameterIndex; i < parameterCount; i++) {
 			String variableName = table.variableName(i);
 			String descriptor = table.descriptor(i);
 
@@ -158,12 +167,14 @@ public class ValueTrackerTransformer implements ClassTransformer {
 					OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
 		}
 
-		valueTracking.addAload(valueTrackerLocalIndex);
-		valueTracking.addAload(0);
-		valueTracking.addLdc(createNameForTestobject(classToLoad.getName()));
-		valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_TESTOBJECT, TYPE);
-		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
-				OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
+		if (!isStatic) {
+			valueTracking.addAload(valueTrackerLocalIndex);
+			valueTracking.addAload(0);
+			valueTracking.addLdc(createNameForTestobject(classToLoad.getName()));
+			valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_TESTOBJECT, TYPE);
+			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
+					OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
+		}
 
 		valueTracking.addIconst(1);
 		valueTracking.addInvokestatic(TESTGENERATOR_CONFIG_CLASSNAME, TESTGENERATOR_CONFIG_METHOD_SET_PROXY_TRACKING,
