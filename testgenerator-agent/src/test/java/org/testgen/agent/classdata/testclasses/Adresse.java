@@ -2,7 +2,7 @@ package org.testgen.agent.classdata.testclasses;
 
 public class Adresse {
 
-	public static final int KEY = 5;
+	public static final Integer KEY = 5;
 
 	private String strasse = null;
 	private short hausnummer;
@@ -18,7 +18,7 @@ public class Adresse {
 		this(ort, plz);
 		this.strasse = strasse;
 	}
-	
+
 	public Adresse(String ort, int plz, String strasse, short hausnummer) {
 		setOrt(ort);
 		setPlz(plz);

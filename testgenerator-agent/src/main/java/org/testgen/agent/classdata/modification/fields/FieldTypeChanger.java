@@ -165,7 +165,7 @@ public class FieldTypeChanger {
 				afterValueCreation.addLdc(instruction.getName());
 
 				if (INTEGER_PROXY_CLASSNAME.equals(proxy) || REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
-					BytecodeUtils.addClassInfoToBytecode(afterValueCreation, constantPool,
+					BytecodeUtils.addClassInfoToBytecode(afterValueCreation,
 							Descriptor.toClassName(instruction.getType()));
 				}
 
@@ -260,7 +260,7 @@ public class FieldTypeChanger {
 			bytecode.addLdc(field.getName());
 
 			if (REFERENCE_PROXY_CLASSNAME.equals(proxy) || INTEGER_PROXY_CLASSNAME.equals(proxy)) {
-				BytecodeUtils.addClassInfoToBytecode(bytecode, constantPool, Descriptor.toClassName(dataType));
+				BytecodeUtils.addClassInfoToBytecode(bytecode, Descriptor.toClassName(dataType));
 			}
 
 			bytecode.addInvokespecial(proxy, MethodInfo.nameInit, getInitDescriptor(proxy));

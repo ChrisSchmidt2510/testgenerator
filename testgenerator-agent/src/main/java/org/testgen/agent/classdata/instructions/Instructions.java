@@ -136,6 +136,11 @@ public final class Instructions {
 			case Opcode.DLOAD:
 			case Opcode.FLOAD:
 			case Opcode.LLOAD:
+			case Opcode.ASTORE:
+			case Opcode.ISTORE:
+			case Opcode.DSTORE:
+			case Opcode.FSTORE:
+			case Opcode.LSTORE:
 				int localVariableIndex = iterator.signedByteAt(index + 1);
 
 				Instruction instructionLoad = new Instruction.Builder().withCodeArrayIndex(index)//

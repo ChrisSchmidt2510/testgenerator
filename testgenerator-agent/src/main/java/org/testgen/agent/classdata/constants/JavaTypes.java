@@ -38,8 +38,14 @@ public final class JavaTypes {
 	public static final String QUEUE = "java.util.Queue";
 	public static final String DEQUE = "java.util.Deque";
 
+	public static final String ARRAYLIST = "java.util.ArrayList";
+
 	public static final String STRING = "java.lang.String";
 	public static final String CLASS = "java.lang.Class";
+
+	public static final String INTEGER = "java.lang.Integer";
+
+	public static final String LOCALDATE = "java.time.LocalDate";
 
 	public static final String COLLECTION_METHOD_ADD = "add";
 	public static final String COLLECTION_METHOD_ADD_DESC = "(Ljava/lang/Object;)Z";

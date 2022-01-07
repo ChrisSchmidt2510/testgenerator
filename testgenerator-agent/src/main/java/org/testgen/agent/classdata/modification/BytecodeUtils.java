@@ -18,7 +18,9 @@ public final class BytecodeUtils {
 	private BytecodeUtils() {
 	}
 
-	public static void addClassInfoToBytecode(Bytecode code, ConstPool constantPool, String descriptor) {
+	public static void addClassInfoToBytecode(Bytecode code, String descriptor) {
+		ConstPool constantPool = code.getConstPool();
+
 		if (Primitives.PRIMTIVE_JAVA_TYPES.contains(descriptor)) {
 			String className = null;
 

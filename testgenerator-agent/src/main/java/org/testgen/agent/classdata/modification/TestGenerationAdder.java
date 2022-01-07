@@ -119,6 +119,15 @@ public class TestGenerationAdder {
 		codeAttribute.setAttribute(stackMapTable);
 	}
 
+	/**
+	 * Reads through the exceptionTable of the method and if there is already a
+	 * finally entry in the table, then the generation bytecodes are added.
+	 * 
+	 * @param instructions
+	 * @param instruction
+	 * @return true if this method has already a finally entry in his exceptionTable
+	 * @throws BadBytecode
+	 */
 	private boolean addTestgenerationToExceptionHandler(List<Instruction> instructions, Instruction instruction)
 			throws BadBytecode {
 		ExceptionTable exceptionTable = codeAttribute.getExceptionTable();
@@ -176,7 +185,7 @@ public class TestGenerationAdder {
 
 		Bytecode exceptionHandling = new Bytecode(constantPool);
 		exceptionHandling.addAstore(maxLocals);
-		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
+		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addIconst(isStatic ? 1 : 0);
 		exceptionHandling.addLdc(TestgeneratorConfig.getMethodName());
 		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
@@ -203,7 +212,7 @@ public class TestGenerationAdder {
 
 		Bytecode exceptionHandling = new Bytecode(constantPool);
 		exceptionHandling.addAstore(maxLocals);
-		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
+		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addIconst(isStatic ? 1 : 0);
 		exceptionHandling.addLdc(TestgeneratorConfig.getMethodName());
 		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
@@ -216,7 +225,7 @@ public class TestGenerationAdder {
 
 		int codeSizeExceptionHandler = exceptionHandling.getSize();
 
-		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, constantPool, Descriptor.toJvmName(modifiedClass));
+		BytecodeUtils.addClassInfoToBytecode(exceptionHandling, Descriptor.toJvmName(modifiedClass));
 		exceptionHandling.addIconst(isStatic ? 1 : 0);
 		exceptionHandling.addLdc(TestgeneratorConfig.getMethodName());
 		exceptionHandling.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,
@@ -251,8 +260,7 @@ public class TestGenerationAdder {
 
 		testgenerationWithLocalVariable = new Bytecode(constantPool);
 		testgenerationWithLocalVariable.addAstore(maxLocals + 1);
-		BytecodeUtils.addClassInfoToBytecode(testgenerationWithLocalVariable, constantPool,
-				Descriptor.toJvmName(modifiedClass));
+		BytecodeUtils.addClassInfoToBytecode(testgenerationWithLocalVariable, Descriptor.toJvmName(modifiedClass));
 		testgenerationWithLocalVariable.addIconst(isStatic ? 1 : 0);
 		testgenerationWithLocalVariable.addLdc(TestgeneratorConfig.getMethodName());
 		testgenerationWithLocalVariable.addGetstatic(modifiedClass,
@@ -262,7 +270,7 @@ public class TestGenerationAdder {
 		testgenerationWithLocalVariable.addAload(maxLocals + 1);
 
 		testgeneration = new Bytecode(constantPool);
-		BytecodeUtils.addClassInfoToBytecode(testgeneration, constantPool, Descriptor.toJvmName(modifiedClass));
+		BytecodeUtils.addClassInfoToBytecode(testgeneration, Descriptor.toJvmName(modifiedClass));
 		testgeneration.addIconst(isStatic ? 1 : 0);
 		testgeneration.addLdc(TestgeneratorConfig.getMethodName());
 		testgeneration.addGetstatic(modifiedClass, TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE,

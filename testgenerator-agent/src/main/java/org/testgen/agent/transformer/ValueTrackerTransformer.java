@@ -18,6 +18,7 @@ import org.testgen.logging.Logger;
 
 import javassist.CtClass;
 import javassist.Modifier;
+import javassist.NotFoundException;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.Bytecode;
@@ -63,15 +64,39 @@ public class ValueTrackerTransformer implements ClassTransformer {
 	private static final String TESTGENERATOR_CONFIG_METHOD_SET_FIELD_TRACKING = "setFieldTracking";
 	private static final String TESTGENERATOR_CONFIG_METHOD_DESC = "(Z)V";
 
-	private CodeAttribute codeAttribute;
-	private CodeIterator iterator;
-	private ConstPool constantPool;
-
-	private SignatureAdder signatureAdder;
+	CodeAttribute codeAttribute;
 
 	@Override
 	public boolean modifyClassFile(String className, CtClass ctClass) {
-		return TestgeneratorConfig.getClassName().equals(className);
+		if (!TestgeneratorConfig.getClassName().equals(className))
+			return false;
+
+		try {
+			MethodInfo methodInfo = ctClass
+					.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
+					.getMethodInfo();
+
+			if (methodInfo.isConstructor())
+				throw new AgentException("constructors are currently not supported");
+
+			if (methodInfo.isStaticInitializer())
+				throw new AgentException("static initializers are currently not supported");
+
+			int modifier = methodInfo.getAccessFlags();
+
+			if (!Modifier.isPublic(modifier) && !Modifier.isPackage(modifier))
+				throw new AgentException(methodInfo + " need to be public or package");
+
+			if (Modifier.isAbstract(modifier))
+				throw new AgentException(methodInfo + "can`t be abstract");
+
+			return true;
+
+		} catch (NotFoundException e) {
+			throw new AgentException("Method not Found " + TestgeneratorConfig.getMethodName()
+					+ TestgeneratorConfig.getMethodDescriptor(), e);
+		}
+
 	}
 
 	@Override
@@ -82,9 +107,7 @@ public class ValueTrackerTransformer implements ClassTransformer {
 					.getMethodInfo();
 
 			codeAttribute = methodInfo.getCodeAttribute();
-			constantPool = codeAttribute.getConstPool();
-			iterator = codeAttribute.iterator();
-			signatureAdder = new SignatureAdder(constantPool);
+			ConstPool constantPool = codeAttribute.getConstPool();
 
 			ClassFile classFile = ctClass.getClassFile();
 
@@ -108,8 +131,11 @@ public class ValueTrackerTransformer implements ClassTransformer {
 
 	}
 
-	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
+	void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
 		boolean isStatic = Modifier.isStatic(methodInfo.getAccessFlags());
+
+		CodeIterator iterator = codeAttribute.iterator();
+		ConstPool constantPool = methodInfo.getConstPool();
 
 		// if a method is not static the first argument to a method is this
 		int lowestParameterIndex = isStatic ? 0 : 1;
@@ -208,7 +234,7 @@ public class ValueTrackerTransformer implements ClassTransformer {
 
 				if (signatureData != null) {
 					Wrapper<Integer> localVariableCounter = new Wrapper<>(codeAttribute.getMaxLocals());
-					int localVariableSignature = signatureAdder.add(code, signatureData, localVariableCounter);
+					int localVariableSignature = SignatureAdder.add(code, signatureData, localVariableCounter);
 					codeAttribute.setMaxLocals(localVariableCounter.getValue());
 
 					code.addAload(localVariableSignature);
@@ -219,7 +245,7 @@ public class ValueTrackerTransformer implements ClassTransformer {
 		}
 
 		if (!addedSignature) {
-			BytecodeUtils.addClassInfoToBytecode(code, constantPool, Descriptor.toClassName(descriptor));
+			BytecodeUtils.addClassInfoToBytecode(code, Descriptor.toClassName(descriptor));
 			code.addInvokestatic(BASIC_TYPE_CLASSNAME, BASIC_TYPE_METHOD_OF, BASIC_TYPE_METHOD_OF_DESC);
 		}
 

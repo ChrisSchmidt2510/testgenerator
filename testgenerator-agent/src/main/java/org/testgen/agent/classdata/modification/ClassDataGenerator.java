@@ -74,8 +74,6 @@ public class ClassDataGenerator {
 
 	private ConstPool constantPool;
 
-	private SignatureAdder signatureAdder;
-
 	private final Map<String, Integer> localVariableIndex = new HashMap<>();
 	private int localVariableCounter = 0;
 
@@ -94,7 +92,6 @@ public class ClassDataGenerator {
 		classFile.addInterface(INTERFACE_CLASS_DATA_HOLDER);
 
 		this.constantPool = classFile.getConstPool();
-		this.signatureAdder = new SignatureAdder(constantPool);
 
 		generateGetClassDataMethod(classFile);
 	}
@@ -180,7 +177,7 @@ public class ClassDataGenerator {
 			code.add(Opcode.DUP);
 			code.addIconst(field.isPublic() && field.isMutable() ? 1 : 0);
 			code.addLdc(field.getName());
-			BytecodeUtils.addClassInfoToBytecode(code, constantPool, field.getDataType());
+			BytecodeUtils.addClassInfoToBytecode(code, field.getDataType());
 			code.addInvokespecial(FIELD_DATA_CLASSNAME, MethodInfo.nameInit, FIELD_DATA_CONSTRUCTOR);
 
 			localVariableIndex.put(field.getName(), localVariableCounter);
@@ -192,7 +189,7 @@ public class ClassDataGenerator {
 				code.addAload(currentFieldIndex);
 
 				Wrapper<Integer> localVariableCounter = new Wrapper<>(this.localVariableCounter);
-				int localSignatureIndex = signatureAdder.add(code, field.getSignature(), localVariableCounter);
+				int localSignatureIndex = SignatureAdder.add(code, field.getSignature(), localVariableCounter);
 				code.addAload(localSignatureIndex);
 				code.addInvokevirtual(FIELD_DATA_CLASSNAME, FIELD_DATA_METHOD_SET_SIGNATURE,
 						FIELD_DATA_METHOD_SET_SIGNATURE_DESC);
