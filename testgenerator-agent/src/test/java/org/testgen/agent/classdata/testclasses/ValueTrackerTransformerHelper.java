@@ -13,6 +13,24 @@ public abstract class ValueTrackerTransformerHelper {
 		return first.isBefore(second);
 	}
 
+	public String cutString(String value) {
+		if (value == null)
+			throw new NullPointerException();
+
+		if (value.isEmpty())
+			return value;
+
+		return value.trim();
+	}
+
+	public LocalDate finallyClause() {
+		try {
+			return LocalDate.parse("2021.12.31");
+		} finally {
+			System.out.println("Hello World");
+		}
+	}
+
 	private void negativeTest() {
 
 	}

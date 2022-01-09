@@ -346,12 +346,6 @@ public class ValueTrackerTransformerTest {
 
 			assertEquals(expectedInstructions, Instructions.getAllInstructions(methodInfo));
 		}
-		// method with return
-		// method with multiple returns and exceptions
-		// method with no return
-		// method with no return and exceptions
-		// static method
-
 	}
 
 }

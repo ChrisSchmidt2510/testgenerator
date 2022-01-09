@@ -64,10 +64,16 @@
 			<artifactId>testgenerator-proxy</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.testgen</groupId>
 			<artifactId>testgenerator-value-tracker</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testgen</groupId>
+			<artifactId>testgenerator-generation</artifactId>
 			<scope>test</scope>
 		</dependency>
 
