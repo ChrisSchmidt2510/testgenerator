@@ -341,9 +341,6 @@ public class ValueTrackerTransformerTest {
 
 			transformer.addValueTrackingToMethod(clazz, methodInfo);
 
-			System.out.println(
-					Instructions.printCodeArray(methodInfo.getCodeAttribute().iterator(), methodInfo.getConstPool()));
-
 			assertEquals(expectedInstructions, Instructions.getAllInstructions(methodInfo));
 		}
 	}
