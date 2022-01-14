@@ -3,20 +3,19 @@ package org.testgen.runtime.generation.javaparser.impl;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import org.testgen.config.TestgeneratorConfig;
-import org.testgen.core.ReflectionUtil;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 import org.testgen.runtime.classdata.model.ClassData;
@@ -42,6 +41,7 @@ import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -52,12 +52,10 @@ import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.VoidType;
-import com.github.javaparser.printer.ConcreteSyntaxModel;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
-import com.github.javaparser.printer.concretesyntaxmodel.CsmElement;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 
 public class JavaParserTestClassGeneration
@@ -81,12 +79,15 @@ public class JavaParserTestClassGeneration
 
 	private BlockStmt codeBlock = new BlockStmt();
 
+	private MethodDeclaration testMethod;
+
 	private Set<Class<?>> imports = new TreeSet<>((class1, class2) -> class1.getName().compareTo(class2.getName()));
-	private boolean useLexicalPrinter = false;
+	private boolean classExists = false;
 
 	private NameExpr testObjectAccess;
 
 	private NodeList<Expression> methodParameterNames = new NodeList<>();
+
 	{
 		complexObjectGeneration.setSimpleObjectGenerationFactory(simpleObjectGeneration);
 		collectionGenerationFactory.setSimpleObjectGenerationFactory(simpleObjectGeneration);
@@ -104,6 +105,10 @@ public class JavaParserTestClassGeneration
 		complexObjectGeneration.setArrayGeneration(arrayGeneration);
 		collectionGenerationFactory.setArrayGeneration(arrayGeneration);
 		spezialGenerationFactory.setArrayGenerationFactory(arrayGeneration);
+
+		complexObjectGeneration.setSpezialGenerationFactory(spezialGenerationFactory);
+		collectionGenerationFactory.setSpezialGenerationFactory(spezialGenerationFactory);
+		arrayGeneration.setSpezialGenerationFactory(spezialGenerationFactory);
 
 		Consumer<Class<?>> importCallBackHandler = imports::add;
 
@@ -123,7 +128,7 @@ public class JavaParserTestClassGeneration
 
 				cu = LexicalPreservingPrinter.setup(compilationUnit);
 
-				useLexicalPrinter = true;
+				classExists = true;
 			} catch (IOException e) {
 				LOGGER.error("cant parse CompilationUnit at Path " + pathToTestclass);
 			}
@@ -160,7 +165,15 @@ public class JavaParserTestClassGeneration
 				calledFields);
 
 		testObjectAccess = new NameExpr(namingService.getLocalName(codeBlock, testObject));
+	}
 
+	@Override
+	public void prepareTestClass(Class<?> testClass) {
+		LOGGER.debug("generate TestobjectAccess" + testClass);
+
+		testObjectAccess = new NameExpr(testClass.getSimpleName());
+
+		imports.add(testClass);
 	}
 
 	@Override
@@ -192,7 +205,7 @@ public class JavaParserTestClassGeneration
 	}
 
 	@Override
-	public void generateTestMethod(ClassOrInterfaceDeclaration compilationUnit, String methodName,
+	public void generateTestMethod(ClassOrInterfaceDeclaration compilationUnit, String methodName, boolean isStatic,
 			boolean withProxyObjects) {
 
 		ExpressionStmt statement = new ExpressionStmt(
@@ -207,9 +220,8 @@ public class JavaParserTestClassGeneration
 
 		String testMethodName = JavaParserHelper.getMethodName(compilationUnit, methodName);
 
-		MethodDeclaration testMethod = compilationUnit.addMethod(testMethodName, Keyword.PUBLIC);
+		testMethod = new MethodDeclaration(Modifier.createModifierList(Keyword.PUBLIC), new VoidType(), testMethodName);
 		testMethod.addAnnotation(new MarkerAnnotationExpr("Test"));
-		testMethod.setType(new VoidType());
 		testMethod.setBody(codeBlock);
 
 	}
@@ -218,13 +230,10 @@ public class JavaParserTestClassGeneration
 	public void toFile(ClassOrInterfaceDeclaration compilationUnit) {
 		Path path = Paths.get(TestgeneratorConfig.getPathToTestclass());
 
-		if (useLexicalPrinter) {
+		DefaultPrettyPrinter printer = new DefaultPrettyPrinter((config) -> new TestgeneratorPrettyPrinter(config),
+				new DefaultPrinterConfiguration());
 
-			Field field = ReflectionUtil.getField(ConcreteSyntaxModel.class, "concreteSyntaxModelByClass");
-			field.setAccessible(true);
-
-			Map<Class<?>, CsmElement> concreteSyntaxModel = ReflectionUtil.accessStaticField(field);
-			concreteSyntaxModel.replace(EmptyStmt.class, CsmElement.sequence(CsmElement.comment()));
+		if (classExists) {
 
 			try (FileOutputStream outputStream = new FileOutputStream(path.toFile());
 					OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream)) {
@@ -235,16 +244,44 @@ public class JavaParserTestClassGeneration
 				LOGGER.error(LexicalPreservingPrinter.print(cu));
 			}
 
-		} else {
-			PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-					.setVisitorFactory(TestgeneratorPrettyPrinter::new);
-
+			// cant use LexicalPreservingPrinter for that, because he wont write comments
+			// for empty-statements
 			try {
-				Files.write(path, cu.toString(printerConfig).getBytes());
+				List<String> methodLines = new ArrayList<>(
+						Arrays.asList(printer.print(testMethod).split(System.lineSeparator())));
+				for (int i = 0; i < methodLines.size(); i++) {
+					String line = methodLines.get(i);
+					line = "\t" + line;
+					methodLines.set(i, line);
+				}
+
+				List<String> lines = Files.readAllLines(path);
+
+				for (int i = lines.size() - 1; i >= 0; i--) {
+					String line = lines.get(i);
+
+					if (line.trim().equals("}")) {
+						int closeClassBracketIndex = lines.indexOf(line);
+						lines.add(closeClassBracketIndex, System.lineSeparator());
+						lines.addAll(closeClassBracketIndex + 1, methodLines);
+
+						Files.write(path, lines);
+						break;
+					}
+				}
 			} catch (IOException e) {
 				LOGGER.error("cant write modified Class to File", e);
+				LOGGER.error(printer.print(testMethod));
+			}
+
+		} else {
+			compilationUnit.addMember(testMethod);
+			try {
+				Files.write(path, printer.print(cu).getBytes());
+			} catch (IOException e) {
+				LOGGER.error("cant write Class to File", e);
 				LOGGER.error("generated Test:");
-				LOGGER.error(cu.toString(printerConfig));
+				LOGGER.error(printer.print(cu));
 			}
 		}
 
@@ -277,7 +314,7 @@ public class JavaParserTestClassGeneration
 			simpleObjectGeneration.createObject(codeBlock, simpleBluePrint, false);
 
 		} else if (bluePrint.isSpezialBluePrint()) {
-			
+
 			spezialGenerationFactory.createObject(codeBlock, bluePrint, signature, false);
 		}
 	}

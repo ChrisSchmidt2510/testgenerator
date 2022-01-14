@@ -18,7 +18,9 @@ public final class BytecodeUtils {
 	private BytecodeUtils() {
 	}
 
-	public static void addClassInfoToBytecode(Bytecode code, ConstPool constantPool, String descriptor) {
+	public static void addClassInfoToBytecode(Bytecode code, String descriptor) {
+		ConstPool constantPool = code.getConstPool();
+
 		if (Primitives.PRIMTIVE_JAVA_TYPES.contains(descriptor)) {
 			String className = null;
 
@@ -92,7 +94,7 @@ public final class BytecodeUtils {
 	}
 
 	public static void addLoad(Bytecode code, int index, String dataType) {
-		if (Primitives.isPrimitiveDataType(dataType)) {
+		if (Primitives.isPrimitiveJVMDataType(dataType)) {
 			switch (dataType) {
 			case Primitives.JVM_BOOLEAN:
 			case Primitives.JVM_BYTE:

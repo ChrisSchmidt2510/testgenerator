@@ -1,13 +1,15 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -27,13 +29,13 @@ public class CalendarObjectGenerationTest {
 
 	private CalendarBluePrintFactory factory = new CalendarBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -48,13 +50,13 @@ public class CalendarObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, dateBp, true);
-		Assert.assertEquals("private GregorianCalendar calendar = new GregorianCalendar(2020, 10 - 1, 25);",
+		assertEquals("private GregorianCalendar calendar = new GregorianCalendar(2020, 10 - 1, 25);",
 				cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, dateBp, false);
-		Assert.assertEquals("private GregorianCalendar calendar;", cu.getFields().get(1).toString());
+		assertEquals("private GregorianCalendar calendar;", cu.getFields().get(1).toString());
 
-		Assert.assertTrue(imports.contains(GregorianCalendar.class));
+		assertTrue(imports.contains(GregorianCalendar.class));
 	}
 
 	@Test
@@ -64,11 +66,11 @@ public class CalendarObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, dateBp, true);
-		Assert.assertEquals("this.calendar = new GregorianCalendar(2020, 10 - 1, 25);",
+		assertEquals("this.calendar = new GregorianCalendar(2020, 10 - 1, 25);",
 				block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, dateBp, false);
-		Assert.assertEquals("GregorianCalendar calendar = new GregorianCalendar(2020, 10 - 1, 25);",
+		assertEquals("GregorianCalendar calendar = new GregorianCalendar(2020, 10 - 1, 25);",
 				block.getStatement(2).toString());
 	}
 
@@ -76,20 +78,20 @@ public class CalendarObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> dateBp = factory.createBluePrint("calendar", new GregorianCalendar(2020, 10 - 1, 25));
 
-		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25)",
+		assertEquals("new GregorianCalendar(2020, 10 - 1, 25)",
 				simpleObjectGeneration.createInlineExpression(dateBp).toString());
 
 		SimpleBluePrint<?> dateTimeBp = factory.createBluePrint("calendar",
 				new GregorianCalendar(2020, 10 - 1, 25, 12, 17));
-		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17)",
+		assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17)",
 				simpleObjectGeneration.createInlineExpression(dateTimeBp).toString());
 
 		SimpleBluePrint<?> dateTimeWithSecondsBp = factory.createBluePrint("calendar",
 				new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35));
-		Assert.assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35)",
+		assertEquals("new GregorianCalendar(2020, 10 - 1, 25, 12, 17, 35)",
 				simpleObjectGeneration.createInlineExpression(dateTimeWithSecondsBp).toString());
 
-		Assert.assertTrue(imports.contains(GregorianCalendar.class));
+		assertTrue(imports.contains(GregorianCalendar.class));
 	}
 
 }

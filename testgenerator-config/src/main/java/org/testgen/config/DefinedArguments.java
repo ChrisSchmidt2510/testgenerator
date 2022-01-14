@@ -11,6 +11,7 @@ public final class DefinedArguments {
 	public static final String ARG_BL_PACKGE_JAR_DEST = "BlPackageJarDestination";
 	public static final String ARG_TRACE_READ_FIELD_ACCESS = "TraceReadFieldAccess";
 	public static final String ARG_PRINT_CLASSFILES_DIR = "PrintClassFilesDir";
+	public static final String ARG_CUSTOM_ANALYSIS_CLASS = "CustomAnalysisClass";
 	public static final String ARG_PATH_TO_TESTCLASS = "PathToTestclass";
 	public static final String ARG_CUSTOM_NAMING_SERVICE_CLASS = "CustomNamingServiceClass";
 	public static final String ARG_CUSTOM_TESTGENERATOR_CLASS = "CustomTestgeneratorClass";
@@ -27,12 +28,10 @@ public final class DefinedArguments {
 		definedArgs.addArgument(ARG_METHOD_DESC, Parameter.SINGLE_PARAMETER, true);
 		definedArgs.addArgument(ARG_BL_PACKAGE, Parameter.MULTIPLE_PARAMETER, true);
 		definedArgs.addArgument(ARG_PATH_TO_TESTCLASS, Parameter.SINGLE_PARAMETER, true);
-
-		definedArgs.addArgument(ARG_BL_PACKGE_JAR_DEST, Parameter.MULTIPLE_PARAMETER);
 		definedArgs.addArgument(ARG_PRINT_CLASSFILES_DIR, Parameter.SINGLE_PARAMETER);
+		definedArgs.addArgument(ARG_CUSTOM_ANALYSIS_CLASS, Parameter.SINGLE_PARAMETER);
 		definedArgs.addArgument(ARG_CUSTOM_TESTGENERATOR_CLASS, Parameter.SINGLE_PARAMETER);
 		definedArgs.addArgument(ARG_CUSTOM_NAMING_SERVICE_CLASS, Parameter.SINGLE_PARAMETER);
-
 		definedArgs.addArgument(ARG_TRACE_READ_FIELD_ACCESS);
 		definedArgs.addArgument(ARG_CUSTOM_LOGGER_CONFIG, Parameter.SINGLE_PARAMETER);
 

@@ -61,7 +61,6 @@ public class TestgeneratorConfigurationController {
 	private static final String ARG_METHOD_NAME = "MethodName";
 	private static final String ARG_METHOD_DESC = "MethodDescriptor";
 	private static final String ARG_BL_PACKAGE = "BlPackage";
-	private static final String ARG_BL_PACKGE_JAR_DEST = "BlPackageJarDestination";
 	private static final String ARG_TRACE_READ_FIELD_ACCESS = "TraceReadFieldAccess";
 	private static final String ARG_COSTUM_TESTGENERATOR_CLASS = "CostumTestgeneratorClass";
 
@@ -250,12 +249,11 @@ public class TestgeneratorConfigurationController {
 
 			ILaunchConfiguration launchConfig = model.getLaunchConfiguration();
 
-			String arguments = launchConfig.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
-					(String) null);
+			String arguments = launchConfig.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
 
 			ILaunchConfigurationWorkingCopy copy = launchConfig.getWorkingCopy();
 
-			if (arguments.contains(JAVAAGENT) || arguments.contains(BOOT_CLASSPATH)) {
+			if (arguments != null && (arguments.contains(JAVAAGENT) || arguments.contains(BOOT_CLASSPATH))) {
 
 				String message = null;
 
@@ -408,16 +406,13 @@ public class TestgeneratorConfigurationController {
 
 	private String generateBlPackageArgument() {
 		Set<String> packages = new HashSet<>();
-		Set<String> jarDest = new HashSet<>();
 
 		StringBuilder argument = new StringBuilder();
 
 		for (BlProject blProject : model.getProjects()) {
 			if (!blProject.getSelectedPackages().isEmpty()) {
-				jarDest.add(blProject.getOutputLocation().toPortableString());
 
 				for (Dependency dependency : blProject.getDependencies()) {
-					jarDest.add(dependency.getPackageFragmentPath());
 
 					for (IPackageFragment pkg : dependency.getSelectedPackages()) {
 						packages.add(pkg.getElementName().replace('.', '/'));
@@ -431,8 +426,6 @@ public class TestgeneratorConfigurationController {
 		}
 
 		argument.append(GENERALL_ARG_SEPARATUR + ARG_BL_PACKAGE + EQUAL + String.join(LIST_ARG_SEPARATUR, packages));
-		argument.append(
-				GENERALL_ARG_SEPARATUR + ARG_BL_PACKGE_JAR_DEST + EQUAL + String.join(LIST_ARG_SEPARATUR, jarDest));
 
 		return argument.toString();
 

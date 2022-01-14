@@ -1,12 +1,13 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -26,13 +27,13 @@ public class BooleanObjectGenerationTest {
 
 	private BooleanBluePrintFactory factory = new BooleanBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -48,11 +49,11 @@ public class BooleanObjectGenerationTest {
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
 
-		Assert.assertEquals("private boolean value = false;", cu.getFields().get(0).toString());
+		assertEquals("private boolean value = false;", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
 
-		Assert.assertEquals("private boolean value;", cu.getFields().get(1).toString());
+		assertEquals("private boolean value;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -62,10 +63,10 @@ public class BooleanObjectGenerationTest {
 		BlockStmt blockStmt = new BlockStmt();
 
 		simpleObjectGeneration.createObject(blockStmt, bluePrint, false);
-		Assert.assertEquals("boolean value = false;", blockStmt.getStatement(0).toString());
+		assertEquals("boolean value = false;", blockStmt.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(blockStmt, bluePrint, true);
-		Assert.assertEquals("this.value = false;", blockStmt.getStatement(2).toString());
+		assertEquals("this.value = false;", blockStmt.getStatement(2).toString());
 
 	}
 
@@ -73,6 +74,6 @@ public class BooleanObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("boolean", true);
 
-		Assert.assertEquals("true", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		assertEquals("true", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 }

@@ -1,5 +1,8 @@
 package org.testgen.runtime.generation.javaparser.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -7,9 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 public class JavaParserHelperTest {
@@ -17,7 +19,7 @@ public class JavaParserHelperTest {
 	private Set<Class<?>> imports = new HashSet<>();
 	private Consumer<Class<?>> callBackHandler = imports::add;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		imports.clear();
 	}
@@ -29,14 +31,14 @@ public class JavaParserHelperTest {
 		SignatureType listSig = new SignatureType(List[].class);
 		listSig.addSubType(nestedSig);
 
-		Assert.assertEquals("List<String>[]", JavaParserHelper.generateSignature(listSig, callBackHandler).toString());
-		Assert.assertTrue(imports.contains(List.class) && imports.contains(String.class));
+		assertEquals("List<String>[]", JavaParserHelper.generateSignature(listSig, callBackHandler).toString());
+		assertTrue(imports.contains(List.class) && imports.contains(String.class));
 
 		imports.clear();
 
 		SignatureType array = new SignatureType(int[].class);
-		Assert.assertEquals("int[]", JavaParserHelper.generateSignature(array, callBackHandler).toString());
-		Assert.assertTrue(imports.isEmpty());
+		assertEquals("int[]", JavaParserHelper.generateSignature(array, callBackHandler).toString());
+		assertTrue(imports.isEmpty());
 	}
 
 	@Test
@@ -45,8 +47,8 @@ public class JavaParserHelperTest {
 		SignatureType list = new SignatureType(List.class);
 		list.addSubType(new SignatureType(String.class));
 
-		Assert.assertEquals("List<String>", JavaParserHelper.generateSignature(list, callBackHandler).toString());
-		Assert.assertTrue(imports.contains(List.class) && imports.contains(String.class));
+		assertEquals("List<String>", JavaParserHelper.generateSignature(list, callBackHandler).toString());
+		assertTrue(imports.contains(List.class) && imports.contains(String.class));
 	}
 
 	@Test
@@ -58,9 +60,9 @@ public class JavaParserHelperTest {
 		SignatureType list = new SignatureType(List.class);
 		list.addSubType(nestedList);
 
-		Assert.assertEquals("List<List<Integer>>",
+		assertEquals("List<List<Integer>>",
 				JavaParserHelper.generateSignature(list, callBackHandler).toString());
-		Assert.assertTrue(imports.contains(List.class) && imports.contains(Integer.class));
+		assertTrue(imports.contains(List.class) && imports.contains(Integer.class));
 	}
 
 	@Test
@@ -69,9 +71,9 @@ public class JavaParserHelperTest {
 		map.addSubType(new SignatureType(Integer.class));
 		map.addSubType(new SignatureType(LocalDate.class));
 
-		Assert.assertEquals("Map<Integer, LocalDate>",
+		assertEquals("Map<Integer, LocalDate>",
 				JavaParserHelper.generateSignature(map, callBackHandler).toString());
-		Assert.assertTrue(
+		assertTrue(
 				imports.contains(Map.class) && imports.contains(Integer.class) && imports.contains(LocalDate.class));
 	}
 
@@ -84,9 +86,9 @@ public class JavaParserHelperTest {
 		map.addSubType(new SignatureType(Integer.class));
 		map.addSubType(nestedList);
 
-		Assert.assertEquals("Map<Integer, List<LocalDate>>",
+		assertEquals("Map<Integer, List<LocalDate>>",
 				JavaParserHelper.generateSignature(map, callBackHandler).toString());
-		Assert.assertTrue(imports.contains(Map.class) && imports.contains(Integer.class) && imports.contains(List.class)
+		assertTrue(imports.contains(Map.class) && imports.contains(Integer.class) && imports.contains(List.class)
 				&& imports.contains(LocalDate.class));
 
 	}

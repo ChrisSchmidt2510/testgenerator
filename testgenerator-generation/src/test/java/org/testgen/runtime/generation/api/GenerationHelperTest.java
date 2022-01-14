@@ -1,6 +1,8 @@
 package org.testgen.runtime.generation.api;
 
-import static org.junit.Assert.fail;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.time.LocalDate;
@@ -8,8 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 
 public class GenerationHelperTest {
@@ -37,10 +38,10 @@ public class GenerationHelperTest {
 
 			SignatureType signature = GenerationHelper.mapGenericTypeToSignature(method.getGenericReturnType());
 
-			Assert.assertEquals(List.class, signature.getType());
-			Assert.assertEquals(Arrays.asList(new SignatureType(String.class)), signature.getSubTypes());
+			assertEquals(List.class, signature.getType());
+			assertEquals(Arrays.asList(new SignatureType(String.class)), signature.getSubTypes());
 		} catch (NoSuchMethodException | SecurityException e) {
-			fail();
+			fail(e);
 		}
 	}
 
@@ -58,7 +59,7 @@ public class GenerationHelperTest {
 			expected.addSubType(new SignatureType(Integer.class));
 			expected.addSubType(list);
 
-			Assert.assertEquals(expected, signature);
+			assertEquals(expected, signature);
 		} catch (NoSuchMethodException | SecurityException e) {
 			fail();
 		}
@@ -71,7 +72,7 @@ public class GenerationHelperTest {
 
 			SignatureType signature = GenerationHelper.mapGenericTypeToSignature(method.getGenericReturnType());
 
-			Assert.assertEquals(null, signature);
+			assertEquals(null, signature);
 		} catch (NoSuchMethodException | SecurityException e) {
 			fail();
 		}
@@ -84,7 +85,7 @@ public class GenerationHelperTest {
 				
 				SignatureType signature = GenerationHelper.mapGenericTypeToSignature(method.getGenericReturnType());
 			
-				Assert.assertEquals(new SignatureType(int.class), signature);
+				assertEquals(new SignatureType(int.class), signature);
 			} catch (NoSuchMethodException | SecurityException e) {
 				fail();
 			}

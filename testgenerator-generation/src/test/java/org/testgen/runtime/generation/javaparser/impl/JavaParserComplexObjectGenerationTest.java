@@ -1,14 +1,18 @@
 package org.testgen.runtime.generation.javaparser.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testgen.config.TestgeneratorConfig;
 import org.testgen.runtime.classdata.ClassDataHolder;
 import org.testgen.runtime.classdata.model.ClassData;
@@ -30,7 +34,8 @@ import com.github.javaparser.ast.Modifier.Keyword;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
@@ -43,10 +48,10 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 	FieldData hausnummer = new FieldData("hausnummer", short.class);
 	FieldData plz = new FieldData("plz", int.class);
 
-	private PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-			.setVisitorFactory(TestgeneratorPrettyPrinter::new);
+	private DefaultPrettyPrinter printer = new DefaultPrettyPrinter((config) -> new TestgeneratorPrettyPrinter(config),
+			new DefaultPrinterConfiguration());
 
-	@Before
+	@BeforeEach
 	public void init() {
 		JavaParserSimpleObjectGenerationFactory simpleFactory = new JavaParserSimpleObjectGenerationFactory();
 		JavaParserCollectionGenerationFactory collectionFactory = new JavaParserCollectionGenerationFactory();
@@ -73,11 +78,9 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 		simpleFactory.setImportCallBackHandler(importCallBackHandler);
 	}
 
-	@After
+	@AfterEach
 	public void destroy() {
 		imports.clear();
-
-		setPropertyTraceReadFieldAccess(false);
 
 		NamingServiceProvider.getNamingService().clearFields();
 	}
@@ -87,11 +90,11 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
 
-		ComplexBluePrint bluePrint = new ComplexBluePrint("value", new Object());	
+		ComplexBluePrint bluePrint = new ComplexBluePrint("value", new Object());
 
 		complexGeneration.createField(cu, bluePrint, null);
-		Assert.assertEquals("private Object value;", cu.getFields().get(0).toString());
-		Assert.assertTrue(imports.contains(Object.class));
+		assertEquals("private Object value;", cu.getFields().get(0).toString());
+		assertTrue(imports.contains(Object.class));
 	}
 
 	@Test
@@ -111,8 +114,8 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		Assert.assertEquals(expectedLocalValue, codeBlock.toString(printerConfig));
-		Assert.assertTrue(imports.contains(Adresse.class));
+		assertEquals(expectedLocalValue, printer.print(codeBlock));
+		assertTrue(imports.contains(Adresse.class));
 
 		String expectedFieldValue = "{\r\n" + //
 				"    this.adresse = new Adresse(\"Nuernberg\", 90757);\r\n" + //
@@ -129,8 +132,8 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		Assert.assertEquals(expectedFieldValue, block.toString(printerConfig));
-		Assert.assertTrue(imports.contains(Adresse.class));
+		assertEquals(expectedFieldValue, printer.print(block));
+		assertTrue(imports.contains(Adresse.class));
 	}
 
 	@Test
@@ -153,7 +156,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		Assert.assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		String expectedFieldValue = "{\r\n" + //
 				"    // TODO add initalization for class: Adresse\r\n" + //
@@ -171,7 +174,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		Assert.assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	@Test
@@ -185,31 +188,33 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 		Set<FieldData> calledFields = new HashSet<>();
 		calledFields.add(strasse);
 
-		setPropertyTraceReadFieldAccess(true);
+		try (MockedStatic<TestgeneratorConfig> mock = Mockito.mockStatic(TestgeneratorConfig.class)) {
+			mock.when(TestgeneratorConfig::traceReadFieldAccess).thenReturn(true);
 
-		complexGeneration.createObject(codeBlock, bluePrint, false, classData, calledFields);
+			complexGeneration.createObject(codeBlock, bluePrint, false, classData, calledFields);
 
-		String expectedValue = "{\r\n" + //
-				"    Adresse adresse = new Adresse(\"Nuernberg\", 90757);\r\n" + //
-				"    adresse.setStrasse(\"Bahnhofstrasse\");\r\n" + //
-				"\r\n" + //
-				"}";
+			String expectedValue = "{\r\n" + //
+					"    Adresse adresse = new Adresse(\"Nuernberg\", 90757);\r\n" + //
+					"    adresse.setStrasse(\"Bahnhofstrasse\");\r\n" + //
+					"\r\n" + //
+					"}";
 
-		Assert.assertEquals(expectedValue, codeBlock.toString(printerConfig));
+			assertEquals(expectedValue, printer.print(codeBlock));
 
-		bluePrint.resetBuildState();
+			bluePrint.resetBuildState();
 
-		BlockStmt block = new BlockStmt();
+			BlockStmt block = new BlockStmt();
 
-		String expectedFieldValue = "{\r\n" + //
-				"    this.adresse = new Adresse(\"Nuernberg\", 90757);\r\n" + //
-				"    this.adresse.setStrasse(\"Bahnhofstrasse\");\r\n" + //
-				"\r\n" + //
-				"}";
+			String expectedFieldValue = "{\r\n" + //
+					"    this.adresse = new Adresse(\"Nuernberg\", 90757);\r\n" + //
+					"    this.adresse.setStrasse(\"Bahnhofstrasse\");\r\n" + //
+					"\r\n" + //
+					"}";
 
-		complexGeneration.createObject(block, bluePrint, true, classData, calledFields);
+			complexGeneration.createObject(block, bluePrint, true, classData, calledFields);
 
-		Assert.assertEquals(expectedFieldValue, block.toString(printerConfig));
+			assertEquals(expectedFieldValue, printer.print(block));
+		}
 	}
 
 	public class InnerClass {
@@ -235,7 +240,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(codeBlock, bluePrint, false, classData, Collections.emptySet());
 
-		Assert.assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		String expectedFieldValue = "{\r\n" + //
 				"    JavaParserComplexObjectGenerationTest outerClass = new JavaParserComplexObjectGenerationTest();\r\n"
@@ -250,7 +255,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		Assert.assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	@Test
@@ -284,7 +289,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 				"\r\n" + //
 				"}";
 
-		Assert.assertEquals(expectedValue, codeBlock.toString(printerConfig));
+		assertEquals(expectedValue, printer.print(codeBlock));
 
 		bluePrint.resetBuildState();
 
@@ -299,7 +304,7 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 
 		complexGeneration.createObject(block, bluePrint, true, classData, Collections.emptySet());
 
-		Assert.assertEquals(expectedFieldValue, block.toString(printerConfig));
+		assertEquals(expectedFieldValue, printer.print(block));
 	}
 
 	private ClassData getClassDataAdresse(boolean withDefaultConstructor) {
@@ -341,10 +346,6 @@ public class JavaParserComplexObjectGenerationTest implements ClassDataHolder {
 	public static ClassData getTestgenerator$$ClassData() {
 		return new ClassData("org.testgen.runtime.generation.javaparser.impl.JavaParserComplexObjectGenerationTest",
 				new ConstructorData(true));
-	}
-
-	private static void setPropertyTraceReadFieldAccess(boolean value) {
-		System.setProperty(TestgeneratorConfig.PARAM_TRACE_READ_FIELD_ACCESS, Boolean.toString(value));
 	}
 
 }

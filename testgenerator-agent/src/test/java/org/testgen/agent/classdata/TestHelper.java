@@ -1,5 +1,6 @@
 package org.testgen.agent.classdata;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -62,11 +63,15 @@ public class TestHelper {
 	}
 
 	public void init(Class<?> clazz, String methodName) throws NotFoundException, BadBytecode {
-		init(clazz.getName(), methodName, null, null);
+		init(clazz.getName(), methodName, null, Collections.emptyList());
 	}
 
 	public void init(Class<?> clazz) throws NotFoundException, BadBytecode {
-		init(clazz.getName(), null, null, null);
+		init(clazz.getName(), null, null, Collections.emptyList());
+	}
+	
+	public void init(Class<?> clazz, String methodName, String methodDescriptor) throws NotFoundException, BadBytecode {
+		init(clazz, methodName, methodDescriptor, Collections.emptyList());
 	}
 
 	public void init(Class<?> clazz, String methodName, String methodDescriptor, List<Integer> opcodes)
@@ -75,7 +80,7 @@ public class TestHelper {
 	}
 
 	public void init(String className) throws NotFoundException, BadBytecode {
-		init(className, null, null, null);
+		init(className, null, null, Collections.emptyList());
 	}
 
 }

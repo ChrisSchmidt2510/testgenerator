@@ -1,13 +1,15 @@
 package org.testgen.agent.classdata.modification;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.agent.classdata.TestHelper;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.ConstructorData;
@@ -46,7 +48,7 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 			compareClassDataAdresse(runtimeClassData);
 		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
-			Assert.fail();
+			fail(e);
 		}
 	}
 
@@ -66,7 +68,7 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 			compareClassDataPerson(runtimeClassData);
 		} catch (ClassNotFoundException | BadBytecode | CannotCompileException | IOException e) {
-			Assert.fail(e.getMessage());
+			fail(e);
 		}
 	}
 
@@ -89,18 +91,18 @@ public class ClassDataGeneratorTest extends TestHelper {
 		classData.addFields(Arrays.asList(fieldStrasse, fieldHausnummer, fieldOrt, fieldPlz));
 
 		MethodData methodSetStrasse = new MethodData("setStrasse", "(Ljava/lang/String;)V",
-				MethodType.REFERENCE_VALUE_SETTER, 0, false);
+				MethodType.REFERENCE_VALUE_SETTER, false);
 		classData.addMethod(methodSetStrasse, fieldStrasse);
 
-		MethodData methodSetHausnummer = new MethodData("setHausnummer", "(S)V", MethodType.REFERENCE_VALUE_SETTER, 0,
+		MethodData methodSetHausnummer = new MethodData("setHausnummer", "(S)V", MethodType.REFERENCE_VALUE_SETTER,
 				false);
 		classData.addMethod(methodSetHausnummer, fieldHausnummer);
 
 		MethodData methodSetOrt = new MethodData("setOrt", "(Ljava/lang/String;)V", MethodType.REFERENCE_VALUE_SETTER,
-				0, false);
+				false);
 		classData.addMethod(methodSetOrt, fieldOrt);
 
-		MethodData methodSetPlz = new MethodData("setPlz", "(I)V", MethodType.REFERENCE_VALUE_SETTER, 0, false);
+		MethodData methodSetPlz = new MethodData("setPlz", "(I)V", MethodType.REFERENCE_VALUE_SETTER, false);
 		classData.addMethod(methodSetPlz, fieldPlz);
 
 		return classData;
@@ -125,30 +127,30 @@ public class ClassDataGeneratorTest extends TestHelper {
 		classData.addFields(Arrays.asList(fieldName, fieldFirstName, fieldDateOfBirth, fieldGeschlecht, fieldAdressen));
 
 		MethodData methodSetName = new MethodData("setName", "(Ljava/lang/String;)V", MethodType.REFERENCE_VALUE_SETTER,
-				0, false);
+				false);
 		classData.addMethod(methodSetName, fieldName);
 
 		MethodData methodSetVorname = new MethodData("setVorname", "(Ljava/lang/String;)V",
-				MethodType.REFERENCE_VALUE_SETTER, 0, false);
+				MethodType.REFERENCE_VALUE_SETTER, false);
 		classData.addMethod(methodSetVorname, fieldFirstName);
 
 		MethodData methodSetDateOfBirth = new MethodData("setDateOfBirth", "(Ljava/time/LocalDate;)V",
-				MethodType.REFERENCE_VALUE_SETTER, 0, false);
+				MethodType.REFERENCE_VALUE_SETTER, false);
 		classData.addMethod(methodSetDateOfBirth, fieldDateOfBirth);
 
 		MethodData methodSetGeschlecht = new MethodData("setGeschlecht",
-				"(Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;)V", MethodType.REFERENCE_VALUE_SETTER, 0,
+				"(Lorg/testgen/agent/classdata/testclasses/Person$Geschlecht;)V", MethodType.REFERENCE_VALUE_SETTER,
 				false);
 		classData.addMethod(methodSetGeschlecht, fieldGeschlecht);
 
 		MethodData methodAddAdresse = new MethodData("addAdresse",
-				"(Lorg/testgen/agent/classdata/testclasses/Adresse;)V", MethodType.COLLECTION_SETTER, 0, false);
+				"(Lorg/testgen/agent/classdata/testclasses/Adresse;)V", MethodType.COLLECTION_SETTER, false);
 		classData.addMethod(methodAddAdresse, fieldAdressen);
 
 		// normally this method has the methodType IMMUTABLE_GETTER, but for this test
 		// change it to REFERENCE_VALUE_GETTER
 		MethodData methodGetAdressen = new MethodData("getAdressen", "()Ljava/util/List;",
-				MethodType.REFERENCE_VALUE_GETTER, 0, false);
+				MethodType.REFERENCE_VALUE_GETTER, false);
 		classData.addMethod(methodGetAdressen, fieldAdressen);
 
 		return classData;
@@ -261,28 +263,28 @@ public class ClassDataGeneratorTest extends TestHelper {
 
 	private void compareClasses(org.testgen.runtime.classdata.model.ClassData expected,
 			org.testgen.runtime.classdata.model.ClassData actual) {
-		Assert.assertEquals(expected.getName(), actual.getName());
-		Assert.assertEquals(expected.getSuperclass(), actual.getSuperclass());
+		assertEquals(expected.getName(), actual.getName());
+		assertEquals(expected.getSuperclass(), actual.getSuperclass());
 	}
 
 	private void compareConstructors(org.testgen.runtime.classdata.model.ConstructorData expected,
 			org.testgen.runtime.classdata.model.ConstructorData actual) {
-		Assert.assertEquals(expected.hasDefaultConstructor(), actual.hasDefaultConstructor());
-		Assert.assertEquals(expected.getConstructorFields(), actual.getConstructorFields());
+		assertEquals(expected.hasDefaultConstructor(), actual.hasDefaultConstructor());
+		assertEquals(expected.getConstructorFields(), actual.getConstructorFields());
 	}
 
 	private void compareFields(org.testgen.runtime.classdata.model.FieldData expected,
 			org.testgen.runtime.classdata.model.FieldData actual) {
-		Assert.assertEquals(expected, actual);
-		Assert.assertEquals(expected.getSignature(), actual.getSignature());
+		assertEquals(expected, actual);
+		assertEquals(expected.getSignature(), actual.getSignature());
 	}
 
 	private void compareSetterMethods(org.testgen.runtime.classdata.model.SetterMethodData expected,
 			org.testgen.runtime.classdata.model.SetterMethodData actual) {
-		Assert.assertEquals(expected.getName(), actual.getName());
-		Assert.assertEquals(expected.getDescriptor(), actual.getDescriptor());
-		Assert.assertEquals(expected.getType(), actual.getType());
-		Assert.assertEquals(expected.isStatic(), actual.isStatic());
+		assertEquals(expected.getName(), actual.getName());
+		assertEquals(expected.getDescriptor(), actual.getDescriptor());
+		assertEquals(expected.getType(), actual.getType());
+		assertEquals(expected.isStatic(), actual.isStatic());
 	}
 
 }

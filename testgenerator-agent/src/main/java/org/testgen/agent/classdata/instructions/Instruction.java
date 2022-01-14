@@ -10,17 +10,22 @@ public final class Instruction {
 	private final int opcode;
 	private final int localVariableIndex;
 	private final int offset;
+	private final int arrayDimensions;
+
+	private final int bootstrapMethodIndex;
 	private final String type;
 	private final String name;
 	private final String classRef;
 	private final String constantValue;
 
-	private Instruction(int codeArrayIndex, int opcode, int localVariableIndex, int offset, String type, String name,
-			String classRef, String constantValue) {
+	private Instruction(int codeArrayIndex, int opcode, int localVariableIndex, int offset, int arrayDimensions,
+			int bootstrapMethodIndex, String type, String name, String classRef, String constantValue) {
 		this.codeArrayIndex = codeArrayIndex;
 		this.opcode = opcode;
 		this.localVariableIndex = localVariableIndex;
 		this.offset = offset;
+		this.arrayDimensions = arrayDimensions;
+		this.bootstrapMethodIndex = bootstrapMethodIndex;
 		this.type = type;
 		this.name = name;
 		this.classRef = classRef;
@@ -55,6 +60,14 @@ public final class Instruction {
 		return offset;
 	}
 
+	public int getArrayDimensions() {
+		return arrayDimensions;
+	}
+
+	public int getBootstrapMethodIndex() {
+		return bootstrapMethodIndex;
+	}
+
 	public String getConstantValue() {
 		return constantValue;
 	}
@@ -79,16 +92,25 @@ public final class Instruction {
 
 	@Override
 	public String toString() {
-		if (Opcode.PUTFIELD == opcode || Opcode.GETFIELD == opcode || Instructions.isInvokeInstruction(this)) {
+
+		if (Opcode.PUTFIELD == opcode || Opcode.GETFIELD == opcode || Instructions.isInvokeInstruction(this)
+				|| Opcode.GETSTATIC == opcode || Opcode.PUTSTATIC == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + classRef + "." + name + "(" + type + ")";
+
 		} else if (Opcode.ALOAD == opcode || Opcode.ILOAD == opcode || Opcode.DLOAD == opcode || Opcode.FLOAD == opcode
-				|| Opcode.LLOAD == opcode) {
+				|| Opcode.LLOAD == opcode //
+				|| Opcode.ASTORE == opcode || Opcode.ISTORE == opcode || Opcode.DSTORE == opcode
+				|| Opcode.FSTORE == opcode || Opcode.LSTORE == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + localVariableIndex;
+
 		} else if (Opcode.NEW == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " Class: " + classRef;
+
 		} else if (Opcode.IFNULL == opcode || Opcode.GOTO == opcode) {
 			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + offset;
-		}
+
+		} else if (Opcode.LDC == opcode)
+			return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode] + " " + type + " " + constantValue;
 
 		return codeArrayIndex + ": " + Mnemonic.OPCODE[opcode];
 	}
@@ -98,6 +120,8 @@ public final class Instruction {
 		private int opcode;
 		private int localVariableIndex = -1;
 		private int offset = -1;
+		private int bootstrapMethodIndex = -1;
+		private int arrayDimensions = -1;
 		private String type;
 		private String name;
 		private String classRef;
@@ -123,6 +147,11 @@ public final class Instruction {
 			return this;
 		}
 
+		public Builder withArrayDimensions(int arrayDimensions) {
+			this.arrayDimensions = arrayDimensions;
+			return this;
+		}
+
 		public Builder withType(String type) {
 			this.type = type;
 			return this;
@@ -143,9 +172,14 @@ public final class Instruction {
 			return this;
 		}
 
+		public Builder withBootstrapMethodIndex(int bootstrapMehodIndex) {
+			this.bootstrapMethodIndex = bootstrapMehodIndex;
+			return this;
+		}
+
 		public Instruction build() {
-			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, type, name, classRef,
-					constantValue);
+			return new Instruction(codeArrayIndex, opcode, localVariableIndex, offset, arrayDimensions,
+					bootstrapMethodIndex, type, name, classRef, constantValue);
 
 		}
 	}

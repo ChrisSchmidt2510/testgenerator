@@ -10,8 +10,8 @@ import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
-import org.testgen.agent.classdata.instructions.InstructionFilter;
 import org.testgen.agent.classdata.instructions.Instructions;
+import org.testgen.agent.classdata.instructions.filter.ReverseInstructionFilter;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.modification.BytecodeUtils;
@@ -133,7 +133,7 @@ public class FieldTypeChanger {
 
 		List<FieldData> initalizedFields = new ArrayList<>();
 
-		InstructionFilter filter = new InstructionFilter(instructions);
+		ReverseInstructionFilter filter = new ReverseInstructionFilter(loadingClass.getClassFile(), instructions);
 
 		for (Instruction instruction : putFieldInstructions) {
 
@@ -165,7 +165,7 @@ public class FieldTypeChanger {
 				afterValueCreation.addLdc(instruction.getName());
 
 				if (INTEGER_PROXY_CLASSNAME.equals(proxy) || REFERENCE_PROXY_CLASSNAME.equals(proxy)) {
-					BytecodeUtils.addClassInfoToBytecode(afterValueCreation, constantPool,
+					BytecodeUtils.addClassInfoToBytecode(afterValueCreation,
 							Descriptor.toClassName(instruction.getType()));
 				}
 
@@ -228,8 +228,12 @@ public class FieldTypeChanger {
 
 		// if super constructor call is another constructor from this class all fields
 		// are already initialized
-		if (!classData.getName().equals(superConstructorCall.getClassRef()))
-			initalizeUnitalizedFields(initalizedFields, superConstructorCall.getCodeArrayIndex() + 3, iterator);
+		if (!classData.getName().equals(superConstructorCall.getClassRef())) {
+			initalizeUnitalizedFields(initalizedFields,
+					superConstructorCall.getCodeArrayIndex()
+							+ codeArrayModificator.getModificator(superConstructorCall.getCodeArrayIndex()) + 3,
+					iterator);
+		}
 
 		LOGGER.debug("after manipulation: ", () -> Instructions.printCodeArray(iterator, constantPool));
 
@@ -256,7 +260,7 @@ public class FieldTypeChanger {
 			bytecode.addLdc(field.getName());
 
 			if (REFERENCE_PROXY_CLASSNAME.equals(proxy) || INTEGER_PROXY_CLASSNAME.equals(proxy)) {
-				BytecodeUtils.addClassInfoToBytecode(bytecode, constantPool, Descriptor.toClassName(dataType));
+				BytecodeUtils.addClassInfoToBytecode(bytecode, Descriptor.toClassName(dataType));
 			}
 
 			bytecode.addInvokespecial(proxy, MethodInfo.nameInit, getInitDescriptor(proxy));
@@ -295,7 +299,7 @@ public class FieldTypeChanger {
 		return REFERENCE_PROXY.substring(0, REFERENCE_PROXY.length() - 1) + "<" + dataType + ">;";
 	}
 
-	public void addFieldCalledField() throws CannotCompileException {
+	public static void addFieldCalledField(CtClass loadingClass) throws CannotCompileException {
 		loadingClass.addField(CtField.make("private java.util.Set " + TestgeneratorConstants.FIELDNAME_CALLED_FIELDS
 				+ "= new java.util.HashSet();", loadingClass));
 	}
@@ -332,13 +336,11 @@ public class FieldTypeChanger {
 			List<Instruction> putFieldInstructions, CodeIterator iterator, //
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
 
-		InstructionFilter filter = new InstructionFilter(instructions);
+		ReverseInstructionFilter filter = new ReverseInstructionFilter(loadingClass.getClassFile(), instructions);
 
 		for (Instruction instruction : putFieldInstructions) {
 
-			if (classData.getName().equals(instruction.getClassRef()) && classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
-					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
+			if (overrideFieldAccess(instruction)) {
 
 				Instruction loadInstruction = filter.filterForAloadInstruction(instruction);
 
@@ -382,9 +384,7 @@ public class FieldTypeChanger {
 			CodeArrayModificator codeArrayModificator) throws BadBytecode {
 		for (Instruction instruction : getFieldInstructions) {
 
-			if (classData.getName().equals(instruction.getClassRef()) && classData
-					.getField(instruction.getName(), Descriptor.toClassName(instruction.getType())).isModifiable()
-					&& !TestgeneratorConstants.isTestgeneratorField(instruction.getName())) {
+			if (overrideFieldAccess(instruction)) {
 
 				String dataType = instruction.getType();
 				String proxy = getProxyClassname(dataType);
@@ -469,14 +469,14 @@ public class FieldTypeChanger {
 	}
 
 	private static String getGetValueDescriptor(String dataType) {
-		return "()" + (Primitives.isPrimitiveDataType(dataType) ? dataType : JVMTypes.OBJECT);
+		return "()" + (Primitives.isPrimitiveJVMDataType(dataType) ? dataType : JVMTypes.OBJECT);
 	}
 
 	private List<FieldData> getUnitializedFields(List<FieldData> initalizedFields) {
 		List<FieldData> unitalizedFields = new ArrayList<>();
 
 		for (FieldData fieldData : classData.getFields()) {
-			if (!initalizedFields.contains(fieldData) && fieldData.isModifiable()
+			if (!initalizedFields.contains(fieldData) && fieldData.isModifiable() && !fieldData.isStatic()
 					&& !TestgeneratorConstants.isTestgeneratorField(fieldData.getName())) {
 				unitalizedFields.add(fieldData);
 			}
@@ -490,6 +490,19 @@ public class FieldTypeChanger {
 		return classData.getName().equals(inst.getClassRef())
 				|| (classData.getSuperClass() != null ? classData.getSuperClass().getName().equals(inst.getClassRef())
 						: JavaTypes.OBJECT.equals(inst.getClassRef()));
+	}
+
+	private boolean overrideFieldAccess(Instruction instruction) {
+		String instName = instruction.getName();
+
+		if (!classData.getName().equals(instruction.getClassRef())
+				&& TestgeneratorConstants.isTestgeneratorField(instName)) {
+			return false;
+		}
+
+		FieldData field = classData.getField(instName, Descriptor.toClassName(instruction.getType()));
+
+		return field.isModifiable();
 	}
 
 }

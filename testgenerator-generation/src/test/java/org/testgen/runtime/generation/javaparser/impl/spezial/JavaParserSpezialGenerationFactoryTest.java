@@ -1,9 +1,10 @@
 package org.testgen.runtime.generation.javaparser.impl.spezial;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.reflect.Proxy;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.javaparser.impl.spezial.ProxySpezialObjectGenerationTest.CustomInvocationHandler;
 import org.testgen.runtime.generation.javaparser.impl.spezial.ProxySpezialObjectGenerationTest.Greeter;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
@@ -24,7 +25,7 @@ public class JavaParserSpezialGenerationFactoryTest {
 		LambdaExpressionBluePrintFactory factory = new LambdaExpressionBluePrintFactory();
 		BluePrint bluePrint = factory.createBluePrint("run", run, currentlyBuildedBluePrints, null);
 		
-		Assert.assertEquals(LambdaExpressionSpezialObjectGeneration.class, spezialFactory.of(bluePrint).getClass());
+		assertEquals(LambdaExpressionSpezialObjectGeneration.class, spezialFactory.of(bluePrint).getClass());
 	}
 	@Test
 	public void testSpezialGenerationProxy() {
@@ -33,7 +34,7 @@ public class JavaParserSpezialGenerationFactoryTest {
 		ProxyBluePrintFactory factory = new ProxyBluePrintFactory();
 		BluePrint bluePrint = factory.createBluePrint("proxy", proxy, currentlyBuildedBluePrints, null);
 		
-		Assert.assertEquals(ProxySpezialObjectGeneration.class, spezialFactory.of(bluePrint).getClass());
+		assertEquals(ProxySpezialObjectGeneration.class, spezialFactory.of(bluePrint).getClass());
 	}
 
 }

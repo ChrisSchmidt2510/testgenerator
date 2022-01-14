@@ -1,5 +1,8 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -7,10 +10,9 @@ import java.time.Month;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -33,12 +35,12 @@ public class LocalDateTimeObjectGenerationTest {
 	private LocalTimeBluePrintFactory timeFactory = new LocalTimeBluePrintFactory();
 	private LocalDateTimeBluePrintFactory dateTimeFactory = new LocalDateTimeBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -54,11 +56,11 @@ public class LocalDateTimeObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private LocalDate localDate = LocalDate.of(2020, Month.DECEMBER, 31);",
+		assertEquals("private LocalDate localDate = LocalDate.of(2020, Month.DECEMBER, 31);",
 				cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private LocalDate localDate;", cu.getFields().get(1).toString());
+		assertEquals("private LocalDate localDate;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -70,10 +72,10 @@ public class LocalDateTimeObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private LocalTime localTime = LocalTime.of(17, 15);", cu.getFields().get(0).toString());
+		assertEquals("private LocalTime localTime = LocalTime.of(17, 15);", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private LocalTime localTime;", cu.getFields().get(1).toString());
+		assertEquals("private LocalTime localTime;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -85,12 +87,12 @@ public class LocalDateTimeObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals(
+		assertEquals(
 				"private LocalDateTime localDateTime = LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18));",
 				cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private LocalDateTime localDateTime;", cu.getFields().get(1).toString());
+		assertEquals("private LocalDateTime localDateTime;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -101,11 +103,11 @@ public class LocalDateTimeObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals("this.localDate = LocalDate.of(2020, Month.OCTOBER, 31);",
+		assertEquals("this.localDate = LocalDate.of(2020, Month.OCTOBER, 31);",
 				block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("LocalDate localDate = LocalDate.of(2020, Month.OCTOBER, 31);",
+		assertEquals("LocalDate localDate = LocalDate.of(2020, Month.OCTOBER, 31);",
 				block.getStatement(2).toString());
 	}
 
@@ -117,10 +119,10 @@ public class LocalDateTimeObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals("this.localTime = LocalTime.of(17, 15);", block.getStatement(0).toString());
+		assertEquals("this.localTime = LocalTime.of(17, 15);", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("LocalTime localTime = LocalTime.of(17, 15);", block.getStatement(2).toString());
+		assertEquals("LocalTime localTime = LocalTime.of(17, 15);", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -131,12 +133,12 @@ public class LocalDateTimeObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals(
+		assertEquals(
 				"this.localDateTime = LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18));",
 				block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals(
+		assertEquals(
 				"LocalDateTime localDateTime = LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18));",
 				block.getStatement(2).toString());
 	}
@@ -146,10 +148,10 @@ public class LocalDateTimeObjectGenerationTest {
 		SimpleBluePrint<?> bluePrint = dateFactory.createBluePrint("localDate", //
 				LocalDate.of(2020, Month.DECEMBER, 31));
 
-		Assert.assertEquals("LocalDate.of(2020, Month.DECEMBER, 31)",
+		assertEquals("LocalDate.of(2020, Month.DECEMBER, 31)",
 				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
-		Assert.assertTrue(imports.contains(LocalDate.class));
-		Assert.assertTrue(imports.contains(Month.class));
+		assertTrue(imports.contains(LocalDate.class));
+		assertTrue(imports.contains(Month.class));
 	}
 
 	@Test
@@ -157,16 +159,16 @@ public class LocalDateTimeObjectGenerationTest {
 		SimpleBluePrint<?> bluePrint = timeFactory.createBluePrint("localTime", //
 				LocalTime.of(17, 15));
 
-		Assert.assertEquals("LocalTime.of(17, 15)", //
+		assertEquals("LocalTime.of(17, 15)", //
 				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 
 		SimpleBluePrint<?> time = timeFactory.createBluePrint("localTime", //
 				LocalTime.of(23, 7, 28));
 
-		Assert.assertEquals("LocalTime.of(23, 7, 28)", //
+		assertEquals("LocalTime.of(23, 7, 28)", //
 				simpleObjectGeneration.createInlineExpression(time).toString());
 
-		Assert.assertTrue(imports.contains(LocalTime.class));
+		assertTrue(imports.contains(LocalTime.class));
 	}
 
 	@Test
@@ -174,18 +176,18 @@ public class LocalDateTimeObjectGenerationTest {
 		SimpleBluePrint<?> bluePrint = dateTimeFactory.createBluePrint("localDateTime",
 				LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18)));
 
-		Assert.assertEquals("LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18))",
+		assertEquals("LocalDateTime.of(LocalDate.of(1998, Month.OCTOBER, 25), LocalTime.of(2, 18))",
 				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 
 		SimpleBluePrint<?> withSeconds = dateTimeFactory.createBluePrint("localDateTime",
 				LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25)));
 
-		Assert.assertEquals("LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25))",
+		assertEquals("LocalDateTime.of(LocalDate.of(2001, Month.SEPTEMBER, 11), LocalTime.of(15, 7, 25))",
 				simpleObjectGeneration.createInlineExpression(withSeconds).toString());
 
-		Assert.assertTrue(imports.contains(LocalDateTime.class));
-		Assert.assertTrue(imports.contains(LocalDate.class));
-		Assert.assertTrue(imports.contains(LocalTime.class));
-		Assert.assertTrue(imports.contains(Month.class));
+		assertTrue(imports.contains(LocalDateTime.class));
+		assertTrue(imports.contains(LocalDate.class));
+		assertTrue(imports.contains(LocalTime.class));
+		assertTrue(imports.contains(Month.class));
 	}
 }

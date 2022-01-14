@@ -13,9 +13,7 @@ public class ClassData {
 	private final String name;
 	private String outerClassName;
 	private ClassData superClass;
-	private boolean isEnum;
-
-	private boolean isInterface;
+	private List<ClassData> innerClasses = new ArrayList<>();
 
 	private final List<FieldData> fields = new ArrayList<>();
 
@@ -52,20 +50,12 @@ public class ClassData {
 		this.superClass = superClass;
 	}
 
-	public void setEnum(boolean isEnum) {
-		this.isEnum = isEnum;
+	public void addInnerClass(ClassData classData) {
+		this.innerClasses.add(classData);
 	}
 
-	public boolean isEnum() {
-		return isEnum;
-	}
-
-	public boolean isInterface() {
-		return isInterface;
-	}
-
-	public void setInterface(boolean isInterface) {
-		this.isInterface = isInterface;
+	public List<ClassData> getInnerClasses() {
+		return Collections.unmodifiableList(innerClasses);
 	}
 
 	public void addFields(List<FieldData> fields) {
@@ -130,12 +120,21 @@ public class ClassData {
 
 		if (classField != null) {
 			return classField;
+
 		} else if (superClass != null) {
 
 			FieldData superClassField = superClass.getField(name, dataType);
 
-			if (superClassField != null) {
+			if (superClassField != null)
 				return superClassField;
+
+		} else if (!innerClasses.isEmpty()) {
+
+			for (ClassData innerClass : innerClasses) {
+				FieldData innerClassField = innerClass.getField(name, dataType);
+
+				if (innerClassField != null)
+					return innerClassField;
 			}
 		}
 

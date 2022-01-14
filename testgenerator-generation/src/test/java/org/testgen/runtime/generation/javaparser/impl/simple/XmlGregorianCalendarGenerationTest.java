@@ -1,6 +1,7 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.GregorianCalendar;
@@ -11,10 +12,9 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
@@ -24,7 +24,8 @@ import org.testgen.runtime.valuetracker.blueprint.simpletypes.XMLGregorianCalend
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class XmlGregorianCalendarGenerationTest {
 
@@ -34,12 +35,15 @@ public class XmlGregorianCalendarGenerationTest {
 
 	private XMLGregorianCalendarBluePrintFactory factory = new XMLGregorianCalendarBluePrintFactory();
 
-	@Before
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
+	
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -48,17 +52,13 @@ public class XmlGregorianCalendarGenerationTest {
 
 	@Test
 	public void testCreateObject() throws IOException {
-		PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
-		config.setPrintComments(false);
-		config.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
 		XMLGregorianCalendar calendar = null;
 
 		try {
 			calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(2020, 12 - 1, 31));
 		} catch (DatatypeConfigurationException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
+			fail(e);
 		}
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("value", calendar);
@@ -68,11 +68,12 @@ public class XmlGregorianCalendarGenerationTest {
 		String expectedValueField = "try {\r\n"//
 				+ "    this.value = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2020, 12, 31, 60);\r\n"//
 				+ "} catch (DatatypeConfigurationException e) {\r\n" //
+				+ "    // TODO Auto-generated catch block\r\n"//
 				+ "    e.printStackTrace();\r\n"//
 				+ "}";
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals(expectedValueField, block.getStatement(0).toString(config));
+		assertEquals(expectedValueField, printer.print(block.getStatement(0)));
 
 		BlockStmt newBlock = new BlockStmt();
 
@@ -81,12 +82,13 @@ public class XmlGregorianCalendarGenerationTest {
 				+ "    try {\r\n"//
 				+ "        value = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2020, 12, 31, 60);\r\n"//
 				+ "    } catch (DatatypeConfigurationException e) {\r\n" //
+				+ "        // TODO Auto-generated catch block\r\n"//
 				+ "        e.printStackTrace();\r\n"//
 				+ "    }\r\n"//
 				+ "\r\n"//
 				+ "}";
 
 		simpleObjectGeneration.createObject(newBlock, bluePrint, false);
-		Assert.assertEquals(expectedValueLocal, newBlock.toString(config));
+		assertEquals(expectedValueLocal, printer.print(newBlock));
 	}
 }

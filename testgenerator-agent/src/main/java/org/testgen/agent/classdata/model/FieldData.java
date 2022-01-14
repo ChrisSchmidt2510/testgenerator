@@ -2,26 +2,21 @@ package org.testgen.agent.classdata.model;
 
 import java.util.Objects;
 
+import org.testgen.agent.classdata.constants.Modifiers;
+
+import javassist.Modifier;
+
 public final class FieldData {
 	private final String dataType;
 	private final String name;
-	private final boolean mutable;
-	private final boolean isStatic;
-	private final boolean isPublic;
-	private final boolean isSynthetic;
+	private final int modifier;
 	/** Is only used for genericTypes */
 	private final SignatureData signature;
 
-	private String comment;
-
-	private FieldData(String dataType, String name, boolean mutable, boolean isStatic, boolean isPublic,
-			boolean isSynthetic, SignatureData signature) {
+	private FieldData(String dataType, String name, int modifier, SignatureData signature) {
 		this.dataType = dataType;
 		this.name = name;
-		this.mutable = mutable;
-		this.isStatic = isStatic;
-		this.isPublic = isPublic;
-		this.isSynthetic = isSynthetic;
+		this.modifier = modifier;
 		this.signature = signature;
 	}
 
@@ -33,32 +28,36 @@ public final class FieldData {
 		return name;
 	}
 
-	public boolean isMutable() {
-		return mutable;
-	}
-
-	public boolean isStatic() {
-		return isStatic;
-	}
-
-	public boolean isPublic() {
-		return isPublic;
-	}
-
-	public boolean isModifiable() {
-		return !isPublic && !isSynthetic;
+	public int getModifier() {
+		return modifier;
 	}
 
 	public SignatureData getSignature() {
 		return signature;
 	}
 
-	public String getComment() {
-		return comment;
+	public boolean isMutable() {
+		return !Modifier.isFinal(modifier);
 	}
 
-	public void setComment(String comment) {
-		this.comment = comment;
+	public boolean isStatic() {
+		return Modifier.isStatic(modifier);
+	}
+
+	public boolean isPublic() {
+		return Modifier.isPublic(modifier);
+	}
+
+	public boolean isModifiable() {
+		return !isPublic() && !isPackage() && !isSynthetic();
+	}
+
+	public boolean isSynthetic() {
+		return Modifiers.isSynthetic(modifier);
+	}
+
+	public boolean isPackage() {
+		return Modifier.isPackage(modifier);
 	}
 
 	@Override
@@ -84,18 +83,15 @@ public final class FieldData {
 
 	@Override
 	public String toString() {
-		return "FieldData [dataType=" + dataType + ", name=" + name + ", mutable=" + mutable + ", isStatic=" + isStatic
-				+ ", signature=" + signature + ", comment=" + comment + "]";
+		return "FieldData [dataType=" + dataType + ", name=" + name + ", modifier=" + Modifier.toString(modifier)
+				+ ", signature=" + signature + "]";
 	}
 
 	public static class Builder {
 		private String name;
 		private String dataType;
 		private SignatureData signature;
-		private boolean mutable;
-		private boolean isStatic;
-		private boolean isPublic;
-		private boolean isSynthetic;
+		private int modifier;
 
 		public Builder withName(String name) {
 			this.name = name;
@@ -112,28 +108,13 @@ public final class FieldData {
 			return this;
 		}
 
-		public Builder isMutable(boolean mutable) {
-			this.mutable = mutable;
-			return this;
-		}
-
-		public Builder isStatic(boolean isStatic) {
-			this.isStatic = isStatic;
-			return this;
-		}
-
-		public Builder isPublic(boolean isPublic) {
-			this.isPublic = isPublic;
-			return this;
-		}
-
-		public Builder isSynthetic(boolean isSynthetic) {
-			this.isSynthetic = isSynthetic;
+		public Builder withModifier(int modifier) {
+			this.modifier = modifier;
 			return this;
 		}
 
 		public FieldData build() {
-			return new FieldData(dataType, name, mutable, isStatic, isPublic, isSynthetic, signature);
+			return new FieldData(dataType, name, modifier, signature);
 		}
 	}
 

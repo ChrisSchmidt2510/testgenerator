@@ -1,14 +1,15 @@
 package org.testgen.agent.classdata.modification;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class ByteCodeUtilsTest {
 
 	@Test
 	public void testCnvDescriptorToJvmName() {
-		Assert.assertEquals("java/util/List", BytecodeUtils.cnvDescriptorToJvmName("Ljava/util/List;"));
-		Assert.assertEquals("java/util/Integer", BytecodeUtils.cnvDescriptorToJvmName("Ljava/util/Integer;"));
+		assertEquals("java/util/List", BytecodeUtils.cnvDescriptorToJvmName("Ljava/util/List;"));
+		assertEquals("java/util/Integer", BytecodeUtils.cnvDescriptorToJvmName("Ljava/util/Integer;"));
 	}
 
 }

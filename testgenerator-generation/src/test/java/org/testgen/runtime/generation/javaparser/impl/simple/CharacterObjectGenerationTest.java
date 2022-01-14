@@ -1,12 +1,13 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -26,12 +27,12 @@ public class CharacterObjectGenerationTest {
 
 	private CharacterBluePrintFactory factory = new CharacterBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -46,10 +47,10 @@ public class CharacterObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private char value = 'S';", cu.getFields().get(0).toString());
+		assertEquals("private char value = 'S';", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private char value;", cu.getFields().get(1).toString());
+		assertEquals("private char value;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -59,10 +60,10 @@ public class CharacterObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals("this.value = 'm';", block.getStatement(0).toString());
+		assertEquals("this.value = 'm';", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("char value = 'm';", block.getStatement(2).toString());
+		assertEquals("char value = 'm';", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -70,7 +71,7 @@ public class CharacterObjectGenerationTest {
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("char", 'c');
 
-		Assert.assertEquals("'c'", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		assertEquals("'c'", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 	}
 
 }

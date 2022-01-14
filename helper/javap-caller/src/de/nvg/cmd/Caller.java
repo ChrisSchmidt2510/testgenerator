@@ -13,7 +13,7 @@ public class Caller {
 	public static void main(String[] args) throws IOException {
 		ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c",
 				// D:\\git\\testgenerator\\helper\\javaagent-sample-app\\DUMP_CLASS_FILES\\java\\lang\\invoke\\LambdaForm$MH036.class
-				"D:\\JDK\\jdk-13.0.2+8\\bin\\javap.exe -c -v -s -p D:\\git\\testgenerator\\testgenerator-agent\\target\\test-classes\\org\\testgen\\agent\\classdata\\testclasses\\Adresse.class");
+				"P:\\JDKs\\JDK-17\\bin\\javap.exe -c -v -s -p P:\\testgenerator\\testgenerator-agent\\target\\test-classes\\org\\testgen\\agent\\classdata\\testclasses\\Adresse.class");
 		Process p = builder.start();
 		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String line;

@@ -1,5 +1,8 @@
 package org.testgen.runtime.generation.javaparser.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashSet;
@@ -7,10 +10,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.classdata.model.SetterMethodData;
 import org.testgen.runtime.classdata.model.SetterType;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
@@ -33,7 +35,8 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.DefaultPrettyPrinter;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 
 public class JavaParserArrayGenerationTest {
 
@@ -43,8 +46,11 @@ public class JavaParserArrayGenerationTest {
 	private ArrayBluePrintFactory arrayFactory = new ArrayBluePrintFactory();
 
 	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	
+	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
+			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
 
-	@Before
+	@BeforeEach
 	public void init() {
 		JavaParserSimpleObjectGenerationFactory simpleObjectGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
 		JavaParserCollectionGenerationFactory collectionGenerationFactory = new JavaParserCollectionGenerationFactory();
@@ -62,7 +68,7 @@ public class JavaParserArrayGenerationTest {
 		arrayGeneration.setCollectionGenerationFactory(collectionGenerationFactory);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -82,14 +88,14 @@ public class JavaParserArrayGenerationTest {
 		signature.addSubType(nestedType);
 
 		arrayGeneration.createField(cu, bluePrint, signature);
-		Assert.assertEquals("private List<LocalDate>[][] value = new List[10][];", cu.getFields().get(0).toString());
-		Assert.assertTrue(imports.contains(List.class) && imports.contains(LocalDate.class));
+		assertEquals("private List<LocalDate>[][] value = new List[10][];", cu.getFields().get(0).toString());
+		assertTrue(imports.contains(List.class) && imports.contains(LocalDate.class));
 
 		imports.clear();
 
 		arrayGeneration.createField(cu, bluePrint, null);
-		Assert.assertEquals("private List[][] value = new List[10][];", cu.getFields().get(1).toString());
-		Assert.assertTrue(imports.contains(List.class));
+		assertEquals("private List[][] value = new List[10][];", cu.getFields().get(1).toString());
+		assertTrue(imports.contains(List.class));
 
 		NumberBluePrintFactory factory = new NumberBluePrintFactory();
 
@@ -100,10 +106,10 @@ public class JavaParserArrayGenerationTest {
 		SignatureType primitiveSignature = new SignatureType(int[].class);
 
 		arrayGeneration.createField(cu, primitiveBluePrint, primitiveSignature);
-		Assert.assertEquals("private int[] array = new int[5];", cu.getFields().get(2).toString());
+		assertEquals("private int[] array = new int[5];", cu.getFields().get(2).toString());
 
 		arrayGeneration.createField(cu, primitiveBluePrint, null);
-		Assert.assertEquals("private int[] array = new int[5];", cu.getFields().get(3).toString());
+		assertEquals("private int[] array = new int[5];", cu.getFields().get(3).toString());
 	}
 
 	@Test
@@ -129,17 +135,16 @@ public class JavaParserArrayGenerationTest {
 				+ "\r\n"//
 				+ "}";
 
-		PrettyPrinterConfiguration printerConfig = new PrettyPrinterConfiguration()
-				.setVisitorFactory(TestgeneratorPrettyPrinter::new);
 
-		Assert.assertEquals(expected, fieldWithSignature.toString(printerConfig));
+
+		assertEquals(expected, printer.print(fieldWithSignature));
 
 		bluePrint.resetBuildState();
 
 		BlockStmt fieldWithoutSignature = new BlockStmt();
 
 		arrayGeneration.createArray(fieldWithoutSignature, bluePrint, null, true);
-		Assert.assertEquals(expected, fieldWithoutSignature.toString(printerConfig));
+		assertEquals(expected, printer.print(fieldWithoutSignature));
 
 		bluePrint.resetBuildState();
 
@@ -155,14 +160,14 @@ public class JavaParserArrayGenerationTest {
 				+ "    value[3] = 8;\r\n"//
 				+ "\r\n"//
 				+ "}";
-		Assert.assertEquals(expectedLocal, localWithSignature.toString(printerConfig));
+		assertEquals(expectedLocal, printer.print(localWithSignature));
 
 		bluePrint.resetBuildState();
 
 		BlockStmt localWithoutSignature = new BlockStmt();
 
 		arrayGeneration.createArray(localWithoutSignature, bluePrint, null, false);
-		Assert.assertEquals(expectedLocal, localWithoutSignature.toString(printerConfig));
+		assertEquals(expectedLocal, printer.print(localWithoutSignature));
 	}
 
 	@Test
@@ -186,10 +191,10 @@ public class JavaParserArrayGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		arrayGeneration.addArrayToObject(block, bluePrint, setter, true, accessExpr);
-		Assert.assertEquals("object.setArray(this.value);", block.getStatement(0).toString());
+		assertEquals("object.setArray(this.value);", block.getStatement(0).toString());
 
 		arrayGeneration.addArrayToObject(block, bluePrint, setter, false, accessExpr);
-		Assert.assertEquals("object.setArray(value);", block.getStatement(1).toString());
+		assertEquals("object.setArray(value);", block.getStatement(1).toString());
 
 		ArrayBluePrint arrayBluePrint = arrayFactory
 				.createBluePrint("array", array, currentlyBuildedBluePrints,
@@ -209,7 +214,7 @@ public class JavaParserArrayGenerationTest {
 				+ "    array[2] = LocalTime.of(23, 57);\r\n"//
 				+ "}";
 
-		Assert.assertEquals(expected, getterBlock.toString());
+		assertEquals(expected, getterBlock.toString());
 
 		getterBlock.setStatements(new NodeList<>());
 
@@ -220,7 +225,7 @@ public class JavaParserArrayGenerationTest {
 				+ "    object.getArray()[2] = array[2];\r\n"//
 				+ "}";
 
-		Assert.assertEquals(expectedAlternativeGetterField, getterBlock.toString());
+		assertEquals(expectedAlternativeGetterField, getterBlock.toString());
 	}
 
 	@Test
@@ -233,10 +238,10 @@ public class JavaParserArrayGenerationTest {
 		FieldAccessExpr accessExpr = new FieldAccessExpr(new ThisExpr(), "object");
 
 		arrayGeneration.addArrayToField(codeBlock, bluePrint, true, accessExpr);
-		Assert.assertEquals("this.object = this.value;", codeBlock.getStatement(0).toString());
+		assertEquals("this.object = this.value;", codeBlock.getStatement(0).toString());
 
 		arrayGeneration.addArrayToField(codeBlock, bluePrint, false, accessExpr);
-		Assert.assertEquals("this.object = value;", codeBlock.getStatement(1).toString());
+		assertEquals("this.object = value;", codeBlock.getStatement(1).toString());
 	}
 
 }

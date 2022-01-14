@@ -1,7 +1,9 @@
 package org.testgen.extension;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.proxy.Proxified;
 import org.testgen.runtime.proxy.impl.ReferenceProxy;
 
@@ -15,14 +17,14 @@ public class ClassExtensionTest {
 
 	@Test
 	public void testIsProxifiedClass() {
-		Assert.assertTrue(ClassExtension.isProxifiedClass(A.class));
-		Assert.assertFalse(ClassExtension.isProxifiedClass(B.class));
+		assertTrue(ClassExtension.isProxifiedClass(A.class));
+		assertFalse(ClassExtension.isProxifiedClass(B.class));
 	}
 
 	@Test
 	public void testIsProxy() {
-		Assert.assertTrue(ClassExtension.isProxy(ReferenceProxy.class));
-		Assert.assertFalse(ClassExtension.isProxy(String.class));
+		assertTrue(ClassExtension.isProxy(ReferenceProxy.class));
+		assertFalse(ClassExtension.isProxy(String.class));
 	}
 
 }

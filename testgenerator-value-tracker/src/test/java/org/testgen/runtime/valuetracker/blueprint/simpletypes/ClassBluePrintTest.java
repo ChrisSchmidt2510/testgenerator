@@ -1,10 +1,13 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.awt.List;
 import java.time.LocalDate;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.ClassBluePrint.ClassBluePrintFactory;
 
@@ -14,17 +17,17 @@ private ClassBluePrintFactory factory = new ClassBluePrintFactory();
 	
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(Integer.class));
-		Assert.assertFalse(factory.createBluePrintForType(LocalDate.now()));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertTrue(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(Integer.class));
+		assertFalse(factory.createBluePrintForType(LocalDate.now()));
+		assertFalse(factory.createBluePrintForType(null));
+		assertTrue(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 
 	@Test
 	public void testValueCreation() {
 		SimpleBluePrint<Class<?>> bluePrint = factory.createBluePrint("Class", List.class);
-		Assert.assertEquals("List", bluePrint.valueCreation());
-		Assert.assertEquals(List.class, bluePrint.getReferenceClass());
+		assertEquals("List", bluePrint.valueCreation());
+		assertEquals(List.class, bluePrint.getReferenceClass());
 	}
 }

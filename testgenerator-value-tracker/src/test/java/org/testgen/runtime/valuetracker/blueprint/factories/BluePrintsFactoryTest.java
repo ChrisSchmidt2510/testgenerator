@@ -1,5 +1,7 @@
 package org.testgen.runtime.valuetracker.blueprint.factories;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -17,8 +19,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ArrayBluePrint.ArrayBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint.ComplexBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint.LambdaExpressionBluePrintFactory;
@@ -48,84 +49,84 @@ public class BluePrintsFactoryTest {
 	public void testBooleanBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(false);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof BooleanBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof BooleanBluePrintFactory);
 	}
 
 	@Test
 	public void testCalendarBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(new GregorianCalendar());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof CalendarBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof CalendarBluePrintFactory);
 	}
 
 	@Test
 	public void testCharacterBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory('c');
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof CharacterBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof CharacterBluePrintFactory);
 	}
 
 	@Test
 	public void testClassBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(Integer.class);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof ClassBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof ClassBluePrintFactory);
 	}
 
 	@Test
 	public void testEnumBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(Month.APRIL);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof EnumBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof EnumBluePrintFactory);
 	}
 
 	@Test
 	public void testDateBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(new Date());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof JavaDateBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof JavaDateBluePrintFactory);
 	}
 
 	@Test
 	public void testLocalDateBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(LocalDate.now());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof LocalDateBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof LocalDateBluePrintFactory);
 	}
 
 	@Test
 	public void testLocalDateTimeBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(LocalDateTime.now());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof LocalDateTimeBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof LocalDateTimeBluePrintFactory);
 	}
 
 	@Test
 	public void testLocalTimeBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(LocalTime.now());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof LocalTimeBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof LocalTimeBluePrintFactory);
 	}
 
 	@Test
 	public void testNullBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(null);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof NullBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof NullBluePrintFactory);
 	}
 
 	@Test
 	public void testNumberBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(5);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof NumberBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof NumberBluePrintFactory);
 	}
 
 	@Test
 	public void testStringBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory("Hello World");
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof StringBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof StringBluePrintFactory);
 	}
 
 	@Test
@@ -135,35 +136,35 @@ public class BluePrintsFactoryTest {
 
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(calendar);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof XMLGregorianCalendarBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof XMLGregorianCalendarBluePrintFactory);
 	}
 
 	@Test
 	public void testCollectionBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(new ArrayList<>());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof CollectionBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof CollectionBluePrintFactory);
 	}
 
 	@Test
 	public void testMapBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(new HashMap<>());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof MapBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof MapBluePrintFactory);
 	}
 
 	@Test
 	public void testArrayBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(new int[5]);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof ArrayBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof ArrayBluePrintFactory);
 	}
 
 	@Test
 	public void testComplexBluePrintFactory() {
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(new Object());
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof ComplexBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof ComplexBluePrintFactory);
 	}
 
 	@Test
@@ -172,7 +173,7 @@ public class BluePrintsFactoryTest {
 
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(run);
 
-		Assert.assertTrue(bluePrintFactory.get() instanceof LambdaExpressionBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof LambdaExpressionBluePrintFactory);
 	}
 
 	@Test
@@ -188,6 +189,6 @@ public class BluePrintsFactoryTest {
 		
 		Optional<BluePrintFactory> bluePrintFactory = factory.getBluePrintFactory(proxy);
 		
-		Assert.assertTrue(bluePrintFactory.get() instanceof ProxyBluePrintFactory);
+		assertTrue(bluePrintFactory.get() instanceof ProxyBluePrintFactory);
 	}
 }

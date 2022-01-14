@@ -1,13 +1,15 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -27,12 +29,12 @@ public class DateObjectGenerationTest {
 
 	private JavaDateBluePrintFactory factory = new JavaDateBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -50,13 +52,13 @@ public class DateObjectGenerationTest {
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
 
-		Assert.assertEquals("private Date date = new Date(2020 - 1900, 10 - 1, 25);", cu.getFields().get(0).toString());
+		assertEquals("private Date date = new Date(2020 - 1900, 10 - 1, 25);", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
 
-		Assert.assertEquals("private Date date;", cu.getFields().get(1).toString());
+		assertEquals("private Date date;", cu.getFields().get(1).toString());
 
-		Assert.assertTrue(imports.contains(java.sql.Date.class));
+		assertTrue(imports.contains(java.sql.Date.class));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -69,13 +71,13 @@ public class DateObjectGenerationTest {
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
 
-		Assert.assertEquals("private Date date = new Date(2020 - 1900, 12 - 1, 24);", cu.getFields().get(0).toString());
+		assertEquals("private Date date = new Date(2020 - 1900, 12 - 1, 24);", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
 
-		Assert.assertEquals("private Date date;", cu.getFields().get(1).toString());
+		assertEquals("private Date date;", cu.getFields().get(1).toString());
 
-		Assert.assertTrue(imports.contains(Date.class));
+		assertTrue(imports.contains(Date.class));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -87,13 +89,13 @@ public class DateObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
 
-		Assert.assertEquals("this.date = new Date(2020 - 1900, 10 - 1, 25);", block.getStatement(0).toString());
+		assertEquals("this.date = new Date(2020 - 1900, 10 - 1, 25);", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 
-		Assert.assertEquals("Date date = new Date(2020 - 1900, 10 - 1, 25);", block.getStatement(2).toString());
+		assertEquals("Date date = new Date(2020 - 1900, 10 - 1, 25);", block.getStatement(2).toString());
 
-		Assert.assertTrue(imports.contains(java.sql.Date.class));
+		assertTrue(imports.contains(java.sql.Date.class));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -104,12 +106,12 @@ public class DateObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals("this.date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(0).toString());
+		assertEquals("this.date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("Date date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(2).toString());
+		assertEquals("Date date = new Date(2020 - 1900, 12 - 1, 24);", block.getStatement(2).toString());
 
-		Assert.assertTrue(imports.contains(Date.class));
+		assertTrue(imports.contains(Date.class));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -117,9 +119,9 @@ public class DateObjectGenerationTest {
 	public void testCreateInlineObjectSqlDate() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new java.sql.Date(2020 - 1900, 10 - 1, 25));
 
-		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 25)",
+		assertEquals("new Date(2020 - 1900, 10 - 1, 25)",
 				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
-		Assert.assertTrue(imports.contains(java.sql.Date.class));
+		assertTrue(imports.contains(java.sql.Date.class));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -127,18 +129,18 @@ public class DateObjectGenerationTest {
 	public void testCreateInlineObjectDate() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("date", new Date(2020 - 1900, 12 - 1, 24));
 
-		Assert.assertEquals("new Date(2020 - 1900, 12 - 1, 24)",
+		assertEquals("new Date(2020 - 1900, 12 - 1, 24)",
 				simpleObjectGeneration.createInlineExpression(bluePrint).toString());
 
 		SimpleBluePrint<?> dateTime = factory.createBluePrint("date", new Date(2020 - 1900, 10 - 1, 31, 7, 8));
-		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8)",
+		assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8)",
 				simpleObjectGeneration.createInlineExpression(dateTime).toString());
 
 		SimpleBluePrint<?> dateTimeWithSeconds = factory.createBluePrint("date",
 				new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55));
-		Assert.assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55)",
+		assertEquals("new Date(2020 - 1900, 10 - 1, 31, 7, 8, 55)",
 				simpleObjectGeneration.createInlineExpression(dateTimeWithSeconds).toString());
 
-		Assert.assertTrue(imports.contains(Date.class));
+		assertTrue(imports.contains(Date.class));
 	}
 }

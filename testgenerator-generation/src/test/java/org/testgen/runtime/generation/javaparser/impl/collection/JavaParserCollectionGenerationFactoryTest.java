@@ -1,10 +1,11 @@
 package org.testgen.runtime.generation.javaparser.impl.collection;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint.CollectionBluePrintFactory;
@@ -23,7 +24,7 @@ public class JavaParserCollectionGenerationFactoryTest {
 		BasicCollectionBluePrint<?> bluePrint = factory.createBluePrint("value", new ArrayList<String>(),currentlyBuildedBluePrints, null)
 				.castToCollectionBluePrint();
 
-		Assert.assertTrue(collectionFactory.of(bluePrint) instanceof CollectionsGeneration);
+		assertTrue(collectionFactory.of(bluePrint) instanceof CollectionsGeneration);
 	}
 
 	@Test
@@ -32,6 +33,6 @@ public class JavaParserCollectionGenerationFactoryTest {
 		BasicCollectionBluePrint<?> bluePrint = factory.createBluePrint("value", new HashMap<>(),currentlyBuildedBluePrints, null)
 				.castToCollectionBluePrint();
 
-		Assert.assertTrue(collectionFactory.of(bluePrint) instanceof MapGeneration);
+		assertTrue(collectionFactory.of(bluePrint) instanceof MapGeneration);
 	}
 }

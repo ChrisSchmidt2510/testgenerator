@@ -1,9 +1,12 @@
 package org.testgen.runtime.valuetracker.blueprint.simpletypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalTime;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.LocalTimeBluePrint.LocalTimeBluePrintFactory;
 
 public class LocalTimeBluePrintTest {
@@ -12,21 +15,21 @@ public class LocalTimeBluePrintTest {
 
 	@Test
 	public void testBluePrintFactory() {
-		Assert.assertTrue(factory.createBluePrintForType(LocalTime.now()));
-		Assert.assertFalse(factory.createBluePrintForType(5));
-		Assert.assertFalse(factory.createBluePrintForType(null));
-		Assert.assertTrue(factory.createsSimpleBluePrint());
-		Assert.assertEquals(1, factory.getPriority());
+		assertTrue(factory.createBluePrintForType(LocalTime.now()));
+		assertFalse(factory.createBluePrintForType(5));
+		assertFalse(factory.createBluePrintForType(null));
+		assertTrue(factory.createsSimpleBluePrint());
+		assertEquals(1, factory.getPriority());
 	}
 
 	@Test
 	public void testValueCreation() {
 		LocalTimeBluePrint bluePrint = (LocalTimeBluePrint) factory.createBluePrint("localTime", LocalTime.of(12, 5));
 
-		Assert.assertEquals(12, bluePrint.getHour());
-		Assert.assertEquals(5, bluePrint.getMinute());
-		Assert.assertEquals(0, bluePrint.getSecond());
+		assertEquals(12, bluePrint.getHour());
+		assertEquals(5, bluePrint.getMinute());
+		assertEquals(0, bluePrint.getSecond());
 
-		Assert.assertEquals(LocalTime.class, bluePrint.getReferenceClass());
+		assertEquals(LocalTime.class, bluePrint.getReferenceClass());
 	}
 }

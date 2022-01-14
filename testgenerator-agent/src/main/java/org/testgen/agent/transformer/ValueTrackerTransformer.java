@@ -1,11 +1,5 @@
 package org.testgen.agent.transformer;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-
 import org.testgen.agent.AgentException;
 import org.testgen.agent.classdata.analysis.signature.SignatureParser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
@@ -22,8 +16,6 @@ import org.testgen.core.Wrapper;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Modifier;
 import javassist.NotFoundException;
@@ -41,7 +33,7 @@ import javassist.bytecode.LocalVariableTypeAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
 
-public class ValueTrackerTransformer implements ClassFileTransformer {
+public class ValueTrackerTransformer implements ClassTransformer {
 
 	private static final Logger LOGGER = LogManager.getLogger(ValueTrackerTransformer.class);
 
@@ -72,71 +64,81 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 	private static final String TESTGENERATOR_CONFIG_METHOD_SET_FIELD_TRACKING = "setFieldTracking";
 	private static final String TESTGENERATOR_CONFIG_METHOD_DESC = "(Z)V";
 
-	private CodeAttribute codeAttribute;
-	private CodeIterator iterator;
-	private ConstPool constantPool;
-
-	private SignatureAdder signatureAdder;
+	CodeAttribute codeAttribute;
 
 	@Override
-	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+	public boolean modifyClassFile(String className, CtClass ctClass) {
+		if (!TestgeneratorConfig.getClassName().equals(className))
+			return false;
 
-		if (TestgeneratorConfig.getClassName().equals(className)) {
-			final ClassPool pool = ClassPool.getDefault();
+		try {
+			MethodInfo methodInfo = ctClass
+					.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
+					.getMethodInfo();
 
-			CtClass loadingClass = null;
-			try (ByteArrayInputStream stream = new ByteArrayInputStream(classfileBuffer)) {
-				loadingClass = pool.makeClass(stream);
+			if (methodInfo.isConstructor())
+				throw new AgentException("constructors are currently not supported");
 
-				reTransformMethodForObservObjectData(loadingClass);
+			if (methodInfo.isStaticInitializer())
+				throw new AgentException("static initializers are currently not supported");
 
-				return loadingClass.toBytecode();
+			int modifier = methodInfo.getAccessFlags();
 
-			} catch (Throwable e) {
-				LOGGER.error("error while transforming class", e);
+			if (!Modifier.isPublic(modifier) && !Modifier.isPackage(modifier))
+				throw new AgentException(methodInfo + " need to be public or package");
 
-				throw new AgentException("error while transforming class", e);
-			} finally {
-				if (loadingClass != null)
-					loadingClass.detach();
+			if (Modifier.isAbstract(modifier))
+				throw new AgentException(methodInfo + "can`t be abstract");
+
+			return true;
+
+		} catch (NotFoundException e) {
+			throw new AgentException("Method not Found " + TestgeneratorConfig.getMethodName()
+					+ TestgeneratorConfig.getMethodDescriptor(), e);
+		}
+
+	}
+
+	@Override
+	public void transformClassFile(String className, CtClass ctClass) {
+		try {
+			MethodInfo methodInfo = ctClass
+					.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
+					.getMethodInfo();
+
+			codeAttribute = methodInfo.getCodeAttribute();
+			ConstPool constantPool = codeAttribute.getConstPool();
+
+			ClassFile classFile = ctClass.getClassFile();
+
+			if (!classFile.getFields().stream().anyMatch(
+					field -> TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE.equals(field.getName()))) {
+				FieldInfo methodTypeTable = new FieldInfo(constantPool,
+						TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
+				methodTypeTable.setAccessFlags(AccessFlag.PRIVATE | AccessFlag.STATIC);
+				classFile.addField(methodTypeTable);
 			}
 
-		}
-		return classfileBuffer;
-	}
+			addValueTrackingToMethod(ctClass, methodInfo);
 
-	private void reTransformMethodForObservObjectData(CtClass classToLoad)
-			throws IOException, CannotCompileException, NotFoundException, BadBytecode {
-
-		MethodInfo methodInfo = classToLoad
-				.getMethod(TestgeneratorConfig.getMethodName(), TestgeneratorConfig.getMethodDescriptor())
-				.getMethodInfo();
-
-		codeAttribute = methodInfo.getCodeAttribute();
-		constantPool = codeAttribute.getConstPool();
-		iterator = codeAttribute.iterator();
-		signatureAdder = new SignatureAdder(constantPool);
-
-		ClassFile classFile = classToLoad.getClassFile();
-
-		if (!classFile.getFields().stream()
-				.anyMatch(field -> TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE.equals(field.getName()))) {
-			FieldInfo methodTypeTable = new FieldInfo(constantPool,
-					TestgeneratorConstants.FIELDNAME_METHOD_PARAMETER_TABLE, JVMTypes.LIST);
-			methodTypeTable.setAccessFlags(AccessFlag.PRIVATE | AccessFlag.STATIC);
-			classFile.addField(methodTypeTable);
+			TestGenerationAdder testGeneration = new TestGenerationAdder(ctClass, codeAttribute,
+					Modifier.isStatic(methodInfo.getAccessFlags()));
+			testGeneration.addTestgenerationToMethod(methodInfo);
+		} catch (Exception e) {
+			LOGGER.error("error while transforming class", e);
+			throw new AgentException("error while transforming class", e);
 		}
 
-		addValueTrackingToMethod(classToLoad, methodInfo);
-
-		TestGenerationAdder testGeneration = new TestGenerationAdder(classToLoad, codeAttribute);
-		testGeneration.addTestgenerationToMethod(methodInfo);
 	}
 
-	private void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
+	void addValueTrackingToMethod(CtClass classToLoad, MethodInfo methodInfo) throws BadBytecode {
+		boolean isStatic = Modifier.isStatic(methodInfo.getAccessFlags());
+
+		CodeIterator iterator = codeAttribute.iterator();
+		ConstPool constantPool = methodInfo.getConstPool();
+
 		// if a method is not static the first argument to a method is this
-		int lowestParameterIndex = Modifier.isStatic(methodInfo.getAccessFlags()) ? 0 : 1;
+		int lowestParameterIndex = isStatic ? 0 : 1;
 
 		int parameterCount = Descriptor.numOfParameters(methodInfo.getDescriptor());
 
@@ -167,7 +169,13 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 				OBJECT_VALUE_TRACKER_METHOD_GET_INSTANCE_DESC);
 		valueTracking.addAstore(valueTrackerLocalIndex);
 
-		for (int i = lowestParameterIndex; i <= parameterCount; i++) {
+		if (!isStatic) {
+			// if the method is not static methodparameters start at index 1 and so the
+			// parametercount need to be extended by 1
+			++parameterCount;
+		}
+
+		for (int i = lowestParameterIndex; i < parameterCount; i++) {
 			String variableName = table.variableName(i);
 			String descriptor = table.descriptor(i);
 
@@ -175,8 +183,9 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 			valueTracking.addAload(valueTrackerLocalIndex);
 			BytecodeUtils.addLoad(valueTracking, i, descriptor);
-			if (Primitives.isPrimitiveDataType(descriptor))
+			if (Primitives.isPrimitiveJVMDataType(descriptor)) {
 				BytecodeUtils.addBoxingForPrimitiveDataType(valueTracking, descriptor);
+			}
 
 			valueTracking.addLdc(variableName);
 			valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_METHODPARAMETER, TYPE);
@@ -184,12 +193,14 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 					OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
 		}
 
-		valueTracking.addAload(valueTrackerLocalIndex);
-		valueTracking.addAload(0);
-		valueTracking.addLdc(createNameForTestobject(classToLoad.getName()));
-		valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_TESTOBJECT, TYPE);
-		valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
-				OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
+		if (!isStatic) {
+			valueTracking.addAload(valueTrackerLocalIndex);
+			valueTracking.addAload(0);
+			valueTracking.addLdc(createNameForTestobject(classToLoad.getName()));
+			valueTracking.addGetstatic(TYPE_CLASSNAME, TYPE_FIELDNAME_TESTOBJECT, TYPE);
+			valueTracking.addInvokevirtual(OBJECT_VALUE_TRACKER_CLASSNAME, OBJECT_VALUE_TRACKER_METHOD_TRACK,
+					OBJECT_VALUE_TRACKER_METHOD_TRACK_DESC);
+		}
 
 		valueTracking.addIconst(1);
 		valueTracking.addInvokestatic(TESTGENERATOR_CONFIG_CLASSNAME, TESTGENERATOR_CONFIG_METHOD_SET_PROXY_TRACKING,
@@ -223,7 +234,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 
 				if (signatureData != null) {
 					Wrapper<Integer> localVariableCounter = new Wrapper<>(codeAttribute.getMaxLocals());
-					int localVariableSignature = signatureAdder.add(code, signatureData, localVariableCounter);
+					int localVariableSignature = SignatureAdder.add(code, signatureData, localVariableCounter);
 					codeAttribute.setMaxLocals(localVariableCounter.getValue());
 
 					code.addAload(localVariableSignature);
@@ -234,7 +245,7 @@ public class ValueTrackerTransformer implements ClassFileTransformer {
 		}
 
 		if (!addedSignature) {
-			BytecodeUtils.addClassInfoToBytecode(code, constantPool, Descriptor.toClassName(descriptor));
+			BytecodeUtils.addClassInfoToBytecode(code, Descriptor.toClassName(descriptor));
 			code.addInvokestatic(BASIC_TYPE_CLASSNAME, BASIC_TYPE_METHOD_OF, BASIC_TYPE_METHOD_OF_DESC);
 		}
 

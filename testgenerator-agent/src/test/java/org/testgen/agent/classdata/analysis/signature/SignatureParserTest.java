@@ -1,19 +1,20 @@
 package org.testgen.agent.classdata.analysis.signature;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.testgen.agent.classdata.model.SignatureData;
 
 public class SignatureParserTest {
 	private final SignatureData adresse = new SignatureData("Lde/nvg/bl/partner/Adresse;");
 	private final SignatureData integer = new SignatureData("Ljava/lang/Integer;");
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Test
 	public void testParseNestedSignature() {
@@ -36,7 +37,7 @@ public class SignatureParserTest {
 		map.addSubType(integer);
 		map.addSubType(list);
 
-		Assert.assertEquals(map, signature);
+		assertEquals(map, signature);
 	}
 
 	@Test
@@ -63,7 +64,7 @@ public class SignatureParserTest {
 		map.addSubType(integer);
 		map.addSubType(list);
 
-		Assert.assertEquals(map, signature);
+		assertEquals(map, signature);
 	}
 
 	@Test
@@ -90,7 +91,7 @@ public class SignatureParserTest {
 		map.addSubType(list);
 		map.addSubType(integer);
 
-		Assert.assertEquals(map, signature);
+		assertEquals(map, signature);
 	}
 
 	@Test
@@ -101,8 +102,7 @@ public class SignatureParserTest {
 			signature = SignatureParser.parse(
 					"Ljava/util/Map<Ljava/util/List<Ljava/lang/Integer;>;Ljava/util/List<Lde/nvg/bl/partner/Adresse;>;>;");
 		} catch (SignatureParserException e) {
-			e.printStackTrace();
-			fail();
+			fail(e);
 		}
 
 		System.out.println(signature);
@@ -117,7 +117,7 @@ public class SignatureParserTest {
 		map.addSubType(integerList);
 		map.addSubType(adressList);
 
-		Assert.assertEquals(map, signature);
+		assertEquals(map, signature);
 	}
 
 	@Test
@@ -128,8 +128,7 @@ public class SignatureParserTest {
 			signature = SignatureParser.parse(
 					"Ljava/util/Map<Ljava/time/LocalDate;Ljava/util/Map<Ljava/lang/Integer;Ljava/math/BigDecimal;>;>;");
 		} catch (SignatureParserException e) {
-			e.printStackTrace();
-			fail();
+			fail(e);
 		}
 
 		System.out.println(signature);
@@ -142,24 +141,21 @@ public class SignatureParserTest {
 		map.addSubType(new SignatureData("Ljava/time/LocalDate;"));
 		map.addSubType(nestedMap);
 
-		Assert.assertEquals(map, signature);
+		assertEquals(map, signature);
 	}
 
-	@Test
-	public void testNonParsableSignatureAtTheStart() throws SignatureParserException {
-		exception.expect(SignatureParserException.class);
-		exception.expectMessage("TE; cant't be parsed into a valid Signature");
-
-		SignatureParser.parse("TE<Ljava/util/List<Ljava/lang/Integer;>;>;");
-
+	private static Stream<Arguments> testNonParsableSignature() {
+		return Stream.of(
+				Arguments.of("TE<Ljava/util/List<Ljava/lang/Integer;>;>;",
+						"TE; cant't be parsed into a valid Signature"),
+				Arguments.of("Ljava/util/Map<Ljava/util/List<Ljava/lang/Integer;>;TK;>;",
+						"TK; cant't be parsed into a valid Signature"));
 	}
 
-	@Test
-	public void testNonParsableSignatureInTheMiddle() throws SignatureParserException {
-		exception.expect(SignatureParserException.class);
-		exception.expectMessage("TK; cant't be parsed into a valid Signature");
-
-		SignatureParser.parse("Ljava/util/Map<Ljava/util/List<Ljava/lang/Integer;>;TK;>;");
+	@ParameterizedTest
+	@MethodSource
+	public void testNonParsableSignature(String signature, String message) throws SignatureParserException {
+		assertThrows(SignatureParserException.class, () -> SignatureParser.parse(signature), message);
 	}
 
 }

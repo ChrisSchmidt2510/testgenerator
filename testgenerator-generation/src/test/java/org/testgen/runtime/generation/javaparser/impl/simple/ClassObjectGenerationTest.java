@@ -1,13 +1,15 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -27,12 +29,12 @@ public class ClassObjectGenerationTest {
 
 	private ClassBluePrintFactory factory = new ClassBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -49,11 +51,11 @@ public class ClassObjectGenerationTest {
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
 
-		Assert.assertEquals("private Class<?> clazz = String.class;", cu.getFields().get(0).toString());
+		assertEquals("private Class<?> clazz = String.class;", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
 
-		Assert.assertEquals("private Class<?> clazz;", cu.getFields().get(1).toString());
+		assertEquals("private Class<?> clazz;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -64,11 +66,11 @@ public class ClassObjectGenerationTest {
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
 
-		Assert.assertEquals("this.clazz = String.class;", block.getStatement(0).toString());
+		assertEquals("this.clazz = String.class;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
 
-		Assert.assertEquals("Class<?> clazz = String.class;", block.getStatement(2).toString());
+		assertEquals("Class<?> clazz = String.class;", block.getStatement(2).toString());
 
 	}
 
@@ -76,7 +78,7 @@ public class ClassObjectGenerationTest {
 	public void testCreateInlineObject() {
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("Class", List.class);
 
-		Assert.assertEquals("List.class", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
-		Assert.assertTrue(imports.contains(List.class));
+		assertEquals("List.class", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		assertTrue(imports.contains(List.class));
 	}
 }

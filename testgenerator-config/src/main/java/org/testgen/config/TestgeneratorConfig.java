@@ -20,14 +20,12 @@ public final class TestgeneratorConfig {
 	private static final String PARAM_METHOD_NAME = "TestgeneratorMethodName";
 	private static final String PARAM_METHOD_DESC = "TestgeneratorMethodDesc";
 	private static final String PARAM_BL_PACKAGE = "TestgeneratorBlPackage";
-	private static final String PARAM_BL_PACKAGE_JAR_DEST = "TestgeneratorBlPackageJarDest";
 	private static final String PARAM_PRINT_CLASS_FILE_DIR = "TestgeneratorPrintClassFileDir";
 	private static final String PARAM_PATH_TO_TESTCLASS = "TestgeneratorPathToTestClass";
-
 	private static final String PARAM_CUSTOM_TESTGENERATOR_CLASS = "TestgeneratorCustomTestgeneratorClass";
+	private static final String PARAM_CUSTOM_ANALYSIS_CLASS = "TestgeneratorCustomAnalysisClass";
 	private static final String PARAM_CUSTOM_NAMING_SERVICE_CLASS = "TestgeneratorCustomNamingServiceClass";
-	/* only for test cases public */
-	public static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
+	private static final String PARAM_TRACE_READ_FIELD_ACCESS = "TestgeneratorTraceReadFieldAccess";
 	private static final String PARAM_CUSTOM_LOGGER_CONFIG = "TestgeneratorCustomLoggerConfiguration";
 
 	// Runtime-Properties
@@ -50,8 +48,6 @@ public final class TestgeneratorConfig {
 
 		System.setProperty(PARAM_BL_PACKAGE,
 				checkForEmptyArgumentList(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKAGE)));
-		System.setProperty(PARAM_BL_PACKAGE_JAR_DEST,
-				checkForEmptyArgumentList(parser.getArgumentValues(DefinedArguments.ARG_BL_PACKGE_JAR_DEST)));
 
 		System.setProperty(PARAM_PATH_TO_TESTCLASS, parser.getArgumentValue(DefinedArguments.ARG_PATH_TO_TESTCLASS));
 
@@ -60,6 +56,8 @@ public final class TestgeneratorConfig {
 
 		System.setProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_TESTGENERATOR_CLASS)));
+		System.setProperty(PARAM_CUSTOM_ANALYSIS_CLASS,
+				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_ANALYSIS_CLASS)));
 
 		System.setProperty(PARAM_CUSTOM_NAMING_SERVICE_CLASS,
 				checkForEmptyArgument(parser.getArgumentValue(DefinedArguments.ARG_CUSTOM_NAMING_SERVICE_CLASS)));
@@ -94,23 +92,11 @@ public final class TestgeneratorConfig {
 	}
 
 	public static List<String> getBlPackages() {
-		String blPackages = System.getProperty(PARAM_BL_PACKAGE);
-
-		return Collections.unmodifiableList(convertArgumentToList(blPackages));
-	}
-
-	public static List<String> getBlPackageJarDest() {
-		String blPackageJarDest = System.getProperty(PARAM_BL_PACKAGE_JAR_DEST);
-
-		return checkStringFilled(blPackageJarDest) ? //
-				Collections.unmodifiableList(convertArgumentToList(blPackageJarDest)) : //
-				Collections.emptyList();
+		return getPropertyList(PARAM_BL_PACKAGE);
 	}
 
 	public static String getPrintClassFileDirectory() {
-		String property = System.getProperty(PARAM_PRINT_CLASS_FILE_DIR);
-
-		return checkStringFilled(property) ? property : null;
+		return getNullableProperty(PARAM_PRINT_CLASS_FILE_DIR);
 	}
 
 	public static String getPathToTestclass() {
@@ -118,9 +104,11 @@ public final class TestgeneratorConfig {
 	}
 
 	public static String getCustomTestgeneratorClass() {
-		String property = System.getProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS);
+		return getNullableProperty(PARAM_CUSTOM_TESTGENERATOR_CLASS);
+	}
 
-		return checkStringFilled(property) ? property : null;
+	public static String getCustomAnalysisClass() {
+		return getNullableProperty(PARAM_CUSTOM_ANALYSIS_CLASS);
 	}
 
 	public static String getCustomNamingServiceClass() {
@@ -175,10 +163,9 @@ public final class TestgeneratorConfig {
 		builder.append(PARAM_METHOD_NAME + "=" + getMethodName() + System.lineSeparator());
 		builder.append(PARAM_METHOD_DESC + "=" + getMethodDescriptor() + System.lineSeparator());
 		builder.append(PARAM_BL_PACKAGE + "=" + System.getProperty(PARAM_BL_PACKAGE) + System.lineSeparator());
-		builder.append(PARAM_BL_PACKAGE_JAR_DEST + "=" + System.getProperty(PARAM_BL_PACKAGE_JAR_DEST)
-				+ System.lineSeparator());
 		builder.append(PARAM_PRINT_CLASS_FILE_DIR + "=" + getPrintClassFileDirectory() + System.lineSeparator());
 		builder.append(PARAM_CUSTOM_TESTGENERATOR_CLASS + "=" + getCustomTestgeneratorClass() + System.lineSeparator());
+		builder.append(PARAM_CUSTOM_ANALYSIS_CLASS + "=" + getCustomAnalysisClass() + System.lineSeparator());
 		builder.append(
 				PARAM_CUSTOM_NAMING_SERVICE_CLASS + "=" + getCustomNamingServiceClass() + System.lineSeparator());
 		builder.append(PARAM_PATH_TO_TESTCLASS + "=" + getPathToTestclass() + System.lineSeparator());
@@ -197,6 +184,20 @@ public final class TestgeneratorConfig {
 		}
 
 		return Collections.singletonList(className);
+	}
+
+	private static String getNullableProperty(String propertyName) {
+		String property = System.getProperty(propertyName);
+
+		return checkStringFilled(property) ? property : null;
+	}
+
+	private static List<String> getPropertyList(String propertyName) {
+		String propertyList = System.getProperty(propertyName);
+
+		return checkStringFilled(propertyList) ? //
+				Collections.unmodifiableList(convertArgumentToList(propertyList)) : //
+				Collections.emptyList();
 	}
 
 	private static String checkForEmptyArgument(String argument) {

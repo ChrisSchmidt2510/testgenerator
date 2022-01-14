@@ -221,7 +221,7 @@ public class JavaParserComplexObjectGeneration
 					
 					SignatureType signature = field.getSignature();
 					
-					spezialGenerationFactory.createObject(codeBlock, bluePrint, signature, false);
+					spezialGenerationFactory.createObject(codeBlock, bp, signature, false);
 				}
 			}
 		}

@@ -1,5 +1,8 @@
 package org.testgen.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -10,9 +13,8 @@ import java.time.Month;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.logging.config.Configuration;
 import org.testgen.logging.config.Level;
 import org.testgen.logging.formatter.PackageFormatter;
@@ -25,7 +27,7 @@ public class LoggerTest {
 
 	private Logger loggerTrace;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		PackageFormatter packageFormatter = new PackageFormatter(
 				LocalDateTime.of(LocalDate.of(2021, Month.AUGUST, 15), LocalTime.of(11, 30)));
@@ -48,61 +50,61 @@ public class LoggerTest {
 	@Test
 	public void testLogMessage() throws UnsupportedEncodingException {
 		loggerInfo.error("this is a test");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest ERROR this is a test \r\n",
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest ERROR this is a test \r\n",
 				handler.getLoggedMessage());
 
 		handler.reset();
 
 		loggerInfo.warn("log something");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest WARN log something \r\n",
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest WARN log something \r\n",
 				handler.getLoggedMessage());
 		handler.reset();
 
 		loggerInfo.info("another test");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest INFO another test \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest INFO another test \r\n", handler.getLoggedMessage());
 		handler.reset();
 
 		loggerInfo.debug("this wont be logged");
-		Assert.assertTrue(handler.getLoggedMessage().isEmpty());
+		assertTrue(handler.getLoggedMessage().isEmpty());
 		handler.reset();
 
 		loggerTrace.debug("this will be logged");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest DEBUG this will be logged \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest DEBUG this will be logged \r\n", handler.getLoggedMessage());
 		handler.reset();
 		
 		loggerTrace.trace("foo");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest TRACE foo \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest TRACE foo \r\n", handler.getLoggedMessage());
 		handler.reset();	
 	}
 	
 	@Test
 	public void testLogExpensiveMessage() throws UnsupportedEncodingException {
 		loggerInfo.error("some text", () -> "expensiveMessage");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest ERROR some text\r\nexpensiveMessage \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest ERROR some text\r\nexpensiveMessage \r\n", handler.getLoggedMessage());
 		handler.reset();
 		
 		loggerInfo.warn("this is logged", ()-> "also logged");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest WARN this is logged\r\nalso logged \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest WARN this is logged\r\nalso logged \r\n", handler.getLoggedMessage());
 		handler.reset();
 		
 		loggerInfo.info("for your information", () -> "additional Information");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest INFO for your information\r\nadditional Information \r\n",handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest INFO for your information\r\nadditional Information \r\n",handler.getLoggedMessage());
 		handler.reset();
 		
 		loggerInfo.trace("wont be logged", () -> "very expensive");
-		Assert.assertTrue(handler.getLoggedMessage().isEmpty());
+		assertTrue(handler.getLoggedMessage().isEmpty());
 		handler.reset();
 		
 		loggerTrace.debug("very detailed message", () -> "even more details");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest DEBUG very detailed message\r\neven more details \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest DEBUG very detailed message\r\neven more details \r\n", handler.getLoggedMessage());
 		handler.reset();
 		
 		loggerTrace.trace("detail overload", ()-> "extrem expensive");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest TRACE detail overload\r\nextrem expensive \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest TRACE detail overload\r\nextrem expensive \r\n", handler.getLoggedMessage());
 		handler.reset();
 		
 		loggerTrace.error(null, ()-> "detailed Information");
-		Assert.assertEquals("2021-08-15 11:30:00 [main] LoggerTest ERROR detailed Information \r\n", handler.getLoggedMessage());
+		assertEquals("2021-08-15 11:30:00 [main] LoggerTest ERROR detailed Information \r\n", handler.getLoggedMessage());
 		
 	}
 	
@@ -114,7 +116,7 @@ public class LoggerTest {
 				+"java.lang.RuntimeException: sth bad happend\r\n"
 				+"\tat org.testgen.logging.HelperObject.throwRuntimeException(HelperObject.java:18)\r\n"
 				+"\tat org.testgen.logging.HelperObject.catchRuntimeException(HelperObject.java:10)\r\n \r\n";
-		Assert.assertEquals(message, handler.getLoggedMessage());
+		assertEquals(message, handler.getLoggedMessage());
 		handler.reset();
 		
 		HelperObject.catchRuntimeException(e -> loggerInfo.warn("expected error", e));
@@ -123,7 +125,7 @@ public class LoggerTest {
 				+"java.lang.RuntimeException: sth bad happend\r\n"
 				+"\tat org.testgen.logging.HelperObject.throwRuntimeException(HelperObject.java:18)\r\n"
 				+"\tat org.testgen.logging.HelperObject.catchRuntimeException(HelperObject.java:10)\r\n \r\n";
-		Assert.assertEquals(message, handler.getLoggedMessage());
+		assertEquals(message, handler.getLoggedMessage());
 		handler.reset();
 		
 		HelperObject.catchRuntimeException(e -> loggerInfo.info("exception",e));
@@ -132,12 +134,12 @@ public class LoggerTest {
 				+"java.lang.RuntimeException: sth bad happend\r\n"
 				+"\tat org.testgen.logging.HelperObject.throwRuntimeException(HelperObject.java:18)\r\n"
 				+"\tat org.testgen.logging.HelperObject.catchRuntimeException(HelperObject.java:10)\r\n \r\n";
-		Assert.assertEquals(message, handler.getLoggedMessage());
+		assertEquals(message, handler.getLoggedMessage());
 		handler.reset();
 		
 		HelperObject.catchRuntimeException(e -> loggerInfo.trace("wont be logged",e));
 		
-		Assert.assertTrue(handler.getLoggedMessage().isEmpty());
+		assertTrue(handler.getLoggedMessage().isEmpty());
 		
 		HelperObject.catchRuntimeException(e -> loggerTrace.trace("exception occured", e));
 		
@@ -145,7 +147,7 @@ public class LoggerTest {
 				+"java.lang.RuntimeException: sth bad happend\r\n"
 				+"\tat org.testgen.logging.HelperObject.throwRuntimeException(HelperObject.java:18)\r\n"
 				+"\tat org.testgen.logging.HelperObject.catchRuntimeException(HelperObject.java:10)\r\n \r\n";
-		Assert.assertEquals(message, handler.getLoggedMessage());
+		assertEquals(message, handler.getLoggedMessage());
 		handler.reset();
 		
 		HelperObject.catchRuntimeException(e -> loggerTrace.debug("any lookers", e));
@@ -154,7 +156,7 @@ public class LoggerTest {
 				+"java.lang.RuntimeException: sth bad happend\r\n"
 				+"\tat org.testgen.logging.HelperObject.throwRuntimeException(HelperObject.java:18)\r\n"
 				+"\tat org.testgen.logging.HelperObject.catchRuntimeException(HelperObject.java:10)\r\n \r\n";
-		Assert.assertEquals(message, handler.getLoggedMessage());
+		assertEquals(message, handler.getLoggedMessage());
 		handler.reset();
 		
 		HelperObject.catchRuntimeException(e -> loggerTrace.error(null, e));
@@ -163,7 +165,7 @@ public class LoggerTest {
 				+"java.lang.RuntimeException: sth bad happend\r\n"
 				+"\tat org.testgen.logging.HelperObject.throwRuntimeException(HelperObject.java:18)\r\n"
 				+"\tat org.testgen.logging.HelperObject.catchRuntimeException(HelperObject.java:10)\r\n \r\n";
-		Assert.assertEquals(message, handler.getLoggedMessage());
+		assertEquals(message, handler.getLoggedMessage());
 		handler.reset();		
 	}
 

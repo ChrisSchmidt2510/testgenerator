@@ -9,6 +9,8 @@ public final class TestgeneratorConstants {
 
 	public static final String CLASS_DATA_METHOD_GET_CLASS_DATA = "getTestgenerator$$ClassData";
 
+	public static final String PROXIFIED_CLASSNAME = "org/testgen/runtime/proxy/Proxified";
+
 	private TestgeneratorConstants() {
 	}
 

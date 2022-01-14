@@ -1,13 +1,15 @@
 package org.testgen.runtime.generation.javaparser.impl.simple;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.Month;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGeneration;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
@@ -26,12 +28,12 @@ public class EnumObjectGenerationTest {
 
 	private EnumBluePrintFactory factory = new EnumBluePrintFactory();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		simpleObjectGeneration.setImportCallBackHandler(imports::add);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		imports.clear();
 
@@ -46,10 +48,10 @@ public class EnumObjectGenerationTest {
 				false, "Test");
 
 		simpleObjectGeneration.createField(cu, bluePrint, true);
-		Assert.assertEquals("private Month month = Month.DECEMBER;", cu.getFields().get(0).toString());
+		assertEquals("private Month month = Month.DECEMBER;", cu.getFields().get(0).toString());
 
 		simpleObjectGeneration.createField(cu, bluePrint, false);
-		Assert.assertEquals("private Month month;", cu.getFields().get(1).toString());
+		assertEquals("private Month month;", cu.getFields().get(1).toString());
 	}
 
 	@Test
@@ -59,10 +61,10 @@ public class EnumObjectGenerationTest {
 		BlockStmt block = new BlockStmt();
 
 		simpleObjectGeneration.createObject(block, bluePrint, true);
-		Assert.assertEquals("this.month = Month.JULY;", block.getStatement(0).toString());
+		assertEquals("this.month = Month.JULY;", block.getStatement(0).toString());
 
 		simpleObjectGeneration.createObject(block, bluePrint, false);
-		Assert.assertEquals("Month month = Month.JULY;", block.getStatement(2).toString());
+		assertEquals("Month month = Month.JULY;", block.getStatement(2).toString());
 	}
 
 	@Test
@@ -70,7 +72,7 @@ public class EnumObjectGenerationTest {
 
 		SimpleBluePrint<?> bluePrint = factory.createBluePrint("month", Month.JANUARY);
 
-		Assert.assertEquals("Month.JANUARY", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
-		Assert.assertTrue(imports.contains(Month.class));
+		assertEquals("Month.JANUARY", simpleObjectGeneration.createInlineExpression(bluePrint).toString());
+		assertTrue(imports.contains(Month.class));
 	}
 }

@@ -55,10 +55,49 @@ public final class ObjectValueTracker {
 	}
 
 	public void track(Object value, String name, Type type) {
-		ValueStorage.getInstance().addBluePrint(trackValues(value, name), type);
+		ValueStorage.getInstance().addBluePrint(trackNormalValue(value, name), type);
 	}
 
 	public ProxyBluePrint trackProxy(Object proxy, String name) {
+		ProxyBluePrint proxyBluePrint = trackProxyValue(proxy, name);
+		
+		ValueStorage.getInstance().addProxyBluePrint(proxyBluePrint);
+		
+		return proxyBluePrint;
+	}
+
+	BluePrint trackNormalValue(Object value, String name) {
+		if(Proxy.isProxyClass(value.getClass()))
+			throw new IllegalArgumentException("cant track Values for Proxies use trackProxyValue");
+		
+		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
+
+		registration.register(value);
+
+		BluePrint bluePrint = null;
+
+		Optional<BluePrintFactory> factoryOptional = bluePrintsFactory.getBluePrintFactory(value);
+
+		if (factoryOptional.isPresent()) {
+			BluePrintFactory factory = factoryOptional.get();
+
+			BiFunction<String, Object, BluePrint> childCallBack = (newName, newValue) -> trackValue(newValue, newName);
+
+			if (factory.createsSimpleBluePrint())
+				bluePrint = factory.createBluePrint(name, value, registration, childCallBack);
+			else
+				bluePrint = getBluePrintForReference(value,
+						() -> factory.createBluePrint(name, value, registration, childCallBack));
+
+		} else
+			throw new TrackingException(String.format("no factory available for object %s", value));
+
+		registration.executeActions(value, bluePrint);
+
+		return bluePrint;
+	}
+	
+	ProxyBluePrint trackProxyValue(Object proxy, String name) {
 		if (!Proxy.isProxyClass(proxy.getClass()))
 			throw new IllegalArgumentException(proxy + "is no proxy");
 
@@ -71,40 +110,18 @@ public final class ObjectValueTracker {
 
 		ProxyBluePrint proxyBluePrint = (ProxyBluePrint) getBluePrintForReference(proxy,
 				() -> factory.createBluePrint(name, proxy, registration,
-						(childName, childValue) -> trackValues(childValue, childName)));
-		
-		ValueStorage.getInstance().addProxyBluePrint(proxyBluePrint);
+						(childName, childValue) -> trackValue(childValue, childName)));
 		
 		return proxyBluePrint;
 	}
-
-	BluePrint trackValues(Object value, String name) {
-		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
-		Object proxyValue = getProxyValue(value);
-
-		registration.register(proxyValue);
-
-		BluePrint bluePrint = null;
-
-		Optional<BluePrintFactory> factoryOptional = bluePrintsFactory.getBluePrintFactory(proxyValue);
-
-		if (factoryOptional.isPresent()) {
-			BluePrintFactory factory = factoryOptional.get();
-
-			BiFunction<String, Object, BluePrint> childCallBack = (newName, newValue) -> trackValues(newValue, newName);
-
-			if (factory.createsSimpleBluePrint())
-				bluePrint = factory.createBluePrint(name, proxyValue, registration, childCallBack);
-			else
-				bluePrint = getBluePrintForReference(proxyValue,
-						() -> factory.createBluePrint(name, proxyValue, registration, childCallBack));
-
-		} else
-			throw new TrackingException(String.format("no factory available for object %s", value));
-
-		registration.executeActions(proxyValue, bluePrint);
-
-		return bluePrint;
+	
+	private BluePrint trackValue(Object value, String name) {
+		Object unwrappedValue = getTestgeneratorProxyValue(value);
+		
+		if(Proxy.isProxyClass(unwrappedValue.getClass()))
+			return trackProxyValue(unwrappedValue, name);
+		
+		return trackNormalValue(unwrappedValue, name);
 	}
 
 	private BluePrint getBluePrintForReference(Object reference, Supplier<BluePrint> bluePrintCreator) {
@@ -145,7 +162,7 @@ public final class ObjectValueTracker {
 		return null;
 	}
 
-	public static Object getProxyValue(Object value) {
+	public static Object getTestgeneratorProxyValue(Object value) {
 		if (AbstractProxy.isProxy(value)) {
 
 			if (value instanceof ReferenceProxy<?>) {
