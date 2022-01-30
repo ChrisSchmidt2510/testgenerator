@@ -3,6 +3,7 @@ package org.testgen.agent.transformer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.Serializable;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -24,7 +25,11 @@ import org.testgen.agent.classdata.testclasses.Adresse;
 import org.testgen.agent.classdata.testclasses.BlObject;
 import org.testgen.agent.classdata.testclasses.Person;
 import org.testgen.agent.classdata.testclasses.Person.Geschlecht;
+import org.testgen.agent.classdata.testclasses.SerializationHelper;
+import org.testgen.agent.classdata.testclasses.SerializationHelper.A;
+import org.testgen.agent.classdata.testclasses.SerializationHelper.Test;
 import org.testgen.config.TestgeneratorConfig;
+import org.testgen.runtime.classdata.ClassDataHolder;
 
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -74,7 +79,8 @@ public class ClassDataTransformerTest {
 
 		return Stream.of(
 				Arguments.of(classPool.get(CodeArrayModificator.class.getName()), classDataCodeArrayModificator()),
-				Arguments.of(classPool.get(Person.class.getName()), classDataPerson()));
+				Arguments.of(classPool.get(Person.class.getName()), classDataPerson()),
+				Arguments.of(classPool.get(A.class.getName()), classDataA()));
 	}
 
 	private static ClassData classDataCodeArrayModificator() {
@@ -145,7 +151,25 @@ public class ClassDataTransformerTest {
 				.withModifier(Modifier.PRIVATE).build();
 
 		classDataBlObject.addFields(Arrays.asList(erdat, ersb, aedat, aesb));
+		classDataBlObject.addInterface(ClassDataHolder.class.getName());
+
 		classData.setSuperClass(classDataBlObject);
+
+		return classData;
+	}
+
+	private static ClassData classDataA() {
+		ClassData classData = new ClassData(A.class.getName());
+
+		FieldData parent = new FieldData.Builder().withName("this$0").withDataType(SerializationHelper.class.getName())
+				.withModifier(Modifier.FINAL | AccessFlag.SYNTHETIC).build();
+
+		classData.addFields(Arrays.asList(parent));
+
+		classData.setOuterClass(SerializationHelper.class.getName());
+
+		classData.addInterface(Test.class.getName());
+		classData.addInterface(Serializable.class.getName());
 
 		return classData;
 	}
@@ -184,5 +208,8 @@ public class ClassDataTransformerTest {
 			compareClassData(expected.getInnerClasses().get(i), result.getInnerClasses().get(i));
 		}
 
+		assertEquals(expected.getInterfaces(), result.getInterfaces());
+
 	}
+
 }

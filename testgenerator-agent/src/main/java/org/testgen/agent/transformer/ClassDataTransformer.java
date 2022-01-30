@@ -85,7 +85,7 @@ public class ClassDataTransformer implements ClassTransformer {
 			LOGGER.info("create ClassHierachie for " + loadingClass.getName());
 			ClassData classData = analyseClassHierachie(loadingClass);
 
-			manipulateFields(loadingClass);
+			manipulateFields(loadingClass, classData);
 
 			long start = System.currentTimeMillis();
 
@@ -159,16 +159,16 @@ public class ClassDataTransformer implements ClassTransformer {
 		return fieldsFromClass;
 	}
 
-	private void manipulateFields(CtClass loadingClass) throws CannotCompileException {
+	private void manipulateFields(CtClass loadingClass, ClassData classData) throws CannotCompileException {
 		// only add the calledFields Set if the Flag is set
-		if (!TestgeneratorConfig.traceReadFieldAccess())
+		if (!TestgeneratorConfig.traceReadFieldAccess() || classData.isSerializable())
 			return;
 
 		ClassFile classFile = loadingClass.getClassFile();
 
 		classFile.addInterface(TestgeneratorConstants.PROXIFIED_CLASSNAME);
 
-		// necessary because otherwise the indexes of the list get overriden
+		// necessary because otherwise the indexes of the list get overridden
 		List<FieldInfo> fields = new ArrayList<>(classFile.getFields());
 		int size = fields.size();
 
@@ -205,9 +205,9 @@ public class ClassDataTransformer implements ClassTransformer {
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 				analyseMethod(method, instructions, classData, methodAnalyser);
 
-				if (TestgeneratorConfig.traceReadFieldAccess()) {
+				if (TestgeneratorConfig.traceReadFieldAccess() && !classData.isSerializable())
 					manipulateMethod(method, instructions, fieldTypeChanger);
-				}
+
 			}
 		}
 
@@ -218,9 +218,9 @@ public class ClassDataTransformer implements ClassTransformer {
 			List<Instruction> instructions = Instructions.getAllInstructions(constructor);
 			methodAnalyser.analyseMethod(constructor, instructions);
 
-			if (TestgeneratorConfig.traceReadFieldAccess()) {
+			if (TestgeneratorConfig.traceReadFieldAccess() && !classData.isSerializable())
 				manipulateConstructor(constructor, instructions, fieldTypeChanger);
-			}
+
 		}
 
 		methodAnalyser.resetMethodAnalyser();
@@ -249,6 +249,10 @@ public class ClassDataTransformer implements ClassTransformer {
 			}
 
 			analyseInnerClasses(loadingClass, newClassData);
+
+			for (CtClass interfaceClass : loadingClass.getInterfaces()) {
+				analyseInterface(interfaceClass, newClassData);
+			}
 
 			ClassDataStorage.getInstance().addClassData(className, newClassData);
 
@@ -294,6 +298,14 @@ public class ClassDataTransformer implements ClassTransformer {
 		}
 
 		return innerClasses;
+	}
+
+	private void analyseInterface(CtClass interfaceClass, ClassData classData) throws NotFoundException {
+		classData.addInterface(interfaceClass.getName());
+
+		for (CtClass interfaceCls : interfaceClass.getInterfaces()) {
+			analyseInterface(interfaceCls, classData);
+		}
 	}
 
 	private Analyser getAnalyserImplementation(ClassData classData, ClassFile classFile) {

@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import org.testgen.agent.classdata.constants.JavaTypes;
 
 public class ClassData {
 
@@ -14,6 +18,7 @@ public class ClassData {
 	private String outerClassName;
 	private ClassData superClass;
 	private List<ClassData> innerClasses = new ArrayList<>();
+	private Set<String> interfaces = new HashSet<>();
 
 	private final List<FieldData> fields = new ArrayList<>();
 
@@ -56,6 +61,14 @@ public class ClassData {
 
 	public List<ClassData> getInnerClasses() {
 		return Collections.unmodifiableList(innerClasses);
+	}
+
+	public void addInterface(String interfaceName) {
+		this.interfaces.add(interfaceName);
+	}
+
+	public Set<String> getInterfaces() {
+		return Collections.unmodifiableSet(interfaces);
 	}
 
 	public void addFields(List<FieldData> fields) {
@@ -140,6 +153,15 @@ public class ClassData {
 
 		throw new IllegalArgumentException(
 				"no Field in ClassHierachie found for name " + name + " and type " + dataType);
+	}
+
+	public boolean isSerializable() {
+		boolean serializable = interfaces.stream().anyMatch(e -> JavaTypes.SERIALIZABLE.equals(e));
+
+		if (!serializable && superClass != null)
+			return superClass.isSerializable();
+
+		return serializable;
 	}
 
 	@Override
