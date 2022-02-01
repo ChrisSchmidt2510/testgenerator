@@ -193,6 +193,9 @@ public class ForwardInstructionFilter extends InstructionFilter {
 
 		else if (Opcode.INVOKEDYNAMIC == opcode)
 			filterForInvokeDynamicInstruction(instruction, operandStack);
+		
+		else if(Instructions.isReturnInstruction(instruction))
+			operandStack.pop();
 
 		if (operandStack.isEmpty() || breakCondition.test(operandStack))
 			return instruction;

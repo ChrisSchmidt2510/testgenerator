@@ -79,6 +79,9 @@ public final class Instructions {
 			.add(Arrays.asList(Opcode.L2D, Opcode.L2F, Opcode.L2I), Primitives.JAVA_LONG)
 			.add(Arrays.asList(Opcode.F2D, Opcode.F2I, Opcode.F2L), Primitives.JAVA_FLOAT).toUnmodifiableMap();
 
+	private static final List<Integer> RETURN_OPCODES = Collections.unmodifiableList(
+			Arrays.asList(Opcode.IRETURN, Opcode.FRETURN, Opcode.DRETURN, Opcode.LRETURN, Opcode.ARETURN));
+
 	private Instructions() {
 	}
 
@@ -430,6 +433,17 @@ public final class Instructions {
 
 	public static boolean isTwoItemComparison(Instruction instruction) {
 		return TWO_ITEM_COMPARISONS.contains(instruction.getOpcode());
+	}
+
+	/**
+	 * Checks if the opcode of a instructions returns a value of method e.g.
+	 * {@link Opcode#ARETURN}
+	 * 
+	 * @param instruction
+	 * @return
+	 */
+	public static boolean isReturnInstruction(Instruction instruction) {
+		return RETURN_OPCODES.contains(instruction.getOpcode());
 	}
 
 	/** only used for debugging */
