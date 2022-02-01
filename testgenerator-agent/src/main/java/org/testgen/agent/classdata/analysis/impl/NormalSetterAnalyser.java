@@ -26,29 +26,28 @@ public class NormalSetterAnalyser extends BasicMethodAnalysis {
 		for (int index = 0; index < instructions.size(); index++) {
 			Instruction instruction = instructions.get(index);
 
-			if (Opcode.PUTFIELD == instruction.getOpcode()) {
+			if (Opcode.PUTFIELD != instruction.getOpcode() || !instruction.getClassRef().equals(classData.getName()))
+				continue;
 
-				List<String> parameters = Instructions.getMethodParams(method.getDescriptor());
+			List<String> parameters = Instructions.getMethodParams(method.getDescriptor());
 
-				ReverseInstructionFilter instructionFilter = new ReverseInstructionFilter(classFile, instructions);
-				List<Instruction> calledLoadInstructions = instructionFilter
-						.filterForCalledLoadInstructions(instruction);
+			ReverseInstructionFilter instructionFilter = new ReverseInstructionFilter(classFile, instructions);
+			List<Instruction> calledLoadInstructions = instructionFilter.filterForCalledLoadInstructions(instruction);
 
-				boolean isStaticMethod = Modifier.isStatic(method.getAccessFlags());
+			boolean isStaticMethod = Modifier.isStatic(method.getAccessFlags());
 
-				if (!isStaticMethod) {
-					removeAload0InstructionFromLoadInstructions(calledLoadInstructions);
-				}
+			if (!isStaticMethod) {
+				removeAload0InstructionFromLoadInstructions(calledLoadInstructions);
+			}
 
-				if (instructions.size() < 25 && //
-						areAllMethodParametersUsed(calledLoadInstructions, parameters, isStaticMethod)) {
+			if (instructions.size() < 25 && //
+					areAllMethodParametersUsed(calledLoadInstructions, parameters, isStaticMethod)) {
 
-					FieldData field = getField(instruction);
+				FieldData field = getField(instruction);
 
-					addAnalysisResult(method, MethodType.REFERENCE_VALUE_SETTER, field);
+				addAnalysisResult(method, MethodType.REFERENCE_VALUE_SETTER, field);
 
-					return true;
-				}
+				return true;
 			}
 		}
 
