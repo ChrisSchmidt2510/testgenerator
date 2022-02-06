@@ -140,17 +140,8 @@ public class ClassData {
 
 			if (superClassField != null)
 				return superClassField;
-
-		} else if (!innerClasses.isEmpty()) {
-
-			for (ClassData innerClass : innerClasses) {
-				FieldData innerClassField = innerClass.getField(name, dataType);
-
-				if (innerClassField != null)
-					return innerClassField;
-			}
 		}
-
+		
 		throw new IllegalArgumentException(
 				"no Field in ClassHierachie found for name " + name + " and type " + dataType);
 	}

@@ -494,15 +494,21 @@ public class FieldTypeChanger {
 
 	private boolean overrideFieldAccess(Instruction instruction) {
 		String instName = instruction.getName();
+		String className = instruction.getClassRef();
 
-		if (!classData.getName().equals(instruction.getClassRef())
-				&& TestgeneratorConstants.isTestgeneratorField(instName)) {
+		if (TestgeneratorConstants.isTestgeneratorField(instName))
 			return false;
+
+		if (classData.getName().equals(className))
+			return classData.getField(instName, Descriptor.toClassName(instruction.getType())).isModifiable();
+		
+		else {
+			ClassData innerClass = classData.getInnerClasses().stream().filter(cl -> cl.getName().equals(className))
+					.findAny().orElseThrow(() -> new IllegalArgumentException("invalid innerclass: " + className));
+
+			return innerClass.getField(instName, Descriptor.toClassName(instruction.getType())).isModifiable();
 		}
 
-		FieldData field = classData.getField(instName, Descriptor.toClassName(instruction.getType()));
-
-		return field.isModifiable();
 	}
 
 }

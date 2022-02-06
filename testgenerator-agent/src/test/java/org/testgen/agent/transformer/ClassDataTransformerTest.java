@@ -1,7 +1,6 @@
 package org.testgen.agent.transformer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.Serializable;
 import java.time.Month;
@@ -170,6 +169,12 @@ public class ClassDataTransformerTest {
 
 		classData.addInterface(Test.class.getName());
 		classData.addInterface(Serializable.class.getName());
+
+		ClassData helperTest = new ClassData(Test.class.getName());
+		helperTest.addInterface(Serializable.class.getName());
+		helperTest.setOuterClass(SerializationHelper.class.getName());
+
+		classData.addInnerClass(helperTest);
 
 		return classData;
 	}

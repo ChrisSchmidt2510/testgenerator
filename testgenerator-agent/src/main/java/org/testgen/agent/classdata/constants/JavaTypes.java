@@ -33,6 +33,8 @@ public final class JavaTypes {
 
 	public static final String SERIALIZABLE = "java.io.Serializable";
 
+	public static final String METHODHANDLES = "java.lang.invoke.MethodHandles";
+
 	public static final String COLLECTION = "java.util.Collection";
 	public static final String LIST = "java.util.List";
 	public static final String SET = "java.util.Set";

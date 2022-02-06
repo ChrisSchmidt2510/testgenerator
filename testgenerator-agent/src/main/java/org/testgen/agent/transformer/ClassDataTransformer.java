@@ -161,8 +161,9 @@ public class ClassDataTransformer implements ClassTransformer {
 
 	private void manipulateFields(CtClass loadingClass, ClassData classData) throws CannotCompileException {
 		// only add the calledFields Set if the Flag is set
-		if (!TestgeneratorConfig.traceReadFieldAccess() || classData.isSerializable())
+		if (!TestgeneratorConfig.traceReadFieldAccess() || classData.isSerializable()) {
 			return;
+		}
 
 		ClassFile classFile = loadingClass.getClassFile();
 
@@ -205,8 +206,9 @@ public class ClassDataTransformer implements ClassTransformer {
 				List<Instruction> instructions = Instructions.getAllInstructions(method);
 				analyseMethod(method, instructions, classData, methodAnalyser);
 
-				if (TestgeneratorConfig.traceReadFieldAccess() && !classData.isSerializable())
+				if (TestgeneratorConfig.traceReadFieldAccess() && !classData.isSerializable()) {
 					manipulateMethod(method, instructions, fieldTypeChanger);
+				}
 
 			}
 		}
@@ -218,8 +220,9 @@ public class ClassDataTransformer implements ClassTransformer {
 			List<Instruction> instructions = Instructions.getAllInstructions(constructor);
 			methodAnalyser.analyseMethod(constructor, instructions);
 
-			if (TestgeneratorConfig.traceReadFieldAccess() && !classData.isSerializable())
+			if (TestgeneratorConfig.traceReadFieldAccess() && !classData.isSerializable()) {
 				manipulateConstructor(constructor, instructions, fieldTypeChanger);
+			}
 
 		}
 
@@ -271,8 +274,9 @@ public class ClassDataTransformer implements ClassTransformer {
 		if (innerClassesAtt != null) {
 			int index = innerClassesAtt.find(classFile.getName());
 
-			if (index != -1)
+			if (index != -1) {
 				newClassData.setOuterClass(innerClassesAtt.outerClass(index));
+			}
 
 			List<String> innerClasses = getInnerClasses(innerClassesAtt, loadingClass.getName());
 
@@ -292,9 +296,9 @@ public class ClassDataTransformer implements ClassTransformer {
 		List<String> innerClasses = new ArrayList<>();
 
 		for (int i = 0; i < length; i++) {
-			if (outerClassName.equals(innerClassesAtt.outerClass(i)))
+			if (!JavaTypes.METHODHANDLES.equals(innerClassesAtt.outerClass(i))
+					&& !innerClassesAtt.innerClass(i).equals(outerClassName))
 				innerClasses.add(innerClassesAtt.innerClass(i));
-
 		}
 
 		return innerClasses;
