@@ -1,4 +1,4 @@
-package org.testgen.agent.classdata.analysis;
+package org.testgen.agent.classdata.analysis.method;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +17,7 @@ import javassist.bytecode.MethodInfo;
 public class MethodAnalyserTest extends TestHelper {
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getAdresseClassData")
 	public void testAnalyseGetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, "getStrasse");
 
@@ -30,7 +30,7 @@ public class MethodAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getAdresseClassData")
 	public void testAnalyseSetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, "setStrasse");
 
@@ -43,7 +43,7 @@ public class MethodAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getPersonClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getPersonClassData")
 	public void testAnalyseImmutableCollectionGetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Person.class, "getAdressen");
 
@@ -56,7 +56,7 @@ public class MethodAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getCollectionsClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getCollectionsClassData")
 	public void testAnalyseCollectionSetter(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Collections.class, "addCollection");
 
@@ -67,16 +67,16 @@ public class MethodAnalyserTest extends TestHelper {
 		Assertions.assertEquals(MethodType.COLLECTION_SETTER,
 				classData.getMethod("addCollection", "(Ljava/lang/String;)V").getKey().getMethodType());
 	}
-	
+
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getCollectionsClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getCollectionsClassData")
 	public void testAnalyseConstructor(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Collections.class, MethodInfo.nameInit);
-		
+
 		MethodAnalyser analyser = new MethodAnalyser(classData, classFile);
-		
+
 		analyser.analyseMethod(methodInfo, instructions);
-		
+
 		Assertions.assertTrue(classData.hasDefaultConstructor());
 	}
 }

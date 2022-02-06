@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.AgentException;
-import org.testgen.agent.classdata.analysis.Analyser;
-import org.testgen.agent.classdata.analysis.MethodAnalyser;
+import org.testgen.agent.classdata.analysis.method.Analyser;
+import org.testgen.agent.classdata.analysis.method.MethodAnalyser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParser;
 import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
 import org.testgen.agent.classdata.constants.JVMTypes;
@@ -296,8 +296,8 @@ public class ClassDataTransformer implements ClassTransformer {
 		List<String> innerClasses = new ArrayList<>();
 
 		for (int i = 0; i < length; i++) {
-			if (!JavaTypes.METHODHANDLES.equals(innerClassesAtt.outerClass(i))
-					&& !innerClassesAtt.innerClass(i).equals(outerClassName))
+
+			if (!innerClassesAtt.innerClass(i).equals(outerClassName))
 				innerClasses.add(innerClassesAtt.innerClass(i));
 		}
 

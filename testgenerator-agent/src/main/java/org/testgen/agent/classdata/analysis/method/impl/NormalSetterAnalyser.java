@@ -1,8 +1,8 @@
-package org.testgen.agent.classdata.analysis.impl;
+package org.testgen.agent.classdata.analysis.method.impl;
 
 import java.util.List;
 
-import org.testgen.agent.classdata.analysis.BasicMethodAnalysis;
+import org.testgen.agent.classdata.analysis.method.BasicMethodAnalysis;
 import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.instructions.filter.ReverseInstructionFilter;

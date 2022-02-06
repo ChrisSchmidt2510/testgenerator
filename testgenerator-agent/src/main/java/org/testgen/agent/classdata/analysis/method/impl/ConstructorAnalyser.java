@@ -1,4 +1,4 @@
-package org.testgen.agent.classdata.analysis.impl;
+package org.testgen.agent.classdata.analysis.method.impl;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import org.testgen.agent.classdata.analysis.BasicMethodAnalysis;
+import org.testgen.agent.classdata.analysis.method.BasicMethodAnalysis;
 import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;

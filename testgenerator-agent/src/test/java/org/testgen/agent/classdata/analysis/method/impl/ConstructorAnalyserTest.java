@@ -1,4 +1,4 @@
-package org.testgen.agent.classdata.analysis.impl;
+package org.testgen.agent.classdata.analysis.method.impl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class ConstructorAnalyserTest extends TestHelper {
 			.withName("hausnummer").build();
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getAdresseClassData")
 	public void testNestedConstructors(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;ILjava/lang/String;)V");
 
@@ -51,7 +51,7 @@ public class ConstructorAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getAdresseClassData")
 	public void testConstructorWithParameters(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;I)V");
 
@@ -71,7 +71,7 @@ public class ConstructorAnalyserTest extends TestHelper {
 	}
 
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getAdresseClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getAdresseClassData")
 	public void testConstructorWithSetters(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Adresse.class, MethodInfo.nameInit, "(Ljava/lang/String;ILjava/lang/String;S)V");
 
@@ -89,27 +89,27 @@ public class ConstructorAnalyserTest extends TestHelper {
 
 		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
-		
+
 		Map<Integer, FieldData> result = new LinkedHashMap<>();
 		result.put(0, fieldOrt);
 		result.put(1, fieldPlz);
 		result.put(2, fieldStrasse);
 		result.put(3, fieldHausnummer);
-		
+
 		Assertions.assertEquals(result, classData.getConstructor().getConstructorElements());
 	}
-	
+
 	@ParameterizedTest
-	@MethodSource("org.testgen.agent.classdata.analysis.AnalysisTestDataFactory#getCollectionsClassData")
+	@MethodSource("org.testgen.agent.classdata.analysis.method.AnalysisTestDataFactory#getCollectionsClassData")
 	public void testAnalyseDefaultConstructor(ClassData classData) throws NotFoundException, BadBytecode {
 		init(Collections.class, MethodInfo.nameInit);
-		
+
 		analyser.setClassData(classData);
 		analyser.setClassFile(classFile);
-		
+
 		Assertions.assertTrue(analyser.canAnalysisBeApplied(methodInfo));
 		Assertions.assertTrue(analyser.hasAnalysisMatched(methodInfo, instructions));
-		
+
 		Assertions.assertTrue(classData.hasDefaultConstructor());
 	}
 }

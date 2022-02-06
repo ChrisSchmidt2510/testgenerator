@@ -1,4 +1,4 @@
-package org.testgen.agent.classdata.analysis;
+package org.testgen.agent.classdata.analysis.method;
 
 import java.util.ArrayList;
 import java.util.List;

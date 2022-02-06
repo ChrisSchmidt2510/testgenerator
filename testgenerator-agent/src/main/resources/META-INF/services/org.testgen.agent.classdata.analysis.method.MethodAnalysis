@@ -1,0 +1,5 @@
+org.testgen.agent.classdata.analysis.method.impl.CollectionSetterAnalyser
+org.testgen.agent.classdata.analysis.method.impl.ImmutableCollectionGetterAnalyser
+org.testgen.agent.classdata.analysis.method.impl.NormalGetterAnalyser
+org.testgen.agent.classdata.analysis.method.impl.NormalSetterAnalyser
+org.testgen.agent.classdata.analysis.method.impl.ConstructorAnalyser

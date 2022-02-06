@@ -1,4 +1,4 @@
-package org.testgen.agent.classdata.analysis;
+package org.testgen.agent.classdata.analysis.method;
 
 import java.lang.reflect.Modifier;
 import java.util.Arrays;

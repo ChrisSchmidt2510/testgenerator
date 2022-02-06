@@ -1,9 +1,9 @@
-package org.testgen.agent.classdata.analysis.impl;
+package org.testgen.agent.classdata.analysis.method.impl;
 
 import java.util.List;
 import java.util.Map;
 
-import org.testgen.agent.classdata.analysis.BasicMethodAnalysis;
+import org.testgen.agent.classdata.analysis.method.BasicMethodAnalysis;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Primitives;
 import org.testgen.agent.classdata.instructions.Instruction;
