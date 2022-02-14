@@ -8,10 +8,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.testgen.agent.AgentException;
+import org.testgen.agent.classdata.analysis.classhierarchy.ClassHierarchyAnalyser;
 import org.testgen.agent.classdata.analysis.method.Analyser;
 import org.testgen.agent.classdata.analysis.method.MethodAnalyser;
-import org.testgen.agent.classdata.analysis.signature.SignatureParser;
-import org.testgen.agent.classdata.analysis.signature.SignatureParserException;
 import org.testgen.agent.classdata.constants.JVMTypes;
 import org.testgen.agent.classdata.constants.JavaTypes;
 import org.testgen.agent.classdata.constants.Modifiers;
@@ -19,8 +18,6 @@ import org.testgen.agent.classdata.instructions.Instruction;
 import org.testgen.agent.classdata.instructions.Instructions;
 import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.ClassDataStorage;
-import org.testgen.agent.classdata.model.FieldData;
-import org.testgen.agent.classdata.model.SignatureData;
 import org.testgen.agent.classdata.modification.ClassDataGenerator;
 import org.testgen.agent.classdata.modification.fields.FieldTypeChanger;
 import org.testgen.config.TestgeneratorConfig;
@@ -39,10 +36,8 @@ import javassist.bytecode.BadBytecode;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.FieldInfo;
-import javassist.bytecode.InnerClassesAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.Opcode;
-import javassist.bytecode.SignatureAttribute;
 
 public class ClassDataTransformer implements ClassTransformer {
 
@@ -83,7 +78,8 @@ public class ClassDataTransformer implements ClassTransformer {
 		try {
 
 			LOGGER.info("create ClassHierachie for " + loadingClass.getName());
-			ClassData classData = analyseClassHierachie(loadingClass);
+			ClassHierarchyAnalyser classAnalyser = new ClassHierarchyAnalyser();
+			ClassData classData = classAnalyser.analyseHierarchy(loadingClass);
 
 			manipulateFields(loadingClass, classData);
 
@@ -125,38 +121,6 @@ public class ClassDataTransformer implements ClassTransformer {
 		}
 
 		return isException(superclass);
-	}
-
-	private List<FieldData> analyseFields(ClassFile loadedClass) {
-		List<FieldData> fieldsFromClass = new ArrayList<>();
-
-		for (FieldInfo field : loadedClass.getFields()) {
-
-			if (!Modifiers.isConstant(field.getAccessFlags())) {
-
-				SignatureAttribute signature = (SignatureAttribute) field.getAttribute(SignatureAttribute.tag);
-
-				SignatureData signatureData = null;
-				try {
-					if (signature != null) {
-						signatureData = SignatureParser.parse(signature.getSignature());
-					}
-
-				} catch (SignatureParserException e) {
-					LOGGER.error("error while parsing signature " + signature, e);
-				}
-
-				FieldData fieldData = new FieldData.Builder()
-						.withDataType(Descriptor.toClassName(field.getDescriptor())).withName(field.getName())
-						.withModifier(field.getAccessFlags()).withSignature(signatureData).build();
-
-				LOGGER.info("added Field: " + fieldData);
-
-				fieldsFromClass.add(fieldData);
-			}
-		}
-
-		return fieldsFromClass;
 	}
 
 	private void manipulateFields(CtClass loadingClass, ClassData classData) throws CannotCompileException {
@@ -228,88 +192,6 @@ public class ClassDataTransformer implements ClassTransformer {
 
 		methodAnalyser.resetMethodAnalyser();
 
-	}
-
-	ClassData analyseClassHierachie(CtClass loadingClass) throws NotFoundException {
-		String className = loadingClass.getName();
-
-		ClassData classData = ClassDataStorage.getInstance().getClassData(className);
-
-		if (classData == null) {
-			ClassData newClassData = new ClassData(className);
-
-			LOGGER.info("ClassName: " + className);
-			newClassData.addFields(analyseFields(loadingClass.getClassFile()));
-
-			String superClassName = loadingClass.getSuperclass() != null ? loadingClass.getSuperclass().getName()
-					: null;
-
-			if (!JavaTypes.OBJECT.equals(superClassName) && !JavaTypes.ENUM.equals(superClassName)) {
-				LOGGER.info("SuperClass: " + loadingClass.getSuperclass().getName());
-
-				ClassDataStorage.getInstance().addSuperclassToLoad(loadingClass.getSuperclass().getName());
-				newClassData.setSuperClass(analyseClassHierachie(loadingClass.getSuperclass()));
-			}
-
-			analyseInnerClasses(loadingClass, newClassData);
-
-			for (CtClass interfaceClass : loadingClass.getInterfaces()) {
-				analyseInterface(interfaceClass, newClassData);
-			}
-
-			ClassDataStorage.getInstance().addClassData(className, newClassData);
-
-			return newClassData;
-		}
-
-		return classData;
-	}
-
-	private void analyseInnerClasses(CtClass loadingClass, ClassData newClassData) throws NotFoundException {
-		ClassFile classFile = loadingClass.getClassFile();
-
-		InnerClassesAttribute innerClassesAtt = (InnerClassesAttribute) classFile
-				.getAttribute(InnerClassesAttribute.tag);
-
-		if (innerClassesAtt != null) {
-			int index = innerClassesAtt.find(classFile.getName());
-
-			if (index != -1) {
-				newClassData.setOuterClass(innerClassesAtt.outerClass(index));
-			}
-
-			List<String> innerClasses = getInnerClasses(innerClassesAtt, loadingClass.getName());
-
-			ClassPool classPool = ClassPool.getDefault();
-
-			for (String innerClass : innerClasses) {
-				LOGGER.info("InnerClass: " + innerClass);
-				newClassData.addInnerClass(analyseClassHierachie(classPool.get(innerClass)));
-			}
-
-		}
-	}
-
-	private List<String> getInnerClasses(InnerClassesAttribute innerClassesAtt, String outerClassName) {
-		int length = innerClassesAtt.tableLength();
-
-		List<String> innerClasses = new ArrayList<>();
-
-		for (int i = 0; i < length; i++) {
-
-			if (!innerClassesAtt.innerClass(i).equals(outerClassName))
-				innerClasses.add(innerClassesAtt.innerClass(i));
-		}
-
-		return innerClasses;
-	}
-
-	private void analyseInterface(CtClass interfaceClass, ClassData classData) throws NotFoundException {
-		classData.addInterface(interfaceClass.getName());
-
-		for (CtClass interfaceCls : interfaceClass.getInterfaces()) {
-			analyseInterface(interfaceCls, classData);
-		}
 	}
 
 	private Analyser getAnalyserImplementation(ClassData classData, ClassFile classFile) {
