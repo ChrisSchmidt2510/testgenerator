@@ -61,21 +61,6 @@ public class ClassHierarchyAnalyserTest {
 
 		classData.addFields(Arrays.asList(codeArrayModificatorModel));
 
-		ClassData classDataModel = new ClassData(
-				"org.testgen.agent.classdata.modification.helper.CodeArrayModificator$CodeArrayModificatorModel");
-
-		FieldData codeArrayStartIndex = new FieldData.Builder().withName("codeArrayStartIndex")
-				.withDataType(Primitives.JAVA_INT).withModifier(Modifier.FINAL).build();
-		FieldData modificator = new FieldData.Builder().withName("modificator").withDataType(Primitives.JAVA_INT)
-				.withModifier(Modifier.FINAL).build();
-		FieldData parent = new FieldData.Builder().withName("this$0").withDataType(className)
-				.withModifier(Modifier.FINAL | AccessFlag.SYNTHETIC).build();
-
-		classDataModel.addFields(Arrays.asList(codeArrayStartIndex, modificator, parent));
-		classDataModel.setOuterClass(className);
-
-		classData.addInnerClass(classDataModel);
-
 		ClassData classDataLookup = new ClassData(Lookup.class.getName());
 
 		FieldData lookupClass = new FieldData.Builder().withName("lookupClass").withDataType(JavaTypes.CLASS)
@@ -113,6 +98,21 @@ public class ClassHierarchyAnalyserTest {
 		classDataLookup.addInnerClass(classDataMemberNameFactory);
 
 		classData.addInnerClass(classDataLookup);
+
+		ClassData classDataModel = new ClassData(
+				"org.testgen.agent.classdata.modification.helper.CodeArrayModificator$CodeArrayModificatorModel");
+
+		FieldData codeArrayStartIndex = new FieldData.Builder().withName("codeArrayStartIndex")
+				.withDataType(Primitives.JAVA_INT).withModifier(Modifier.FINAL).build();
+		FieldData modificator = new FieldData.Builder().withName("modificator").withDataType(Primitives.JAVA_INT)
+				.withModifier(Modifier.FINAL).build();
+		FieldData parent = new FieldData.Builder().withName("this$0").withDataType(className)
+				.withModifier(Modifier.FINAL | AccessFlag.SYNTHETIC).build();
+
+		classDataModel.addFields(Arrays.asList(codeArrayStartIndex, modificator, parent));
+		classDataModel.setOuterClass(className);
+
+		classData.addInnerClass(classDataModel);
 
 		return classData;
 	}

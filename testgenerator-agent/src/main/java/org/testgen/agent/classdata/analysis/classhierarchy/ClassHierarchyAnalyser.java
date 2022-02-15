@@ -123,10 +123,6 @@ public class ClassHierarchyAnalyser {
 		List<String> innerClasses = new ArrayList<>();
 
 		for (int i = 0; i < length; i++) {
-
-			System.out.println(
-					"Innerclass: " + innerClassesAtt.innerClass(i) + " Outerclass: " + innerClassesAtt.outerClass(i));
-
 			if (!innerClassesAtt.innerClass(i).equals(className))
 				innerClasses.add(innerClassesAtt.innerClass(i));
 		}
