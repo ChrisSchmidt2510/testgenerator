@@ -25,7 +25,7 @@ import javassist.bytecode.SignatureAttribute;
 
 public class ClassHierarchyAnalyser {
 
-	private Logger LOGGER = LogManager.getLogger(ClassHierarchyAnalyser.class);
+	private static final Logger LOGGER = LogManager.getLogger(ClassHierarchyAnalyser.class);
 
 	public ClassData analyseHierarchy(CtClass loadingClass) throws NotFoundException {
 		String className = loadingClass.getName();
