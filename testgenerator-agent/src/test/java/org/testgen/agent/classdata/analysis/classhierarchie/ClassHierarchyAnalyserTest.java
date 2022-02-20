@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -212,8 +213,12 @@ public class ClassHierarchyAnalyserTest {
 
 		assertEquals(expected.getInnerClasses().size(), result.getInnerClasses().size(), expected.getName());
 
-		for (int i = 0; i < expected.getInnerClasses().size(); i++) {
-			compareClassData(expected.getInnerClasses().get(i), result.getInnerClasses().get(i));
+		for (ClassData expectedInnerclass : expected.getInnerClasses()) {
+			ClassData resultInnerClass = result.getInnerClasses().stream()
+					.filter(cd -> cd.getName().equals(expectedInnerclass.getName())).findAny()
+					.orElseThrow(() -> new NoSuchElementException(expectedInnerclass.getName()));
+
+			compareClassData(expectedInnerclass, resultInnerClass);
 		}
 
 		assertEquals(expected.getInterfaces(), result.getInterfaces());

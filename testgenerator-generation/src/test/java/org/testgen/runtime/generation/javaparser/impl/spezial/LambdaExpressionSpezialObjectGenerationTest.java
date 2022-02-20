@@ -12,13 +12,14 @@ import java.util.function.Function;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.classdata.model.descriptor.SignatureType;
 import org.testgen.runtime.generation.api.naming.NamingServiceProvider;
 import org.testgen.runtime.generation.api.simple.SimpleObjectGenerationFactory;
 import org.testgen.runtime.generation.api.spezial.SpezialObjectGeneration;
 import org.testgen.runtime.generation.javaparser.impl.TestgeneratorPrettyPrinter;
 import org.testgen.runtime.generation.javaparser.impl.simple.JavaParserSimpleObjectGenerationFactory;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint.LambdaExpressionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
@@ -34,7 +35,7 @@ import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
 public class LambdaExpressionSpezialObjectGenerationTest {
 
 	private LambdaExpressionBluePrintFactory factory = new LambdaExpressionBluePrintFactory();
-	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	private CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	private Set<Class<?>> imports = new HashSet<>();
 
@@ -42,9 +43,9 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 
 	private SimpleObjectGenerationFactory<ClassOrInterfaceDeclaration, BlockStmt, Expression> simpleGenerationFactory = new JavaParserSimpleObjectGenerationFactory();
 
-	private DefaultPrettyPrinter printer= new DefaultPrettyPrinter(
-			(config) -> new TestgeneratorPrettyPrinter(config), new DefaultPrinterConfiguration());
-	
+	private DefaultPrettyPrinter printer = new DefaultPrettyPrinter((config) -> new TestgeneratorPrettyPrinter(config),
+			new DefaultPrinterConfiguration());
+
 	@BeforeEach
 	public void init() {
 		spezialGeneration.setImportCallBackHandler(imports::add);
@@ -66,7 +67,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		Function<Integer, String> mapper = (Function<Integer, String> & Serializable) i -> i.toString();
 
 		LambdaExpressionBluePrint bluePrint = (LambdaExpressionBluePrint) factory.createBluePrint("mapper", mapper,
-				currentlyBuildedBluePrints, null);
+				currentlyBuiltQueue, null);
 
 		ClassOrInterfaceDeclaration cu = new ClassOrInterfaceDeclaration(Modifier.createModifierList(Keyword.PUBLIC),
 				false, "Test");
@@ -92,7 +93,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		@SuppressWarnings("unchecked")
 		Consumer<String> consumer = (Consumer<String> & Serializable) s -> System.out.print(s);
 		LambdaExpressionBluePrint bluePrint = (LambdaExpressionBluePrint) factory.createBluePrint("consumer", consumer,
-				currentlyBuildedBluePrints, null);
+				currentlyBuiltQueue, null);
 
 		BlockStmt codeBlock = new BlockStmt();
 
@@ -107,7 +108,7 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		assertTrue(imports.contains(Consumer.class) && imports.contains(String.class)
 				&& imports.contains(Serializable.class));
 		assertTrue(bluePrint.isBuild());
-		
+
 		imports.clear();
 		bluePrint.resetBuildState();
 
@@ -116,63 +117,62 @@ public class LambdaExpressionSpezialObjectGenerationTest {
 		expected = "// TODO add initialization\r\n" + //
 				"this.consumer = (Consumer & Serializable) null;";
 		assertEquals(expected, codeBlock.getStatements().get(2).toString());
-		assertTrue(imports.contains(Consumer.class)
-				&& imports.contains(Serializable.class));
+		assertTrue(imports.contains(Consumer.class) && imports.contains(Serializable.class));
 		assertTrue(bluePrint.isBuild());
-		
+
 		imports.clear();
 		bluePrint.resetBuildState();
-		
+
 		spezialGeneration.createObject(codeBlock, bluePrint, null, false);
-		
+
 		expected = "// TODO add initialization\r\n" + //
 				"Consumer consumer = (Consumer & Serializable) null;";
 		assertEquals(expected, codeBlock.getStatements().get(4).toString());
-		assertTrue(imports.contains(Consumer.class)
-				&& imports.contains(Serializable.class));
+		assertTrue(imports.contains(Consumer.class) && imports.contains(Serializable.class));
 		assertTrue(bluePrint.isBuild());
 	}
-	
+
 	@Test
 	public void testCreateObjectWithLocals() {
 		int a = 42;
 		Runnable runnable = () -> System.out.println(a);
-		
+
 		NumberBluePrintFactory numberFactory = new NumberBluePrintFactory();
-		
-		LambdaExpressionBluePrint bluePrint = (LambdaExpressionBluePrint) factory.createBluePrint("runnable", runnable, currentlyBuildedBluePrints, (name, value)-> numberFactory.createBluePrint(name, (Number) value));
-		
+
+		LambdaExpressionBluePrint bluePrint = (LambdaExpressionBluePrint) factory.createBluePrint("runnable", runnable,
+				currentlyBuiltQueue, (name, value) -> numberFactory.createBluePrint(name, (Number) value));
+
 		BlockStmt codeBlock = new BlockStmt();
-		
+
 		SignatureType signature = new SignatureType(Runnable.class);
-		
+
 		spezialGeneration.createObject(codeBlock, bluePrint, signature, false);
-		
-		String expected = "{\r\n"+//
-		"    int arg$1 = 42;\r\n"+//
-		"\r\n"+//
-		"    // TODO add initialization\r\n"+//
-		"    Runnable runnable = null;\r\n"+//
-		"\r\n"+//
-		"}";
-		
+
+		String expected = "{\r\n" + //
+				"    int arg$1 = 42;\r\n" + //
+				"\r\n" + //
+				"    // TODO add initialization\r\n" + //
+				"    Runnable runnable = null;\r\n" + //
+				"\r\n" + //
+				"}";
+
 		assertEquals(expected, printer.print(codeBlock));
 		assertTrue(imports.contains(Runnable.class));
 		assertTrue(bluePrint.isBuild());
-		
+
 		bluePrint.resetBuildState();
 		imports.clear();
-		
+
 		BlockStmt block = new BlockStmt();
-		
+
 		spezialGeneration.createObject(block, bluePrint, signature, true);
-		
-		expected = "{\r\n"+//
-				"    int arg$1 = 42;\r\n"+//
-				"\r\n"+//
-				"    // TODO add initialization\r\n"+//
-				"    this.runnable = null;\r\n"+//
-				"\r\n"+//
+
+		expected = "{\r\n" + //
+				"    int arg$1 = 42;\r\n" + //
+				"\r\n" + //
+				"    // TODO add initialization\r\n" + //
+				"    this.runnable = null;\r\n" + //
+				"\r\n" + //
 				"}";
 		assertEquals(expected, printer.print(block));
 		assertTrue(imports.isEmpty());

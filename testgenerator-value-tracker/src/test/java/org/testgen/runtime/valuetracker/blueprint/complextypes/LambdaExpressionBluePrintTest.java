@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.proxy.Proxified;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.LambdaExpressionBluePrint.LambdaExpressionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
@@ -20,7 +20,7 @@ public class LambdaExpressionBluePrintTest {
 
 	private LambdaExpressionBluePrintFactory factory = new LambdaExpressionBluePrintFactory();
 
-	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	private CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	private NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
@@ -33,7 +33,7 @@ public class LambdaExpressionBluePrintTest {
 
 		assertTrue(factory.createBluePrintForType(run));
 		assertFalse(factory.createBluePrintForType(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				System.out.println(a);
@@ -45,17 +45,17 @@ public class LambdaExpressionBluePrintTest {
 		assertFalse(factory.createsSimpleBluePrint());
 		assertEquals(1, factory.getPriority());
 	}
-	
+
 	@Test
 	public void testTrackFunctionalInterface() {
 		Function<Integer, String> mapper = i -> i.toString();
-		
-		BluePrint bluePrint = factory.createBluePrint("mapper", mapper, currentlyBuildedBluePrints, null);
-	
+
+		BluePrint bluePrint = factory.createBluePrint("mapper", mapper, currentlyBuiltQueue, null);
+
 		assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
-		
+
 		LambdaExpressionBluePrint fiBluePrint = (LambdaExpressionBluePrint) bluePrint;
-		
+
 		assertEquals("mapper", fiBluePrint.getName());
 		assertTrue(fiBluePrint.isComplexType());
 		assertEquals(Function.class, fiBluePrint.getInterfaceClass());
@@ -68,7 +68,7 @@ public class LambdaExpressionBluePrintTest {
 		int a = 5;
 		Runnable run = (Runnable & Proxified) () -> System.out.println(a);
 
-		BluePrint bluePrint = factory.createBluePrint("runnable", run, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("runnable", run, currentlyBuiltQueue,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
 		assertTrue(bluePrint instanceof LambdaExpressionBluePrint);
@@ -84,5 +84,5 @@ public class LambdaExpressionBluePrintTest {
 		List<BluePrint> expectedList = Arrays.asList(numFactory.createBluePrint("arg$1", 5));
 		assertEquals(expectedList, fiBluePrint.getPreExecuteBluePrints());
 	}
-	
+
 }

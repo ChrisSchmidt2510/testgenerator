@@ -12,10 +12,10 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.core.ReflectionUtil;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
@@ -75,16 +75,12 @@ public class LambdaExpressionBluePrint extends BasicBluePrint<Object> {
 		return Objects.equals(name, other.name) && Objects.equals(interfaceClass, other.interfaceClass)
 				&& numOfParams == other.numOfParams && Objects.equals(locals, other.locals);
 	}
-	
-	
 
 	@Override
 	public String toString() {
 		return String.format("LambdaExpressionBluePrint [interfaceClass=%s, numOfParams=%s, locals=%s, name=%s]",
 				interfaceClass, numOfParams, locals, name);
 	}
-
-
 
 	public static class LambdaExpressionBluePrintFactory implements BluePrintFactory {
 
@@ -104,8 +100,7 @@ public class LambdaExpressionBluePrint extends BasicBluePrint<Object> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+		public BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 
 			Class<?> valueClass = value.getClass();
@@ -129,9 +124,8 @@ public class LambdaExpressionBluePrint extends BasicBluePrint<Object> {
 
 					LOGGER.debug("Tracking Value for Field: " + field.getName() + " with Value: " + fieldValue);
 
-					if (currentlyBuildedBluePrints.isCurrentlyBuilded(fieldValue))
-						currentlyBuildedBluePrints.addFinishedListener(fieldValue,
-								bp -> bluePrint.addLocalVariable(bp));
+					if (currentlyBuiltQueue.isCurrentlyBuilt(fieldValue))
+						currentlyBuiltQueue.addResultListener(fieldValue, bp -> bluePrint.addLocalVariable(bp));
 
 					else
 						bluePrint.addLocalVariable(childCallBack.apply(field.getName(), fieldValue));

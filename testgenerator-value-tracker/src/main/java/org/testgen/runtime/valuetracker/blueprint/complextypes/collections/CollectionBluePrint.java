@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
@@ -69,8 +69,7 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+		public BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 
 			CollectionBluePrint bluePrint;
@@ -94,8 +93,8 @@ public class CollectionBluePrint extends BasicCollectionBluePrint<Collection<?>>
 
 			for (Object object : collection) {
 
-				if (currentlyBuildedBluePrints.isCurrentlyBuilded(object))
-					currentlyBuildedBluePrints.addFinishedListener(object, bp -> bluePrint.addBluePrint(bp));
+				if (currentlyBuiltQueue.isCurrentlyBuilt(object))
+					currentlyBuiltQueue.addResultListener(object, bp -> bluePrint.addBluePrint(bp));
 
 				else {
 					BluePrint element = childCallBack.apply(name + "Element", object);

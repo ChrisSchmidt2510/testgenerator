@@ -15,9 +15,9 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
@@ -25,23 +25,23 @@ import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
 public class ProxyBluePrint extends BasicBluePrint<Object> {
 	private final Class<?>[] interfaceClasses;
 
-	private final CurrentlyBuildedBluePrints currentlyBuildedBluePrints;
+	private final CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue;
 	private final BiFunction<String, Object, BluePrint> callBackHandler;
 	private final List<Entry<Method, BluePrint>> proxyResults = new ArrayList<>();
 
 	private InvocationHandler invocationHandler;
 
-	ProxyBluePrint(String name, Object proxy, CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+	ProxyBluePrint(String name, Object proxy, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 			BiFunction<String, Object, BluePrint> callBackHandler) {
 		super(name, proxy);
 		this.interfaceClasses = proxy.getClass().getInterfaces();
-		this.currentlyBuildedBluePrints = currentlyBuildedBluePrints;
+		this.currentlyBuiltQueue = currentlyBuiltQueue;
 		this.callBackHandler = callBackHandler;
 	}
 
 	public void addProxyResult(Method method, Object value) {
-		if (currentlyBuildedBluePrints.isCurrentlyBuilded(value))
-			currentlyBuildedBluePrints.addFinishedListener(value, bp ->proxyResults.add(new SimpleEntry<>(method, bp)));
+		if (currentlyBuiltQueue.isCurrentlyBuilt(value))
+			currentlyBuiltQueue.addResultListener(value, bp -> proxyResults.add(new SimpleEntry<>(method, bp)));
 		else
 			proxyResults.add(new SimpleEntry<>(method, callBackHandler.apply(method.getName(), value)));
 	}
@@ -68,16 +68,16 @@ public class ProxyBluePrint extends BasicBluePrint<Object> {
 	}
 
 	public Class<?> getType() {
-		Optional<Class<?>> optType = Stream.of(interfaceClasses).filter(cls -> cls.getMethods().length > 0 && filterMethods(cls.getMethods()))
-				.findFirst();
-		
-		if(optType.isPresent())
+		Optional<Class<?>> optType = Stream.of(interfaceClasses)
+				.filter(cls -> cls.getMethods().length > 0 && filterMethods(cls.getMethods())).findFirst();
+
+		if (optType.isPresent())
 			return optType.get();
-		
+
 		return interfaceClasses[0];
 	}
-	
-	public List<Entry<Method, BluePrint>> getProxyResults(){
+
+	public List<Entry<Method, BluePrint>> getProxyResults() {
 		return Collections.unmodifiableList(proxyResults);
 	}
 
@@ -88,8 +88,6 @@ public class ProxyBluePrint extends BasicBluePrint<Object> {
 	public InvocationHandler getInvocationHandler() {
 		return invocationHandler;
 	}
-	
-	
 
 	@Override
 	public int hashCode() {
@@ -107,19 +105,16 @@ public class ProxyBluePrint extends BasicBluePrint<Object> {
 		if (!(obj instanceof ProxyBluePrint))
 			return false;
 		ProxyBluePrint other = (ProxyBluePrint) obj;
-		return Arrays.equals(interfaceClasses, other.interfaceClasses)
-				&& Objects.equals(name, other.name)
+		return Arrays.equals(interfaceClasses, other.interfaceClasses) && Objects.equals(name, other.name)
 				&& Objects.equals(invocationHandler, other.invocationHandler)
 				&& Objects.equals(proxyResults, other.proxyResults);
 	}
 
 	@Override
 	public String toString() {
-		return "ProxyBluePrint [ name=" + name + ", interfaceClasses=" + Arrays.toString(interfaceClasses) + ", proxyResults="
-				+ proxyResults + ", invocationHandler=" + invocationHandler + "]";
+		return "ProxyBluePrint [ name=" + name + ", interfaceClasses=" + Arrays.toString(interfaceClasses)
+				+ ", proxyResults=" + proxyResults + ", invocationHandler=" + invocationHandler + "]";
 	}
-
-
 
 	public static class ProxyBluePrintFactory implements BluePrintFactory {
 
@@ -131,11 +126,10 @@ public class ProxyBluePrint extends BasicBluePrint<Object> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+		public BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 
-			ProxyBluePrint proxyBluePrint = new ProxyBluePrint(name, value, currentlyBuildedBluePrints, childCallBack);
+			ProxyBluePrint proxyBluePrint = new ProxyBluePrint(name, value, currentlyBuiltQueue, childCallBack);
 
 			try {
 				proxyBluePrint.invocationHandler = Proxy.getInvocationHandler(value);

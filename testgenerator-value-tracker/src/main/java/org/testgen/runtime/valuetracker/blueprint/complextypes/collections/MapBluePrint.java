@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BasicCollectionBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
@@ -100,8 +100,7 @@ public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+		public BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 			Map<?, ?> map = (Map<?, ?>) value;
 
@@ -112,23 +111,22 @@ public class MapBluePrint extends BasicCollectionBluePrint<Map<?, ?>> {
 				Object key = entry.getKey();
 				Object entryValue = entry.getValue();
 
-				boolean keyIsCurrentlyBuilded = currentlyBuildedBluePrints.isCurrentlyBuilded(key);
-				boolean valueIsCurrentlyBuilded = currentlyBuildedBluePrints.isCurrentlyBuilded(entryValue);
+				boolean keyIsCurrentlyBuilded = currentlyBuiltQueue.isCurrentlyBuilt(key);
+				boolean valueIsCurrentlyBuilded = currentlyBuiltQueue.isCurrentlyBuilt(entryValue);
 
 				if (keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
-					currentlyBuildedBluePrints.addFinishedListener(key, value,
+					currentlyBuiltQueue.addResultListener(key, value,
 							(bpKey, bpValue) -> mapBluePrint.addKeyValuePair(bpKey, bpValue));
 
 				} else if (keyIsCurrentlyBuilded && !valueIsCurrentlyBuilded) {
 					BluePrint valueBluePrint = childCallBack.apply(name + "Value", entryValue);
 
-					currentlyBuildedBluePrints.addFinishedListener(key,
-							bp -> mapBluePrint.addKeyValuePair(bp, valueBluePrint));
+					currentlyBuiltQueue.addResultListener(key, bp -> mapBluePrint.addKeyValuePair(bp, valueBluePrint));
 
 				} else if (!keyIsCurrentlyBuilded && valueIsCurrentlyBuilded) {
 					BluePrint keyBluePrint = childCallBack.apply(name + "Key", key);
 
-					currentlyBuildedBluePrints.addFinishedListener(entryValue,
+					currentlyBuiltQueue.addResultListener(entryValue,
 							bp -> mapBluePrint.addKeyValuePair(keyBluePrint, bp));
 
 				} else {

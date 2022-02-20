@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.junit.jupiter.api.Test;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.CollectionBluePrint.CollectionBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
@@ -34,7 +34,7 @@ public class CollectionBluePrintTest {
 
 	private NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
-	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	private CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	@Test
 	public void testBluePrintFactory() {
@@ -49,7 +49,7 @@ public class CollectionBluePrintTest {
 	public void testTrackList() {
 		List<String> list = new ArrayList<>(Arrays.asList("Christoph", "Schmidt", "Word"));
 
-		BluePrint bluePrint = factory.createBluePrint("collection", list, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("collection", list, currentlyBuiltQueue,
 				(name, value) -> strFactory.createBluePrint(name, (String) value));
 
 		assertTrue(bluePrint.isCollectionBluePrint());
@@ -75,7 +75,7 @@ public class CollectionBluePrintTest {
 		set.add(8);
 		set.add(7);
 
-		BluePrint bluePrint = factory.createBluePrint("set", set, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("set", set, currentlyBuiltQueue,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
 		assertTrue(bluePrint.isCollectionBluePrint());
@@ -101,7 +101,7 @@ public class CollectionBluePrintTest {
 		deque.push(12L);
 		deque.push(0L);
 
-		BluePrint bluePrint = factory.createBluePrint("deque", deque, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("deque", deque, currentlyBuiltQueue,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
 		assertTrue(bluePrint.isCollectionBluePrint());
@@ -127,7 +127,7 @@ public class CollectionBluePrintTest {
 		queue.offer("Exel");
 		queue.offer("Powerpoint");
 
-		BluePrint bluePrint = factory.createBluePrint("queue", queue, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("queue", queue, currentlyBuiltQueue,
 				(name, value) -> strFactory.createBluePrint(name, (String) value));
 
 		assertTrue(bluePrint.isCollectionBluePrint());
@@ -154,7 +154,7 @@ public class CollectionBluePrintTest {
 		abstractCollection.add(9);
 		abstractCollection.add(8);
 
-		BluePrint bluePrint = factory.createBluePrint("collection", abstractCollection, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("collection", abstractCollection, currentlyBuiltQueue,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
 		assertTrue(bluePrint.isCollectionBluePrint());
@@ -184,10 +184,10 @@ public class CollectionBluePrintTest {
 				(Number) value);
 
 		BiFunction<String, Object, BluePrint> function = (name, value) -> factory.createBluePrintForType(value)
-				? factory.createBluePrint(name, value, currentlyBuildedBluePrints, numFunction)
+				? factory.createBluePrint(name, value, currentlyBuiltQueue, numFunction)
 				: numFunction.apply(name, value);
 
-		BluePrint bluePrint = factory.createBluePrint("values", values, currentlyBuildedBluePrints, function);
+		BluePrint bluePrint = factory.createBluePrint("values", values, currentlyBuiltQueue, function);
 
 		CollectionBluePrint collection = (CollectionBluePrint) bluePrint;
 		assertEquals(2, collection.getPreExecuteBluePrints().size());
@@ -196,12 +196,12 @@ public class CollectionBluePrintTest {
 		childBp.addBluePrint(numFactory.createBluePrint("valuesElementElement", 1));
 		childBp.addBluePrint(numFactory.createBluePrint("valuesElementElement", 2));
 		childBp.addBluePrint(numFactory.createBluePrint("valuesElementElement", 3));
-		
+
 		CollectionBluePrint childBp2 = new CollectionBluePrint("valuesElement", new ArrayList<>(), List.class);
 		childBp2.addBluePrint(numFactory.createBluePrint("valuesElementElement", 7));
 		childBp2.addBluePrint(numFactory.createBluePrint("valuesElementElement", 8));
 		childBp2.addBluePrint(numFactory.createBluePrint("valuesElementElement", 9));
-		
+
 		assertEquals(Arrays.asList(childBp, childBp2), collection.getBluePrints());
 	}
 

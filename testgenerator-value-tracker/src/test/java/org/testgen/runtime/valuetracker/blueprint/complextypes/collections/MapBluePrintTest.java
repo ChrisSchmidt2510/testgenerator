@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.junit.jupiter.api.Test;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.collections.MapBluePrint.MapBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
@@ -28,7 +28,7 @@ public class MapBluePrintTest {
 
 	private NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
-	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	private CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	@Test
 	public void testBluePrintFactory() {
@@ -51,7 +51,7 @@ public class MapBluePrintTest {
 				? numFactory.createBluePrint(name, (Number) value)
 				: strFactory.createBluePrint(name, (String) value);
 
-		BluePrint bluePrint = factory.createBluePrint("dictionary", map, currentlyBuildedBluePrints, mapper);
+		BluePrint bluePrint = factory.createBluePrint("dictionary", map, currentlyBuiltQueue, mapper);
 
 		assertTrue(bluePrint.isCollectionBluePrint());
 

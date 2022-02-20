@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ComplexBluePrint.ComplexBluePrintFactory;
@@ -40,7 +40,7 @@ public class ComplexBluePrintTest {
 
 	private LocalDateBluePrintFactory localDateFactory = new LocalDateBluePrintFactory();
 
-	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	private CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	private BluePrintsFactory bluePrintFactory = new BluePrintsFactory();
 
@@ -53,8 +53,8 @@ public class ComplexBluePrintTest {
 	}
 
 	private BluePrint createBluePrint(String name, Object value) {
-		return bluePrintFactory.getBluePrintFactory(value).get().createBluePrint(name, value,
-				currentlyBuildedBluePrints, (n, v) -> createBluePrint(n, v));
+		return bluePrintFactory.getBluePrintFactory(value).get().createBluePrint(name, value, currentlyBuiltQueue,
+				(n, v) -> createBluePrint(n, v));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class ComplexBluePrintTest {
 		person.setAedat(LocalDate.of(2020, Month.DECEMBER, 20));
 		person.setErsb("Me");
 
-		BluePrint bluePrint = factory.createBluePrint("person", person, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("person", person, currentlyBuiltQueue,
 				(name, value) -> createBluePrint(name, value));
 
 		assertTrue(bluePrint.isComplexBluePrint());
@@ -95,7 +95,7 @@ public class ComplexBluePrintTest {
 		complexBluePrint.addBluePrint(numFactory.createBluePrint("plz", 90402));
 
 		CollectionBluePrint collectionBluePrint = (CollectionBluePrint) collectionFactory.createBluePrint("adressen",
-				new ArrayList<>(), currentlyBuildedBluePrints, (name, value) -> createBluePrint(name, value));
+				new ArrayList<>(), currentlyBuiltQueue, (name, value) -> createBluePrint(name, value));
 		collectionBluePrint.addBluePrint(complexBluePrint);
 
 		compareList.add(collectionBluePrint);
@@ -108,7 +108,7 @@ public class ComplexBluePrintTest {
 	@Test
 	public void trackComplexTypeForJDKTypes() {
 		assertThrows(TrackingException.class,
-				() -> factory.createBluePrint("object", new Object(), currentlyBuildedBluePrints,
+				() -> factory.createBluePrint("object", new Object(), currentlyBuiltQueue,
 						(name, value) -> createBluePrint(name, value)),
 				"cant create ComplexBluePrints for JDK Classes. Extend the List of SimpleBluePrints");
 	}

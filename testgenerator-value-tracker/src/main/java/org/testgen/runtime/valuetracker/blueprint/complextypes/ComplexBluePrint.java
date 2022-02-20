@@ -9,11 +9,11 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.core.ReflectionUtil;
 import org.testgen.core.TestgeneratorConstants;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
 import org.testgen.runtime.valuetracker.ObjectValueTracker;
 import org.testgen.runtime.valuetracker.TrackingException;
 import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
@@ -113,8 +113,7 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+		public BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 			Class<? extends Object> valueClass = value.getClass();
 			String packageName = valueClass.getPackage().getName();
@@ -129,18 +128,18 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 
 			ComplexBluePrint bluePrint = new ComplexBluePrint(name, value);
 
-			trackValues(value, valueClass, bluePrint, currentlyBuildedBluePrints, childCallBack);
+			trackValues(value, valueClass, bluePrint, currentlyBuiltQueue, childCallBack);
 
 			while (!valueClass.getSuperclass().equals(Object.class)) {
 				valueClass = valueClass.getSuperclass();
-				trackValues(value, valueClass, bluePrint, currentlyBuildedBluePrints, childCallBack);
+				trackValues(value, valueClass, bluePrint, currentlyBuiltQueue, childCallBack);
 			}
 
 			return bluePrint;
 		}
 
 		private void trackValues(Object value, Class<?> valueClass, ComplexBluePrint bluePrint,
-				CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+				CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 			for (Field field : valueClass.getDeclaredFields()) {
 				try {
@@ -155,10 +154,11 @@ public class ComplexBluePrint extends BasicBluePrint<Object> {
 							|| fieldValue instanceof ObjectValueTracker || field.getName().contains(JACOCO))
 						continue;
 
-					LOGGER.debug("Tracking Value for Field: " + field.getName() + " from Class: " + fieldValue.getClass());
+					LOGGER.debug(
+							"Tracking Value for Field: " + field.getName() + " from Class: " + fieldValue.getClass());
 
-					if (currentlyBuildedBluePrints.isCurrentlyBuilded(fieldValue))
-						currentlyBuildedBluePrints.addFinishedListener(fieldValue, bp -> bluePrint.addBluePrint(bp));
+					if (currentlyBuiltQueue.isCurrentlyBuilt(fieldValue))
+						currentlyBuiltQueue.addResultListener(fieldValue, bp -> bluePrint.addBluePrint(bp));
 
 					else {
 						String name = value.getClass().isMemberClass() && OUTER_CLASS_FIELD_NAME.equals(field.getName())

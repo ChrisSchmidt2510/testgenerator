@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.complextypes.ProxyBluePrint.ProxyBluePrintFactory;
 import org.testgen.runtime.valuetracker.blueprint.simpletypes.NumberBluePrint.NumberBluePrintFactory;
@@ -28,7 +28,7 @@ public class ProxyBluePrintTest {
 
 	private ProxyBluePrintFactory factory = new ProxyBluePrintFactory();
 
-	private CurrentlyBuildedBluePrints currentlyBuildedBluePrints = new CurrentlyBuildedBluePrints();
+	private CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	private NumberBluePrintFactory numFactory = new NumberBluePrintFactory();
 
@@ -57,7 +57,7 @@ public class ProxyBluePrintTest {
 
 	@Test
 	public void testProxyBluePrint() {
-		BluePrint bluePrint = factory.createBluePrint("proxy", proxyInstance, currentlyBuildedBluePrints,
+		BluePrint bluePrint = factory.createBluePrint("proxy", proxyInstance, currentlyBuiltQueue,
 				(name, value) -> numFactory.createBluePrint(name, (Number) value));
 
 		assertTrue(bluePrint instanceof ProxyBluePrint);
@@ -69,15 +69,16 @@ public class ProxyBluePrintTest {
 		assertEquals(handler.getClass(), proxy.getInvocationHandler().getClass());
 
 		Method method = null;
-		
+
 		try {
 			method = ProxyTest.class.getMethod("multiplier", Integer.TYPE, Integer.TYPE);
 		} catch (NoSuchMethodException | SecurityException e) {
 			fail(e);
 		}
-		
+
 		proxy.addProxyResult(method, 11);
-		assertEquals(Arrays.asList(new SimpleEntry<>(method, numFactory.createBluePrint("multiplier", 11))), proxy.getProxyResults());
+		assertEquals(Arrays.asList(new SimpleEntry<>(method, numFactory.createBluePrint("multiplier", 11))),
+				proxy.getProxyResults());
 	}
 
 	public interface ProxyTest {

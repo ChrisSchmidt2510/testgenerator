@@ -31,6 +31,7 @@ public abstract class ValueTrackerTransformerHelper {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void negativeTest() {
 
 	}

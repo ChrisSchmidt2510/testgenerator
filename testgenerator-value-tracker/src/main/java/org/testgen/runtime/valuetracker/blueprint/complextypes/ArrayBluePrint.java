@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BasicBluePrint;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.factories.BluePrintFactory;
@@ -110,11 +110,11 @@ public class ArrayBluePrint extends BasicBluePrint<Object> {
 
 		@Override
 		public boolean createBluePrintForType(Object value) {
-			return value != null &&value.getClass().isArray();
+			return value != null && value.getClass().isArray();
 		}
 
 		@Override
-		public BluePrint createBluePrint(String name, Object value, CurrentlyBuildedBluePrints currentlyBuildedBluePrints,
+		public BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 				BiFunction<String, Object, BluePrint> childCallBack) {
 			int length = Array.getLength(value);
 
@@ -125,9 +125,9 @@ public class ArrayBluePrint extends BasicBluePrint<Object> {
 
 				if (element != null) {
 
-					if (currentlyBuildedBluePrints.isCurrentlyBuilded(element)) {
+					if (currentlyBuiltQueue.isCurrentlyBuilt(element)) {
 						int index = i;
-						currentlyBuildedBluePrints.addFinishedListener(element, bp -> arrayBluePrint.add(index, bp));
+						currentlyBuiltQueue.addResultListener(element, bp -> arrayBluePrint.add(index, bp));
 
 					} else {
 						BluePrint bluePrint = childCallBack.apply(name + "Element", element);

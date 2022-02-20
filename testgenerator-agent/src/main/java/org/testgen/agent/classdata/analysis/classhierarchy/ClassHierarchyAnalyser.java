@@ -11,6 +11,7 @@ import org.testgen.agent.classdata.model.ClassData;
 import org.testgen.agent.classdata.model.ClassDataStorage;
 import org.testgen.agent.classdata.model.FieldData;
 import org.testgen.agent.classdata.model.SignatureData;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
 
@@ -25,6 +26,8 @@ import javassist.bytecode.SignatureAttribute;
 
 public class ClassHierarchyAnalyser {
 
+	private CurrentlyBuiltQueue<ClassData> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
+
 	private static final Logger LOGGER = LogManager.getLogger(ClassHierarchyAnalyser.class);
 
 	public ClassData analyseHierarchy(CtClass loadingClass) throws NotFoundException {
@@ -35,18 +38,26 @@ public class ClassHierarchyAnalyser {
 		if (classData != null)
 			return classData;
 
+		currentlyBuiltQueue.register(loadingClass);
+
 		ClassData newClassData = new ClassData(className);
 
 		LOGGER.info("ClassName: " + className);
 		newClassData.addFields(analyseFields(loadingClass.getClassFile()));
 
-		String superClassName = loadingClass.getSuperclass() != null ? loadingClass.getSuperclass().getName() : null;
+		CtClass superclass = loadingClass.getSuperclass();
+		String superClassName = superclass != null ? superclass.getName() : null;
 
 		if (!JavaTypes.OBJECT.equals(superClassName) && !JavaTypes.ENUM.equals(superClassName)) {
-			LOGGER.info("SuperClass: " + loadingClass.getSuperclass().getName());
+			LOGGER.info("SuperClass: " + superClassName);
 
-			ClassDataStorage.getInstance().addSuperclassToLoad(loadingClass.getSuperclass().getName());
-			newClassData.setSuperClass(analyseHierarchy(loadingClass.getSuperclass()));
+			ClassDataStorage.getInstance().addSuperclassToLoad(superClassName);
+
+			if (currentlyBuiltQueue.isCurrentlyBuilt(superclass))
+				currentlyBuiltQueue.addResultListener(superclass, cd -> newClassData.setSuperClass(cd));
+
+			else
+				newClassData.setSuperClass(analyseHierarchy(superclass));
 		}
 
 		analyseInnerClasses(loadingClass, newClassData);
@@ -56,6 +67,7 @@ public class ClassHierarchyAnalyser {
 		}
 
 		ClassDataStorage.getInstance().addClassData(className, newClassData);
+		currentlyBuiltQueue.executeResultListener(loadingClass, newClassData);
 
 		return newClassData;
 	}
@@ -76,7 +88,7 @@ public class ClassHierarchyAnalyser {
 					}
 
 				} catch (SignatureParserException e) {
-					LOGGER.error("error while parsing signature " + signature, e);
+					LOGGER.error("error while parsing signature " + signature.getSignature());
 				}
 
 				FieldData fieldData = new FieldData.Builder()
@@ -109,9 +121,14 @@ public class ClassHierarchyAnalyser {
 
 			ClassPool classPool = ClassPool.getDefault();
 
-			for (String innerClass : innerClasses) {
-				LOGGER.info("InnerClass: " + innerClass);
-				newClassData.addInnerClass(analyseHierarchy(classPool.get(innerClass)));
+			for (String innerClassName : innerClasses) {
+				LOGGER.info("InnerClass: " + innerClassName + " of class " + newClassData.getName());
+
+				CtClass innerClass = classPool.get(innerClassName);
+				if (currentlyBuiltQueue.isCurrentlyBuilt(innerClass))
+					currentlyBuiltQueue.addResultListener(innerClass, cd -> newClassData.addInnerClass(cd));
+				else
+					newClassData.addInnerClass(analyseHierarchy(innerClass));
 			}
 
 		}
@@ -123,6 +140,7 @@ public class ClassHierarchyAnalyser {
 		List<String> innerClasses = new ArrayList<>();
 
 		for (int i = 0; i < length; i++) {
+
 			if (!innerClassesAtt.innerClass(i).equals(className))
 				innerClasses.add(innerClassesAtt.innerClass(i));
 		}

@@ -2,7 +2,7 @@ package org.testgen.runtime.valuetracker.blueprint.factories;
 
 import java.util.function.BiFunction;
 
-import org.testgen.runtime.valuetracker.CurrentlyBuildedBluePrints;
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.runtime.valuetracker.blueprint.BluePrint;
 import org.testgen.runtime.valuetracker.blueprint.SimpleBluePrint;
 
@@ -12,7 +12,7 @@ public interface SimpleBluePrintFactory<T> extends BluePrintFactory {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	default BluePrint createBluePrint(String name, Object value, CurrentlyBuildedBluePrints registration,
+	default BluePrint createBluePrint(String name, Object value, CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue,
 			BiFunction<String, Object, BluePrint> childCallBack) {
 		return createBluePrint(name, (T) value);
 	}

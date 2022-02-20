@@ -11,6 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.testgen.core.CurrentlyBuiltQueue;
 import org.testgen.core.MapBuilder;
 import org.testgen.logging.LogManager;
 import org.testgen.logging.Logger;
@@ -45,7 +46,7 @@ public final class ObjectValueTracker {
 
 	private final Map<Class<?>, List<BluePrint>> bluePrintsPerClass = new HashMap<>();
 
-	private final CurrentlyBuildedBluePrints registration = new CurrentlyBuildedBluePrints();
+	private final CurrentlyBuiltQueue<BluePrint> currentlyBuiltQueue = new CurrentlyBuiltQueue<>();
 
 	private ObjectValueTracker() {
 	}
@@ -60,19 +61,19 @@ public final class ObjectValueTracker {
 
 	public ProxyBluePrint trackProxy(Object proxy, String name) {
 		ProxyBluePrint proxyBluePrint = trackProxyValue(proxy, name);
-		
+
 		ValueStorage.getInstance().addProxyBluePrint(proxyBluePrint);
-		
+
 		return proxyBluePrint;
 	}
 
 	BluePrint trackNormalValue(Object value, String name) {
-		if(Proxy.isProxyClass(value.getClass()))
+		if (Proxy.isProxyClass(value.getClass()))
 			throw new IllegalArgumentException("cant track Values for Proxies use trackProxyValue");
-		
+
 		LOGGER.info("Start Tracking Values for Object: " + name + " " + value);
 
-		registration.register(value);
+		currentlyBuiltQueue.register(value);
 
 		BluePrint bluePrint = null;
 
@@ -84,19 +85,19 @@ public final class ObjectValueTracker {
 			BiFunction<String, Object, BluePrint> childCallBack = (newName, newValue) -> trackValue(newValue, newName);
 
 			if (factory.createsSimpleBluePrint())
-				bluePrint = factory.createBluePrint(name, value, registration, childCallBack);
+				bluePrint = factory.createBluePrint(name, value, currentlyBuiltQueue, childCallBack);
 			else
 				bluePrint = getBluePrintForReference(value,
-						() -> factory.createBluePrint(name, value, registration, childCallBack));
+						() -> factory.createBluePrint(name, value, currentlyBuiltQueue, childCallBack));
 
 		} else
 			throw new TrackingException(String.format("no factory available for object %s", value));
 
-		registration.executeActions(value, bluePrint);
+		currentlyBuiltQueue.executeResultListener(value, bluePrint);
 
 		return bluePrint;
 	}
-	
+
 	ProxyBluePrint trackProxyValue(Object proxy, String name) {
 		if (!Proxy.isProxyClass(proxy.getClass()))
 			throw new IllegalArgumentException(proxy + "is no proxy");
@@ -109,18 +110,18 @@ public final class ObjectValueTracker {
 		BluePrintFactory factory = factoryOpt.get();
 
 		ProxyBluePrint proxyBluePrint = (ProxyBluePrint) getBluePrintForReference(proxy,
-				() -> factory.createBluePrint(name, proxy, registration,
+				() -> factory.createBluePrint(name, proxy, currentlyBuiltQueue,
 						(childName, childValue) -> trackValue(childValue, childName)));
-		
+
 		return proxyBluePrint;
 	}
-	
+
 	private BluePrint trackValue(Object value, String name) {
 		Object unwrappedValue = getTestgeneratorProxyValue(value);
-		
-		if(Proxy.isProxyClass(unwrappedValue.getClass()))
+
+		if (Proxy.isProxyClass(unwrappedValue.getClass()))
 			return trackProxyValue(unwrappedValue, name);
-		
+
 		return trackNormalValue(unwrappedValue, name);
 	}
 
